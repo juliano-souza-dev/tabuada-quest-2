@@ -462,9 +462,9 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #1 — Fechar escopo funcional do 2.0 e matriz de legado  
+**Issue ativa:** #2 — Completar contratos das personas e governança do Orquestrador  
 **Estado:** EM EXECUÇÃO  
-**Próxima issue:** #2 — BLOQUEADA até fechamento formal da #1  
+**Próxima issue:** #3 — BLOQUEADA até fechamento formal da #2  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
 
@@ -530,27 +530,28 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 ### Estado do pedido atual
 
-O usuário declarou que a primeira etapa conceitual está documentada e autorizou o início da **versão 1 do jogo**.
+O usuário autorizou o início da **versão 1 do jogo**.
 
-Entretanto, pelo gate vigente:
+A Issue #1 foi concluída e fechada com a matriz de escopo consolidada em `DEC-003`.
 
-1. a Issue #1 precisa ser formalmente encerrada;
-2. a Issue #2 precisa ser liberada e concluída;
+Pelo gate vigente:
+
+1. a Issue #2 está liberada e em execução;
+2. a Issue #3 permanece bloqueada até o fechamento formal da #2;
 3. somente depois a fila avança para #3, #4, #5, #6 e #7;
 4. a primeira implementação jogável completa da M1 culmina na #7.
 
-O pedido para iniciar a V1 **não autoriza pular issues**.
-
 ### Próximo passo permitido
 
-Finalizar formalmente a Issue #1:
+Executar e concluir a Issue #2:
 
-- consolidar a matriz de escopo/legado;
-- marcar seus critérios como atendidos;
-- registrar a validação;
-- fechar #1 como concluída;
+- criar os contratos formais das personas faltantes;
+- preservar a Direção Visual já formalizada;
+- apontar o Orquestrador para os contratos corretos;
+- validar autoridade, limites, entregas e handoffs;
+- fechar #2;
 - atualizar este checkpoint;
-- liberar somente então a Issue #2.
+- liberar somente então a Issue #3.
 
 ## Diário operacional
 
@@ -559,13 +560,14 @@ Finalizar formalmente a Issue #1:
 - Orquestrador estabelecido como primeiro agente obrigatório.
 - Gate sequencial de milestones/issues estabelecido.
 - 20 issues criadas e distribuídas em 3 milestones.
-- Issue #1 permanece ativa.
+- Issue #1 foi concluída e fechada.
 - DEC-001 e DEC-002 criadas/atualizadas.
 - Direção Visual formalizada com identidade pirata, contratos de otimização e avatares-base.
 - Estrutura Região/Ilha, 30 PETs, 30 baús, 5 mapas e Diamantes registrada.
 - Usuário autorizou início da V1.
 - Foi adicionada a exigência de que **todo o processo seja documentado no Orquestrador para continuidade por qualquer IA**.
-- Nenhuma issue posterior foi liberada neste checkpoint.
+- Issue #2 foi liberada após o fechamento da #1.
+- Issue #3 e posteriores permanecem bloqueadas.
 - `MAPA-DO-PROJETO.md` criado na raiz como mapa físico/técnico obrigatório.
 - Empacotamento Android, caminhos de build, localização de referências e caminhos ainda pendentes foram registrados.
 - Toda IA agora deve ler Orquestrador + Mapa do Projeto antes de executar qualquer tarefa.
