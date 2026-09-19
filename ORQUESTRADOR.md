@@ -1237,3 +1237,41 @@ fundo                0px X /   0px Y
 Regra: Desenvolvimento deve aplicar os valores exatamente, aos slots dinâmicos, sem ajustes subjetivos adicionais.
 
 A #23 permanece aberta aguardando implementação e validação visual do líder.
+
+
+### Issue #23 implementada
+
+A calibração pixel-perfect definida pelo líder foi aplicada exatamente.
+
+```text
+commit visual = e7ed45a9891df572d5834d7b314c56ad77ec72b5
+commit CI     = 4c8a438579aa387afe125c2edf67a527dc83343e
+```
+
+Offsets aplicados aos slots dinâmicos:
+
+```text
+avatar decorativo  +15px /  +2px
+avatar simples     +12px /  +9px
+nome                +2px / +10px
+nível               +3px /  +4px
+XP                  +1px /  +9px
+moedas              +4px / +11px
+gemas               +4px /  +9px
+próximo baú         -2px /  +1px
+PETS                +3px /  -7px
+personagem           0px /   0px
+fundo                0px /   0px
+```
+
+Validações:
+
+```text
+Web Preview     35475076822 → success
+Web Unit Tests  35475094612 → success
+Android Debug   35475076850 → success
+```
+
+Estado: AGUARDANDO VALIDAÇÃO VISUAL DO LÍDER.
+
+A #23 permanece aberta até aprovação explícita.
