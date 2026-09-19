@@ -58,14 +58,14 @@
 }
 
 .profile-slot.is-simple {
-    left: 3.4%;
-    top: 1.35%;
+    left: 6.4457%;
+    top: 2.6376%;
     width: 14.2%;
 }
 
 .profile-slot.has-frame {
-    left: -1.2%;
-    top: .15%;
+    left: 2.6071%;
+    top: .4361%;
     width: 22%;
 }
 
@@ -100,8 +100,8 @@
 .hud-name-slot {
     position: absolute;
     z-index: 10;
-    left: 20.2%;
-    top: 3.8%;
+    left: 20.7076%;
+    top: 5.2306%;
     width: 21.5%;
     color: #5c2c13;
     font-size: clamp(.6rem, 1.9vh, .86rem);
@@ -116,8 +116,8 @@
 .hud-level-slot {
     position: absolute;
     z-index: 10;
-    left: 42.6%;
-    top: 2.65%;
+    left: 43.3614%;
+    top: 3.2222%;
     width: 10.1%;
     height: 4.6%;
     display: grid;
@@ -132,8 +132,8 @@
 .hud-xp-slot {
     position: absolute;
     z-index: 10;
-    left: 54.6%;
-    top: 3.55%;
+    left: 54.8538%;
+    top: 4.8376%;
     width: 17.4%;
     height: 1.85%;
     overflow: hidden;
@@ -178,15 +178,15 @@
 }
 
 .wallet-value.coins {
-    left: 80.1%;
-    top: 2.75%;
+    left: 81.1152%;
+    top: 4.3237%;
     width: 11.8%;
     height: 2.9%;
 }
 
 .wallet-value.gems {
-    left: 80.1%;
-    top: 6.15%;
+    left: 81.1152%;
+    top: 7.4376%;
     width: 11.8%;
     height: 2.9%;
     color: #0e5f87;
@@ -230,8 +230,8 @@
 .reward-dynamic-bar {
     position: absolute;
     z-index: 12;
-    left: 22.8%;
-    top: 70.2%;
+    left: 22.2924%;
+    top: 70.3431%;
     width: 40.1%;
     height: 2.05%;
     overflow: hidden;
@@ -260,8 +260,8 @@
 .pet-dynamic-count {
     position: absolute;
     z-index: 12;
-    left: 26.2%;
-    top: 94.15%;
+    left: 26.9614%;
+    top: 93.1486%;
     width: 18.8%;
     height: 2.4%;
     display: grid;
