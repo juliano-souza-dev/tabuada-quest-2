@@ -492,9 +492,9 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #5 — Medir carga pedagógica de referência e fechar o scheduler intercalado  
-**Estado:** LIBERADA / AGUARDANDO EXECUÇÃO  
-**Próxima issue:** #6 — BLOQUEADA até fechamento formal da #5  
+**Issue ativa:** #4 — Definir arquitetura web, domínio, persistência e estratégia de testes  
+**Estado:** REABERTA / REPROVADA VISUALMENTE PELO USUÁRIO  
+**Próxima issue:** #5 — BLOQUEADA até nova aprovação e fechamento formal da #4  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
 
@@ -680,15 +680,51 @@ Documento:
 docs/validacao/ISSUE-004-arquitetura-mobile.md
 ```
 
+### Reprovação visual da Issue #4
+
+A aprovação anterior da camada visual foi invalidada por feedback explícito do usuário em 2026-09-19.
+
+Falha de processo identificada:
+
+- Desenvolvimento assumiu decisões de composição visual que pertenciam à Direção Visual;
+- Experience Validator aprovou cedo demais;
+- a Home publicada foi considerada insatisfatória pelo usuário;
+- portanto a Issue #4 foi reaberta.
+
+Ordem obrigatória de correção:
+
+```text
+Direção Visual
+  ↓
+Experience Validator
+  ↓
+Desenvolvimento
+  ↓
+Qualidade + Preview
+```
+
+A Direção Visual deve definir primeiro:
+
+- composição da Home;
+- hierarquia do HUD;
+- escala e posição do personagem;
+- uso do cenário;
+- botão principal;
+- atalhos;
+- densidade mobile;
+- adaptação integral ao tema pirata mágico.
+
+Desenvolvimento só implementa depois dessa definição.
+
 ### Próximo passo permitido
 
-Executar a Issue #5:
+Corrigir a camada visual da Issue #4 sob liderança da Direção Visual.
 
 ```text
 [M1-05] Medir carga pedagógica de referência e fechar o scheduler intercalado
 ```
 
-A #6 permanece bloqueada até o fechamento formal da #5.
+A #5 permanece bloqueada até a nova aprovação e fechamento formal da #4.
 
 ## Diário operacional
 
@@ -751,7 +787,11 @@ A #6 permanece bloqueada até o fechamento formal da #5.
 - QA corrigiu corte potencial em aparelhos com menos de 620 px de altura e adicionou modo compacto abaixo de 640 px.
 - Issue #4 concluída com arquitetura modular, core mobile e validação completa.
 - Runs finais da #4: testes `35461810852`, preview `35461886529`, Android debug `35461886489`, todos com sucesso.
-- Issue #5 liberada; Issue #6 e posteriores permanecem bloqueadas pelo gate.
+- Issue #5 chegou a ser liberada após a primeira validação da #4.
+- Usuário reprovou visualmente a Home da Issue #4; aprovação anterior invalidada.
+- Issue #4 reaberta.
+- Issue #5 voltou a ficar bloqueada.
+- Direção Visual passa a liderar a correção antes de qualquer nova implementação de composição.
 
 
 ## Autoridade e conflitos
