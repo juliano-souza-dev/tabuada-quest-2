@@ -802,6 +802,10 @@ A #5 permanece bloqueada até a nova aprovação e fechamento formal da #4.
 - Issue #4 reaberta.
 - Issue #5 voltou a ficar bloqueada.
 - Direção Visual passa a liderar a correção antes de qualquer nova implementação de composição.
+- Usuário definiu `home-pirata-fundo-principal.webp` como fundo padrão inicial da Home.
+- O fundo da Home não é fixo: o jogador pode escolher outro cenário aprovado.
+- A preferência fica em `state.ui.homeBackgroundId`; estado persistente passa a `schemaVersion = 2` com migração automática de v1.
+- A escolha do fundo é puramente visual e não altera progressão, scheduler ou recompensas.
 - Estratégia de criação/reuso de assets formalizada em `docs/arte/ESTRATEGIA-ASSETS-V1.md`.
 - Regra: a composição da tela é definida antes do inventário de assets; cada slot deve ser classificado como REUTILIZAR, ADAPTAR ou CRIAR NOVO.
 - Desenvolvimento não pode improvisar asset ausente ou forçar arquivo existente em função inadequada.
