@@ -493,7 +493,7 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
 **Issue ativa:** #21 — Disponibilizar preview web contínuo da main  
-**Estado:** EM EXECUÇÃO  
+**Estado:** AGUARDANDO HABILITAÇÃO/VALIDAÇÃO DO PAGES  
 **Issue pausada:** #3 — bloqueada por assets definitivos ausentes  
 **Próxima issue do roadmap:** #4 — BLOQUEADA; #3 deve ser retomada antes  
 **Branch de trabalho:** `main`  
@@ -655,6 +655,9 @@ Quando o pacote definitivo estiver disponível:
 - Nenhum arquivo de referência foi promovido automaticamente para produção.
 - Issue #21 criada para servir preview contínuo da `web/` após solicitação explícita do usuário.
 - Issue #3 foi pausada temporariamente, não concluída; #4 permanece bloqueada.
+- Issue #21: workflow `web-preview-pages.yml` criado para publicar diretamente `web/` no GitHub Pages.
+- URL esperada do preview: `https://juliano-souza-dev.github.io/tabuada-quest-2/`.
+- Pendente: confirmar/ativar em Settings → Pages → Source → GitHub Actions e validar a primeira publicação.
 - Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
 
 
