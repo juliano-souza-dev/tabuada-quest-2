@@ -277,3 +277,48 @@ Experience Validator → Desenvolvimento
 ```
 
 Desenvolvimento implementa sem redesenhar a composição.
+
+
+## Composição aprovada da Home
+
+Em 2026-09-19 o usuário aprovou a composição visual produzida para a tela inicial como **direção correta da Home**.
+
+A composição aprovada fixa:
+
+- HUD superior compacto;
+- logo Tabuada Quest logo abaixo do HUD;
+- portal central;
+- avatar/personagem em destaque;
+- botão JOGAR dominante;
+- atalhos FUNDO e MODA;
+- barra PRÓXIMO BAÚ DE RECOMPENSA;
+- linha inferior com navegação;
+- cartões PETS e BAÚ DE ITENS.
+
+### Dados dinâmicos
+
+Os seguintes elementos vistos na composição são exemplos de conteúdo e devem ser renderizados dinamicamente:
+
+```text
+avatar
+nome
+nível
+XP
+moedas
+gemas
+```
+
+Não embutir esses valores nas imagens.
+
+### Personalização
+
+Também são trocáveis pelo jogador:
+
+```text
+fundo da Home
+moldura de perfil
+```
+
+A composição permanece a mesma; apenas os assets selecionados nesses slots mudam.
+
+Direção Visual deve gerenciar os catálogos aprovados de fundos e molduras.
