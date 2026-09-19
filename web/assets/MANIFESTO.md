@@ -1,40 +1,52 @@
 # Manifesto de assets canônicos
 
-Este arquivo controla o que pode existir como asset de produção em `web/assets/`.
+Este arquivo controla o conjunto visual aprovado para produção em `web/assets/`.
 
 ## Status
 
-**Issue #3 ativa. Pacote definitivo ainda ausente.**
+**Pacote canônico inicial da V1 integrado na Issue #3.**
 
-Nenhum asset visual de referência da branch `apoio` é automaticamente canônico.
+Somente os arquivos listados abaixo podem ser tratados como assets de produção nesta etapa.
 
-## Avatares-base esperados
+## Avatares-base canônicos
 
-| Personagem | Arquivo canônico | Estado |
+| Personagem | Caminho | Estado |
 | --- | --- | --- |
-| Luna | `avatar-luna-visual-base.webp` | AUSENTE |
-| Sofia | `avatar-sofia-visual-base.webp` | AUSENTE |
-| Maya | `avatar-maya-visual-base.webp` | AUSENTE |
+| Luna | `web/assets/avatars/avatar-luna-visual-base.webp` | APROVADO |
+| Maya | `web/assets/avatars/avatar-maya-visual-base.webp` | APROVADO |
+| Sofia | `web/assets/avatars/avatar-sofia-visual-base.webp` | APROVADO |
 
-## Assets aprovados para produção
+Os três arquivos são versões WebP otimizadas para uso no jogo. A identidade visual foi preservada a partir dos avatares-base do pacote de referência.
 
-Nenhum asset promovido ainda.
+Toda moda futura deve usar estes avatares como referência canônica e respeitar `agentes/03-direcao-visual.md`.
 
-## Assets de referência já auditados
+## UI pirata aprovada
 
-A auditoria está em:
+| Asset | Caminho | Estado |
+| --- | --- | --- |
+| Banner de aventura | `web/assets/ui/home-pirata-banner-aventura.webp` | APROVADO |
+| Base de botão de aventura | `web/assets/ui/home-pirata-botao-aventura.webp` | APROVADO |
+| Ícone de mapa/bússola | `web/assets/ui/icone-mapa-bussola.webp` | APROVADO |
+| Ícone de baú | `web/assets/ui/icone-bau-tesouro.webp` | APROVADO |
+| Ícone de recompensa | `web/assets/ui/icone-recompensa-magica.webp` | APROVADO |
 
-```text
-docs/validacao/ISSUE-003-auditoria-assets.md
-```
+## Não promovidos
 
-Os assets auditados continuam na branch `apoio` até promoção explícita.
+Os itens abaixo permanecem fora do pacote canônico nesta etapa:
 
-## Regra
+- `home-pirata-fundo-principal.webp`: dimensão 1080 × 1918 diverge do contrato 1080 × 1920;
+- `icone-axolote-capitao.webp`: pertence a uma lista de PETs posteriormente substituída;
+- assets com nomenclatura Portal/Mundo: a estrutura vigente é Região/Ilha;
+- artes com referências reconhecíveis a franquias existentes;
+- variações de avatar que alterem identidade, rosto, cabelo, proporção ou idade visual;
+- moda/roupa não validada individualmente contra o avatar-base.
 
-Um arquivo só entra na lista **Assets aprovados para produção** depois de:
+## Regra de promoção
+
+Um novo arquivo só entra neste manifesto após:
 
 1. validação da Direção Visual;
-2. validação de Qualidade;
+2. validação de formato, dimensão, peso e duplicidade por Qualidade;
 3. promoção física para `web/assets/`;
-4. atualização deste manifesto.
+4. atualização deste manifesto;
+5. validação do preview quando o asset for visível.
