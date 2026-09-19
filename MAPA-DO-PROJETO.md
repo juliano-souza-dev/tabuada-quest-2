@@ -1135,3 +1135,24 @@ Android Debug  = 35465846781 → success
 ```
 
 Status: aguardando validação visual do usuário.
+
+## Fluxo obrigatório de validação visual
+
+```text
+Orquestrador
+→ Desenvolvimento
+→ Orquestrador
+→ Direção Visual
+   [FIDELIDADE_VISUAL >= 75%]
+→ Qualidade
+→ Orquestrador
+→ Experience Validator
+→ Orquestrador
+→ Líder de equipe
+```
+
+Sem aprovação explícita do líder de equipe:
+- issue permanece aberta;
+- próxima issue permanece bloqueada.
+
+Fonte de verdade do protocolo: `ORQUESTRADOR.md`.
