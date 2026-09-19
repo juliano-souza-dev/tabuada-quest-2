@@ -3,7 +3,7 @@
 **Data:** 2026-09-19  
 **Issue:** #3 — Integrar e validar pacote definitivo de assets renomeados  
 **Personas:** Direção Visual + Qualidade e Build  
-**Estado:** pronto para validação de preview
+**Estado:** APROVADA / CONCLUÍDA
 
 ## Fontes auditadas
 
@@ -93,4 +93,21 @@ Validações concluídas:
 - [x] itens reprovados/deferidos documentados;
 - [x] preview preparado para mostrar somente assets canônicos.
 
-A última validação da issue é confirmar o deploy público após a alteração em `web/`.
+## Validação do preview público
+
+Deploy final:
+
+```text
+workflow = Web Preview
+run_id = 35460817391
+resultado = success
+URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+A publicação foi concluída com sucesso após a atualização final da árvore `web/`.
+
+## Parecer de Qualidade
+
+**APROVADO.**
+
+Os critérios obrigatórios da Issue #3 estão atendidos. Dívidas visuais foram registradas explicitamente e não bloqueiam o início da arquitetura da V1.
