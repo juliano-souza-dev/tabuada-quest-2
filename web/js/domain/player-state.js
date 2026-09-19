@@ -1,7 +1,8 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STATE_VERSION = 2;
+    const STATE_VERSION = 3;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
+    const DEFAULT_PROFILE_FRAME_ID = "pirate-treasure";
 
     function createSpecialMaps() {
         return {
@@ -19,7 +20,17 @@
             player: {
                 id: "local-player",
                 displayName: "Explorador",
-                avatarId: "luna"
+                avatarId: "luna",
+                profileFrameId: DEFAULT_PROFILE_FRAME_ID
+            },
+            progression: {
+                level: 1,
+                xpCurrent: 0,
+                xpRequired: 100
+            },
+            wallet: {
+                coins: 0,
+                gems: 0
             },
             campaign: {
                 currentRegionId: 1,
@@ -47,11 +58,13 @@
             return value;
         }
 
-        if (value.schemaVersion === 1) {
-            const oldUi = isPlainObject(value.ui) ? value.ui : {};
-            return {
-                ...value,
-                schemaVersion: STATE_VERSION,
+        let migrated = value;
+
+        if (migrated.schemaVersion === 1) {
+            const oldUi = isPlainObject(migrated.ui) ? migrated.ui : {};
+            migrated = {
+                ...migrated,
+                schemaVersion: 2,
                 ui: {
                     ...oldUi,
                     lastScreen: typeof oldUi.lastScreen === "string" ? oldUi.lastScreen : "home",
@@ -60,7 +73,28 @@
             };
         }
 
-        return value;
+        if (migrated.schemaVersion === 2) {
+            const oldPlayer = isPlainObject(migrated.player) ? migrated.player : {};
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: {
+                    ...oldPlayer,
+                    profileFrameId: DEFAULT_PROFILE_FRAME_ID
+                },
+                progression: {
+                    level: 1,
+                    xpCurrent: 0,
+                    xpRequired: 100
+                },
+                wallet: {
+                    coins: 0,
+                    gems: 0
+                }
+            };
+        }
+
+        return migrated;
     }
 
     function isValidState(value) {
@@ -70,6 +104,20 @@
             isPlainObject(value.player) &&
             typeof value.player.displayName === "string" &&
             typeof value.player.avatarId === "string" &&
+            typeof value.player.profileFrameId === "string" &&
+            value.player.profileFrameId.length > 0 &&
+            isPlainObject(value.progression) &&
+            Number.isInteger(value.progression.level) &&
+            value.progression.level >= 1 &&
+            Number.isInteger(value.progression.xpCurrent) &&
+            value.progression.xpCurrent >= 0 &&
+            Number.isInteger(value.progression.xpRequired) &&
+            value.progression.xpRequired > 0 &&
+            isPlainObject(value.wallet) &&
+            Number.isInteger(value.wallet.coins) &&
+            value.wallet.coins >= 0 &&
+            Number.isInteger(value.wallet.gems) &&
+            value.wallet.gems >= 0 &&
             isPlainObject(value.campaign) &&
             Number.isInteger(value.campaign.currentRegionId) &&
             Number.isInteger(value.campaign.currentIslandId) &&
@@ -111,14 +159,31 @@
         };
     }
 
+    function withProfileFrame(state, frameId, allowedIds) {
+        const normalized = normalizeState(state);
+        if (!Array.isArray(allowedIds) || !allowedIds.includes(frameId)) {
+            return normalized;
+        }
+
+        return {
+            ...normalized,
+            player: {
+                ...normalized.player,
+                profileFrameId: frameId
+            }
+        };
+    }
+
     TQ.domain = TQ.domain || {};
     TQ.domain.playerState = Object.freeze({
         STATE_VERSION,
         DEFAULT_HOME_BACKGROUND_ID,
+        DEFAULT_PROFILE_FRAME_ID,
         createInitialState,
         migrateState,
         isValidState,
         normalizeState,
-        withHomeBackground
+        withHomeBackground,
+        withProfileFrame
     });
 })(globalThis);
