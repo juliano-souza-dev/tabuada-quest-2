@@ -714,6 +714,16 @@ A Direção Visual deve definir primeiro:
 - densidade mobile;
 - adaptação integral ao tema pirata mágico.
 
+Plano de assets da Home deve ser produzido antes do handoff para Desenvolvimento.
+
+Para cada slot visual obrigatório:
+
+```text
+REUTILIZAR / ADAPTAR / CRIAR NOVO
+```
+
+Fonte: `docs/arte/ESTRATEGIA-ASSETS-V1.md`.
+
 Desenvolvimento só implementa depois dessa definição.
 
 ### Próximo passo permitido
@@ -792,6 +802,9 @@ A #5 permanece bloqueada até a nova aprovação e fechamento formal da #4.
 - Issue #4 reaberta.
 - Issue #5 voltou a ficar bloqueada.
 - Direção Visual passa a liderar a correção antes de qualquer nova implementação de composição.
+- Estratégia de criação/reuso de assets formalizada em `docs/arte/ESTRATEGIA-ASSETS-V1.md`.
+- Regra: a composição da tela é definida antes do inventário de assets; cada slot deve ser classificado como REUTILIZAR, ADAPTAR ou CRIAR NOVO.
+- Desenvolvimento não pode improvisar asset ausente ou forçar arquivo existente em função inadequada.
 
 
 ## Autoridade e conflitos
