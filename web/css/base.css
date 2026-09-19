@@ -61,9 +61,10 @@ img {
     }
 
     .app-viewport {
-        width: min(430px, 100%);
-        height: min(880px, calc(100dvh - 40px));
-        min-height: min(720px, calc(100dvh - 40px));
+        width: min(430px, calc((100dvh - 40px) * 941 / 1672));
+        height: auto;
+        aspect-ratio: 941 / 1672;
+        max-height: calc(100dvh - 40px);
         border: 1px solid var(--line);
         border-radius: 32px;
         box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
