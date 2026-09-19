@@ -465,36 +465,53 @@ Depois disso, o workflow faz as publicações seguintes automaticamente.
 
 ## Estado de validação
 
-O workflow foi criado em 2026-09-19.
-
-Primeira execução:
+Preview validado em 2026-09-19.
 
 ```text
+workflow = .github/workflows/web-preview-pages.yml
 run_id = 35459403891
-resultado = failure
-passo = Configure Pages
+attempt = 2
+resultado = success
+fonte = web/
+URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
 ```
 
-Causa confirmada no log:
+O log de deployment confirmou:
 
 ```text
-Get Pages site failed.
-Repository does not have Pages enabled/configured for GitHub Actions.
+Evaluated environment url:
+https://juliano-souza-dev.github.io/tabuada-quest-2/
 ```
 
-A configuração de Pages não pode ser alterada pelo conector GitHub disponível nesta sessão. É necessário habilitar uma única vez na interface:
+### Workflow duplicado removido
+
+A ativação do Pages pela interface criou automaticamente:
 
 ```text
-Settings
-→ Pages
-→ Build and deployment
-→ Source
-→ GitHub Actions
+.github/workflows/static.yml
 ```
 
-Depois disso, rerodar o workflow `Web Preview`.
+Esse workflow publicava:
 
-Não declarar o preview online antes de uma execução concluída com sucesso.
+```text
+path: '.'
+```
+
+ou seja, a raiz do repositório. Como o `index.html` canônico vive em `web/`, isso provocava 404.
+
+O arquivo foi removido.
+
+O único workflow canônico de preview é:
+
+```text
+.github/workflows/web-preview-pages.yml
+```
+
+e ele publica diretamente:
+
+```text
+web/
+```
 
 ---
 
