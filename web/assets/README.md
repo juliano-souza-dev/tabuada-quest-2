@@ -1,40 +1,69 @@
 # Assets canônicos do Tabuada Quest 2.0
 
-Este diretório é o destino canônico dos assets aprovados para execução na `main`.
+Este diretório é a fonte canônica de assets aprovados para execução na `main`.
 
-## Estado atual
-
-A estrutura foi criada durante a Issue #3, porém o pacote definitivo de assets renomeados ainda **não está presente** no repositório.
-
-Enquanto isso:
-
-- não copiar automaticamente o conteúdo da branch `apoio`;
-- não tratar assets de referência como assets de produção;
-- não criar nomes alternativos;
-- não substituir os avatares-base por aproximações;
-- não referenciar em código arquivos que ainda não foram promovidos para cá.
-
-## Avatares-base obrigatórios esperados
+## Estrutura atual
 
 ```text
-avatar-luna-visual-base.webp
-avatar-sofia-visual-base.webp
-avatar-maya-visual-base.webp
+web/assets/
+├── README.md
+├── MANIFESTO.md
+├── avatars/
+│   ├── avatar-luna-visual-base.webp
+│   ├── avatar-maya-visual-base.webp
+│   └── avatar-sofia-visual-base.webp
+└── ui/
+    ├── home-pirata-banner-aventura.webp
+    ├── home-pirata-botao-aventura.webp
+    ├── icone-mapa-bussola.webp
+    ├── icone-bau-tesouro.webp
+    └── icone-recompensa-magica.webp
 ```
 
-Eles só serão considerados disponíveis quando os arquivos reais existirem neste diretório ou em subestrutura explicitamente documentada no `MAPA-DO-PROJETO.md`.
+## Fonte de verdade
 
-## Fonte de referência
-
-Material visual de apoio permanece em:
+A lista de arquivos autorizados para produção vive em:
 
 ```text
-branch: apoio
-game 2.0/assets-remasterizados/
+web/assets/MANIFESTO.md
 ```
 
-Esse material é referência, não produção.
+Um arquivo existir no repositório ou na branch `apoio` não o torna automaticamente aprovado.
 
-## Próximo passo da Issue #3
+## Avatares-base
 
-Receber/localizar o pacote definitivo, validar com Direção Visual + Qualidade e promover somente os arquivos aprovados.
+Os arquivos canônicos são:
+
+```text
+web/assets/avatars/avatar-luna-visual-base.webp
+web/assets/avatars/avatar-maya-visual-base.webp
+web/assets/avatars/avatar-sofia-visual-base.webp
+```
+
+Toda moda futura deve usar o avatar-base correspondente e preservar rosto, cabelo, tom de pele, proporções, idade visual e identidade. O contrato completo está em:
+
+```text
+agentes/03-direcao-visual.md
+```
+
+## Material de referência
+
+A branch `apoio` continua sendo referência histórica/visual.
+
+Material nela não deve ser usado diretamente por código novo. Para entrar no jogo, um asset deve ser validado, promovido para `web/assets/` e registrado no `MANIFESTO.md`.
+
+## Auditoria
+
+A validação da Issue #3 está registrada em:
+
+```text
+docs/validacao/ISSUE-003-auditoria-assets.md
+```
+
+## Regra para novos assets
+
+1. Direção Visual valida identidade e adequação temática.
+2. Qualidade valida formato, dimensão, peso, duplicidade e referências.
+3. O arquivo é promovido para a subpasta canônica em `web/assets/`.
+4. `MANIFESTO.md` é atualizado.
+5. Se o asset aparecer na interface, o preview público deve ser validado.
