@@ -605,72 +605,65 @@ Esses arquivos são **referência/material de apoio** enquanto não forem promov
 
 # 16. Assets definitivos do 2.0
 
-Caminho canônico aprovado na `main`:
+Fonte canônica na `main`:
 
 ```text
 web/assets/
+├── README.md
+├── MANIFESTO.md
+├── avatars/
+│   ├── avatar-luna-visual-base.webp
+│   ├── avatar-maya-visual-base.webp
+│   └── avatar-sofia-visual-base.webp
+└── ui/
+    ├── home-pirata-banner-aventura.webp
+    ├── home-pirata-botao-aventura.webp
+    ├── icone-mapa-bussola.webp
+    ├── icone-bau-tesouro.webp
+    └── icone-recompensa-magica.webp
 ```
 
-Arquivos de controle:
+`web/assets/MANIFESTO.md` é a lista oficial de assets aprovados para produção.
+
+### Estado da Issue #3
+
+O pacote completo de referência foi recuperado do material previamente enviado pelo usuário, confrontado com o catálogo de renomeação e recortado segundo a direção pirata/marítima vigente.
+
+Foram promovidos apenas assets aprovados. Material legado, fora de tema, com nomenclatura antiga ou que exige nova validação permanece fora da fonte canônica.
+
+Auditoria:
 
 ```text
-web/assets/README.md
-web/assets/MANIFESTO.md
+docs/validacao/ISSUE-003-auditoria-assets.md
 ```
 
-O `MANIFESTO.md` é a lista oficial de assets promovidos/aprovados. Enquanto um arquivo não estiver fisicamente em `web/assets/` e registrado no manifesto, ele não é asset de produção.
+### Dívida visual registrada
 
-**Estado atual da Issue #3: BLOQUEADA POR INSUMO AUSENTE.**
-
-A auditoria de 2026-09-19 confirmou:
-
-- a `main` não contém arquivos WebP/avatares de produção;
-- a `apoio` contém apenas o pacote remasterizado inicial em `game 2.0/assets-remasterizados/`;
-- o pacote definitivo renomeado completo não está presente;
-- os três avatares-base reais não estão presentes.
-
-Enquanto o pacote definitivo não existir:
-
-- não copiar automaticamente tudo da `apoio`;
-- não duplicar o pacote de referência;
-- não renomear novamente;
-- não criar referências de produção para arquivos ainda não promovidos;
-- não substituir avatares-base por aproximações.
-
-Quando o pacote chegar, a Issue #3 deve:
-
-1. validar o pacote definitivo;
-2. promover somente os assets aprovados para `web/assets/`;
-3. validar nomes, duplicidades, budgets e referências;
-4. confirmar os três avatares-base;
-5. atualizar este mapa com qualquer subestrutura criada;
-6. eliminar dependência de nomes legados.
+- fundo principal remasterizado 1080 × 1918: não promovido porque o contrato exige 1080 × 1920;
+- PET Axolote Capitão: não promovido porque pertence à lista substituída;
+- assets Portal/Mundo: não promovidos porque a nomenclatura vigente é Região/Ilha;
+- variações de moda: só entram após comparação individual com os avatares-base;
+- assets reconhecíveis de franquias existentes: não entram no 2.0.
 
 ---
 
 # 17. Avatares-base canônicos
 
-A Direção Visual define os nomes canônicos:
+Arquivos físicos disponíveis:
 
 ```text
-avatar-luna-visual-base.webp
-avatar-sofia-visual-base.webp
-avatar-maya-visual-base.webp
+web/assets/avatars/avatar-luna-visual-base.webp
+web/assets/avatars/avatar-maya-visual-base.webp
+web/assets/avatars/avatar-sofia-visual-base.webp
 ```
 
-O contrato está em:
+Contrato de consistência:
 
 ```text
 agentes/03-direcao-visual.md
 ```
 
-Destino canônico aprovado:
-
-```text
-web/assets/
-```
-
-**Estado físico atual:** arquivos-base ainda ausentes. Não presumir que os nomes definidos no contrato significam que os arquivos já existem.
+As versões canônicas foram derivadas dos respectivos avatares-base do pacote de referência, sem redesenho de personagem. Toda moda futura deve preservar a identidade visual e alterar somente roupa/acessórios explicitamente aprovados.
 
 ---
 
