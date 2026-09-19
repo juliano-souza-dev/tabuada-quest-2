@@ -492,9 +492,9 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #2 — Completar contratos das personas e governança do Orquestrador  
+**Issue ativa:** #3 — Integrar e validar pacote definitivo de assets renomeados  
 **Estado:** EM EXECUÇÃO  
-**Próxima issue:** #3 — BLOQUEADA até fechamento formal da #2  
+**Próxima issue:** #4 — BLOQUEADA até fechamento formal da #3  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
 
@@ -573,15 +573,15 @@ Pelo gate vigente:
 
 ### Próximo passo permitido
 
-Validar e encerrar a Issue #2:
+Executar a Issue #3:
 
-- contratos formais foram criados;
-- Direção Visual foi preservada;
-- o Orquestrador aponta para os contratos corretos;
-- autoridade, limites, entregas e handoffs foram explicitados;
-- após validação, fechar #2;
-- atualizar este checkpoint;
-- liberar somente então a Issue #3.
+- localizar o pacote definitivo de assets renomeados;
+- validar nomes, duplicidades, budgets e referências;
+- definir o caminho canônico de assets na `main`;
+- promover somente os assets aprovados;
+- registrar o destino em `MAPA-DO-PROJETO.md`;
+- fechar #3 somente após validação completa;
+- manter #4 bloqueada até então.
 
 ## Diário operacional
 
@@ -602,6 +602,8 @@ Validar e encerrar a Issue #2:
 - Empacotamento Android, caminhos de build, localização de referências e caminhos ainda pendentes foram registrados.
 - Toda IA agora deve ler Orquestrador + Mapa do Projeto antes de executar qualquer tarefa.
 - Contratos de Produto, Game Design, Desenvolvimento, Qualidade e Experience Validator criados na #2.
+- Issue #2 foi concluída e fechada.
+- Issue #3 foi liberada; Issue #4 e posteriores permanecem bloqueadas.
 - Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
 
 
