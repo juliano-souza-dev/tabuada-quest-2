@@ -1156,3 +1156,28 @@ Sem aprovação explícita do líder de equipe:
 - próxima issue permanece bloqueada.
 
 Fonte de verdade do protocolo: `ORQUESTRADOR.md`.
+
+## Estado visual da Home — schema v4
+
+A personalização de moldura agora possui estado padrão neutro:
+
+```text
+schemaVersion = 4
+player.profileFrameId = "simple"
+```
+
+Catálogo:
+
+```text
+simple            → sem asset decorativo adicional
+pirate-treasure   → moldura opcional
+tide-wheel        → moldura opcional
+```
+
+Cache de frontend:
+
+```text
+web/index.html usa versionamento por query string nos CSS/JS da Home
+```
+
+Motivo: impedir mistura entre overlay novo e camadas antigas armazenadas pelo navegador.
