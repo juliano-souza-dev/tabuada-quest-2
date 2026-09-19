@@ -627,6 +627,16 @@ web/assets/
 
 ### Estado da Issue #3
 
+**CONCLUÍDA em 2026-09-19.**
+
+Preview final validado:
+
+```text
+run_id = 35460817391
+resultado = success
+URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
 O pacote completo de referência foi recuperado do material previamente enviado pelo usuário, confrontado com o catálogo de renomeação e recortado segundo a direção pirata/marítima vigente.
 
 Foram promovidos apenas assets aprovados. Material legado, fora de tema, com nomenclatura antiga ou que exige nova validação permanece fora da fonte canônica.
