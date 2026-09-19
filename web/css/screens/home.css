@@ -14,7 +14,7 @@
     z-index: -3;
     background:
         linear-gradient(180deg, rgba(1, 15, 24, 0.02) 0%, rgba(1, 15, 24, 0.12) 35%, rgba(1, 15, 24, 0.9) 100%),
-        url("../../assets/ui/home-pirata-banner-aventura.webp") center / cover no-repeat;
+        var(--home-background-image, url("../../assets/ui/home-pirata-fundo-principal.webp")) center / cover no-repeat;
 }
 
 .home-screen::after {
