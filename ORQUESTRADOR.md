@@ -557,6 +557,7 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 - `docs/decisoes/DEC-001-distribuicao-intercalada-tabuadas.md`
 - `docs/decisoes/DEC-002-regioes-ilhas-pets-baus.md`
 - `docs/arquitetura/ANDROID-WEBVIEW.md`
+- `docs/referencias/V1-DIRECAO-MOBILE.md`
 
 ### Estado do pedido atual
 
@@ -626,6 +627,21 @@ URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
 
 Dívidas visuais e itens não promovidos permanecem documentados e não criam referências quebradas.
 
+### Direção de experiência da V1
+
+As telas da versão anterior fornecidas pelo usuário são referência de UX/densidade/composição, **não de identidade visual**.
+
+Regra:
+
+- preservar densidade útil, hierarquia, ocupação de viewport e comportamento mobile;
+- adaptar tudo à aventura pirata mágica;
+- não copiar tema joaninha, castelos, iconografia antiga ou franquias;
+- Home, Mapa, Desafio, Perfil e Loja podem possuir composições próprias;
+- mobile é a origem do layout; desktop é adaptação;
+- evitar transformar o jogo em uma landing page responsiva.
+
+Documento: `docs/referencias/V1-DIRECAO-MOBILE.md`.
+
 ### Próximo passo permitido
 
 Executar a Issue #4:
@@ -677,6 +693,9 @@ A #5 permanece bloqueada até o fechamento formal da #4.
 - Preview da integração visual validado no run `35460668998`.
 - Issue #3 concluída e fechada após preview final `35460817391` com sucesso.
 - Issue #4 liberada pelo gate; Issue #5 e posteriores permanecem bloqueadas.
+- Usuário definiu as telas enviadas como direcionamento oficial da V1 para UX/densidade mobile.
+- A referência deve ser adaptada integralmente ao tema pirata mágico definido; não copiar a identidade visual antiga.
+- Direção registrada em `docs/referencias/V1-DIRECAO-MOBILE.md`.
 - Usuário definiu que cada issue visível deve atualizar o preview público para acompanhamento em tempo real.
 - Preview obrigatório por issue documentado no Orquestrador.
 - Issue #21: workflow `web-preview-pages.yml` criado para publicar diretamente `web/` no GitHub Pages.
