@@ -190,3 +190,30 @@ Cenários devem ser planejados para o viewport e composição da tela. Um banner
 ### Princípio
 
 > A composição define o asset necessário. O asset existente não define a composição.
+
+
+## Gate quantitativo de fidelidade visual
+
+Direção Visual recebe a implementação somente via Orquestrador e compara com composição aprovada, assets entregues e direção vigente.
+
+Resultado obrigatório:
+
+```text
+FIDELIDADE_VISUAL = N%
+```
+
+Regra:
+
+```text
+N < 75%
+→ REPROVADO
+→ Orquestrador devolve para Desenvolvimento
+
+N >= 75%
+→ APROVADO PARA QUALIDADE
+→ Orquestrador encaminha para Qualidade
+```
+
+Avaliar composição, hierarquia, proporção, escala, spacing, assets, cenário, personagem, HUD, CTA, navegação, profundidade e acabamento.
+
+Não aprovar por funcionamento técnico. Não alterar código durante a avaliação. O mínimo de 75% é gate de continuidade; a aprovação global final é do líder de equipe.
