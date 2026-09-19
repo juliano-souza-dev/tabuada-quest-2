@@ -806,6 +806,11 @@ A #5 permanece bloqueada até a nova aprovação e fechamento formal da #4.
 - O fundo da Home não é fixo: o jogador pode escolher outro cenário aprovado.
 - A preferência fica em `state.ui.homeBackgroundId`; estado persistente passa a `schemaVersion = 2` com migração automática de v1.
 - A escolha do fundo é puramente visual e não altera progressão, scheduler ou recompensas.
+- A moldura de perfil também é selecionável pelo jogador, independentemente do fundo.
+- HUD da Home é dinâmico: avatar, nome, nível, XP, moedas e gemas vêm do estado do jogador.
+- Estado persistente vigente passa a `schemaVersion = 3`.
+- Primeira moldura promovida: `web/assets/frames/profile-frame-pirate-treasure.webp`.
+- Catálogo de molduras: `TQ.content.profileFrames`; preferência: `state.player.profileFrameId`.
 - Implementação base validada após a decisão de fundo personalizável:
   - Web Unit Tests `35464413886` → success;
   - Web Preview `35464421922` → success;
