@@ -22,10 +22,15 @@
 
     const profileFrames = Object.freeze([
         Object.freeze({
+            id: "simple",
+            label: "Simples",
+            src: null,
+            isDefault: true
+        }),
+        Object.freeze({
             id: "pirate-treasure",
             label: "Tesouro pirata",
-            src: "./assets/frames/profile-frame-pirate-treasure.webp",
-            isDefault: true
+            src: "./assets/frames/profile-frame-pirate-treasure.webp"
         }),
         Object.freeze({
             id: "tide-wheel",
@@ -47,7 +52,7 @@
         homeBackgrounds,
         profileFrames,
         defaultHomeBackgroundId: "pirate-main",
-        defaultProfileFrameId: "pirate-treasure",
+        defaultProfileFrameId: "simple",
         assets: Object.freeze({
             avatars: Object.freeze({
                 luna: "./assets/avatars/avatar-luna-visual-base.webp",
@@ -66,7 +71,7 @@
             itemChest: "./assets/ui/chest-items.webp",
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
-            homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2152"
+            homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2228"
         })
     });
 })(globalThis);

@@ -19,11 +19,11 @@ function memoryStorage(seed = {}) {
     };
 }
 
-test("carrega estado inicial v3 quando não há persistência", () => {
+test("carrega estado inicial v4 quando não há persistência", () => {
     const state = persistence.loadState(memoryStorage());
 
-    assert.equal(state.schemaVersion, 3);
-    assert.equal(state.player.profileFrameId, "pirate-treasure");
+    assert.equal(state.schemaVersion, 4);
+    assert.equal(state.player.profileFrameId, "simple");
     assert.equal(state.ui.homeBackgroundId, "pirate-main");
 });
 
@@ -32,7 +32,7 @@ test("salva e recarrega personalização e HUD dinâmico", () => {
     const state = global.TabuadaQuest.domain.playerState.createInitialState();
 
     state.player.displayName = "Alana";
-    state.player.profileFrameId = "pirate-treasure";
+    state.player.profileFrameId = "tide-wheel";
     state.progression.level = 96;
     state.progression.xpCurrent = 63;
     state.progression.xpRequired = 100;
@@ -43,26 +43,23 @@ test("salva e recarrega personalização e HUD dinâmico", () => {
     const loaded = persistence.loadState(storage);
 
     assert.equal(loaded.player.displayName, "Alana");
-    assert.equal(loaded.player.profileFrameId, "pirate-treasure");
+    assert.equal(loaded.player.profileFrameId, "tide-wheel");
     assert.equal(loaded.progression.level, 96);
     assert.equal(loaded.progression.xpCurrent, 63);
     assert.equal(loaded.wallet.coins, 64);
     assert.equal(loaded.wallet.gems, 12);
 });
 
-test("migra persistência v2 para schema v3", () => {
+test("migra persistência v3 com antigo padrão para schema v4 simples", () => {
     const base = global.TabuadaQuest.domain.playerState.createInitialState();
     const old = {
         ...base,
-        schemaVersion: 2,
+        schemaVersion: 3,
         player: {
-            id: base.player.id,
-            displayName: base.player.displayName,
-            avatarId: base.player.avatarId
+            ...base.player,
+            profileFrameId: "pirate-treasure"
         }
     };
-    delete old.progression;
-    delete old.wallet;
 
     const storage = memoryStorage({
         [persistence.STORAGE_KEY]: JSON.stringify(old)
@@ -70,10 +67,8 @@ test("migra persistência v2 para schema v3", () => {
 
     const loaded = persistence.loadState(storage);
 
-    assert.equal(loaded.schemaVersion, 3);
-    assert.equal(loaded.player.profileFrameId, "pirate-treasure");
-    assert.equal(loaded.progression.level, 1);
-    assert.equal(loaded.wallet.coins, 0);
+    assert.equal(loaded.schemaVersion, 4);
+    assert.equal(loaded.player.profileFrameId, "simple");
 });
 
 test("JSON corrompido não quebra inicialização", () => {
@@ -83,7 +78,7 @@ test("JSON corrompido não quebra inicialização", () => {
 
     const loaded = persistence.loadState(storage);
 
-    assert.equal(loaded.schemaVersion, 3);
+    assert.equal(loaded.schemaVersion, 4);
     assert.equal(loaded.wallet.coins, 0);
     assert.equal(loaded.wallet.gems, 0);
 });

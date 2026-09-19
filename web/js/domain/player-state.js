@@ -1,8 +1,8 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STATE_VERSION = 3;
+    const STATE_VERSION = 4;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
-    const DEFAULT_PROFILE_FRAME_ID = "pirate-treasure";
+    const DEFAULT_PROFILE_FRAME_ID = "simple";
 
     function createSpecialMaps() {
         return {
@@ -77,10 +77,10 @@
             const oldPlayer = isPlainObject(migrated.player) ? migrated.player : {};
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 3,
                 player: {
                     ...oldPlayer,
-                    profileFrameId: DEFAULT_PROFILE_FRAME_ID
+                    profileFrameId: "pirate-treasure"
                 },
                 progression: {
                     level: 1,
@@ -90,6 +90,24 @@
                 wallet: {
                     coins: 0,
                     gems: 0
+                }
+            };
+        }
+
+        if (migrated.schemaVersion === 3) {
+            const oldPlayer = isPlainObject(migrated.player) ? migrated.player : {};
+            const oldFrameId = typeof oldPlayer.profileFrameId === "string"
+                ? oldPlayer.profileFrameId
+                : "pirate-treasure";
+
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: {
+                    ...oldPlayer,
+                    profileFrameId: oldFrameId === "pirate-treasure"
+                        ? DEFAULT_PROFILE_FRAME_ID
+                        : oldFrameId
                 }
             };
         }

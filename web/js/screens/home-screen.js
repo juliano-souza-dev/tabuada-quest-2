@@ -52,13 +52,13 @@
                      alt=""
                      aria-hidden="true">
 
-                <button class="profile-slot" type="button" data-action="frames" aria-label="Trocar moldura do perfil">
+                <button class="profile-slot ${profileFrame.src ? "has-frame" : "is-simple"}" type="button" data-action="frames" aria-label="Trocar moldura do perfil">
                     <img class="profile-slot-avatar" src="${avatarSrc}" alt="">
-                    <img class="profile-slot-frame" src="${profileFrame.src}" alt="" aria-hidden="true">
+                    ${profileFrame.src ? `<img class="profile-slot-frame" src="${profileFrame.src}" alt="" aria-hidden="true">` : ""}
                 </button>
 
                 <div class="hud-name-slot">${state.player.displayName}</div>
-                <div class="hud-level-slot">NÍVEL ${state.progression.level}</div>
+                <div class="hud-level-slot" aria-label="Nível ${state.progression.level}">${state.progression.level}</div>
 
                 <div class="hud-xp-slot" aria-label="Experiência ${state.progression.xpCurrent} de ${state.progression.xpRequired}">
                     <span class="hud-xp-fill" style="width:${xpPercent}%"></span>
@@ -66,8 +66,8 @@
                 </div>
 
                 <div class="hud-wallet-slot">
-                    <span class="wallet-value coins" aria-label="${state.wallet.coins} moedas">● ${state.wallet.coins}</span>
-                    <span class="wallet-value gems" aria-label="${state.wallet.gems} gemas">◆ ${state.wallet.gems}</span>
+                    <span class="wallet-value coins" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
+                    <span class="wallet-value gems" aria-label="${state.wallet.gems} gemas">${state.wallet.gems}</span>
                 </div>
 
                 <img class="home-hero-character"
@@ -132,7 +132,7 @@
                                     data-frame-id="${item.id}">
                                 <span class="frame-thumb">
                                     <img class="frame-thumb-avatar" src="${avatarSrc}" alt="">
-                                    <img class="frame-thumb-art" src="${item.src}" alt="">
+                                    ${item.src ? `<img class="frame-thumb-art" src="${item.src}" alt="">` : `<span class="frame-thumb-simple" aria-hidden="true"></span>`}
                                 </span>
                                 <strong>${item.label}</strong>
                             </button>

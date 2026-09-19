@@ -51,24 +51,42 @@
 .profile-slot {
     position: absolute;
     z-index: 10;
-    left: -1.2%;
-    top: .15%;
-    width: 22%;
     aspect-ratio: 1;
     padding: 0;
     border: 0;
     background: transparent;
 }
 
+.profile-slot.is-simple {
+    left: 3.4%;
+    top: 1.35%;
+    width: 14.2%;
+}
+
+.profile-slot.has-frame {
+    left: -1.2%;
+    top: .15%;
+    width: 22%;
+}
+
 .profile-slot-avatar {
     position: absolute;
-    inset: 22%;
-    width: 56%;
-    height: 56%;
     border-radius: 50%;
     object-fit: cover;
     object-position: center 18%;
     background: #4ac9e7;
+}
+
+.profile-slot.is-simple .profile-slot-avatar {
+    inset: 5%;
+    width: 90%;
+    height: 90%;
+}
+
+.profile-slot.has-frame .profile-slot-avatar {
+    inset: 22%;
+    width: 56%;
+    height: 56%;
 }
 
 .profile-slot-frame {
@@ -82,11 +100,11 @@
 .hud-name-slot {
     position: absolute;
     z-index: 10;
-    left: 22.2%;
-    top: 4.25%;
-    width: 19.3%;
+    left: 20.2%;
+    top: 3.8%;
+    width: 21.5%;
     color: #5c2c13;
-    font-size: clamp(.56rem, 1.75vh, .8rem);
+    font-size: clamp(.6rem, 1.9vh, .86rem);
     font-weight: 950;
     line-height: 1;
     overflow: hidden;
@@ -98,14 +116,14 @@
 .hud-level-slot {
     position: absolute;
     z-index: 10;
-    left: 42%;
-    top: 3.15%;
-    width: 10.6%;
-    height: 3.6%;
+    left: 42.6%;
+    top: 2.65%;
+    width: 10.1%;
+    height: 4.6%;
     display: grid;
     place-items: center;
     color: white;
-    font-size: clamp(.42rem, 1.55vh, .7rem);
+    font-size: clamp(.72rem, 2.35vh, 1.02rem);
     font-weight: 1000;
     text-align: center;
     text-shadow: 0 1px 2px #073d68;
@@ -114,10 +132,10 @@
 .hud-xp-slot {
     position: absolute;
     z-index: 10;
-    left: 52.4%;
-    top: 3.7%;
-    width: 19.4%;
-    height: 1.55%;
+    left: 54.6%;
+    top: 3.55%;
+    width: 17.4%;
+    height: 1.85%;
     overflow: hidden;
     border-radius: 999px;
     background: rgba(17, 77, 124, .78);
@@ -136,7 +154,7 @@
     display: grid;
     place-items: center;
     color: white;
-    font-size: clamp(.34rem, 1.08vh, .5rem);
+    font-size: clamp(.38rem, 1.28vh, .58rem);
     line-height: 1;
     text-shadow: 0 1px 2px #0c4773;
 }
@@ -153,28 +171,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .16em;
     color: #6e3b13;
-    font-size: clamp(.46rem, 1.48vh, .7rem);
+    font-size: clamp(.52rem, 1.72vh, .78rem);
     font-weight: 1000;
     white-space: nowrap;
 }
 
-.wallet-value.coins::first-letter {
-    color: #e8a812;
-}
-
 .wallet-value.coins {
-    left: 77.6%;
-    top: 3.1%;
-    width: 15.8%;
+    left: 80.1%;
+    top: 2.75%;
+    width: 11.8%;
     height: 2.9%;
 }
 
 .wallet-value.gems {
-    left: 80.3%;
-    top: 6.75%;
-    width: 13.2%;
+    left: 80.1%;
+    top: 6.15%;
+    width: 11.8%;
     height: 2.9%;
     color: #0e5f87;
 }
@@ -183,9 +196,9 @@
     position: absolute;
     z-index: 7;
     left: 50%;
-    top: 33.5%;
-    width: 31%;
-    height: 21.5%;
+    top: 30.2%;
+    width: 36%;
+    height: 24.2%;
     transform: translateX(-50%);
     object-fit: contain;
     object-position: center bottom;
@@ -217,10 +230,10 @@
 .reward-dynamic-bar {
     position: absolute;
     z-index: 12;
-    left: 22.6%;
-    top: 70.35%;
-    width: 40.2%;
-    height: 1.95%;
+    left: 22.8%;
+    top: 70.2%;
+    width: 40.1%;
+    height: 2.05%;
     overflow: hidden;
     border-radius: 999px;
     background: rgba(52, 24, 13, .94);
@@ -247,10 +260,10 @@
 .pet-dynamic-count {
     position: absolute;
     z-index: 12;
-    left: 25.2%;
-    top: 94.7%;
-    width: 20.8%;
-    height: 2.15%;
+    left: 26.2%;
+    top: 94.15%;
+    width: 18.8%;
+    height: 2.4%;
     display: grid;
     place-items: center;
     border-radius: 999px;
@@ -410,6 +423,14 @@
     object-fit: contain;
 }
 
+.frame-thumb-simple {
+    position: absolute;
+    inset: 7px;
+    border: 4px solid #e2aa39;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px rgba(255, 245, 205, .8);
+}
+
 @media (max-width: 360px), (max-height: 650px) {
     .hud-name-slot {
         font-size: .66rem;
@@ -427,7 +448,4 @@
         font-size: 1.15rem;
     }
 
-    .regions-label {
-        font-size: .36rem;
-    }
 }
