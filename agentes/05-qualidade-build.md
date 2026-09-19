@@ -82,3 +82,18 @@ app/build/outputs/apk/debug/app-debug.apk
 Se aprovado, devolve ao Orquestrador.
 
 Se reprovado, devolve à persona responsável pela correção e a issue permanece ativa.
+
+
+## Entrada obrigatória após gate visual
+
+Qualidade só recebe telas visuais do Orquestrador após Direção Visual registrar `FIDELIDADE_VISUAL >= 75%`.
+
+Validar testes, regressões, preview, carregamento de assets, responsividade, overflow/cortes, performance e Android/WebView quando aplicável.
+
+Depois:
+
+```text
+Qualidade → Orquestrador
+```
+
+O Orquestrador encaminha ao Experience Validator. Qualidade não fecha issue visual nem libera a próxima.
