@@ -492,10 +492,9 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #21 — Disponibilizar preview web contínuo da main  
-**Estado:** AGUARDANDO HABILITAÇÃO/VALIDAÇÃO DO PAGES  
-**Issue pausada:** #3 — bloqueada por assets definitivos ausentes  
-**Próxima issue do roadmap:** #4 — BLOQUEADA; #3 deve ser retomada antes  
+**Issue ativa:** #3 — Integrar e validar pacote definitivo de assets renomeados  
+**Estado:** BLOQUEADA POR INSUMO AUSENTE  
+**Próxima issue:** #4 — BLOQUEADA até fechamento formal da #3  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
 
@@ -572,19 +571,23 @@ Pelo gate vigente:
 3. somente depois a fila avança para #3, #4, #5, #6 e #7;
 4. a primeira implementação jogável completa da M1 culmina na #7.
 
-### Reordenação temporária para preview
+### Preview web contínuo
 
-O usuário solicitou acompanhar visualmente as modificações durante o desenvolvimento.
+A Issue #21 foi concluída.
 
-Por prioridade explícita:
+Resultado:
 
 ```text
-#3 → PAUSADA / continua aberta / bloqueada por assets
-#21 → EM EXECUÇÃO / infraestrutura de preview
-#4 → BLOQUEADA
+workflow = .github/workflows/web-preview-pages.yml
+fonte publicada = web/
+URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
+run validado = 35459403891 (attempt 2)
+resultado = success
 ```
 
-A #21 não altera gameplay, scheduler, assets canônicos ou escopo funcional. Ao concluir, o Orquestrador deve retomar a #3. A #21 não autoriza liberar a #4.
+O workflow `static.yml`, criado automaticamente pela configuração do GitHub Pages, foi removido porque publicava a raiz do repositório e causava 404 no endereço principal.
+
+A Issue #3 foi retomada e continua bloqueada exclusivamente pelo pacote definitivo de assets ausente. A #4 permanece bloqueada.
 
 ### Bloqueio atual da Issue #3
 
@@ -655,6 +658,10 @@ Quando o pacote definitivo estiver disponível:
 - Nenhum arquivo de referência foi promovido automaticamente para produção.
 - Issue #21 criada para servir preview contínuo da `web/` após solicitação explícita do usuário.
 - Issue #3 foi pausada temporariamente, não concluída; #4 permanece bloqueada.
+- Issue #21 concluída com preview web funcionando em `https://juliano-souza-dev.github.io/tabuada-quest-2/`.
+- Workflow duplicado `static.yml` removido; ele publicava a raiz e provocava 404.
+- Workflow canônico de preview: `.github/workflows/web-preview-pages.yml`, publicando somente `web/`.
+- Issue #3 retomada após conclusão da #21.
 - Issue #21: workflow `web-preview-pages.yml` criado para publicar diretamente `web/` no GitHub Pages.
 - URL esperada do preview: `https://juliano-souza-dev.github.io/tabuada-quest-2/`.
 - Primeira publicação falhou no run 35459403891, passo `Configure Pages`.
