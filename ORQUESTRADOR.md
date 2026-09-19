@@ -1193,3 +1193,47 @@ Web Preview    = 35473624902 → success
 Estado: AGUARDANDO VALIDAÇÃO VISUAL DO LÍDER.
 
 A #4 permanece aberta como issue pai.
+
+
+### Issue #23 — calibração pixel-perfect da Home
+
+Criada a correção objetiva:
+
+```text
+#23 [M1-04B] Aplicar offsets pixel-perfect aos conteúdos dinâmicos da Home
+```
+
+Vinculação:
+
+```text
+#4  → issue raiz
+#22 → refino visual pai
+#23 → calibração numérica exata
+```
+
+Baseline da medição:
+
+```text
+viewport = 394 × 699 px
+overlay  = 941 × 1672 px
+```
+
+Offsets obrigatórios da #23:
+
+```text
+avatar decorativo  +15px X /  +2px Y
+avatar simples     +12px X /  +9px Y
+nome                +2px X / +10px Y
+nível               +3px X /  +4px Y
+XP                  +1px X /  +9px Y
+moedas              +4px X / +11px Y
+gemas               +4px X /  +9px Y
+próximo baú         -2px X /  +1px Y
+PETS                +3px X /  -7px Y
+personagem           0px X /   0px Y
+fundo                0px X /   0px Y
+```
+
+Regra: Desenvolvimento deve aplicar os valores exatamente, aos slots dinâmicos, sem ajustes subjetivos adicionais.
+
+A #23 permanece aberta aguardando implementação e validação visual do líder.
