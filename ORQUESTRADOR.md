@@ -350,6 +350,201 @@ Se esse estado estiver ambíguo, o primeiro trabalho do Orquestrador é reconstr
 
 > Uma issue não é "a próxima tarefa disponível" apenas porque existe. Ela só se torna executável quando o Orquestrador confirma que todas as issues anteriores da sequência foram concluídas.
 
+## Protocolo obrigatório de continuidade entre IAs
+
+O `ORQUESTRADOR.md` é também o **checkpoint operacional oficial do projeto**.
+
+Qualquer IA que assuma o Tabuada Quest 2.0 deve conseguir abrir este arquivo e determinar, sem depender do histórico da conversa:
+
+- qual milestone está ativa;
+- qual issue está liberada;
+- quais issues estão bloqueadas;
+- quais personas já possuem contrato formal;
+- quais decisões de produto já foram aprovadas;
+- quais arquivos/documentos são fontes de verdade;
+- o que foi executado na sessão anterior;
+- quais pendências permanecem;
+- qual é o próximo passo permitido pelo gate.
+
+### Regra de atualização obrigatória
+
+Depois de qualquer mudança relevante no projeto, o Orquestrador deve atualizar este arquivo **antes de considerar a tarefa encerrada**.
+
+Considera-se mudança relevante:
+
+- decisão de Produto ou Game Design;
+- criação, alteração ou encerramento de issue;
+- mudança de milestone;
+- criação ou alteração de contrato de persona;
+- alteração de arquitetura;
+- implementação de funcionalidade;
+- correção importante;
+- criação ou integração de assets;
+- validação de QA/Experience Validator;
+- build, APK ou release;
+- mudança de branch usada como fonte;
+- nova pendência ou bloqueio;
+- alteração de prioridade;
+- qualquer fato necessário para uma IA futura continuar sem adivinhação.
+
+### O que registrar
+
+Cada checkpoint deve conter, no mínimo:
+
+```text
+data/hora
+milestone ativa
+issue ativa
+estado da issue
+personas chamadas
+o que foi decidido
+o que foi alterado
+arquivos/commits relevantes
+validações executadas
+pendências
+próximo passo permitido
+issues que continuam bloqueadas
+```
+
+### Procedimento de entrada para qualquer IA
+
+Ao assumir o projeto:
+
+1. ler `ORQUESTRADOR.md` na branch `main`;
+2. ler a seção **Estado operacional atual**;
+3. abrir a issue ativa no GitHub;
+4. ler os documentos/decisões citados no checkpoint;
+5. ler os contratos das personas que a issue exige;
+6. confirmar o gate antes de executar qualquer trabalho;
+7. somente então continuar a execução;
+8. ao terminar sua parte, atualizar novamente o checkpoint neste arquivo.
+
+Nenhuma IA deve inferir o estado do projeto apenas pelo código ou por mensagens antigas se o Orquestrador possuir estado mais recente.
+
+### Fonte de verdade e precedência
+
+Em caso de divergência:
+
+1. decisão explícita mais recente do usuário;
+2. `ORQUESTRADOR.md` e estado atual;
+3. issue ativa e seus critérios;
+4. `docs/decisoes/`;
+5. contratos em `agentes/`;
+6. código da `main`;
+7. branch `apoio` apenas como referência histórica.
+
+Se for encontrada inconsistência entre essas fontes, o Orquestrador deve registrar e resolver a inconsistência antes de liberar trabalho posterior.
+
+## Estado operacional atual
+
+**Última atualização:** 2026-09-19  
+**Milestone ativa:** M1 — Fundação e Núcleo Jogável  
+**Issue ativa:** #1 — Fechar escopo funcional do 2.0 e matriz de legado  
+**Estado:** EM EXECUÇÃO  
+**Próxima issue:** #2 — BLOQUEADA até fechamento formal da #1  
+**Branch de trabalho:** `main`  
+**Branch de referência:** `apoio`
+
+### Personas e contratos
+
+- Orquestrador: `ORQUESTRADOR.md`
+- Direção Visual: `agentes/03-direcao-visual.md`
+- Produto: contrato formal ainda pendente na #2
+- Game Design e Aprendizagem: contrato formal ainda pendente na #2
+- Desenvolvimento: contrato formal ainda pendente na #2
+- Qualidade e Build: contrato formal ainda pendente na #2
+- Experience Validator: contrato formal ainda pendente na #2
+
+### Decisões oficiais vigentes
+
+- identidade do jogo: aventura pirata mágica infantil;
+- Portais foram substituídos por **Regiões**;
+- Mundos foram substituídos por **Ilhas**;
+- estrutura atual: 10 Regiões × 10 Ilhas = 100 Ilhas, até nova decisão de Produto;
+- Ilhas não representam uma única tabuada;
+- scheduler pedagógico intercalado definido conceitualmente na DEC-001;
+- campanha possui 30 PETs a serem salvos;
+- campanha possui 30 baús;
+- cada baú pode conter um ou mais tesouros;
+- existem 5 mapas especiais, cada um com 4 fragmentos;
+- distribuição de mapas: R1 fecha mapa 1; R2-R3 mapa 2; R4-R5 mapa 3; R6-R7 mapa 4; R8-R10 mapa 5;
+- ao fechar 4/4 fragmentos, progressão normal é temporariamente bloqueada;
+- mapa completo abre missão especial obrigatória de tabuada mista com fundo temático;
+- conclusão da missão concede 1.000 diamantes uma única vez;
+- os 5 mapas permitem 5.000 diamantes por esse sistema;
+- Diamantes são moeda especial persistente para futura Loja Especial;
+- PETs, baús e diamantes são sistemas distintos, salvo decisão posterior.
+
+### Direção Visual vigente
+
+- contrato visual e de otimização está em `agentes/03-direcao-visual.md`;
+- avatares canônicos:
+  - `avatar-luna-visual-base.webp`
+  - `avatar-sofia-visual-base.webp`
+  - `avatar-maya-visual-base.webp`
+- novas modas devem preservar aparência e alterar apenas roupa/acessórios aprovados;
+- assets devem seguir contratos WebP/Lottie definidos pela Direção Visual.
+
+### Arquitetura já preparada
+
+- `web/` é a fonte web canônica;
+- o mesmo `web/` é empacotado no Android WebView;
+- wrapper Android em Java já existe;
+- build Android inicial foi preparado, mas o APK final ainda não foi validado como release;
+- gameplay do 2.0 ainda não foi iniciado.
+
+### Referência
+
+- branch `apoio` existe e contém material legado/referência;
+- há conteúdo em `game 2.0/assets-remasterizados`;
+- material da `apoio` não entra automaticamente na `main`.
+
+### Documentação oficial relevante
+
+- `docs/decisoes/DEC-001-distribuicao-intercalada-tabuadas.md`
+- `docs/decisoes/DEC-002-regioes-ilhas-pets-baus.md`
+- `docs/arquitetura/ANDROID-WEBVIEW.md`
+
+### Estado do pedido atual
+
+O usuário declarou que a primeira etapa conceitual está documentada e autorizou o início da **versão 1 do jogo**.
+
+Entretanto, pelo gate vigente:
+
+1. a Issue #1 precisa ser formalmente encerrada;
+2. a Issue #2 precisa ser liberada e concluída;
+3. somente depois a fila avança para #3, #4, #5, #6 e #7;
+4. a primeira implementação jogável completa da M1 culmina na #7.
+
+O pedido para iniciar a V1 **não autoriza pular issues**.
+
+### Próximo passo permitido
+
+Finalizar formalmente a Issue #1:
+
+- consolidar a matriz de escopo/legado;
+- marcar seus critérios como atendidos;
+- registrar a validação;
+- fechar #1 como concluída;
+- atualizar este checkpoint;
+- liberar somente então a Issue #2.
+
+## Diário operacional
+
+### 2026-09-19 — checkpoint de continuidade
+
+- Orquestrador estabelecido como primeiro agente obrigatório.
+- Gate sequencial de milestones/issues estabelecido.
+- 20 issues criadas e distribuídas em 3 milestones.
+- Issue #1 permanece ativa.
+- DEC-001 e DEC-002 criadas/atualizadas.
+- Direção Visual formalizada com identidade pirata, contratos de otimização e avatares-base.
+- Estrutura Região/Ilha, 30 PETs, 30 baús, 5 mapas e Diamantes registrada.
+- Usuário autorizou início da V1.
+- Foi adicionada a exigência de que **todo o processo seja documentado no Orquestrador para continuidade por qualquer IA**.
+- Nenhuma issue posterior foi liberada neste checkpoint.
+
+
 ## Autoridade e conflitos
 
 Se duas personas entrarem em conflito:
