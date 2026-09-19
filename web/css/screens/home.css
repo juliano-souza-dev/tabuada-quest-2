@@ -43,6 +43,7 @@
     border-radius: 22px;
     background: linear-gradient(135deg, rgba(6, 37, 50, 0.92), rgba(21, 57, 78, 0.84));
     box-shadow: var(--shadow);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
 }
 
@@ -367,6 +368,95 @@
 
     .quick-action {
         min-height: 68px;
+    }
+
+    .campaign-strip {
+        display: none;
+    }
+}
+
+
+@media (max-height: 640px) {
+    .player-bar {
+        top: max(6px, env(safe-area-inset-top));
+        left: 7px;
+        right: 7px;
+        min-height: 54px;
+        padding: 5px 8px;
+    }
+
+    .player-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .player-avatar img {
+        height: 42px;
+    }
+
+    .player-route {
+        display: none;
+    }
+
+    .diamond-pill {
+        padding: 6px 7px;
+    }
+
+    .home-brand {
+        top: 14%;
+    }
+
+    .home-brand h1 {
+        font-size: clamp(2rem, 10vw, 2.6rem);
+    }
+
+    .home-character {
+        bottom: 35%;
+        height: 24vh;
+    }
+
+    .home-actions {
+        left: 8px;
+        right: 8px;
+        bottom: max(6px, env(safe-area-inset-bottom));
+        gap: 5px;
+    }
+
+    .play-button {
+        min-height: 52px;
+    }
+
+    .play-button strong {
+        font-size: 1.45rem;
+    }
+
+    .map-progress {
+        min-height: 46px;
+        padding: 4px 8px;
+    }
+
+    .map-progress img {
+        width: 34px;
+        height: 34px;
+    }
+
+    .map-copy span {
+        display: none;
+    }
+
+    .quick-action {
+        min-height: 58px;
+        grid-template-columns: 32px 1fr;
+        padding: 5px 6px;
+    }
+
+    .quick-action img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .quick-action span span {
+        display: none;
     }
 
     .campaign-strip {
