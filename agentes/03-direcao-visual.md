@@ -141,3 +141,52 @@ Para cada tela ou conjunto de assets, entregar:
 9. observações de responsividade e legibilidade em tela pequena;
 10. validação final de coerência com a identidade pirata mágica;
 11. quando houver moda, confirmação explícita de comparação com o avatar-base canônico correspondente.
+
+
+## Protocolo obrigatório de criação e reuso de assets
+
+Documento oficial:
+
+```text
+docs/arte/ESTRATEGIA-ASSETS-V1.md
+```
+
+Antes de qualquer tela visual ser implementada, Direção Visual deve classificar cada slot obrigatório como:
+
+```text
+REUTILIZAR
+ADAPTAR
+CRIAR NOVO
+```
+
+### Regra de decisão
+
+- `REUTILIZAR`: somente quando o asset existente atende função, tema, proporção, enquadramento e qualidade sem deformação ou compensação excessiva.
+- `ADAPTAR`: quando a identidade deve ser preservada, mas pose, roupa, enquadramento, transparência ou integração de cena precisam mudar.
+- `CRIAR NOVO`: quando o arquivo existente foi feito para outro papel, não oferece safe areas, exige crop/estiramento inadequado, diverge do tema ou força a composição a se adaptar à arte.
+
+Direção Visual deve produzir um **plano de assets por tela** antes do handoff para Desenvolvimento.
+
+Desenvolvimento não pode escolher substitutos por conveniência.
+
+Se faltar asset:
+
+```text
+Desenvolvimento → bloqueia o slot → Direção Visual
+```
+
+Não improvisar.
+
+### Avatares
+
+Os três avatares-base canônicos preservam identidade integral.
+
+Qualquer variação exige comparação lado a lado com a base antes da aprovação.
+
+### Cenários
+
+Cenários devem ser planejados para o viewport e composição da tela. Um banner horizontal não se torna automaticamente um fundo vertical.
+
+### Princípio
+
+> A composição define o asset necessário. O asset existente não define a composição.
