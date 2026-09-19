@@ -1,4 +1,5 @@
 (function (root) {
+    // Visual handoff round: premium Home composition validated by Direction Visual.
     const TQ = root.TabuadaQuest;
 
     const appRoot = document.querySelector("#app");
