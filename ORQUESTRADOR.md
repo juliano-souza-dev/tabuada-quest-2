@@ -1118,9 +1118,9 @@ Web Preview     = 35471859639 → success
 
 ### Correções de alinhamento do HUD da Home — 2026-09-19 19:05 -03:00
 
-**Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #4 — correção visual/mobile da Home  
-**Estado:** IMPLEMENTAÇÃO ATUALIZADA / CORREÇÕES VALIDADAS PELO LÍDER / AGUARDANDO NOVA VALIDAÇÃO FORMAL  
+**Milestone ativa:** M1 — Fundação e Núcleo Jogável
+**Issue ativa:** #4 — correção visual/mobile da Home
+**Estado:** IMPLEMENTAÇÃO ATUALIZADA / CORREÇÕES VALIDADAS PELO LÍDER / AGUARDANDO NOVA VALIDAÇÃO FORMAL
 **Personas envolvidas:** Orquestrador, Direção Visual, Desenvolvimento e Qualidade e Build.
 
 O líder validou o pacote de correções de alinhamento solicitado para a Home premium. A implementação foi ajustada sem alterar regras pedagógicas, persistência ou o catálogo de assets.
