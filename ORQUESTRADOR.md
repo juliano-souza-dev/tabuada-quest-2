@@ -1379,3 +1379,17 @@ Próximo handoff após fechamento da #5:
 ```text
 #6 → Desenvolvimento implementar scheduler + testes de invariantes
 ```
+
+
+### Issue #5 encerrada / #6 liberada
+
+```text
+#5 → CLOSED / scheduler definido
+#6 → ATIVA / implementar scheduler no domínio
+```
+
+Fonte de verdade pedagógica da implementação:
+
+```text
+docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
+```
