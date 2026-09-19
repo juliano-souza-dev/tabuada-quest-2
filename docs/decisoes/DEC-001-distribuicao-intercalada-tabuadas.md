@@ -259,3 +259,35 @@ Esta decisão não fixa ainda:
 - se a progressão de interleaving será idêntica ou diferente entre todos os portais.
 
 Esses pontos deverão ser fechados por Produto e Game Design antes da implementação da mecânica.
+
+
+## Fechamento dos pontos abertos — Issue #5
+
+Os pontos numéricos e operacionais desta decisão foram fechados em:
+
+```text
+docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
+```
+
+Valores aprovados para a V1:
+
+```text
+X = 200 plannedExposure por tabuada
+20 plannedExposure por tabuada / Região
+2 plannedExposure por operação / Região
+20 plannedExposure por operação / campanha
+20 plannedExposure por Ilha
+2.000 plannedExposure na campanha
+```
+
+Progressão de mistura:
+
+```text
+Regiões 1-2  → 2 tabuadas por Ilha
+Regiões 3-4  → 3 tabuadas por Ilha
+Regiões 5-6  → 4 tabuadas por Ilha
+Regiões 7-8  → 5 tabuadas por Ilha
+Regiões 9-10 → 10 tabuadas por Ilha
+```
+
+A DEC-004 passa a ser a especificação executável para a Issue #6.

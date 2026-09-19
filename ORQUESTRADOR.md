@@ -1335,3 +1335,47 @@ Resultado:
 #4 → CONCLUÍDA
 #5 → LIBERADA
 ```
+
+
+### Issue #5 — scheduler pedagógico fechado
+
+Produto + Game Design mediram a referência e fecharam a matriz da V1.
+
+```text
+X = 200 plannedExposure por tabuada
+plannedExposure por operação / Região = 2
+plannedExposure por Ilha = 20
+plannedExposure total da campanha = 2.000
+```
+
+Progressão de interleaving:
+
+```text
+R1-R2   K=2
+R3-R4   K=3
+R5-R6   K=4
+R7-R8   K=5
+R9-R10  K=10
+```
+
+Regra de erro:
+
+```text
+erro → correctStreak=0 → recoveryAttempt
+recoveryAttempt não altera a cota plannedExposure
+```
+
+Documentos:
+
+```text
+docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
+docs/validacao/ISSUE-005-verificacao-matriz.md
+```
+
+Qualidade validou a consistência aritmética da matriz.
+
+Próximo handoff após fechamento da #5:
+
+```text
+#6 → Desenvolvimento implementar scheduler + testes de invariantes
+```
