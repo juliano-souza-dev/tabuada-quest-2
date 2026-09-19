@@ -170,7 +170,7 @@ tabuadaQuest.playerState
 Versão inicial:
 
 ```text
-schemaVersion = 2
+schemaVersion = 3
 ```
 
 Estrutura mínima:
@@ -181,7 +181,17 @@ Estrutura mínima:
   player: {
     id,
     displayName,
-    avatarId
+    avatarId,
+    profileFrameId
+  },
+  progression: {
+    level,
+    xpCurrent,
+    xpRequired
+  },
+  wallet: {
+    coins,
+    gems
   },
   campaign: {
     currentRegionId,
@@ -314,3 +324,50 @@ Regras:
 - seleção de fundo não altera gameplay/progressão;
 - estado v1 migra automaticamente para schema v2 com `pirate-main`;
 - novos fundos podem ser adicionados sem duplicar a tela Home.
+
+
+### HUD dinâmico da Home
+
+A composição visual aprovada define posições e molduras, mas os valores são dados vivos do estado.
+
+Campos dinâmicos:
+
+```text
+state.player.avatarId
+state.player.displayName
+state.player.profileFrameId
+state.progression.level
+state.progression.xpCurrent
+state.progression.xpRequired
+state.wallet.coins
+state.wallet.gems
+```
+
+Nenhum desses valores deve ser rasterizado dentro dos assets finais.
+
+A imagem de composição que usa nomes/números de exemplo é apenas referência visual.
+
+### Moldura de perfil selecionável
+
+Catálogo:
+
+```text
+TQ.content.profileFrames
+```
+
+Preferência:
+
+```text
+state.player.profileFrameId
+```
+
+Padrão atual:
+
+```text
+pirate-treasure
+→ ./assets/frames/profile-frame-pirate-treasure.webp
+```
+
+Assim como o fundo da Home, a moldura pode ser trocada pelo jogador entre opções aprovadas/promovidas.
+
+A seleção de moldura é cosmética e não altera gameplay, progressão ou recompensas.
