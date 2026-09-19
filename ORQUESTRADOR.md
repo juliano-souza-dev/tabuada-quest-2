@@ -806,6 +806,11 @@ A #5 permanece bloqueada até a nova aprovação e fechamento formal da #4.
 - O fundo da Home não é fixo: o jogador pode escolher outro cenário aprovado.
 - A preferência fica em `state.ui.homeBackgroundId`; estado persistente passa a `schemaVersion = 2` com migração automática de v1.
 - A escolha do fundo é puramente visual e não altera progressão, scheduler ou recompensas.
+- Implementação base validada após a decisão de fundo personalizável:
+  - Web Unit Tests `35464413886` → success;
+  - Web Preview `35464421922` → success;
+  - Android Debug `35464421928` → success.
+- A Issue #4 permanece aberta porque a UI final de seleção de fundo e a recomposição visual da Home ainda precisam ser concluídas sob liderança da Direção Visual.
 - Estratégia de criação/reuso de assets formalizada em `docs/arte/ESTRATEGIA-ASSETS-V1.md`.
 - Regra: a composição da tela é definida antes do inventário de assets; cada slot deve ser classificado como REUTILIZAR, ADAPTAR ou CRIAR NOVO.
 - Desenvolvimento não pode improvisar asset ausente ou forçar arquivo existente em função inadequada.
