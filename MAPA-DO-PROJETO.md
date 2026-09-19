@@ -182,13 +182,14 @@ Diretório:
 docs/validacao/
 ```
 
-Auditoria atual:
+Validações atuais:
 
 ```text
 docs/validacao/ISSUE-003-auditoria-assets.md
+docs/validacao/ISSUE-004-arquitetura-mobile.md
 ```
 
-Esse documento registra a auditoria parcial dos assets encontrados na branch `apoio`, budgets, divergências e bloqueios da Issue #3.
+A validação da Issue #4 registra arquitetura, core mobile, testes web, preview e build Android aprovados.
 
 ---
 
@@ -442,7 +443,14 @@ tabuada-quest-2-debug
 
 ## Estado de validação
 
-O pipeline inicial existe.
+O pipeline debug está funcional.
+
+Último build validado da Issue #4:
+
+```text
+run_id = 35461886489
+resultado = success
+```
 
 **Não assumir que um release final já foi validado.**
 
@@ -522,10 +530,11 @@ Issues somente documentais não precisam disparar nova publicação.
 
 Preview validado em 2026-09-19.
 
+Último run funcional validado da Issue #4:
+
 ```text
 workflow = .github/workflows/web-preview-pages.yml
-run_id = 35459403891
-attempt = 2
+run_id = 35461886529
 resultado = success
 fonte = web/
 URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
