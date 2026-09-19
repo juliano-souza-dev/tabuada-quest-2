@@ -6,7 +6,7 @@
 
 ## Resultado
 
-**APROVADO**
+**INVALIDADO POR REPROVAÇÃO VISUAL DO USUÁRIO**
 
 A Issue #4 estabelece tanto a arquitetura técnica quanto a estrutura visual/mobile da V1 como parte do core.
 
@@ -148,3 +148,21 @@ A definição do scheduler pedagógico permanece corretamente na Issue #5.
 A Issue #4 pode ser encerrada como **completed**.
 
 A Issue #5 só pode ser liberada após o fechamento formal da #4.
+
+
+## Revisão posterior — 2026-09-19
+
+A validação visual registrada neste documento foi invalidada após reprovação explícita do usuário.
+
+A arquitetura técnica, testes e build continuam válidos.
+
+A aprovação da **camada visual/mobile** não continua válida.
+
+A Issue #4 foi reaberta e deve passar novamente por:
+
+1. Direção Visual;
+2. Experience Validator;
+3. Desenvolvimento;
+4. Qualidade + preview público.
+
+Não usar este documento como evidência de aprovação visual até nova validação.
