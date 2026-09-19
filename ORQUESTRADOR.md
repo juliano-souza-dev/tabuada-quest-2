@@ -1077,3 +1077,23 @@ Mudanças principais:
 Qualidade está validando a mesma entrega web do commit `3e02ebdfa703a4bb248404863da0cb3ea1b202c5`.
 
 Issue #5 continua bloqueada.
+
+
+### Preview atualizado para teste do líder — 2026-09-19
+
+Overlay substituído manualmente pelo líder e confirmado na `main`.
+
+```text
+web/assets/ui/home-art-overlay.webp
+size = 579660 bytes
+sha  = ab9a3e0a8e37c44b3fd1ad34120dbecc9ed0358f
+```
+
+Cache-bust aplicado em `web/js/content/game-content.js`.
+
+```text
+commit      = 631005809acfada3465c0b56b50cdc88676c5f0c
+Web Preview = 35471595734 → success
+```
+
+Página de teste liberada para validação do líder.
