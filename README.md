@@ -12,6 +12,14 @@ ORQUESTRADOR.md
 
 O Orquestrador é responsável por interpretar o pedido, escolher quais personas devem atuar, ler seus contratos e coordenar a execução e os handoffs.
 
+Depois, leia:
+
+```text
+MAPA-DO-PROJETO.md
+```
+
+Esse arquivo registra onde estão materiais, código, referências, assets, workflows e como o jogo é empacotado para Android.
+
 As regras especializadas das personas ficam em:
 
 ```text
