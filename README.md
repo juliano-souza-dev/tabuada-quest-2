@@ -2,6 +2,22 @@
 
 Nova base do Tabuada Quest.
 
+## Entrada obrigatória do projeto
+
+Toda tarefa do projeto deve começar pelo:
+
+```text
+ORQUESTRADOR.md
+```
+
+O Orquestrador é responsável por interpretar o pedido, escolher quais personas devem atuar, ler seus contratos e coordenar a execução e os handoffs.
+
+As regras especializadas das personas ficam em:
+
+```text
+agentes/
+```
+
 ## Estado atual
 
 O projeto está em preparação de arquitetura. A implementação do gameplay ainda não começou.
