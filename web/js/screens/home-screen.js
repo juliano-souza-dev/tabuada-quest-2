@@ -11,10 +11,17 @@
             || TQ.content.homeBackgrounds[0];
     }
 
+    function resolveProfileFrame(frameId) {
+        return TQ.content.profileFrames.find((item) => item.id === frameId)
+            || TQ.content.profileFrames.find((item) => item.id === TQ.content.defaultProfileFrameId)
+            || TQ.content.profileFrames[0];
+    }
+
     function renderHomeScreen({ state }) {
         const avatarId = safeAvatarId(state.player.avatarId);
         const avatarSrc = TQ.content.assets.avatars[avatarId];
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
+        const profileFrame = resolveProfileFrame(state.player.profileFrameId);
         const mapOne = state.campaign.specialMaps["1"];
         const totals = TQ.content.campaignTotals;
 
@@ -27,16 +34,17 @@
         screen.innerHTML = `
             <header class="player-bar">
                 <div class="player-avatar">
-                    <img src="${avatarSrc}" alt="">
+                    <img class="player-avatar-image" src="${avatarSrc}" alt="">
+                    <img class="player-avatar-frame" src="${profileFrame.src}" alt="" aria-hidden="true">
                 </div>
                 <div class="player-copy">
                     <span class="player-kicker">Tripulação</span>
                     <strong class="player-name">${state.player.displayName}</strong>
-                    <span class="player-route">Região ${state.campaign.currentRegionId} · Ilha ${state.campaign.currentIslandId}</span>
+                    <span class="player-route">Nível ${state.progression.level} · XP ${state.progression.xpCurrent}/${state.progression.xpRequired}</span>
                 </div>
-                <div class="diamond-pill" aria-label="${state.campaign.diamonds} diamantes">
-                    <strong>💎 ${state.campaign.diamonds}</strong>
-                    <span>Diamantes</span>
+                <div class="wallet-hud" aria-label="Moedas e gemas">
+                    <span>🪙 <strong>${state.wallet.coins}</strong></span>
+                    <span>💎 <strong>${state.wallet.gems}</strong></span>
                 </div>
             </header>
 
@@ -116,5 +124,5 @@
     }
 
     TQ.screens = TQ.screens || {};
-    TQ.screens.home = Object.freeze({ renderHomeScreen, resolveHomeBackground });
+    TQ.screens.home = Object.freeze({ renderHomeScreen, resolveHomeBackground, resolveProfileFrame });
 })(globalThis);
