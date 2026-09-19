@@ -4,9 +4,19 @@
     const homeBackgrounds = Object.freeze([
         Object.freeze({
             id: "pirate-main",
-            label: "Aventura no mar",
+            label: "Baía encantada",
             src: "./assets/ui/home-pirata-fundo-principal.webp",
             isDefault: true
+        }),
+        Object.freeze({
+            id: "pirate-bay",
+            label: "Baía pirata",
+            src: "./assets/backgrounds/home-pirate-bay.webp"
+        }),
+        Object.freeze({
+            id: "pirate-port",
+            label: "Porto pirata",
+            src: "./assets/backgrounds/home-pirate-port.webp"
         })
     ]);
 
@@ -16,6 +26,11 @@
             label: "Tesouro pirata",
             src: "./assets/frames/profile-frame-pirate-treasure.webp",
             isDefault: true
+        }),
+        Object.freeze({
+            id: "tide-wheel",
+            label: "Timão das marés",
+            src: "./assets/frames/profile-frame-tide-wheel.webp"
         })
     ]);
 
@@ -39,9 +54,18 @@
                 maya: "./assets/avatars/avatar-maya-visual-base.webp",
                 sofia: "./assets/avatars/avatar-sofia-visual-base.webp"
             }),
+            homeHeroes: Object.freeze({
+                luna: "./assets/avatars/avatar-luna-pirata.webp",
+                maya: "./assets/avatars/avatar-maya-pirata.webp",
+                sofia: "./assets/avatars/avatar-sofia-pirata.webp"
+            }),
             compass: "./assets/ui/icone-mapa-bussola.webp",
             chest: "./assets/ui/icone-bau-tesouro.webp",
-            reward: "./assets/ui/icone-recompensa-magica.webp"
+            reward: "./assets/ui/icone-recompensa-magica.webp",
+            nauticalChest: "./assets/ui/chest-nautical.webp",
+            itemChest: "./assets/ui/chest-items.webp",
+            pet: "./assets/pets/axolotl-captain.webp",
+            playButton: "./assets/ui/home-pirata-botao-aventura.webp"
         })
     });
 })(globalThis);
