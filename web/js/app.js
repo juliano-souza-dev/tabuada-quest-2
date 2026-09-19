@@ -6,8 +6,18 @@
         return;
     }
 
-    const state = TQ.persistence.localStorage.loadState(root.localStorage);
+    let state = TQ.persistence.localStorage.loadState(root.localStorage);
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
-    screens.render(TQ.screens.home.renderHomeScreen, { state });
+    function render() {
+        screens.render(TQ.screens.home.renderHomeScreen, {
+            state,
+            onStateChange(nextState) {
+                state = TQ.persistence.localStorage.saveState(root.localStorage, nextState);
+                render();
+            }
+        });
+    }
+
+    render();
 })(globalThis);
