@@ -170,7 +170,7 @@ tabuadaQuest.playerState
 Versão inicial:
 
 ```text
-schemaVersion = 1
+schemaVersion = 2
 ```
 
 Estrutura mínima:
@@ -194,7 +194,8 @@ Estrutura mínima:
     diamonds
   },
   ui: {
-    lastScreen
+    lastScreen,
+    homeBackgroundId
   }
 }
 ```
@@ -281,3 +282,35 @@ file:///android_asset/index.html
 ```
 
 Nenhuma cópia paralela é permitida.
+
+
+### Personalização do fundo da Home
+
+O fundo da Home é uma preferência visual persistente do jogador.
+
+Catálogo:
+
+```text
+TQ.content.homeBackgrounds
+```
+
+Preferência:
+
+```text
+state.ui.homeBackgroundId
+```
+
+Padrão inicial:
+
+```text
+pirate-main
+→ ./assets/ui/home-pirata-fundo-principal.webp
+```
+
+Regras:
+
+- apenas fundos aprovados/promovidos entram no catálogo;
+- id desconhecido deve cair no fundo padrão;
+- seleção de fundo não altera gameplay/progressão;
+- estado v1 migra automaticamente para schema v2 com `pirate-main`;
+- novos fundos podem ser adicionados sem duplicar a tela Home.
