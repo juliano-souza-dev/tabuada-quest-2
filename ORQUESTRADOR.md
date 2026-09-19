@@ -1097,3 +1097,21 @@ Web Preview = 35471595734 → success
 ```
 
 Página de teste liberada para validação do líder.
+
+
+### Correção do fundo padrão da Home — 2026-09-19
+
+Problema observado no preview: a composição carregava sobre o fundo azul do viewport, sem exibir o cenário padrão.
+
+Correção:
+
+- fundo passou de `background-image` CSS para camada `<img>` real;
+- `pirate-main` continua sendo o fundo padrão;
+- fallback automático para o fundo padrão em falha de carregamento;
+- personalização de fundo permanece intacta.
+
+```text
+commit          = c6e16150e01caaa96b7173205d604c9af60d5eb6
+Web Unit Tests  = 35471859658 → success
+Web Preview     = 35471859639 → success
+```
