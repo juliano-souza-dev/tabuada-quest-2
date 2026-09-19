@@ -467,7 +467,34 @@ Depois disso, o workflow faz as publicações seguintes automaticamente.
 
 O workflow foi criado em 2026-09-19.
 
-A configuração de Pages não é legível/alterável pelo conector disponível neste projeto, portanto o estado de habilitação inicial deve ser confirmado na interface do GitHub. Não declarar o preview como online até a primeira publicação concluída.
+Primeira execução:
+
+```text
+run_id = 35459403891
+resultado = failure
+passo = Configure Pages
+```
+
+Causa confirmada no log:
+
+```text
+Get Pages site failed.
+Repository does not have Pages enabled/configured for GitHub Actions.
+```
+
+A configuração de Pages não pode ser alterada pelo conector GitHub disponível nesta sessão. É necessário habilitar uma única vez na interface:
+
+```text
+Settings
+→ Pages
+→ Build and deployment
+→ Source
+→ GitHub Actions
+```
+
+Depois disso, rerodar o workflow `Web Preview`.
+
+Não declarar o preview online antes de uma execução concluída com sucesso.
 
 ---
 
