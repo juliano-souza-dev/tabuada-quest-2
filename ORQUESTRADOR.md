@@ -492,9 +492,9 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #4 — Definir arquitetura web, domínio, persistência e estratégia de testes  
-**Estado:** LIBERADA / AINDA NÃO EXECUTADA  
-**Próxima issue:** #5 — BLOQUEADA até fechamento formal da #4  
+**Issue ativa:** #5 — Medir carga pedagógica de referência e fechar o scheduler intercalado  
+**Estado:** LIBERADA / AGUARDANDO EXECUÇÃO  
+**Próxima issue:** #6 — BLOQUEADA até fechamento formal da #5  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
 
@@ -538,13 +538,18 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 - novas modas devem preservar aparência e alterar apenas roupa/acessórios aprovados;
 - assets devem seguir contratos WebP/Lottie definidos pela Direção Visual.
 
-### Arquitetura já preparada
+### Arquitetura vigente
 
 - `web/` é a fonte web canônica;
 - o mesmo `web/` é empacotado no Android WebView;
-- wrapper Android em Java já existe;
-- build Android inicial foi preparado, mas o APK final ainda não foi validado como release;
-- gameplay do 2.0 ainda não foi iniciado.
+- wrapper Android em Java permanece apenas como hospedeiro;
+- arquitetura modular está documentada em `docs/arquitetura/WEB-V1.md`;
+- conteúdo, domínio, persistência, core e telas possuem caminhos separados;
+- estado local usa `schemaVersion = 1`;
+- testes de domínio/persistência vivem em `tests/web/`;
+- a Home da V1 já usa estrutura mobile-first de jogo;
+- scheduler pedagógico ainda não foi implementado e pertence às Issues #5/#6;
+- release Android final ainda não foi validado.
 
 ### Referência
 
@@ -556,21 +561,23 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 - `docs/decisoes/DEC-001-distribuicao-intercalada-tabuadas.md`
 - `docs/decisoes/DEC-002-regioes-ilhas-pets-baus.md`
+- `docs/decisoes/DEC-003-matriz-escopo-v1.md`
 - `docs/arquitetura/ANDROID-WEBVIEW.md`
+- `docs/arquitetura/WEB-V1.md`
 - `docs/referencias/V1-DIRECAO-MOBILE.md`
+- `docs/validacao/ISSUE-004-arquitetura-mobile.md`
 
 ### Estado do pedido atual
 
-O usuário autorizou o início da **versão 1 do jogo**.
+O usuário autorizou o início da **versão 1 do jogo** e definiu que a experiência visual/mobile da referência anterior é parte do core, adaptada integralmente ao tema pirata mágico.
 
-A Issue #1 foi concluída e fechada com a matriz de escopo consolidada em `DEC-003`.
+Estado atual do gate:
 
-Pelo gate vigente:
-
-1. a Issue #2 está liberada e em execução;
-2. a Issue #3 permanece bloqueada até o fechamento formal da #2;
-3. somente depois a fila avança para #3, #4, #5, #6 e #7;
-4. a primeira implementação jogável completa da M1 culmina na #7.
+1. Issues #1, #2, #3 e #4 estão concluídas;
+2. Issue #5 está liberada;
+3. Issue #6 permanece bloqueada até fechamento da #5;
+4. Issue #7 permanece bloqueada até fechamento da #6;
+5. a primeira implementação jogável completa da M1 culmina na #7.
 
 ### Preview web contínuo
 
@@ -582,13 +589,13 @@ Resultado:
 workflow = .github/workflows/web-preview-pages.yml
 fonte publicada = web/
 URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
-run validado = 35459403891 (attempt 2)
+run validado = 35461886529
 resultado = success
 ```
 
 O workflow `static.yml`, criado automaticamente pela configuração do GitHub Pages, foi removido porque publicava a raiz do repositório e causava 404 no endereço principal.
 
-A Issue #3 foi retomada e continua bloqueada exclusivamente pelo pacote definitivo de assets ausente. A #4 permanece bloqueada.
+O preview está ativo e publica diretamente a `web/`. A última versão validada corresponde ao core mobile da Issue #4.
 
 ### Issue #3 concluída
 
@@ -642,15 +649,46 @@ Regra:
 
 Documento: `docs/referencias/V1-DIRECAO-MOBILE.md`.
 
-### Próximo passo permitido
+### Issue #4 concluída
 
-Executar a Issue #4:
+A Issue #4 foi encerrada após incorporar a arquitetura técnica e a correção visual/mobile como parte obrigatória do core da V1.
+
+Implementado:
+
+- arquitetura modular em `web/js/` e `web/css/`;
+- estado persistente versionado;
+- persistência local com recuperação segura;
+- testes unitários sem DOM;
+- Home mobile-first em tela cheia;
+- adaptação desktop derivada do mobile;
+- modo compacto para aparelhos de baixa altura.
+
+Validações:
 
 ```text
-[M1-04] Definir arquitetura web, domínio, persistência e estratégia de testes
+Web Unit Tests = 35461810852 → success
+Web Preview    = 35461886529 → success
+Android Debug  = 35461886489 → success
 ```
 
-A #5 permanece bloqueada até o fechamento formal da #4.
+Experience Validator: **APROVADO**  
+Qualidade e Build: **APROVADO**
+
+Documento:
+
+```text
+docs/validacao/ISSUE-004-arquitetura-mobile.md
+```
+
+### Próximo passo permitido
+
+Executar a Issue #5:
+
+```text
+[M1-05] Medir carga pedagógica de referência e fechar o scheduler intercalado
+```
+
+A #6 permanece bloqueada até o fechamento formal da #5.
 
 ## Diário operacional
 
@@ -705,6 +743,15 @@ A #5 permanece bloqueada até o fechamento formal da #4.
 - Ação manual necessária uma única vez: Settings → Pages → Build and deployment → Source → GitHub Actions.
 - Depois disso, reexecutar o workflow e validar a URL.
 - Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
+- Usuário determinou que a correção visual/mobile da referência é parte do core da V1, não polimento.
+- Issue #4 incorporou essa regra aos critérios de aceite.
+- Home deixou de ser landing page e passou a ocupar o viewport como tela de jogo mobile-first.
+- Arquitetura modular formalizada em `docs/arquitetura/WEB-V1.md`.
+- Testes web adicionados em `tests/web/` com workflow `.github/workflows/web-unit-tests.yml`.
+- QA corrigiu corte potencial em aparelhos com menos de 620 px de altura e adicionou modo compacto abaixo de 640 px.
+- Issue #4 concluída com arquitetura modular, core mobile e validação completa.
+- Runs finais da #4: testes `35461810852`, preview `35461886529`, Android debug `35461886489`, todos com sucesso.
+- Issue #5 liberada; Issue #6 e posteriores permanecem bloqueadas pelo gate.
 
 
 ## Autoridade e conflitos
