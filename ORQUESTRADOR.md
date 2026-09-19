@@ -493,7 +493,7 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
 **Issue ativa:** #3 — Integrar e validar pacote definitivo de assets renomeados  
-**Estado:** EM EXECUÇÃO  
+**Estado:** BLOQUEADA POR INSUMO AUSENTE  
 **Próxima issue:** #4 — BLOQUEADA até fechamento formal da #3  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
@@ -571,17 +571,43 @@ Pelo gate vigente:
 3. somente depois a fila avança para #3, #4, #5, #6 e #7;
 4. a primeira implementação jogável completa da M1 culmina na #7.
 
+### Bloqueio atual da Issue #3
+
+Auditoria concluída em 2026-09-19:
+
+- a branch `apoio` foi inspecionada integralmente;
+- pacote encontrado: `game 2.0/assets-remasterizados/`;
+- esse pacote contém somente home/ícones/prompts remasterizados iniciais;
+- `avatar-luna-visual-base.webp` não foi encontrado;
+- `avatar-sofia-visual-base.webp` não foi encontrado;
+- `avatar-maya-visual-base.webp` não foi encontrado;
+- a `main` não contém WebPs/avatares de produção;
+- o pacote definitivo renomeado necessário para encerrar #3 ainda não está no repositório.
+
+O destino canônico já foi definido como:
+
+```text
+web/assets/
+```
+
+e documentado em:
+
+```text
+web/assets/README.md
+```
+
 ### Próximo passo permitido
 
-Executar a Issue #3:
+A Issue #3 permanece ativa e bloqueia a #4.
 
-- localizar o pacote definitivo de assets renomeados;
-- validar nomes, duplicidades, budgets e referências;
-- definir o caminho canônico de assets na `main`;
-- promover somente os assets aprovados;
-- registrar o destino em `MAPA-DO-PROJETO.md`;
-- fechar #3 somente após validação completa;
-- manter #4 bloqueada até então.
+Quando o pacote definitivo estiver disponível:
+
+1. Direção Visual valida identidade e avatares-base;
+2. Qualidade valida nomes, duplicidades, budgets e referências;
+3. assets aprovados são promovidos para `web/assets/`;
+4. `MAPA-DO-PROJETO.md` é atualizado com a subestrutura real;
+5. #3 é fechada somente após todos os critérios;
+6. só então #4 pode ser liberada.
 
 ## Diário operacional
 
@@ -604,6 +630,10 @@ Executar a Issue #3:
 - Contratos de Produto, Game Design, Desenvolvimento, Qualidade e Experience Validator criados na #2.
 - Issue #2 foi concluída e fechada.
 - Issue #3 foi liberada; Issue #4 e posteriores permanecem bloqueadas.
+- Auditoria da #3 encontrou somente o pacote inicial de referência em `apoio/game 2.0/assets-remasterizados/`.
+- O pacote definitivo renomeado e os três avatares-base ainda não estão no repositório.
+- Destino canônico de produção definido: `web/assets/`.
+- Issue #3 permanece aberta e bloqueada por insumo ausente; #4 não pode iniciar.
 - Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
 
 
