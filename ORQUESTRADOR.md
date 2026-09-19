@@ -662,6 +662,8 @@ Quando o pacote definitivo estiver disponível:
 - Workflow duplicado `static.yml` removido; ele publicava a raiz e provocava 404.
 - Workflow canônico de preview: `.github/workflows/web-preview-pages.yml`, publicando somente `web/`.
 - Issue #3 retomada após conclusão da #21.
+- Usuário definiu que cada issue visível deve atualizar o preview público para acompanhamento em tempo real.
+- Preview obrigatório por issue documentado no Orquestrador.
 - Issue #21: workflow `web-preview-pages.yml` criado para publicar diretamente `web/` no GitHub Pages.
 - URL esperada do preview: `https://juliano-souza-dev.github.io/tabuada-quest-2/`.
 - Primeira publicação falhou no run 35459403891, passo `Configure Pages`.
@@ -699,6 +701,47 @@ O Orquestrador pode mandar uma persona consultar a `apoio`, mas:
 - código do 2.0 vive na `main`;
 - contratos das personas vivem na `main`;
 - material da `apoio` não se torna regra do 2.0 automaticamente.
+
+## Regra obrigatória de preview por issue
+
+Toda issue que alterar comportamento, interface, navegação, feedback, gameplay ou qualquer conteúdo visível da pasta `web/` deve atualizar o preview público antes de ser considerada concluída.
+
+Fluxo obrigatório:
+
+```text
+issue ativa
+  ↓
+implementação na main
+  ↓
+alteração em web/
+  ↓
+workflow Web Preview
+  ↓
+deploy concluído
+  ↓
+validação visual no endereço público
+  ↓
+registro no ORQUESTRADOR.md
+  ↓
+issue pode seguir para encerramento
+```
+
+Preview oficial:
+
+```text
+https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+### Regras
+
+- cada issue visual/funcional deve deixar uma versão observável no preview;
+- não considerar uma issue concluída apenas porque o código foi commitado;
+- aguardar o workflow `.github/workflows/web-preview-pages.yml`;
+- se o deploy falhar, a issue continua ativa;
+- Qualidade deve validar a publicação quando a issue exigir QA;
+- o Orquestrador deve registrar o run validado ou a confirmação de publicação;
+- issues puramente documentais, sem alteração em `web/`, não precisam gerar nova versão visual;
+- o preview não substitui validação Android quando a issue também exigir APK/WebView.
 
 ## Regra de encerramento
 
