@@ -211,6 +211,181 @@ Portanto:
 
 Uma associação entre ambos só deve existir quando Game Design definir explicitamente aquela relação.
 
+
+## Mapas fragmentados e missões especiais
+
+A campanha terá **5 mapas especiais**, e cada mapa será dividido em **4 fragmentos**.
+
+```text
+TOTAL_SPECIAL_MAPS = 5
+FRAGMENTS_PER_MAP = 4
+TOTAL_MAP_FRAGMENTS = 20
+```
+
+Os 20 fragmentos são distribuídos pelas 10 Regiões.
+
+### Distribuição aprovada
+
+```text
+Região 1  → Mapa 1: fragmentos 1, 2, 3 e 4 → MAPA 1 COMPLETO
+
+Região 2  → Mapa 2: fragmentos 1 e 2
+Região 3  → Mapa 2: fragmentos 3 e 4       → MAPA 2 COMPLETO
+
+Região 4  → Mapa 3: fragmentos 1 e 2
+Região 5  → Mapa 3: fragmentos 3 e 4       → MAPA 3 COMPLETO
+
+Região 6  → Mapa 4: fragmentos 1 e 2
+Região 7  → Mapa 4: fragmentos 3 e 4       → MAPA 4 COMPLETO
+
+Região 8  → Mapa 5: fragmentos 1 e 2
+Região 9  → Mapa 5: fragmento 3
+Região 10 → Mapa 5: fragmento 4            → MAPA 5 COMPLETO
+```
+
+Isso cria marcos de mapa completo nas Regiões:
+
+```text
+1, 3, 5, 7 e 10
+```
+
+### Regra especial da Região 1
+
+A Região 1 entrega um mapa completo.
+
+O objetivo é ensinar cedo ao jogador o ciclo:
+
+```text
+encontrar fragmentos
+        ↓
+completar o mapa
+        ↓
+viajar em uma missão especial
+        ↓
+concluir o desafio
+        ↓
+receber uma recompensa especial
+```
+
+## Gate de missão ao completar um mapa
+
+Quando o quarto fragmento de um mapa for obtido, a progressão normal da campanha é **temporariamente bloqueada**.
+
+Nesse estado:
+
+- as Regiões normais ficam indisponíveis;
+- o jogador não entra diretamente em uma Ilha comum;
+- o jogo apresenta uma tela de missão especial;
+- a missão do mapa deve ser concluída antes de a progressão normal ser retomada.
+
+### Tela de missão
+
+A tela deve comunicar de forma infantil, direta e temática que todas as partes do mapa foram encontradas.
+
+Texto-base aprovado:
+
+> Você encontrou todas as partes do mapa. Viaje nessa aventura!
+
+A interface deve possuir um botão principal para iniciar a viagem, por exemplo:
+
+> Ir
+
+A redação visual final pode ser refinada por Produto/Experience Validator, mas não pode remover a informação de que o mapa foi completado e que existe uma nova aventura disponível.
+
+## Viagem especial do mapa
+
+A viagem especial é uma sessão de **tabuada mista** com ambientação própria.
+
+Ela não é uma nova Região nem uma Ilha comum.
+
+Conceitualmente:
+
+```text
+Mapa completo
+   ↓
+Missão especial
+   ↓
+Tabuada mista
+   +
+Fundo temático exclusivo
+   ↓
+Conclusão
+   ↓
+Recompensa especial
+```
+
+### Regras pedagógicas
+
+- a missão utiliza questões de tabuada mista;
+- a seleção de operações deve respeitar as regras pedagógicas já aprovadas;
+- a missão não altera silenciosamente as cotas curriculares da campanha;
+- se suas tentativas contarem para domínio ou revisão, isso deverá ser explicitamente definido pelo Game Design antes da implementação;
+- o fundo temático muda a ambientação, não as regras matemáticas fundamentais.
+
+A quantidade de questões, dificuldade e composição exata da mistura ainda serão definidas.
+
+## Recompensa da missão especial
+
+Concluir uma missão de mapa concede:
+
+```text
+1.000 diamantes
+```
+
+Cada um dos 5 mapas concede essa recompensa **uma única vez**.
+
+Portanto, se todos os mapas forem concluídos:
+
+```text
+5 mapas × 1.000 diamantes = 5.000 diamantes
+```
+
+Os diamantes são uma moeda especial do Tabuada Quest 2.0.
+
+Seu uso principal será em uma **Loja Especial**, que será especificada posteriormente.
+
+### Regras dos diamantes
+
+- diamantes são persistentes;
+- a recompensa de 1.000 diamantes não pode ser coletada duas vezes para o mesmo mapa;
+- repetir ou reabrir uma missão concluída, caso essa função exista no futuro, não concede novamente os 1.000 diamantes;
+- diamantes não consomem nem substituem os 30 baús;
+- diamantes não são automaticamente equivalentes às outras moedas do jogo;
+- preços, catálogo e funcionamento da Loja Especial ainda não estão definidos.
+
+## Desbloqueio após a missão
+
+Após a conclusão bem-sucedida da missão:
+
+1. a missão é marcada como concluída;
+2. os 1.000 diamantes são creditados uma única vez;
+3. o mapa é registrado como completado;
+4. o bloqueio temporário é removido;
+5. as Regiões normais voltam a ficar disponíveis de acordo com a progressão da campanha.
+
+O estado deve ser persistido de forma que fechar e reabrir o jogo não permita perder a conclusão nem duplicar a recompensa.
+
+## Estado conceitual da missão
+
+Cada mapa deve possuir, no mínimo, estados equivalentes a:
+
+```text
+LOCKED
+COLLECTING
+MAP_COMPLETE_MISSION_PENDING
+MISSION_IN_PROGRESS
+MISSION_COMPLETED
+```
+
+Enquanto estiver em:
+
+```text
+MAP_COMPLETE_MISSION_PENDING
+```
+
+a progressão normal permanece bloqueada até a missão especial ser concluída.
+
+
 ## Relação com a DEC-001
 
 A DEC-001 continua válida.
@@ -276,6 +451,11 @@ Esta decisão não fixa ainda:
 - quantidade de baús por login diário;
 - quais etapas concedem baús;
 - quais recompensas existem dentro de cada baú;
+- quantidade de questões de cada missão especial de mapa;
+- composição exata da tabuada mista nas missões especiais;
+- relação das tentativas da missão especial com domínio/revisão;
+- identidade temática de cada um dos 5 mapas e suas missões;
+- regras, preços e catálogo da Loja Especial de diamantes;
 - condição exata de resgate de cada PET;
 - recompensa de conclusão de Região.
 
