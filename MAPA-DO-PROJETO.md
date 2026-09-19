@@ -200,11 +200,14 @@ Diretório:
 docs/arquitetura/
 ```
 
-Documento Android/WebView atual:
+Documentos atuais:
 
 ```text
 docs/arquitetura/ANDROID-WEBVIEW.md
+docs/arquitetura/WEB-V1.md
 ```
+
+`WEB-V1.md` é a fonte oficial para organização modular da aplicação web, contrato de estado/persistência, estratégia de testes e regra mobile-first.
 
 ---
 
@@ -221,8 +224,33 @@ Estrutura atual:
 ```text
 web/
 ├── index.html
+├── assets/
 ├── css/
+│   ├── app.css
+│   ├── tokens.css
+│   ├── base.css
+│   └── screens/
+│       └── home.css
 └── js/
+    ├── app.js
+    ├── core/
+    │   └── screen-manager.js
+    ├── content/
+    │   └── game-content.js
+    ├── domain/
+    │   └── player-state.js
+    ├── persistence/
+    │   └── local-storage.js
+    └── screens/
+        └── home-screen.js
+```
+
+Testes unitários ficam fora da pasta publicada:
+
+```text
+tests/web/
+├── player-state.test.cjs
+└── local-storage.test.cjs
 ```
 
 ## Regra de fonte única
@@ -244,9 +272,17 @@ Entrada:
 web/index.html
 ```
 
-No estado atual, o bootstrap foi preparado para funcionar diretamente no navegador para smoke tests.
+A aplicação roda diretamente no navegador sem etapa de bundle.
 
-Se no futuro uma funcionalidade exigir servidor HTTP, deve ser adicionado um modo de preview, mas `web/` continua sendo a fonte canônica.
+Preview público:
+
+```text
+https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+A Home da V1 é mobile-first e usa o viewport como tela de jogo. Desktop adapta essa composição em um viewport centralizado.
+
+A aplicação usa scripts clássicos separados por camada, preservando compatibilidade com o carregamento `file:///android_asset/index.html` do WebView.
 
 ---
 
@@ -534,6 +570,38 @@ web/
 
 ---
 
+# 12.2 Testes web unitários
+
+Workflow:
+
+```text
+.github/workflows/web-unit-tests.yml
+```
+
+Runner:
+
+```text
+node --test tests/web/*.test.cjs
+```
+
+Escopo atual:
+
+- contrato do estado inicial;
+- normalização de estado inválido;
+- persistência local;
+- recuperação de JSON corrompido.
+
+Os testes não dependem de DOM ou navegador.
+
+Última execução validada da Issue #4:
+
+```text
+run_id = 35461810852
+resultado = success
+```
+
+---
+
 # 13. ProGuard / release
 
 Arquivo existente:
@@ -560,10 +628,12 @@ Diretório:
 .github/workflows/
 ```
 
-Workflow conhecido:
+Workflows conhecidos:
 
 ```text
 .github/workflows/android-debug.yml
+.github/workflows/web-preview-pages.yml
+.github/workflows/web-unit-tests.yml
 ```
 
 Ao criar novos workflows, registrar neste mapa:
@@ -723,26 +793,69 @@ Sempre ler o checkpoint do Orquestrador e a issue ativa.
 
 # 20. Onde colocar código novo
 
-## Antes da Issue #4
+A arquitetura modular foi formalizada na Issue #4.
 
-A arquitetura modular detalhada ainda não foi formalizada.
+Fonte:
 
-Portanto:
+```text
+docs/arquitetura/WEB-V1.md
+```
 
-- não inventar nova organização de domínio;
-- não criar pastas profundas de arquitetura por conta própria;
-- não introduzir frameworks sem decisão;
-- não mover arquivos existentes apenas por preferência.
+### Conteúdo estático
 
-A Issue #4 será responsável por definir e documentar:
+```text
+web/js/content/
+```
 
-- módulos;
-- domínio;
-- persistência;
-- testes;
-- convenções internas de `web/`.
+### Regras puras de domínio
 
-Depois disso, esta seção deve ser atualizada com os caminhos exatos.
+```text
+web/js/domain/
+```
+
+Não usar DOM nem localStorage diretamente.
+
+### Persistência
+
+```text
+web/js/persistence/
+```
+
+### Infraestrutura de navegação/telas
+
+```text
+web/js/core/
+```
+
+### Telas
+
+```text
+web/js/screens/
+web/css/screens/
+```
+
+Cada tela pode possuir composição própria. Não criar uma malha desktop genérica e depois apenas empilhar no celular.
+
+### Testes de domínio/persistência
+
+```text
+tests/web/
+```
+
+### CSS compartilhado
+
+```text
+web/css/tokens.css
+web/css/base.css
+```
+
+### Entrada CSS
+
+```text
+web/css/app.css
+```
+
+Não introduzir bundler/framework sem nova decisão arquitetural.
 
 ---
 
