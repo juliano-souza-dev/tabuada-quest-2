@@ -174,6 +174,24 @@ Decisões novas devem seguir a numeração sequencial `DEC-XXX`.
 
 ---
 
+# 5.1 Validações formais
+
+Diretório:
+
+```text
+docs/validacao/
+```
+
+Auditoria atual:
+
+```text
+docs/validacao/ISSUE-003-auditoria-assets.md
+```
+
+Esse documento registra a auditoria parcial dos assets encontrados na branch `apoio`, budgets, divergências e bloqueios da Issue #3.
+
+---
+
 # 6. Documentação de arquitetura
 
 Diretório:
@@ -473,11 +491,14 @@ Caminho canônico aprovado na `main`:
 web/assets/
 ```
 
-Arquivo de orientação:
+Arquivos de controle:
 
 ```text
 web/assets/README.md
+web/assets/MANIFESTO.md
 ```
+
+O `MANIFESTO.md` é a lista oficial de assets promovidos/aprovados. Enquanto um arquivo não estiver fisicamente em `web/assets/` e registrado no manifesto, ele não é asset de produção.
 
 **Estado atual da Issue #3: BLOQUEADA POR INSUMO AUSENTE.**
 
