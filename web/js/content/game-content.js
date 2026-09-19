@@ -1,6 +1,15 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
+    const homeBackgrounds = Object.freeze([
+        Object.freeze({
+            id: "pirate-main",
+            label: "Aventura no mar",
+            src: "./assets/ui/home-pirata-fundo-principal.webp",
+            isDefault: true
+        })
+    ]);
+
     TQ.content = Object.freeze({
         campaignTotals: Object.freeze({
             regions: 10,
@@ -11,6 +20,8 @@
             fragmentsPerMap: 4,
             diamondsPerMapMission: 1000
         }),
+        homeBackgrounds,
+        defaultHomeBackgroundId: "pirate-main",
         assets: Object.freeze({
             avatars: Object.freeze({
                 luna: "./assets/avatars/avatar-luna-visual-base.webp",
