@@ -8,88 +8,15 @@
     <link rel="stylesheet" href="./css/app.css">
 </head>
 <body>
-    <main class="preview-shell">
-        <section class="hero" aria-labelledby="title">
-            <img
-                class="hero-art"
-                src="./assets/ui/home-pirata-banner-aventura.webp"
-                alt=""
-                aria-hidden="true"
-            >
-            <div class="hero-shade"></div>
-            <div class="hero-content">
-                <span class="eyebrow">Tabuada Quest 2.0</span>
-                <h1 id="title">Uma nova aventura está começando</h1>
-                <p>Regiões, ilhas, tesouros e uma tripulação pronta para explorar os mares.</p>
-            </div>
-        </section>
+    <div class="app-stage">
+        <main id="app" class="app-viewport" aria-live="polite"></main>
+    </div>
 
-        <section class="preview-section" aria-labelledby="crew-title">
-            <div class="section-heading">
-                <span>Tripulação</span>
-                <h2 id="crew-title">Avatares-base</h2>
-            </div>
-
-            <div class="crew-grid">
-                <article class="crew-card">
-                    <div class="avatar-stage">
-                        <img src="./assets/avatars/avatar-luna-visual-base.webp" alt="Luna">
-                    </div>
-                    <strong>Luna</strong>
-                </article>
-
-                <article class="crew-card">
-                    <div class="avatar-stage">
-                        <img src="./assets/avatars/avatar-maya-visual-base.webp" alt="Maya">
-                    </div>
-                    <strong>Maya</strong>
-                </article>
-
-                <article class="crew-card">
-                    <div class="avatar-stage">
-                        <img src="./assets/avatars/avatar-sofia-visual-base.webp" alt="Sofia">
-                    </div>
-                    <strong>Sofia</strong>
-                </article>
-            </div>
-        </section>
-
-        <section class="preview-section" aria-labelledby="adventure-title">
-            <div class="section-heading">
-                <span>Aventura</span>
-                <h2 id="adventure-title">Elementos do novo mundo</h2>
-            </div>
-
-            <div class="feature-grid">
-                <article class="feature-card">
-                    <img src="./assets/ui/icone-mapa-bussola.webp" alt="">
-                    <div>
-                        <strong>Regiões e ilhas</strong>
-                        <p>Uma jornada marítima substitui os antigos portais e mundos.</p>
-                    </div>
-                </article>
-
-                <article class="feature-card">
-                    <img src="./assets/ui/icone-bau-tesouro.webp" alt="">
-                    <div>
-                        <strong>Tesouros</strong>
-                        <p>Baús e recompensas acompanham o progresso pela aventura.</p>
-                    </div>
-                </article>
-
-                <article class="feature-card">
-                    <img src="./assets/ui/icone-recompensa-magica.webp" alt="">
-                    <div>
-                        <strong>Recompensas</strong>
-                        <p>Conquistas especiais vão marcar os grandes momentos da jornada.</p>
-                    </div>
-                </article>
-            </div>
-        </section>
-
-        <p class="preview-note">A construção do jogo continua. Esta página acompanha as mudanças liberadas a cada etapa.</p>
-    </main>
-
+    <script src="./js/content/game-content.js"></script>
+    <script src="./js/domain/player-state.js"></script>
+    <script src="./js/persistence/local-storage.js"></script>
+    <script src="./js/core/screen-manager.js"></script>
+    <script src="./js/screens/home-screen.js"></script>
     <script src="./js/app.js"></script>
 </body>
 </html>
