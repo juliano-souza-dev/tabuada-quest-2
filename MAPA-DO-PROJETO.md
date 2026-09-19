@@ -463,6 +463,25 @@ Settings
 
 Depois disso, o workflow faz as publicações seguintes automaticamente.
 
+## Regra operacional: preview por issue
+
+Para qualquer issue que altere `web/`:
+
+1. commit na `main`;
+2. aguardar `.github/workflows/web-preview-pages.yml`;
+3. validar o deploy;
+4. abrir/confirmar o preview público;
+5. registrar o estado no `ORQUESTRADOR.md`;
+6. somente então considerar a parte visual/funcional da issue concluída.
+
+Preview oficial:
+
+```text
+https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+Issues somente documentais não precisam disparar nova publicação.
+
 ## Estado de validação
 
 Preview validado em 2026-09-19.
