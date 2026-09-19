@@ -960,3 +960,31 @@ docs/referencias/V1-DIRECAO-MOBILE.md
 ```
 
 As imagens usadas para definir essa direção são referência de UX/composição e não assets de produção. Não copiar para `web/assets/`.
+
+
+# Direção de arte da Home V1
+
+Documento obrigatório da Issue #4:
+
+```text
+docs/arte/ISSUE-004-DIRECAO-HOME-V1.md
+```
+
+Esse documento define a composição visual da Home e deve ser lido antes de qualquer alteração em:
+
+```text
+web/css/screens/home.css
+web/js/screens/home-screen.js
+```
+
+A versão visual atualmente publicada está **REPROVADA** e não deve ser usada como referência de qualidade.
+
+Ordem obrigatória para correção:
+
+```text
+Direção Visual
+→ Experience Validator
+→ Desenvolvimento
+→ Qualidade
+→ Preview
+```
