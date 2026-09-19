@@ -36,12 +36,16 @@
 
         const screen = document.createElement("section");
         screen.className = "home-screen home-premium";
-        screen.style.setProperty("--home-background-image", `url("${background.src}")`);
         screen.setAttribute("aria-label", "Início do Tabuada Quest");
 
         screen.innerHTML = `
             <div class="home-design-stage">
-                <div class="home-world" aria-hidden="true"></div>
+                <div class="home-world" aria-hidden="true">
+                    <img class="home-background-image"
+                         src="${background.src}"
+                         data-default-src="${TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)?.src || background.src}"
+                         alt="">
+                </div>
 
                 <img class="home-art-overlay"
                      src="${TQ.content.assets.homeOverlay}"
@@ -138,6 +142,16 @@
                 </section>
             </div>
         `;
+
+        const backgroundImage = screen.querySelector(".home-background-image");
+        if (backgroundImage) {
+            backgroundImage.addEventListener("error", () => {
+                const fallbackSrc = backgroundImage.dataset.defaultSrc;
+                if (fallbackSrc && !backgroundImage.src.endsWith(fallbackSrc.replace("./", "/"))) {
+                    backgroundImage.src = fallbackSrc;
+                }
+            }, { once: true });
+        }
 
         const toast = screen.querySelector(".home-toast");
         let toastTimer = null;

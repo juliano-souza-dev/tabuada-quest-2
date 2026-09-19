@@ -17,9 +17,25 @@
 .home-world {
     position: absolute;
     inset: 0;
-    background:
-        linear-gradient(180deg, rgba(0, 25, 36, 0.02), rgba(0, 25, 36, 0.05)),
-        var(--home-background-image, url("../../assets/ui/home-pirata-fundo-principal.webp")) center / cover no-repeat;
+    overflow: hidden;
+    background: #0b2b3d;
+}
+
+.home-background-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.home-world::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(0, 25, 36, 0.02), rgba(0, 25, 36, 0.05));
 }
 
 .home-art-overlay {
