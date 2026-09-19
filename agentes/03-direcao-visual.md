@@ -217,3 +217,35 @@ N >= 75%
 Avaliar composição, hierarquia, proporção, escala, spacing, assets, cenário, personagem, HUD, CTA, navegação, profundidade e acabamento.
 
 Não aprovar por funcionamento técnico. Não alterar código durante a avaliação. O mínimo de 75% é gate de continuidade; a aprovação global final é do líder de equipe.
+## Produção de assets após reprovação
+
+Quando `FIDELIDADE_VISUAL < 75%`, Direção Visual deve emitir um relatório de gaps com dois grupos:
+
+```text
+GAPS_IMPLEMENTACAO
+GAPS_ASSETS
+```
+
+Para `GAPS_ASSETS`, Direção Visual é responsável por criar/gerar as peças faltantes antes de uma nova rodada de Desenvolvimento.
+
+Limite:
+
+```text
+0 a 10 novos assets por rodada
+```
+
+Cada asset deve receber:
+- nome/caminho esperado;
+- função visual;
+- referência/composição de origem;
+- transparência/opacidade requerida;
+- proporção/dimensão;
+- status `GERADO PARA HANDOFF`.
+
+Depois:
+
+```text
+Direção Visual → Orquestrador → Desenvolvimento
+```
+
+Direção Visual não implementa a tela. Ela fornece assets e critérios de correção.
