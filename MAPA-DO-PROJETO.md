@@ -414,6 +414,63 @@ Release, assinatura e APK final pertencem às issues posteriores do roadmap.
 
 ---
 
+# 12.1 Preview web contínuo
+
+Workflow:
+
+```text
+.github/workflows/web-preview-pages.yml
+```
+
+Fonte publicada:
+
+```text
+web/
+```
+
+URL esperada do GitHub Pages:
+
+```text
+https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+Gatilhos:
+
+- push na `main` que altere `web/**`;
+- alteração do próprio workflow;
+- execução manual via `workflow_dispatch`.
+
+A publicação usa:
+
+- `actions/checkout@v6`;
+- `actions/configure-pages@v5`;
+- `actions/upload-pages-artifact@v4`;
+- `actions/deploy-pages@v4`.
+
+O preview publica diretamente `web/`. Não existe cópia paralela do app.
+
+## Habilitação inicial
+
+Se o Pages ainda não estiver habilitado no repositório, é necessário fazer uma única vez no GitHub:
+
+```text
+Settings
+→ Pages
+→ Build and deployment
+→ Source
+→ GitHub Actions
+```
+
+Depois disso, o workflow faz as publicações seguintes automaticamente.
+
+## Estado de validação
+
+O workflow foi criado em 2026-09-19.
+
+A configuração de Pages não é legível/alterável pelo conector disponível neste projeto, portanto o estado de habilitação inicial deve ser confirmado na interface do GitHub. Não declarar o preview como online até a primeira publicação concluída.
+
+---
+
 # 13. ProGuard / release
 
 Arquivo existente:
