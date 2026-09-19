@@ -657,7 +657,10 @@ Quando o pacote definitivo estiver disponível:
 - Issue #3 foi pausada temporariamente, não concluída; #4 permanece bloqueada.
 - Issue #21: workflow `web-preview-pages.yml` criado para publicar diretamente `web/` no GitHub Pages.
 - URL esperada do preview: `https://juliano-souza-dev.github.io/tabuada-quest-2/`.
-- Pendente: confirmar/ativar em Settings → Pages → Source → GitHub Actions e validar a primeira publicação.
+- Primeira publicação falhou no run 35459403891, passo `Configure Pages`.
+- Causa confirmada pelo log: o repositório ainda não possui um Pages site habilitado/configurado para GitHub Actions.
+- Ação manual necessária uma única vez: Settings → Pages → Build and deployment → Source → GitHub Actions.
+- Depois disso, reexecutar o workflow e validar a URL.
 - Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
 
 
