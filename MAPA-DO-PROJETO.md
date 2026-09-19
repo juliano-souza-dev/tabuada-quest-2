@@ -1014,3 +1014,35 @@ docs/arte/ESTRATEGIA-ASSETS-V1.md
 ```
 
 A composição vem antes da escolha dos arquivos.
+
+
+## Fundo da Home personalizável
+
+Fundo padrão promovido:
+
+```text
+web/assets/ui/home-pirata-fundo-principal.webp
+```
+
+ID persistente:
+
+```text
+pirate-main
+```
+
+Contrato:
+
+```text
+state.ui.homeBackgroundId
+TQ.content.homeBackgrounds
+```
+
+O jogador pode escolher o fundo da Home entre cenários aprovados. A imagem acima é o padrão inicial.
+
+Estado persistente vigente:
+
+```text
+schemaVersion = 2
+```
+
+Estados v1 migram automaticamente para `pirate-main`.
