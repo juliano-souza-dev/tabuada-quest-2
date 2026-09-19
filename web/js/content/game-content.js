@@ -10,6 +10,15 @@
         })
     ]);
 
+    const profileFrames = Object.freeze([
+        Object.freeze({
+            id: "pirate-treasure",
+            label: "Tesouro pirata",
+            src: "./assets/frames/profile-frame-pirate-treasure.webp",
+            isDefault: true
+        })
+    ]);
+
     TQ.content = Object.freeze({
         campaignTotals: Object.freeze({
             regions: 10,
@@ -21,7 +30,9 @@
             diamondsPerMapMission: 1000
         }),
         homeBackgrounds,
+        profileFrames,
         defaultHomeBackgroundId: "pirate-main",
+        defaultProfileFrameId: "pirate-treasure",
         assets: Object.freeze({
             avatars: Object.freeze({
                 luna: "./assets/avatars/avatar-luna-visual-base.webp",
