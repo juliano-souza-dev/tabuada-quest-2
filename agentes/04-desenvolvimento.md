@@ -77,3 +77,21 @@ Depois da implementação:
 ## Regra de documentação
 
 Se criar/mover pasta, build, workflow, artefato ou processo de empacotamento, atualizar `MAPA-DO-PROJETO.md` antes de encerrar.
+
+
+## Handoff visual obrigatório
+
+Em tarefas visuais, Desenvolvimento só inicia após receber do Orquestrador:
+- assets aprovados/gerados;
+- composição/referência aprovada;
+- requisitos funcionais;
+- caminhos canônicos;
+- critérios de fidelidade.
+
+Desenvolvimento deve implementar de forma fidedigna, usar os assets recebidos sem redesenhá-los por conveniência, manter dinâmicos apenas os dados definidos pelo contrato, validar tecnicamente e devolver ao Orquestrador como `IMPLEMENTAÇÃO CONCLUÍDA`.
+
+```text
+Desenvolvimento → Orquestrador
+```
+
+Desenvolvimento não chama diretamente Direção Visual, Qualidade ou Experience Validator.
