@@ -224,6 +224,132 @@ Qualidade e Build
 ORQUESTRADOR
 ```
 
+## Controle de milestones e issues
+
+O projeto avança obrigatoriamente por **milestones compostas por issues ordenadas**.
+
+O Orquestrador é o responsável por controlar essa fila e aplicar o bloqueio de execução.
+
+### Regra de execução sequencial
+
+Dentro de uma milestone, somente **uma issue pode estar em execução por vez**.
+
+Fluxo obrigatório:
+
+```text
+Milestone
+├── Issue 1 → EM EXECUÇÃO
+├── Issue 2 → BLOQUEADA
+├── Issue 3 → BLOQUEADA
+└── Issue 4 → BLOQUEADA
+```
+
+A Issue 2 só pode ser liberada depois que a Issue 1 estiver concluída.
+
+Depois:
+
+```text
+Milestone
+├── Issue 1 → CONCLUÍDA
+├── Issue 2 → EM EXECUÇÃO
+├── Issue 3 → BLOQUEADA
+└── Issue 4 → BLOQUEADA
+```
+
+E assim sucessivamente.
+
+### Responsabilidades do Orquestrador sobre a fila
+
+Antes de iniciar qualquer trabalho, o Orquestrador deve:
+
+1. identificar a milestone ativa;
+2. listar as issues pertencentes à milestone na ordem definida;
+3. identificar a primeira issue ainda não concluída;
+4. confirmar que nenhuma issue anterior permanece aberta, incompleta ou reprovada;
+5. liberar somente essa issue para execução;
+6. manter todas as issues seguintes bloqueadas;
+7. selecionar e chamar as personas necessárias para executar a issue liberada;
+8. conduzir a issue até validação e conclusão;
+9. somente depois liberar a próxima issue.
+
+### Proibição de antecipação
+
+É proibido:
+
+- começar implementação da issue seguinte enquanto a atual estiver incompleta;
+- adiantar código de uma issue futura "porque já estamos nessa área";
+- gerar assets de uma issue futura antes de sua liberação;
+- resolver parcialmente várias issues em paralelo;
+- considerar uma issue liberada apenas porque sua implementação principal terminou.
+
+Se uma tarefa futura surgir durante a execução, ela deve ser registrada ou incorporada à fila, mas permanece bloqueada até chegar sua vez.
+
+### Quando uma issue é considerada concluída
+
+Uma issue só deixa de bloquear a próxima quando:
+
+- todo o escopo definido na issue foi executado;
+- os critérios de aceite foram verificados;
+- as personas de validação necessárias aprovaram a entrega;
+- eventuais correções encontradas durante QA foram resolvidas;
+- não existem pendências obrigatórias escondidas como "fazer depois";
+- o estado da issue no GitHub foi atualizado para concluído/fechado, quando aplicável.
+
+Implementação sem validação não equivale a conclusão.
+
+### Falha de validação
+
+Se Qualidade, Experience Validator ou outra persona responsável reprovar a entrega:
+
+```text
+Issue atual → continua EM EXECUÇÃO
+Issue seguinte → continua BLOQUEADA
+```
+
+A correção permanece dentro da issue atual até que seus critérios sejam satisfeitos.
+
+### Mudança de prioridade
+
+Se o usuário decidir alterar a ordem das issues, o Orquestrador pode reorganizar a fila.
+
+A nova ordem passa a valer antes da próxima liberação, mas continua sendo obrigatório manter **uma única issue ativa por vez**.
+
+Se o usuário interromper uma issue ativa para substituí-la por outra, o Orquestrador deve registrar claramente que a issue anterior ficou pausada/reordenada; não deve fingir que ela foi concluída.
+
+### Milestones sequenciais
+
+Por padrão, uma nova milestone de implementação só deve começar quando a milestone anterior tiver sido concluída, salvo decisão explícita do usuário de reorganizar o roadmap.
+
+Dentro de qualquer milestone ativa, a regra de uma única issue liberada permanece obrigatória.
+
+### Novos pedidos durante uma issue
+
+Quando surgir um novo pedido durante a execução de uma issue, o Orquestrador deve decidir:
+
+- **faz parte do escopo da issue atual:** incorporar e executar antes de encerrá-la;
+- **é uma nova unidade de trabalho:** registrar como issue futura e mantê-la bloqueada.
+
+O novo pedido não autoriza automaticamente trabalho paralelo.
+
+### Estado mínimo que o Orquestrador deve conhecer
+
+Antes de executar uma issue, o Orquestrador deve conseguir responder:
+
+```text
+milestone ativa = ?
+issue atual = ?
+issues anteriores concluídas = sim/não
+próxima issue bloqueada = ?
+personas necessárias para a issue atual = ?
+critérios para encerrar a issue atual = ?
+```
+
+Se esse estado estiver ambíguo, o primeiro trabalho do Orquestrador é reconstruí-lo a partir do GitHub antes de liberar execução.
+
+### Princípio do gate
+
+> Uma issue não é "a próxima tarefa disponível" apenas porque existe. Ela só se torna executável quando o Orquestrador confirma que todas as issues anteriores da sequência foram concluídas.
+
 ## Autoridade e conflitos
 
 Se duas personas entrarem em conflito:
