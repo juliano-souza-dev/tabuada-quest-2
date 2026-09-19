@@ -24,6 +24,7 @@ Toda moda futura deve usar estes avatares como referência canônica e respeitar
 
 | Asset | Caminho | Estado |
 | --- | --- | --- |
+| Fundo padrão inicial da Home | `web/assets/ui/home-pirata-fundo-principal.webp` | APROVADO PELO USUÁRIO |
 | Banner de aventura | `web/assets/ui/home-pirata-banner-aventura.webp` | APROVADO |
 | Base de botão de aventura | `web/assets/ui/home-pirata-botao-aventura.webp` | APROVADO |
 | Ícone de mapa/bússola | `web/assets/ui/icone-mapa-bussola.webp` | APROVADO |
@@ -34,7 +35,6 @@ Toda moda futura deve usar estes avatares como referência canônica e respeitar
 
 Os itens abaixo permanecem fora do pacote canônico nesta etapa:
 
-- `home-pirata-fundo-principal.webp`: dimensão 1080 × 1918 diverge do contrato 1080 × 1920;
 - `icone-axolote-capitao.webp`: pertence a uma lista de PETs posteriormente substituída;
 - assets com nomenclatura Portal/Mundo: a estrutura vigente é Região/Ilha;
 - artes com referências reconhecíveis a franquias existentes;
@@ -50,3 +50,19 @@ Um novo arquivo só entra neste manifesto após:
 3. promoção física para `web/assets/`;
 4. atualização deste manifesto;
 5. validação do preview quando o asset for visível.
+
+
+## Fundos personalizáveis da Home
+
+O fundo da Home é selecionável pelo jogador.
+
+Fundo padrão inicial:
+
+```text
+id = pirate-main
+web/assets/ui/home-pirata-fundo-principal.webp
+```
+
+A dimensão 1080 × 1918 foi aceita explicitamente pelo usuário como arte padrão.
+
+Outros fundos só entram no seletor após Direção Visual + Qualidade + promoção física para `web/assets/`.
