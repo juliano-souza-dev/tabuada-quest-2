@@ -1090,3 +1090,48 @@ Estado persistente vigente:
 ```text
 schemaVersion = 3
 ```
+
+
+## Home V1 implementada para validação
+
+Arquivos principais:
+
+```text
+web/js/screens/home-screen.js
+web/css/screens/home.css
+web/js/content/game-content.js
+web/js/app.js
+```
+
+Assets promovidos nesta etapa:
+
+```text
+web/assets/avatars/avatar-luna-pirata.webp
+web/assets/avatars/avatar-maya-pirata.webp
+web/assets/avatars/avatar-sofia-pirata.webp
+web/assets/backgrounds/home-pirate-bay.webp
+web/assets/backgrounds/home-pirate-port.webp
+web/assets/frames/profile-frame-pirate-treasure.webp
+web/assets/frames/profile-frame-tide-wheel.webp
+web/assets/pets/axolotl-captain.webp
+web/assets/ui/chest-nautical.webp
+web/assets/ui/chest-items.webp
+```
+
+Catálogos:
+
+```text
+TQ.content.homeBackgrounds
+TQ.content.profileFrames
+TQ.content.assets.homeHeroes
+```
+
+Última validação:
+
+```text
+Web Unit Tests = 35465842720 → success
+Web Preview    = 35465846821 → success
+Android Debug  = 35465846781 → success
+```
+
+Status: aguardando validação visual do usuário.
