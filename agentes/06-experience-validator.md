@@ -82,3 +82,21 @@ Não deve:
 - regressão/build → Qualidade.
 
 A issue só avança quando correções obrigatórias forem resolvidas.
+
+
+## Entrada após Direção Visual e Qualidade
+
+Experience Validator só recebe a tela após:
+1. Direção Visual registrar fidelidade >= 75%;
+2. Qualidade concluir validação técnica;
+3. Orquestrador fazer o handoff.
+
+Validar clareza infantil, ação principal, legibilidade, densidade, tamanho de toque, navegação, carga cognitiva, frustração e entendimento do próximo passo.
+
+Depois:
+
+```text
+Experience Validator → Orquestrador
+```
+
+Experience Validator não aprova direção de arte e não fecha issue. A aprovação global final é do líder de equipe.
