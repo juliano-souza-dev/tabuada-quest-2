@@ -1046,3 +1046,47 @@ schemaVersion = 2
 ```
 
 Estados v1 migram automaticamente para `pirate-main`.
+
+
+## Molduras de perfil personalizáveis
+
+Primeira moldura promovida:
+
+```text
+web/assets/frames/profile-frame-pirate-treasure.webp
+```
+
+ID:
+
+```text
+pirate-treasure
+```
+
+Contrato:
+
+```text
+TQ.content.profileFrames
+state.player.profileFrameId
+```
+
+Assim como o fundo, a moldura é selecionável pelo jogador.
+
+HUD dinâmico da Home:
+
+```text
+state.player.avatarId
+state.player.displayName
+state.player.profileFrameId
+state.progression.level
+state.progression.xpCurrent
+state.progression.xpRequired
+state.wallet.coins
+state.wallet.gems
+state.ui.homeBackgroundId
+```
+
+Estado persistente vigente:
+
+```text
+schemaVersion = 3
+```
