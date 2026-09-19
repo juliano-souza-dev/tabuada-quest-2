@@ -492,9 +492,9 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #3 — Integrar e validar pacote definitivo de assets renomeados  
-**Estado:** EM VALIDAÇÃO FINAL  
-**Próxima issue:** #4 — BLOQUEADA até fechamento formal da #3  
+**Issue ativa:** #4 — Definir arquitetura web, domínio, persistência e estratégia de testes  
+**Estado:** LIBERADA / AINDA NÃO EXECUTADA  
+**Próxima issue:** #5 — BLOQUEADA até fechamento formal da #4  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
 
@@ -589,46 +589,52 @@ O workflow `static.yml`, criado automaticamente pela configuração do GitHub Pa
 
 A Issue #3 foi retomada e continua bloqueada exclusivamente pelo pacote definitivo de assets ausente. A #4 permanece bloqueada.
 
-### Conclusão técnica da Issue #3
+### Issue #3 concluída
 
-O insumo que bloqueava a issue foi localizado no material previamente enviado pelo usuário:
+A Issue #3 foi encerrada após Direção Visual + Qualidade aprovarem o pacote canônico inicial.
+
+Fonte de produção:
 
 ```text
-game 2.0.zip
-catálogo de renomeação
+web/assets/
+├── avatars/
+└── ui/
 ```
 
-A Direção Visual e Qualidade concluíram o recorte inicial de produção.
-
-Promovidos para a `main`:
+Avatares-base disponíveis:
 
 ```text
 web/assets/avatars/avatar-luna-visual-base.webp
 web/assets/avatars/avatar-maya-visual-base.webp
 web/assets/avatars/avatar-sofia-visual-base.webp
-web/assets/ui/home-pirata-banner-aventura.webp
-web/assets/ui/home-pirata-botao-aventura.webp
-web/assets/ui/icone-mapa-bussola.webp
-web/assets/ui/icone-bau-tesouro.webp
-web/assets/ui/icone-recompensa-magica.webp
 ```
 
-Controle:
+Controle e auditoria:
 
 ```text
 web/assets/MANIFESTO.md
 docs/validacao/ISSUE-003-auditoria-assets.md
 ```
 
-Preview visual atualizado em `web/`.
-
-Run de preview já validado após a integração principal:
+Preview público da entrega validado:
 
 ```text
-35460668998 → success
+run_id = 35460817391
+resultado = success
+URL = https://juliano-souza-dev.github.io/tabuada-quest-2/
 ```
 
-A issue aguarda somente a publicação final disparada pela atualização da documentação dentro de `web/assets/`. Após sucesso, #3 pode ser fechada e #4 liberada.
+Dívidas visuais e itens não promovidos permanecem documentados e não criam referências quebradas.
+
+### Próximo passo permitido
+
+Executar a Issue #4:
+
+```text
+[M1-04] Definir arquitetura web, domínio, persistência e estratégia de testes
+```
+
+A #5 permanece bloqueada até o fechamento formal da #4.
 
 ## Diário operacional
 
@@ -669,6 +675,8 @@ A issue aguarda somente a publicação final disparada pela atualização da doc
 - Avatares-base de Luna, Maya e Sofia promovidos para `web/assets/avatars/`.
 - Recorte pirata aprovado promovido para `web/assets/ui/`.
 - Preview da integração visual validado no run `35460668998`.
+- Issue #3 concluída e fechada após preview final `35460817391` com sucesso.
+- Issue #4 liberada pelo gate; Issue #5 e posteriores permanecem bloqueadas.
 - Usuário definiu que cada issue visível deve atualizar o preview público para acompanhamento em tempo real.
 - Preview obrigatório por issue documentado no Orquestrador.
 - Issue #21: workflow `web-preview-pages.yml` criado para publicar diretamente `web/` no GitHub Pages.
