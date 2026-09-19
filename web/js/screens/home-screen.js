@@ -35,117 +35,62 @@
         const petCount = Math.min(state.campaign.petsRescuedIds.length, totals.pets);
 
         const screen = document.createElement("section");
-        screen.className = "home-screen home-v1";
-        screen.dataset.backgroundId = background.id;
+        screen.className = "home-screen home-premium";
         screen.style.setProperty("--home-background-image", `url("${background.src}")`);
         screen.setAttribute("aria-label", "Início do Tabuada Quest");
 
         screen.innerHTML = `
-            <div class="home-layout">
-                <header class="pirate-hud">
-                    <button class="hud-avatar" type="button" data-action="frames" aria-label="Trocar moldura do perfil">
-                        <img class="hud-avatar-photo" src="${avatarSrc}" alt="">
-                        <img class="hud-avatar-frame" src="${profileFrame.src}" alt="" aria-hidden="true">
-                    </button>
+            <div class="home-design-stage">
+                <div class="home-world" aria-hidden="true"></div>
 
-                    <div class="hud-identity">
-                        <strong class="hud-name">${state.player.displayName}</strong>
-                        <div class="hud-level-row">
-                            <span class="hud-level">NÍVEL ${state.progression.level}</span>
-                            <div class="hud-xp" aria-label="Experiência ${state.progression.xpCurrent} de ${state.progression.xpRequired}">
-                                <span style="width:${xpPercent}%"></span>
-                                <b>${state.progression.xpCurrent}/${state.progression.xpRequired}</b>
-                            </div>
-                        </div>
-                    </div>
+                <img class="home-art-overlay"
+                     src="${TQ.content.assets.homeOverlay}"
+                     alt=""
+                     aria-hidden="true">
 
-                    <div class="hud-wallet" aria-label="Recursos do jogador">
-                        <span class="hud-currency"><i aria-hidden="true">●</i><b>${state.wallet.coins}</b></span>
-                        <span class="hud-currency gem"><i aria-hidden="true">◆</i><b>${state.wallet.gems}</b></span>
-                    </div>
-                </header>
+                <button class="profile-slot" type="button" data-action="frames" aria-label="Trocar moldura do perfil">
+                    <img class="profile-slot-avatar" src="${avatarSrc}" alt="">
+                    <img class="profile-slot-frame" src="${profileFrame.src}" alt="" aria-hidden="true">
+                </button>
 
-                <div class="game-logo" aria-label="Tabuada Quest">
-                    <span class="logo-tabuada">TABUADA</span>
-                    <span class="logo-quest">QUEST</span>
-                    <span class="logo-compass" aria-hidden="true">✦</span>
+                <div class="hud-name-slot">${state.player.displayName}</div>
+                <div class="hud-level-slot">NÍVEL ${state.progression.level}</div>
+
+                <div class="hud-xp-slot" aria-label="Experiência ${state.progression.xpCurrent} de ${state.progression.xpRequired}">
+                    <span class="hud-xp-fill" style="width:${xpPercent}%"></span>
+                    <b>${state.progression.xpCurrent}/${state.progression.xpRequired}</b>
                 </div>
 
-                <section class="hero-stage" aria-label="Aventura principal">
-                    <div class="hero-portal" aria-hidden="true">
-                        <span class="portal-wheel">✦</span>
-                        <span class="portal-rope left"></span>
-                        <span class="portal-rope right"></span>
-                    </div>
+                <div class="hud-wallet-slot">
+                    <span class="wallet-value coins" aria-label="${state.wallet.coins} moedas">● ${state.wallet.coins}</span>
+                    <span class="wallet-value gems" aria-label="${state.wallet.gems} gemas">◆ ${state.wallet.gems}</span>
+                </div>
 
-                    <img class="hero-character" src="${heroSrc}" alt="Avatar selecionado em traje de aventura pirata">
+                <img class="home-hero-character"
+                     src="${heroSrc}"
+                     alt="Avatar selecionado em traje de aventura pirata">
 
-                    <button class="side-action background-action" type="button" data-action="backgrounds">
-                        <span class="side-icon scenic" aria-hidden="true"></span>
-                        <strong>FUNDO</strong>
-                    </button>
+                <button class="art-hotspot hotspot-background" type="button" data-action="backgrounds" aria-label="Escolher fundo"></button>
+                <button class="art-hotspot hotspot-fashion" type="button" data-action="frames" aria-label="Escolher moldura"></button>
 
-                    <button class="side-action frame-action" type="button" data-action="frames">
-                        <span class="side-icon fashion" aria-hidden="true"></span>
-                        <strong>MODA</strong>
-                    </button>
+                <button class="play-slot" type="button" data-action="play">JOGAR</button>
 
-                    <button class="play-button-v1" type="button" data-action="play" style="--play-image:url('${TQ.content.assets.playButton}')">
-                        <span>JOGAR</span>
-                    </button>
-                </section>
+                <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
+                    <span style="width:${chestPercent}%"></span>
+                    <b>${chestCount}/${totals.chests}</b>
+                </div>
 
-                <section class="reward-progress" aria-label="Próximo baú de recompensa">
-                    <div class="reward-copy">
-                        <strong>PRÓXIMO BAÚ DE RECOMPENSA</strong>
-                        <div class="reward-bar">
-                            <span style="width:${chestPercent}%"></span>
-                            <b>${chestCount}/${totals.chests}</b>
-                        </div>
-                    </div>
-                    <img src="${TQ.content.assets.nauticalChest}" alt="" aria-hidden="true">
-                </section>
+                <div class="pet-dynamic-count">${petCount}/${totals.pets}</div>
 
-                <nav class="home-nav" aria-label="Navegação principal">
-                    <button type="button" data-action="regions">
-                        <img src="${TQ.content.assets.compass}" alt="">
-                        <span>REGIÕES</span>
-                    </button>
-                    <button type="button" data-action="daily">
-                        <img src="${TQ.content.assets.reward}" alt="">
-                        <span>RECOMPENSA<br>DIÁRIA</span>
-                    </button>
-                    <button type="button" data-action="shop">
-                        <span class="nav-shop-icon" aria-hidden="true">⌂</span>
-                        <span>LOJA</span>
-                    </button>
-                    <button type="button" data-action="collection">
-                        <span class="nav-book-icon" aria-hidden="true">★</span>
-                        <span>COLECIONÁVEIS</span>
-                    </button>
-                    <button type="button" data-action="chests">
-                        <img src="${TQ.content.assets.chest}" alt="">
-                        <span>BAÚS</span>
-                    </button>
-                </nav>
+                <button class="art-hotspot hotspot-regions" type="button" data-action="regions" aria-label="Regiões"></button>
+                <button class="art-hotspot hotspot-daily" type="button" data-action="daily" aria-label="Recompensa diária"></button>
+                <button class="art-hotspot hotspot-shop" type="button" data-action="shop" aria-label="Loja"></button>
+                <button class="art-hotspot hotspot-collection" type="button" data-action="collection" aria-label="Colecionáveis"></button>
+                <button class="art-hotspot hotspot-chests" type="button" data-action="chests" aria-label="Baús"></button>
+                <button class="art-hotspot hotspot-pets" type="button" data-action="pets" aria-label="Pets"></button>
+                <button class="art-hotspot hotspot-items" type="button" data-action="items" aria-label="Baú de itens"></button>
 
-                <section class="home-cards" aria-label="Coleção e itens">
-                    <button class="feature-card pets-card" type="button" data-action="pets">
-                        <img src="${TQ.content.assets.pet}" alt="">
-                        <span class="feature-copy">
-                            <strong>PETS</strong>
-                            <b>${petCount}/${totals.pets}</b>
-                        </span>
-                    </button>
-
-                    <button class="feature-card items-card" type="button" data-action="items">
-                        <img src="${TQ.content.assets.itemChest}" alt="">
-                        <span class="feature-copy">
-                            <strong>BAÚ DE ITENS</strong>
-                            <small>Itens da aventura</small>
-                        </span>
-                    </button>
-                </section>
+                <div class="regions-label">REGIÕES</div>
             </div>
 
             <div class="home-toast" role="status" aria-live="polite"></div>
@@ -153,10 +98,15 @@
             <div class="personalization-sheet" data-sheet="backgrounds" hidden>
                 <button class="sheet-backdrop" type="button" data-action="close-sheet" aria-label="Fechar"></button>
                 <section class="sheet-panel" aria-label="Escolha o fundo">
-                    <header><strong>Escolha o fundo</strong><button type="button" data-action="close-sheet">×</button></header>
-                    <div class="choice-grid background-choices">
+                    <header>
+                        <strong>Escolha o fundo</strong>
+                        <button type="button" data-action="close-sheet">×</button>
+                    </header>
+                    <div class="choice-grid">
                         ${TQ.content.homeBackgrounds.map((item) => `
-                            <button type="button" class="choice-card ${item.id === background.id ? "is-selected" : ""}" data-background-id="${item.id}">
+                            <button type="button"
+                                    class="choice-card ${item.id === background.id ? "is-selected" : ""}"
+                                    data-background-id="${item.id}">
                                 <span class="background-thumb" style="background-image:url('${item.src}')"></span>
                                 <strong>${item.label}</strong>
                             </button>
@@ -168,10 +118,15 @@
             <div class="personalization-sheet" data-sheet="frames" hidden>
                 <button class="sheet-backdrop" type="button" data-action="close-sheet" aria-label="Fechar"></button>
                 <section class="sheet-panel" aria-label="Escolha a moldura">
-                    <header><strong>Escolha a moldura</strong><button type="button" data-action="close-sheet">×</button></header>
-                    <div class="choice-grid frame-choices">
+                    <header>
+                        <strong>Escolha a moldura</strong>
+                        <button type="button" data-action="close-sheet">×</button>
+                    </header>
+                    <div class="choice-grid">
                         ${TQ.content.profileFrames.map((item) => `
-                            <button type="button" class="choice-card ${item.id === profileFrame.id ? "is-selected" : ""}" data-frame-id="${item.id}">
+                            <button type="button"
+                                    class="choice-card ${item.id === profileFrame.id ? "is-selected" : ""}"
+                                    data-frame-id="${item.id}">
                                 <span class="frame-thumb">
                                     <img class="frame-thumb-avatar" src="${avatarSrc}" alt="">
                                     <img class="frame-thumb-art" src="${item.src}" alt="">
@@ -196,9 +151,7 @@
 
         function openSheet(name) {
             const sheet = screen.querySelector(`[data-sheet="${name}"]`);
-            if (sheet) {
-                sheet.hidden = false;
-            }
+            if (sheet) sheet.hidden = false;
         }
 
         function closeSheets() {
@@ -211,16 +164,26 @@
             const backgroundChoice = event.target.closest("[data-background-id]");
             if (backgroundChoice) {
                 const allowed = TQ.content.homeBackgrounds.map((item) => item.id);
-                const next = TQ.domain.playerState.withHomeBackground(state, backgroundChoice.dataset.backgroundId, allowed);
-                onStateChange(next);
+                onStateChange(
+                    TQ.domain.playerState.withHomeBackground(
+                        state,
+                        backgroundChoice.dataset.backgroundId,
+                        allowed
+                    )
+                );
                 return;
             }
 
             const frameChoice = event.target.closest("[data-frame-id]");
             if (frameChoice) {
                 const allowed = TQ.content.profileFrames.map((item) => item.id);
-                const next = TQ.domain.playerState.withProfileFrame(state, frameChoice.dataset.frameId, allowed);
-                onStateChange(next);
+                onStateChange(
+                    TQ.domain.playerState.withProfileFrame(
+                        state,
+                        frameChoice.dataset.frameId,
+                        allowed
+                    )
+                );
                 return;
             }
 
@@ -245,11 +208,11 @@
             }
 
             const messages = {
-                play: "A primeira aventura jogável chega nas próximas issues.",
+                play: "A rota está pronta para a próxima etapa.",
                 regions: "As Regiões serão o mapa principal da campanha.",
-                daily: "Recompensa diária preparada para a próxima etapa.",
+                daily: "Recompensa diária preparada para a evolução da campanha.",
                 shop: "A Loja será liberada na evolução da campanha.",
-                collection: "Sua coleção será reunida aqui.",
+                collection: "Sua coleção ficará reunida aqui.",
                 chests: "Seus baús aparecerão aqui.",
                 pets: "Companheiros resgatados: " + petCount + "/" + totals.pets + ".",
                 items: "O Baú de Itens guardará seus itens da aventura."
@@ -262,5 +225,9 @@
     }
 
     TQ.screens = TQ.screens || {};
-    TQ.screens.home = Object.freeze({ renderHomeScreen, resolveHomeBackground, resolveProfileFrame });
+    TQ.screens.home = Object.freeze({
+        renderHomeScreen,
+        resolveHomeBackground,
+        resolveProfileFrame
+    });
 })(globalThis);
