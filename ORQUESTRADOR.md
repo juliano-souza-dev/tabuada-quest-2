@@ -1157,3 +1157,39 @@ Pendências:
 - registrar o resultado de Qualidade e Build antes de considerar a Issue #4 encerrada.
 
 Próximo passo permitido: commit/push deste pacote de correções e validação do preview da Issue #4. A Issue #5 permanece bloqueada.
+
+
+### Issue #22 — refino visual da Home
+
+Issue corretiva ativa vinculada à #4:
+
+```text
+#22 [M1-04A] Corrigir encaixe visual da Home após integração do overlay
+```
+
+Correção aplicada em:
+
+```text
+de0941fbd21ce88484235b84dfc53a6990732c86
+```
+
+Inclui:
+
+- cache-bust de CSS/JS para impedir mistura de versões;
+- remoção efetiva de resíduos visuais antigos;
+- HUD recalibrado para o overlay vigente;
+- nível sem quebra de linha;
+- valores de moeda/gema sem ícones duplicados;
+- moldura inicial simples;
+- migração do estado para schema v4;
+- personagem com maior presença no portal;
+- contadores inferiores recalibrados.
+
+```text
+Web Unit Tests = 35473624880 → success
+Web Preview    = 35473624902 → success
+```
+
+Estado: AGUARDANDO VALIDAÇÃO VISUAL DO LÍDER.
+
+A #4 permanece aberta como issue pai.
