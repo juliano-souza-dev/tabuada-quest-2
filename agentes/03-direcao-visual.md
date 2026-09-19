@@ -28,6 +28,51 @@ Toda solicitação, criação, revisão ou aprovação de arte deve seguir esta 
 - Interfaces e objetos devem continuar compreensíveis em telas pequenas, inclusive quando visualizados rapidamente durante o gameplay.
 - O objeto principal da composição deve ter prioridade clara sobre decoração e microdetalhes.
 
+## Avatares-base e consistência de moda
+
+Os seguintes arquivos são os **avatares-base canônicos** dos personagens:
+
+- `avatar-luna-visual-base.webp`
+- `avatar-sofia-visual-base.webp`
+- `avatar-maya-visual-base.webp`
+
+Toda criação de moda, roupa temática, uniforme, fantasia ou variação visual para Luna, Sofia ou Maya deve obrigatoriamente usar o respectivo avatar-base como referência principal.
+
+### Regra de preservação de identidade
+
+Ao criar uma nova moda, deve mudar **somente a roupa e os acessórios explicitamente previstos para aquela moda**.
+
+Devem ser preservados, em relação ao avatar-base correspondente:
+
+- rosto e formato facial;
+- olhos, nariz, boca e demais traços faciais;
+- tom de pele;
+- cabelo, incluindo cor, volume, comprimento e identidade do penteado;
+- proporções corporais;
+- idade visual;
+- expressão-base e linguagem corporal característica, salvo quando a cena exigir outra expressão;
+- identidade geral e reconhecimento imediato da personagem.
+
+Não é permitido transformar uma moda em uma nova personagem visualmente diferente.
+
+### Processo obrigatório para moda
+
+Antes de aprovar qualquer nova moda, a Direção Visual deve:
+
+1. identificar qual dos três avatares-base está sendo vestido;
+2. comparar lado a lado a nova arte com o avatar-base correspondente;
+3. verificar se as diferenças estão limitadas à roupa e aos acessórios aprovados;
+4. rejeitar a arte caso rosto, cabelo, corpo, idade visual ou identidade da personagem tenham sido alterados;
+5. exigir correção antes de liberar o asset para Desenvolvimento.
+
+Todo prompt de criação de moda deve citar explicitamente o avatar-base correspondente e incluir uma instrução inequívoca para preservar a aparência original da personagem.
+
+Exemplo de instrução obrigatória:
+
+> Usar `avatar-maya-visual-base.webp` como referência canônica da Maya. Preservar integralmente rosto, traços faciais, cabelo, tom de pele, proporções, idade visual e identidade da personagem. Alterar somente a roupa e os acessórios descritos neste prompt.
+
+Esta regra tem prioridade sobre variações estilísticas do prompt. A direção artística pode mudar o figurino, mas não pode redesenhar a personagem.
+
 ## Contrato obrigatório de otimização
 
 Este bloco deve ser acrescentado **ao fim de todo prompt de geração ou produção de asset**. Ele é parte da especificação do asset e não pode ser tratado como sugestão:
@@ -79,6 +124,7 @@ Antes de aprovar uma animação, validar:
 - Não introduzir personagens, símbolos, logotipos ou elementos reconhecíveis de franquias existentes.
 - Não aprovar assets fora dos contratos de otimização e Lottie.
 - Não sacrificar a nitidez do objeto principal para cumprir orçamento antes de reduzir detalhes secundários ou complexidade do fundo.
+- Não aprovar moda que altere a aparência-base de Luna, Sofia ou Maya além de roupa e acessórios autorizados.
 
 ## Entrega
 
@@ -93,4 +139,5 @@ Para cada tela ou conjunto de assets, entregar:
 7. contrato de otimização anexado ao fim do prompt;
 8. contrato Lottie quando aplicável;
 9. observações de responsividade e legibilidade em tela pequena;
-10. validação final de coerência com a identidade pirata mágica.
+10. validação final de coerência com a identidade pirata mágica;
+11. quando houver moda, confirmação explícita de comparação com o avatar-base canônico correspondente.
