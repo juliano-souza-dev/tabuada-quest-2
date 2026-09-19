@@ -32,6 +32,26 @@ retorno ao Orquestrador
 
 O Orquestrador nunca deve ser pulado.
 
+## Mapa físico e técnico obrigatório
+
+Depois de ler este arquivo, toda IA deve ler obrigatoriamente:
+
+```text
+MAPA-DO-PROJETO.md
+```
+
+Esse arquivo é a fonte oficial para descobrir:
+
+- onde cada material está;
+- qual branch contém cada tipo de conteúdo;
+- como o jogo web é empacotado no Android;
+- onde ficam builds, workflows, assets e referências;
+- quais caminhos ainda não foram definidos e não podem ser inventados.
+
+O Orquestrador define **o que fazer e em que ordem**. O `MAPA-DO-PROJETO.md` define **onde estão as coisas e como o projeto é montado**.
+
+Nenhuma persona pode adivinhar caminhos, criar destinos alternativos ou alterar forma de empacotamento sem atualizar primeiro o mapa técnico.
+
 ## Responsabilidades
 
 O Orquestrador deve:
@@ -411,13 +431,16 @@ issues que continuam bloqueadas
 Ao assumir o projeto:
 
 1. ler `ORQUESTRADOR.md` na branch `main`;
-2. ler a seção **Estado operacional atual**;
-3. abrir a issue ativa no GitHub;
-4. ler os documentos/decisões citados no checkpoint;
-5. ler os contratos das personas que a issue exige;
-6. confirmar o gate antes de executar qualquer trabalho;
-7. somente então continuar a execução;
-8. ao terminar sua parte, atualizar novamente o checkpoint neste arquivo.
+2. ler `MAPA-DO-PROJETO.md` na raiz;
+3. ler a seção **Estado operacional atual**;
+4. abrir a issue ativa no GitHub;
+5. ler os documentos/decisões citados no checkpoint;
+6. ler os contratos das personas que a issue exige;
+7. confirmar no mapa os caminhos reais de todo material necessário;
+8. confirmar o gate antes de executar qualquer trabalho;
+9. somente então continuar a execução;
+10. ao terminar sua parte, atualizar o checkpoint neste arquivo;
+11. se caminhos, empacotamento, builds ou localização de materiais mudaram, atualizar também `MAPA-DO-PROJETO.md`.
 
 Nenhuma IA deve inferir o estado do projeto apenas pelo código ou por mensagens antigas se o Orquestrador possuir estado mais recente.
 
@@ -543,6 +566,9 @@ Finalizar formalmente a Issue #1:
 - Usuário autorizou início da V1.
 - Foi adicionada a exigência de que **todo o processo seja documentado no Orquestrador para continuidade por qualquer IA**.
 - Nenhuma issue posterior foi liberada neste checkpoint.
+- `MAPA-DO-PROJETO.md` criado na raiz como mapa físico/técnico obrigatório.
+- Empacotamento Android, caminhos de build, localização de referências e caminhos ainda pendentes foram registrados.
+- Toda IA agora deve ler Orquestrador + Mapa do Projeto antes de executar qualquer tarefa.
 
 
 ## Autoridade e conflitos
