@@ -93,6 +93,12 @@ Não é necessário expor a mecânica interna de leitura de arquivos de persona 
 
 ### Produto
 
+Contrato atual:
+
+```text
+agentes/01-produto.md
+```
+
 Chamar Produto quando a tarefa envolver:
 
 - escopo;
@@ -105,6 +111,12 @@ Chamar Produto quando a tarefa envolver:
 Produto decide **o que deve existir e por quê**.
 
 ### Game Design e Aprendizagem
+
+Contrato atual:
+
+```text
+agentes/02-game-design-aprendizagem.md
+```
 
 Chamar Game Design e Aprendizagem quando a tarefa envolver:
 
@@ -151,6 +163,12 @@ Direção Visual decide **como o jogo deve parecer**.
 
 ### Desenvolvimento
 
+Contrato atual:
+
+```text
+agentes/04-desenvolvimento.md
+```
+
 Chamar Desenvolvimento quando a tarefa envolver:
 
 - arquitetura de código;
@@ -170,6 +188,12 @@ Desenvolvimento não pode inventar regra pedagógica, visual ou de produto para 
 
 ### Qualidade e Build
 
+Contrato atual:
+
+```text
+agentes/05-qualidade-build.md
+```
+
 Chamar Qualidade e Build quando a tarefa envolver:
 
 - testes;
@@ -185,6 +209,12 @@ Chamar Qualidade e Build quando a tarefa envolver:
 Qualidade pode rejeitar uma entrega, mas não deve silenciosamente redesenhar produto, gameplay ou interface.
 
 ### Experience Validator
+
+Contrato atual:
+
+```text
+agentes/06-experience-validator.md
+```
 
 Chamar Experience Validator quando a tarefa envolver:
 
@@ -471,12 +501,12 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 ### Personas e contratos
 
 - Orquestrador: `ORQUESTRADOR.md`
+- Produto: `agentes/01-produto.md`
+- Game Design e Aprendizagem: `agentes/02-game-design-aprendizagem.md`
 - Direção Visual: `agentes/03-direcao-visual.md`
-- Produto: contrato formal ainda pendente na #2
-- Game Design e Aprendizagem: contrato formal ainda pendente na #2
-- Desenvolvimento: contrato formal ainda pendente na #2
-- Qualidade e Build: contrato formal ainda pendente na #2
-- Experience Validator: contrato formal ainda pendente na #2
+- Desenvolvimento: `agentes/04-desenvolvimento.md`
+- Qualidade e Build: `agentes/05-qualidade-build.md`
+- Experience Validator: `agentes/06-experience-validator.md`
 
 ### Decisões oficiais vigentes
 
@@ -543,13 +573,13 @@ Pelo gate vigente:
 
 ### Próximo passo permitido
 
-Executar e concluir a Issue #2:
+Validar e encerrar a Issue #2:
 
-- criar os contratos formais das personas faltantes;
-- preservar a Direção Visual já formalizada;
-- apontar o Orquestrador para os contratos corretos;
-- validar autoridade, limites, entregas e handoffs;
-- fechar #2;
+- contratos formais foram criados;
+- Direção Visual foi preservada;
+- o Orquestrador aponta para os contratos corretos;
+- autoridade, limites, entregas e handoffs foram explicitados;
+- após validação, fechar #2;
 - atualizar este checkpoint;
 - liberar somente então a Issue #3.
 
@@ -571,6 +601,8 @@ Executar e concluir a Issue #2:
 - `MAPA-DO-PROJETO.md` criado na raiz como mapa físico/técnico obrigatório.
 - Empacotamento Android, caminhos de build, localização de referências e caminhos ainda pendentes foram registrados.
 - Toda IA agora deve ler Orquestrador + Mapa do Projeto antes de executar qualquer tarefa.
+- Contratos de Produto, Game Design, Desenvolvimento, Qualidade e Experience Validator criados na #2.
+- Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
 
 
 ## Autoridade e conflitos
