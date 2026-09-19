@@ -1,13 +1,13 @@
-(() => {
-    const status = document.querySelector("#runtime-status");
+(function (root) {
+    const TQ = root.TabuadaQuest;
 
-    if (!status) {
+    const appRoot = document.querySelector("#app");
+    if (!TQ || !appRoot) {
         return;
     }
 
-    const runningInsideAndroid =
-        /Android/i.test(navigator.userAgent) &&
-        window.location.protocol === "file:";
+    const state = TQ.persistence.localStorage.loadState(root.localStorage);
+    const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
-    status.textContent = runningInsideAndroid ? "Android / WebView" : "Navegador";
-})();
+    screens.render(TQ.screens.home.renderHomeScreen, { state });
+})(globalThis);
