@@ -492,9 +492,10 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
-**Issue ativa:** #3 — Integrar e validar pacote definitivo de assets renomeados  
-**Estado:** BLOQUEADA POR INSUMO AUSENTE  
-**Próxima issue:** #4 — BLOQUEADA até fechamento formal da #3  
+**Issue ativa:** #21 — Disponibilizar preview web contínuo da main  
+**Estado:** EM EXECUÇÃO  
+**Issue pausada:** #3 — bloqueada por assets definitivos ausentes  
+**Próxima issue do roadmap:** #4 — BLOQUEADA; #3 deve ser retomada antes  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
 
@@ -571,6 +572,20 @@ Pelo gate vigente:
 3. somente depois a fila avança para #3, #4, #5, #6 e #7;
 4. a primeira implementação jogável completa da M1 culmina na #7.
 
+### Reordenação temporária para preview
+
+O usuário solicitou acompanhar visualmente as modificações durante o desenvolvimento.
+
+Por prioridade explícita:
+
+```text
+#3 → PAUSADA / continua aberta / bloqueada por assets
+#21 → EM EXECUÇÃO / infraestrutura de preview
+#4 → BLOQUEADA
+```
+
+A #21 não altera gameplay, scheduler, assets canônicos ou escopo funcional. Ao concluir, o Orquestrador deve retomar a #3. A #21 não autoriza liberar a #4.
+
 ### Bloqueio atual da Issue #3
 
 Auditoria concluída em 2026-09-19:
@@ -638,6 +653,8 @@ Quando o pacote definitivo estiver disponível:
 - Manifesto canônico criado em `web/assets/MANIFESTO.md`.
 - Pacote de referência auditado: banner, botão e 4 ícones cumprem budgets; fundo 1080×1918 cumpre peso, mas diverge 2 px do contrato 1080×1920.
 - Nenhum arquivo de referência foi promovido automaticamente para produção.
+- Issue #21 criada para servir preview contínuo da `web/` após solicitação explícita do usuário.
+- Issue #3 foi pausada temporariamente, não concluída; #4 permanece bloqueada.
 - Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
 
 
