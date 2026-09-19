@@ -827,3 +827,14 @@ Toda IA deve confirmar:
 - [ ] Sei quais documentos precisam ser atualizados ao final.
 
 Se qualquer item estiver indefinido, primeiro corrigir a documentação de continuidade.
+
+
+# Referências de experiência
+
+Direção mobile oficial da V1:
+
+```text
+docs/referencias/V1-DIRECAO-MOBILE.md
+```
+
+As imagens usadas para definir essa direção são referência de UX/composição e não assets de produção. Não copiar para `web/assets/`.
