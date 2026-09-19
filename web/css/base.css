@@ -1,0 +1,71 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-height: 100dvh;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--cream-100);
+    background:
+        radial-gradient(circle at 50% -10%, rgba(37, 201, 193, 0.24), transparent 38rem),
+        var(--ink-950);
+}
+
+button {
+    font: inherit;
+}
+
+button,
+[role="button"] {
+    min-height: var(--touch-min);
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+.app-stage {
+    width: 100%;
+    min-height: 100dvh;
+}
+
+.app-viewport {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    min-height: 620px;
+    overflow: hidden;
+    margin: 0 auto;
+    background: var(--navy-900);
+}
+
+@media (min-width: 700px) {
+    body {
+        display: grid;
+        place-items: center;
+        padding: 20px;
+    }
+
+    .app-stage {
+        display: grid;
+        place-items: center;
+    }
+
+    .app-viewport {
+        width: min(430px, 100%);
+        height: min(880px, calc(100dvh - 40px));
+        min-height: min(720px, calc(100dvh - 40px));
+        border: 1px solid var(--line);
+        border-radius: 32px;
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+    }
+}
