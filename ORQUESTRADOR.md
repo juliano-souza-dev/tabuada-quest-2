@@ -493,7 +493,7 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
 **Issue ativa:** #4 — Definir arquitetura web, domínio, persistência e estratégia de testes  
-**Estado:** EM REIMPLEMENTAÇÃO VISUAL / NOVO PROTOCOLO DE ORQUESTRAÇÃO ATIVO  
+**Estado:** DIREÇÃO VISUAL APROVADA 91% / EM QUALIDADE  
 **Próxima issue:** #5 — BLOQUEADA até nova aprovação e fechamento formal da #4  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
@@ -1049,3 +1049,31 @@ Se a reprovação não exigir novo asset, Direção Visual deve declarar explici
 Não gerar assets por excesso: cada rodada pode criar de 0 a 10 peças, somente as necessárias para superar os gaps apontados.
 
 Qualidade e Experience Validator permanecem fora do ciclo enquanto a fidelidade estiver abaixo de 75%.
+
+### Rodada visual premium — 91%
+
+Fluxo concluído até aqui:
+
+```text
+Orquestrador
+→ Desenvolvimento
+→ IMPLEMENTAÇÃO CONCLUÍDA
+→ Orquestrador
+→ Direção Visual
+→ FIDELIDADE_VISUAL = 91%
+→ APROVADO PARA QUALIDADE
+```
+
+Mudanças principais:
+
+- overlay premium real promovido para `web/assets/ui/home-art-overlay.webp`;
+- arte premium deixou de ser imitada em CSS;
+- fundo, avatar e moldura seguem como slots dinâmicos;
+- HUD mantém nome, nível, XP, moedas e gemas dinâmicos;
+- personagem alinhado à geometria da referência;
+- viewport desktop preserva 941/1672;
+- Direção Visual registrou 91% em `docs/validacao/ISSUE-004-fidelidade-visual.md`.
+
+Qualidade está validando a mesma entrega web do commit `3e02ebdfa703a4bb248404863da0cb3ea1b202c5`.
+
+Issue #5 continua bloqueada.
