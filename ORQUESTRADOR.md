@@ -1026,3 +1026,26 @@ Orquestrador
 ```
 
 Até o ciclo terminar, #4 permanece aberta e #5 permanece bloqueada.
+### Ramo de reprovação visual
+
+Quando a Direção Visual medir `FIDELIDADE_VISUAL < 75%`:
+
+```text
+Direção Visual
+→ devolve ao Orquestrador uma lista objetiva do que falta
+→ identifica quais gaps são de implementação e quais são de asset
+→ cria/gera os assets faltantes necessários
+   limite máximo: 10 assets por rodada
+→ entrega o pacote ao Orquestrador
+→ Orquestrador entrega pacote + correções ao Desenvolvimento
+→ Desenvolvimento reimplementa
+→ Desenvolvimento devolve IMPLEMENTAÇÃO CONCLUÍDA ao Orquestrador
+→ Orquestrador envia novamente à Direção Visual
+→ repete até FIDELIDADE_VISUAL >= 75%
+```
+
+Se a reprovação não exigir novo asset, Direção Visual deve declarar explicitamente `ASSETS_NOVOS = 0` e listar apenas as correções de implementação.
+
+Não gerar assets por excesso: cada rodada pode criar de 0 a 10 peças, somente as necessárias para superar os gaps apontados.
+
+Qualidade e Experience Validator permanecem fora do ciclo enquanto a fidelidade estiver abaixo de 75%.
