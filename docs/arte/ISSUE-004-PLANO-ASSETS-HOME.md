@@ -22,7 +22,7 @@ docs/arte/ESTRATEGIA-ASSETS-V1.md
 
 | Slot | Função | Decisão | Fonte/Base | Motivo | Estado |
 |---|---|---|---|---|---|
-| background-home | cenário vertical principal | **CRIAR NOVO** | direção pirata V1 | o banner atual é horizontal e não foi concebido como cenário vertical com safe areas para HUD, personagem e CTA | NECESSÁRIO |
+| background-home-default | fundo padrão inicial | **REUTILIZAR / APROVADO PELO USUÁRIO** | `home-pirata-fundo-principal.webp` | usuário definiu explicitamente esta arte como fundo padrão da Home | PROMOVIDO |
 | avatar-home | personagem central | **ADAPTAR** | avatar canônico selecionado | identidade deve ser preservada, mas pose/enquadramento/integração com a cena precisam ser específicos da Home | NECESSÁRIO |
 | brand-home | marca Tabuada Quest | **CRIAR COMO UI/CSS** | tipografia + elementos náuticos leves | evitar texto embutido em imagem e manter responsividade | DIREÇÃO DEFINIDA |
 | cta-play | botão JOGAR | **REUTILIZAR SOB VALIDAÇÃO** | `home-pirata-botao-aventura.webp` | o asset já tem função compatível, mas precisa ser testado na composição real antes de aprovação final | EM REVISÃO |
@@ -64,7 +64,7 @@ Só será mantido se:
 
 Se falhar, o slot muda para `CRIAR NOVO`.
 
-## Novo cenário obrigatório
+## Fundo padrão e personalização
 
 Brief inicial:
 
@@ -151,3 +151,28 @@ icon-companions
 ```
 
 Enquanto estiverem como `NECESSÁRIO`, a camada visual da Issue #4 continua aberta.
+
+
+## Regra de personalização
+
+O fundo da Home não é fixo.
+
+Decisão vigente:
+
+```text
+default = home-pirata-fundo-principal.webp
+jogador = pode selecionar outro fundo aprovado
+persistência = state.ui.homeBackgroundId
+```
+
+A Direção Visual deve manter um catálogo de opções aprovadas. Cada novo cenário promovido recebe um id estável.
+
+A troca de cenário não altera HUD, progresso, gameplay ou scheduler.
+
+O fundo padrão foi promovido para:
+
+```text
+web/assets/ui/home-pirata-fundo-principal.webp
+```
+
+Sua dimensão original 1080 × 1918 é aceita por decisão explícita do usuário. Não redimensionar apenas para satisfazer os 2 px faltantes.
