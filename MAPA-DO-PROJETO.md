@@ -467,25 +467,43 @@ Esses arquivos são **referência/material de apoio** enquanto não forem promov
 
 # 16. Assets definitivos do 2.0
 
-**Estado atual: PENDENTE DE DEFINIÇÃO NA ISSUE #3.**
+Caminho canônico aprovado na `main`:
 
-Ainda não existe neste momento um caminho canônico aprovado na `main` para todo o pacote definitivo de assets renomeados.
+```text
+web/assets/
+```
 
-Portanto, até a Issue #3:
+Arquivo de orientação:
 
-- não inventar `web/assets-final/`;
-- não copiar tudo da `apoio`;
-- não duplicar o pacote;
+```text
+web/assets/README.md
+```
+
+**Estado atual da Issue #3: BLOQUEADA POR INSUMO AUSENTE.**
+
+A auditoria de 2026-09-19 confirmou:
+
+- a `main` não contém arquivos WebP/avatares de produção;
+- a `apoio` contém apenas o pacote remasterizado inicial em `game 2.0/assets-remasterizados/`;
+- o pacote definitivo renomeado completo não está presente;
+- os três avatares-base reais não estão presentes.
+
+Enquanto o pacote definitivo não existir:
+
+- não copiar automaticamente tudo da `apoio`;
+- não duplicar o pacote de referência;
 - não renomear novamente;
-- não criar referências de produção para arquivos ainda não promovidos.
+- não criar referências de produção para arquivos ainda não promovidos;
+- não substituir avatares-base por aproximações.
 
-A Issue #3 deve:
+Quando o pacote chegar, a Issue #3 deve:
 
 1. validar o pacote definitivo;
-2. definir a estrutura canônica;
-3. registrar o caminho aqui;
-4. promover apenas os assets aprovados;
-5. eliminar dependência de nomes legados.
+2. promover somente os assets aprovados para `web/assets/`;
+3. validar nomes, duplicidades, budgets e referências;
+4. confirmar os três avatares-base;
+5. atualizar este mapa com qualquer subestrutura criada;
+6. eliminar dependência de nomes legados.
 
 ---
 
@@ -505,9 +523,13 @@ O contrato está em:
 agentes/03-direcao-visual.md
 ```
 
-**Local físico definitivo na `main`: PENDENTE DE DEFINIÇÃO NA ISSUE #3.**
+Destino canônico aprovado:
 
-Não presumir caminho antes disso.
+```text
+web/assets/
+```
+
+**Estado físico atual:** arquivos-base ainda ausentes. Não presumir que os nomes definidos no contrato significam que os arquivos já existem.
 
 ---
 
