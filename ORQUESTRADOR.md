@@ -493,7 +493,7 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
 **Issue ativa:** #4 — Definir arquitetura web, domínio, persistência e estratégia de testes  
-**Estado:** IMPLEMENTADA / AGUARDANDO VALIDAÇÃO VISUAL DO USUÁRIO  
+**Estado:** EM REIMPLEMENTAÇÃO VISUAL / NOVO PROTOCOLO DE ORQUESTRAÇÃO ATIVO  
 **Próxima issue:** #5 — BLOQUEADA até nova aprovação e fechamento formal da #4  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
@@ -937,3 +937,92 @@ Android Debug  = 35465846781 → success
 A Issue #4 permanece aberta aguardando validação visual explícita do usuário no preview público.
 
 A #5 continua bloqueada.
+
+## Protocolo obrigatório de entrega visual
+
+Este protocolo se aplica a qualquer issue com composição visual, tela, assets ou UX visual.
+
+### Fluxo oficial
+
+```text
+ORQUESTRADOR
+  ↓ entrega assets aprovados/gerados + composição aprovada + requisitos + caminhos
+DESENVOLVIMENTO
+  ↓ implementa de forma fidedigna
+  ↓ devolve IMPLEMENTAÇÃO CONCLUÍDA
+ORQUESTRADOR
+  ↓
+DIREÇÃO VISUAL
+  ↓ compara implementação x esperado e registra FIDELIDADE_VISUAL = N%
+```
+
+### Gate da Direção Visual
+
+```text
+N < 75%
+→ REPROVADO
+→ volta via Orquestrador para Desenvolvimento
+→ Qualidade e Experience Validator NÃO são chamados
+
+N >= 75%
+→ APROVADO PARA VALIDAÇÃO
+→ Orquestrador encaminha para Qualidade
+→ depois Experience Validator
+```
+
+O mínimo de 75% é gate de continuidade, não aprovação final.
+
+Direção Visual compara no mínimo composição, hierarquia, proporções, escala, posicionamento, assets, cenário, personagem, HUD, CTA, navegação, profundidade, paleta e acabamento.
+
+### Após o gate visual
+
+```text
+Direção Visual >= 75%
+→ Qualidade e Build
+→ Orquestrador
+→ Experience Validator
+→ Orquestrador
+→ LÍDER DE EQUIPE (usuário)
+```
+
+Sem aprovação explícita do líder de equipe:
+
+- a issue não é fechada;
+- a próxima issue não é liberada;
+- o estado permanece AGUARDANDO APROVAÇÃO DO LÍDER.
+
+### Regra de retorno
+
+Qualquer reprovação volta sempre por:
+
+```text
+persona → Orquestrador → responsável pela correção
+```
+
+Autoridades:
+
+- Orquestrador: handoffs e gates;
+- Desenvolvimento: implementação;
+- Direção Visual: fidelidade visual;
+- Qualidade: integridade técnica/build;
+- Experience Validator: experiência infantil;
+- Líder de equipe: aprovação global final.
+
+### Estado da Issue #4 sob este protocolo
+
+A implementação visual publicada anteriormente não conta como aprovada.
+
+Novo ciclo obrigatório:
+
+```text
+Orquestrador
+→ Desenvolvimento
+→ Orquestrador
+→ Direção Visual [>=75%]
+→ Qualidade
+→ Experience Validator
+→ Orquestrador
+→ Líder de equipe
+```
+
+Até o ciclo terminar, #4 permanece aberta e #5 permanece bloqueada.
