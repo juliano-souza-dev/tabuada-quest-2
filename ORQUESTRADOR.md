@@ -493,7 +493,7 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
 **Issue ativa:** #4 — Definir arquitetura web, domínio, persistência e estratégia de testes  
-**Estado:** REABERTA / REPROVADA VISUALMENTE PELO USUÁRIO  
+**Estado:** IMPLEMENTADA / AGUARDANDO VALIDAÇÃO VISUAL DO USUÁRIO  
 **Próxima issue:** #5 — BLOQUEADA até nova aprovação e fechamento formal da #4  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
@@ -905,3 +905,35 @@ Antes de considerar um pedido concluído, o Orquestrador deve verificar:
 ## Princípio central
 
 > O Orquestrador coordena. As personas decidem e executam dentro de seus domínios. Nenhuma persona deve resolver silenciosamente um problema que pertence a outra especialidade.
+
+
+### Implementação visual atual da Issue #4 — 2026-09-19
+
+Home V1 recomposta conforme composição aprovada pelo usuário.
+
+Implementado:
+
+- HUD dinâmico com avatar, nome, nível, XP, moedas e gemas;
+- avatar pirata dinâmico por personagem;
+- fundo selecionável com 3 opções promovidas;
+- moldura de perfil selecionável com 2 opções;
+- botão JOGAR dominante;
+- área central de hero/portal;
+- FUNDO e MODA;
+- progresso do próximo baú;
+- navegação: Regiões, Recompensa Diária, Loja, Colecionáveis e Baús;
+- cards PETS e BAÚ DE ITENS;
+- persistência imediata das personalizações;
+- layout compacto para telas de menor altura.
+
+Validação técnica:
+
+```text
+Web Unit Tests = 35465842720 → success
+Web Preview    = 35465846821 → success
+Android Debug  = 35465846781 → success
+```
+
+A Issue #4 permanece aberta aguardando validação visual explícita do usuário no preview público.
+
+A #5 continua bloqueada.
