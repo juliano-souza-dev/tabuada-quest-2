@@ -493,7 +493,7 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 **Última atualização:** 2026-09-19  
 **Milestone ativa:** M1 — Fundação e Núcleo Jogável  
 **Issue ativa:** #3 — Integrar e validar pacote definitivo de assets renomeados  
-**Estado:** BLOQUEADA POR INSUMO AUSENTE  
+**Estado:** EM VALIDAÇÃO FINAL  
 **Próxima issue:** #4 — BLOQUEADA até fechamento formal da #3  
 **Branch de trabalho:** `main`  
 **Branch de referência:** `apoio`
@@ -589,43 +589,46 @@ O workflow `static.yml`, criado automaticamente pela configuração do GitHub Pa
 
 A Issue #3 foi retomada e continua bloqueada exclusivamente pelo pacote definitivo de assets ausente. A #4 permanece bloqueada.
 
-### Bloqueio atual da Issue #3
+### Conclusão técnica da Issue #3
 
-Auditoria concluída em 2026-09-19:
-
-- a branch `apoio` foi inspecionada integralmente;
-- pacote encontrado: `game 2.0/assets-remasterizados/`;
-- esse pacote contém somente home/ícones/prompts remasterizados iniciais;
-- `avatar-luna-visual-base.webp` não foi encontrado;
-- `avatar-sofia-visual-base.webp` não foi encontrado;
-- `avatar-maya-visual-base.webp` não foi encontrado;
-- a `main` não contém WebPs/avatares de produção;
-- o pacote definitivo renomeado necessário para encerrar #3 ainda não está no repositório.
-
-O destino canônico já foi definido como:
+O insumo que bloqueava a issue foi localizado no material previamente enviado pelo usuário:
 
 ```text
-web/assets/
+game 2.0.zip
+catálogo de renomeação
 ```
 
-e documentado em:
+A Direção Visual e Qualidade concluíram o recorte inicial de produção.
+
+Promovidos para a `main`:
 
 ```text
-web/assets/README.md
+web/assets/avatars/avatar-luna-visual-base.webp
+web/assets/avatars/avatar-maya-visual-base.webp
+web/assets/avatars/avatar-sofia-visual-base.webp
+web/assets/ui/home-pirata-banner-aventura.webp
+web/assets/ui/home-pirata-botao-aventura.webp
+web/assets/ui/icone-mapa-bussola.webp
+web/assets/ui/icone-bau-tesouro.webp
+web/assets/ui/icone-recompensa-magica.webp
 ```
 
-### Próximo passo permitido
+Controle:
 
-A Issue #3 permanece ativa e bloqueia a #4.
+```text
+web/assets/MANIFESTO.md
+docs/validacao/ISSUE-003-auditoria-assets.md
+```
 
-Quando o pacote definitivo estiver disponível:
+Preview visual atualizado em `web/`.
 
-1. Direção Visual valida identidade e avatares-base;
-2. Qualidade valida nomes, duplicidades, budgets e referências;
-3. assets aprovados são promovidos para `web/assets/`;
-4. `MAPA-DO-PROJETO.md` é atualizado com a subestrutura real;
-5. #3 é fechada somente após todos os critérios;
-6. só então #4 pode ser liberada.
+Run de preview já validado após a integração principal:
+
+```text
+35460668998 → success
+```
+
+A issue aguarda somente a publicação final disparada pela atualização da documentação dentro de `web/assets/`. Após sucesso, #3 pode ser fechada e #4 liberada.
 
 ## Diário operacional
 
@@ -662,6 +665,10 @@ Quando o pacote definitivo estiver disponível:
 - Workflow duplicado `static.yml` removido; ele publicava a raiz e provocava 404.
 - Workflow canônico de preview: `.github/workflows/web-preview-pages.yml`, publicando somente `web/`.
 - Issue #3 retomada após conclusão da #21.
+- Pacote completo de assets recuperado do material previamente enviado pelo usuário.
+- Avatares-base de Luna, Maya e Sofia promovidos para `web/assets/avatars/`.
+- Recorte pirata aprovado promovido para `web/assets/ui/`.
+- Preview da integração visual validado no run `35460668998`.
 - Usuário definiu que cada issue visível deve atualizar o preview público para acompanhamento em tempo real.
 - Preview obrigatório por issue documentado no Orquestrador.
 - Issue #21: workflow `web-preview-pages.yml` criado para publicar diretamente `web/` no GitHub Pages.
