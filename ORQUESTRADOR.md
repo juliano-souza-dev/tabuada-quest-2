@@ -1275,3 +1275,23 @@ Android Debug   35475076850 → success
 Estado: AGUARDANDO VALIDAÇÃO VISUAL DO LÍDER.
 
 A #23 permanece aberta até aprovação explícita.
+
+
+### Issue #23 aprovada e encerrada
+
+O líder de equipe aprovou explicitamente a calibração pixel-perfect da Home.
+
+```text
+#23 → APROVADA PELO LÍDER → CLOSED
+```
+
+Todos os offsets definidos foram aplicados e validados.
+
+Fluxo retomado:
+
+```text
+#23 concluída
+→ #22 volta a ser a issue corretiva ativa
+→ verificar pendências residuais de refino visual
+→ somente depois retornar à #4
+```
