@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "web/js/**"
+      - "web/css/**"
+      - "web/index.html"
       - "tests/web/**"
       - ".github/workflows/web-unit-tests.yml"
   workflow_dispatch:
