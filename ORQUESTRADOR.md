@@ -634,6 +634,10 @@ Quando o pacote definitivo estiver disponível:
 - O pacote definitivo renomeado e os três avatares-base ainda não estão no repositório.
 - Destino canônico de produção definido: `web/assets/`.
 - Issue #3 permanece aberta e bloqueada por insumo ausente; #4 não pode iniciar.
+- Auditoria técnica parcial da #3 registrada em `docs/validacao/ISSUE-003-auditoria-assets.md`.
+- Manifesto canônico criado em `web/assets/MANIFESTO.md`.
+- Pacote de referência auditado: banner, botão e 4 ícones cumprem budgets; fundo 1080×1918 cumpre peso, mas diverge 2 px do contrato 1080×1920.
+- Nenhum arquivo de referência foi promovido automaticamente para produção.
 - Todos os domínios do fluxo agora possuem autoridade, limites, entregas e handoffs formais.
 
 
