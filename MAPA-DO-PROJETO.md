@@ -988,3 +988,29 @@ Direção Visual
 → Qualidade
 → Preview
 ```
+
+
+# Estratégia de assets da V1
+
+Documento oficial:
+
+```text
+docs/arte/ESTRATEGIA-ASSETS-V1.md
+```
+
+Esse documento define quando um asset deve ser:
+
+- reutilizado;
+- adaptado;
+- criado do zero.
+
+Antes de implementar uma tela visual, consultar este documento junto com a direção de arte específica da tela.
+
+Para a Home da Issue #4, ler na ordem:
+
+```text
+docs/arte/ISSUE-004-DIRECAO-HOME-V1.md
+docs/arte/ESTRATEGIA-ASSETS-V1.md
+```
+
+A composição vem antes da escolha dos arquivos.
