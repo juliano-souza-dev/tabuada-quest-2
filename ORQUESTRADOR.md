@@ -1306,3 +1306,32 @@ O líder aprovou explicitamente o refino visual da Home.
 ```
 
 Fluxo retorna para a issue raiz #4 para encerramento formal dos gates restantes antes da liberação da #5.
+
+
+### Issue #4 — gates finais concluídos
+
+Após o fechamento aprovado das issues #22 e #23, a entrega final da Home passou pelos gates restantes.
+
+```text
+Direção Visual      → aprovado
+Qualidade e Build   → aprovado
+Experience Validator→ aprovado
+Líder de equipe     → aprovado nas correções finais #22/#23
+```
+
+Evidências finais:
+
+```text
+docs/validacao/ISSUE-004-qualidade-final.md
+docs/validacao/ISSUE-004-experience-final.md
+Web Preview     35475076822 → success
+Web Unit Tests  35475094612 → success
+Android Debug   35475076850 → success
+```
+
+Resultado:
+
+```text
+#4 → CONCLUÍDA
+#5 → LIBERADA
+```
