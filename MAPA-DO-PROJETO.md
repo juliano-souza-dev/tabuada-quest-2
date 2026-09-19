@@ -137,13 +137,18 @@ Diretório:
 agentes/
 ```
 
-Contrato atualmente formalizado:
+Contratos formalizados:
 
 ```text
+agentes/01-produto.md
+agentes/02-game-design-aprendizagem.md
 agentes/03-direcao-visual.md
+agentes/04-desenvolvimento.md
+agentes/05-qualidade-build.md
+agentes/06-experience-validator.md
 ```
 
-Os demais contratos serão criados conforme a Issue #2.
+A Issue #2 formalizou todos os contratos principais do fluxo.
 
 Nenhuma IA deve inventar localização alternativa para personas.
 
@@ -162,6 +167,7 @@ Documentos atuais:
 ```text
 docs/decisoes/DEC-001-distribuicao-intercalada-tabuadas.md
 docs/decisoes/DEC-002-regioes-ilhas-pets-baus.md
+docs/decisoes/DEC-003-matriz-escopo-v1.md
 ```
 
 Decisões novas devem seguir a numeração sequencial `DEC-XXX`.
