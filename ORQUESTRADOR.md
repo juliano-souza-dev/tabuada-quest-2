@@ -1115,3 +1115,45 @@ commit          = c6e16150e01caaa96b7173205d604c9af60d5eb6
 Web Unit Tests  = 35471859658 → success
 Web Preview     = 35471859639 → success
 ```
+
+### Correções de alinhamento do HUD da Home — 2026-09-19 19:05 -03:00
+
+**Milestone ativa:** M1 — Fundação e Núcleo Jogável  
+**Issue ativa:** #4 — correção visual/mobile da Home  
+**Estado:** IMPLEMENTAÇÃO ATUALIZADA / CORREÇÕES VALIDADAS PELO LÍDER / AGUARDANDO NOVA VALIDAÇÃO FORMAL  
+**Personas envolvidas:** Orquestrador, Direção Visual, Desenvolvimento e Qualidade e Build.
+
+O líder validou o pacote de correções de alinhamento solicitado para a Home premium. A implementação foi ajustada sem alterar regras pedagógicas, persistência ou o catálogo de assets.
+
+Alterações realizadas:
+
+- removidos os textos duplicados de `JOGAR` e `REGIÕES`, pois a composição aprovada já os fornece no overlay;
+- barra de progresso do próximo baú movida para o campo oval reservado abaixo do título;
+- contador de PETs movido para o campo oval inferior do card PETS;
+- moldura de perfil ampliada para preencher o medalhão do avatar, com recorte priorizando o rosto;
+- nome, nível, XP, ouro e diamantes reposicionados nos slots desenhados no HUD superior;
+- personagem central reduzido e reposicionado para preservar a leitura do portal e do CTA.
+
+Arquivos alterados:
+
+```text
+web/css/screens/home.css
+web/js/screens/home-screen.js
+```
+
+Validações executadas:
+
+```text
+node --test tests/web/*.test.cjs → 9 passed / 0 failed
+git diff --check → sem erros de whitespace
+```
+
+Decisão do líder: **as alterações deste pacote podem ser consideradas válidas**.
+
+Pendências:
+
+- publicar o commit e aguardar o workflow de preview da web;
+- validar a versão publicada no preview oficial;
+- registrar o resultado de Qualidade e Build antes de considerar a Issue #4 encerrada.
+
+Próximo passo permitido: commit/push deste pacote de correções e validação do preview da Issue #4. A Issue #5 permanece bloqueada.

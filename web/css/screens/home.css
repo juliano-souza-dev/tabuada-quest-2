@@ -51,9 +51,9 @@
 .profile-slot {
     position: absolute;
     z-index: 10;
-    left: 2.3%;
-    top: 2.2%;
-    width: 13.6%;
+    left: -1.2%;
+    top: .15%;
+    width: 22%;
     aspect-ratio: 1;
     padding: 0;
     border: 0;
@@ -62,12 +62,12 @@
 
 .profile-slot-avatar {
     position: absolute;
-    inset: 15%;
-    width: 70%;
-    height: 70%;
+    inset: 22%;
+    width: 56%;
+    height: 56%;
     border-radius: 50%;
     object-fit: cover;
-    object-position: top center;
+    object-position: center 18%;
     background: #4ac9e7;
 }
 
@@ -82,9 +82,9 @@
 .hud-name-slot {
     position: absolute;
     z-index: 10;
-    left: 20.7%;
-    top: 4.05%;
-    width: 20.8%;
+    left: 22.2%;
+    top: 4.25%;
+    width: 19.3%;
     color: #5c2c13;
     font-size: clamp(.56rem, 1.75vh, .8rem);
     font-weight: 950;
@@ -144,23 +144,18 @@
 .hud-wallet-slot {
     position: absolute;
     z-index: 10;
-    right: 3.1%;
-    top: 2.55%;
-    width: 25%;
-    height: 3.6%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3%;
-    align-items: center;
+    inset: 0;
+    pointer-events: none;
 }
 
 .wallet-value {
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .22em;
+    gap: .16em;
     color: #6e3b13;
-    font-size: clamp(.5rem, 1.65vh, .76rem);
+    font-size: clamp(.46rem, 1.48vh, .7rem);
     font-weight: 1000;
     white-space: nowrap;
 }
@@ -169,7 +164,18 @@
     color: #e8a812;
 }
 
+.wallet-value.coins {
+    left: 77.6%;
+    top: 3.1%;
+    width: 15.8%;
+    height: 2.9%;
+}
+
 .wallet-value.gems {
+    left: 80.3%;
+    top: 6.75%;
+    width: 13.2%;
+    height: 2.9%;
     color: #0e5f87;
 }
 
@@ -241,10 +247,10 @@
 .pet-dynamic-count {
     position: absolute;
     z-index: 12;
-    left: 25.6%;
-    top: 95.65%;
-    width: 20.1%;
-    height: 1.8%;
+    left: 25.2%;
+    top: 94.7%;
+    width: 20.8%;
+    height: 2.15%;
     display: grid;
     place-items: center;
     border-radius: 999px;
