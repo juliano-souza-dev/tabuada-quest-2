@@ -18,6 +18,18 @@ Ao concluir todos os mundos previstos, a criança pratica cada tabuada uma quant
 
 No Tabuada Quest 2.0, a estrutura de **10 portais** e **10 mundos por portal** será preservada, mas a associação rígida entre mundo e tabuada deixa de existir.
 
+
+## Atualização de nomenclatura — DEC-002
+
+A partir da DEC-002, a nomenclatura oficial do Tabuada Quest 2.0 passa a ser:
+
+```text
+Portal → Região
+Mundo  → Ilha
+```
+
+Todas as regras pedagógicas desta decisão permanecem válidas. Onde este documento mencionar Portal ou Mundo em contexto do 2.0, deve-se ler Região ou Ilha, respectivamente. A alteração não muda, por si só, quantidades, cotas, cobertura de operações ou invariantes do scheduler.
+
 ## Decisão
 
 Cada mundo passa a apresentar uma **combinação planejada de operações de diferentes tabuadas**.
