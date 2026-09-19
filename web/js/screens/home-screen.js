@@ -77,7 +77,7 @@
                 <button class="art-hotspot hotspot-background" type="button" data-action="backgrounds" aria-label="Escolher fundo"></button>
                 <button class="art-hotspot hotspot-fashion" type="button" data-action="frames" aria-label="Escolher moldura"></button>
 
-                <button class="play-slot" type="button" data-action="play">JOGAR</button>
+                <button class="play-slot" type="button" data-action="play" aria-label="Jogar"></button>
 
                 <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
                     <span style="width:${chestPercent}%"></span>
@@ -94,7 +94,6 @@
                 <button class="art-hotspot hotspot-pets" type="button" data-action="pets" aria-label="Pets"></button>
                 <button class="art-hotspot hotspot-items" type="button" data-action="items" aria-label="Baú de itens"></button>
 
-                <div class="regions-label">REGIÕES</div>
             </div>
 
             <div class="home-toast" role="status" aria-live="polite"></div>
