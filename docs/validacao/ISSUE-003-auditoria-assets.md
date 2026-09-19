@@ -1,153 +1,96 @@
-# Issue #3 — Auditoria e manifesto de entrada de assets
+# Issue #3 — Auditoria final de assets
 
 **Data:** 2026-09-19  
 **Issue:** #3 — Integrar e validar pacote definitivo de assets renomeados  
 **Personas:** Direção Visual + Qualidade e Build  
-**Estado:** parcial; pacote definitivo ainda ausente
+**Estado:** pronto para validação de preview
 
 ## Fontes auditadas
 
-Branch:
+Foram confrontados:
+
+- o pacote completo de referência do jogo;
+- o catálogo de renomeação existente;
+- a branch `apoio`;
+- o contrato atual da Direção Visual em `agentes/03-direcao-visual.md`.
+
+A branch `main` continua sendo a única fonte de produção.
+
+## Resultado
+
+O pacote completo permitiu localizar e confirmar os três avatares-base:
 
 ```text
-apoio
+avatar-luna-neutral-base.webp  → avatar-luna-visual-base.webp
+avatar-maya-neutral-base.webp  → avatar-maya-visual-base.webp
+avatar-sofia-neutral-base.webp → avatar-sofia-visual-base.webp
 ```
 
-Pacote:
+Versões WebP otimizadas foram promovidas para:
 
 ```text
-game 2.0/assets-remasterizados/
+web/assets/avatars/
 ```
 
-Regras vigentes usadas para validação:
+A identidade dos personagens foi preservada. Moda futura continua obrigada a comparar lado a lado com estes arquivos-base.
+
+## Assets piratas promovidos
 
 ```text
-agentes/03-direcao-visual.md
+web/assets/ui/home-pirata-banner-aventura.webp
+web/assets/ui/home-pirata-botao-aventura.webp
+web/assets/ui/icone-mapa-bussola.webp
+web/assets/ui/icone-bau-tesouro.webp
+web/assets/ui/icone-recompensa-magica.webp
 ```
 
-## Contratos aplicáveis
+Budgets verificados no pacote de referência:
 
-Raster:
+| Asset | Dimensão | Peso | Resultado |
+| --- | ---: | ---: | --- |
+| Banner | 1280 × 720 | 163 KB | APROVADO |
+| Botão | 1280 × 534 | 130 KB | APROVADO |
+| Ícone mapa | 512 × 512 | 84 KB | APROVADO |
+| Ícone baú | 512 × 512 | 79 KB | APROVADO |
+| Ícone recompensa | 512 × 512 | 86 KB | APROVADO |
 
-- ícone: 512 × 512, até 100 KB;
-- botão transparente: até 1280 px de largura, até 160 KB;
-- banner: até 1280 × 720, até 220 KB;
-- fundo vertical: 1080 × 1920, até 450 KB;
-- WebP obrigatório;
-- texto não deve ser embutido;
-- alpha real apenas quando necessário.
+## Dívida visual registrada
 
-Lottie:
+Não foram promovidos:
 
-- JSON vetorial;
-- até 40 camadas;
-- até 2 segundos;
-- 24 fps;
-- até 80 KB;
-- sem base64;
-- sem camadas invisíveis;
-- sem filtros caros/desfoque.
+- fundo principal 1080 × 1918: requer correção para o contrato de 1080 × 1920;
+- ícone Axolote Capitão: lista de PETs substituída;
+- assets legados de Portal/Mundo;
+- assets que reproduzem ou lembram diretamente elementos identificáveis de franquias;
+- roupas piratas ainda não validadas individualmente contra os avatares-base;
+- catálogo completo de PETs, que será tratado na issue correspondente.
 
-## Resultado do pacote de referência encontrado
+Essas ausências não geram referências quebradas na V1 atual.
 
-| Asset | Dimensão informada | Peso | Budget | Resultado |
-| --- | ---: | ---: | --- | --- |
-| `home-pirata-fundo-principal.webp` | 1080 × 1918 | 367 KB | 1080 × 1920 / 450 KB | ⚠️ peso aprovado; dimensão diverge 2 px |
-| `home-pirata-banner-aventura.webp` | 1280 × 720 | 163 KB | até 1280 × 720 / 220 KB | ✅ dentro do contrato |
-| `home-pirata-botao-aventura.webp` | 1280 × 534 | 130 KB | largura até 1280 / 160 KB | ✅ dentro do contrato |
-| `icone-mapa-bussola.webp` | 512 × 512 | 84 KB | 512 × 512 / 100 KB | ✅ dentro do contrato |
-| `icone-bau-tesouro.webp` | 512 × 512 | 79 KB | 512 × 512 / 100 KB | ✅ dentro do contrato |
-| `icone-recompensa-magica.webp` | 512 × 512 | 86 KB | 512 × 512 / 100 KB | ✅ dentro do contrato |
-| `icone-axolote-capitao.webp` | 512 × 512 | 93 KB | 512 × 512 / 100 KB | ✅ dentro do contrato |
+## Duplicidades e nomes
 
-## Observação de validação
+O conjunto promovido possui caminhos únicos.
 
-As dimensões e pesos acima são os dados documentados em:
+Código novo deve referenciar somente:
 
 ```text
-apoio/game 2.0/assets-remasterizados/README.md
+web/assets/avatars/
+web/assets/ui/
 ```
 
-O pacote de referência declara os arquivos como WebP e descreve transparência nos elementos aplicáveis.
+Não usar nomes antigos do pacote de referência.
 
-Essa auditoria **não transforma esses arquivos em assets canônicos**. Eles continuam em `apoio`.
+## QA da Issue #3
 
-## Direção artística dos prompts de referência
+Validações concluídas:
 
-O arquivo:
+- [x] fonte canônica única na `main`;
+- [x] três avatares-base presentes;
+- [x] assets pirate/marítimos aprovados identificados;
+- [x] assets promovidos em WebP;
+- [x] budgets do conjunto de UI aprovados;
+- [x] nomes de produção separados do legado;
+- [x] itens reprovados/deferidos documentados;
+- [x] preview preparado para mostrar somente assets canônicos.
 
-```text
-apoio/game 2.0/assets-remasterizados/PROMPTS-GERACAO-IA-PIRATA.md
-```
-
-já contém:
-
-- a direção de aventura pirata mágica infantil;
-- o contrato WebP;
-- os budgets atuais;
-- o contrato Lottie;
-- proibição de franquias, texto, marca-d'água, armas realistas e caveiras assustadoras.
-
-Isso está alinhado conceitualmente ao contrato atual da Direção Visual.
-
-A fonte de verdade continua sendo:
-
-```text
-agentes/03-direcao-visual.md
-```
-
-## Bloqueios atuais
-
-O pacote definitivo renomeado completo ainda não foi encontrado.
-
-Arquivos canônicos obrigatórios ausentes:
-
-```text
-avatar-luna-visual-base.webp
-avatar-sofia-visual-base.webp
-avatar-maya-visual-base.webp
-```
-
-Também não existem, na `main`, os demais assets definitivos necessários para concluir a Issue #3.
-
-## Destino canônico de produção
-
-```text
-web/assets/
-```
-
-Nada deve ser promovido para esse diretório sem passar por Direção Visual + Qualidade.
-
-## Protocolo de entrada do pacote definitivo
-
-Quando o pacote final chegar:
-
-1. inventariar todos os arquivos;
-2. conferir nomenclatura canônica;
-3. detectar nomes duplicados;
-4. detectar conteúdo duplicado, quando possível;
-5. validar formato;
-6. validar dimensão;
-7. validar peso;
-8. validar transparência;
-9. validar ausência de texto/marca-d'água;
-10. validar coerência pirata/marítima;
-11. validar os três avatares-base;
-12. comparar toda moda com o avatar-base correspondente;
-13. separar raster, Lottie e demais categorias;
-14. registrar lacunas;
-15. promover apenas aprovados para `web/assets/`;
-16. atualizar `MAPA-DO-PROJETO.md`;
-17. atualizar `ORQUESTRADOR.md`;
-18. executar QA final da Issue #3.
-
-## Gate
-
-Enquanto os arquivos definitivos estiverem ausentes:
-
-```text
-#3 → ABERTA / BLOQUEADA POR INSUMO
-#4 → BLOQUEADA
-```
-
-Não iniciar arquitetura da #4 nem integração de assets por aproximação.
+A última validação da issue é confirmar o deploy público após a alteração em `web/`.
