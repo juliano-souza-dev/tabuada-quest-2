@@ -4,9 +4,9 @@ Este arquivo controla o conjunto visual aprovado para produção em `web/assets/
 
 ## Status
 
-**Pacote canônico inicial da V1 integrado na Issue #3.**
+**Pacote canônico da Home V1 em integração visual na Issue #4.**
 
-Somente os arquivos listados abaixo podem ser tratados como assets de produção nesta etapa.
+Somente assets listados neste manifesto podem ser tratados como produção.
 
 ## Avatares-base canônicos
 
@@ -16,62 +16,52 @@ Somente os arquivos listados abaixo podem ser tratados como assets de produção
 | Maya | `web/assets/avatars/avatar-maya-visual-base.webp` | APROVADO |
 | Sofia | `web/assets/avatars/avatar-sofia-visual-base.webp` | APROVADO |
 
-Os três arquivos são versões WebP otimizadas para uso no jogo. A identidade visual foi preservada a partir dos avatares-base do pacote de referência.
+## Variações pirata para a Home
 
-Toda moda futura deve usar estes avatares como referência canônica e respeitar `agentes/03-direcao-visual.md`.
-
-## UI pirata aprovada
-
-| Asset | Caminho | Estado |
+| Personagem | Caminho | Estado |
 | --- | --- | --- |
-| Fundo padrão inicial da Home | `web/assets/ui/home-pirata-fundo-principal.webp` | APROVADO PELO USUÁRIO |
-| Banner de aventura | `web/assets/ui/home-pirata-banner-aventura.webp` | APROVADO |
-| Base de botão de aventura | `web/assets/ui/home-pirata-botao-aventura.webp` | APROVADO |
-| Ícone de mapa/bússola | `web/assets/ui/icone-mapa-bussola.webp` | APROVADO |
-| Ícone de baú | `web/assets/ui/icone-bau-tesouro.webp` | APROVADO |
-| Ícone de recompensa | `web/assets/ui/icone-recompensa-magica.webp` | APROVADO |
+| Luna | `web/assets/avatars/avatar-luna-pirata.webp` | PROMOVIDO / USO HOME |
+| Maya | `web/assets/avatars/avatar-maya-pirata.webp` | PROMOVIDO / USO HOME |
+| Sofia | `web/assets/avatars/avatar-sofia-pirata.webp` | PROMOVIDO / USO HOME |
 
-## Não promovidos
-
-Os itens abaixo permanecem fora do pacote canônico nesta etapa:
-
-- `icone-axolote-capitao.webp`: pertence a uma lista de PETs posteriormente substituída;
-- assets com nomenclatura Portal/Mundo: a estrutura vigente é Região/Ilha;
-- artes com referências reconhecíveis a franquias existentes;
-- variações de avatar que alterem identidade, rosto, cabelo, proporção ou idade visual;
-- moda/roupa não validada individualmente contra o avatar-base.
-
-## Regra de promoção
-
-Um novo arquivo só entra neste manifesto após:
-
-1. validação da Direção Visual;
-2. validação de formato, dimensão, peso e duplicidade por Qualidade;
-3. promoção física para `web/assets/`;
-4. atualização deste manifesto;
-5. validação do preview quando o asset for visível.
-
+A identidade-base continua sendo a referência canônica. Moda futura deve preservar rosto, cabelo, idade visual, proporções e identidade.
 
 ## Fundos personalizáveis da Home
 
-O fundo da Home é selecionável pelo jogador.
+| ID | Caminho | Estado |
+| --- | --- | --- |
+| `pirate-main` | `web/assets/ui/home-pirata-fundo-principal.webp` | PADRÃO APROVADO PELO USUÁRIO |
+| `pirate-bay` | `web/assets/backgrounds/home-pirate-bay.webp` | PROMOVIDO PARA SELETOR |
+| `pirate-port` | `web/assets/backgrounds/home-pirate-port.webp` | PROMOVIDO PARA SELETOR |
 
-Fundo padrão inicial:
-
-```text
-id = pirate-main
-web/assets/ui/home-pirata-fundo-principal.webp
-```
-
-A dimensão 1080 × 1918 foi aceita explicitamente pelo usuário como arte padrão.
-
-Outros fundos só entram no seletor após Direção Visual + Qualidade + promoção física para `web/assets/`.
-
+A escolha é persistida em `state.ui.homeBackgroundId`.
 
 ## Molduras de perfil
 
-| Asset | Caminho | Estado |
-|---|---|---|
-| Moldura pirata tesouro | `web/assets/frames/profile-frame-pirate-treasure.webp` | APROVADA PARA CATÁLOGO INICIAL |
+| ID | Caminho | Estado |
+| --- | --- | --- |
+| `pirate-treasure` | `web/assets/frames/profile-frame-pirate-treasure.webp` | PADRÃO |
+| `tide-wheel` | `web/assets/frames/profile-frame-tide-wheel.webp` | PROMOVIDO PARA SELETOR |
 
-A moldura do perfil é um slot cosmético selecionável e não deve conter avatar, nome, nível, XP, moedas ou gemas embutidos.
+A escolha é persistida em `state.player.profileFrameId`.
+
+## UI da Home
+
+| Asset | Caminho | Estado |
+| --- | --- | --- |
+| Base de botão JOGAR | `web/assets/ui/home-pirata-botao-aventura.webp` | APROVADO |
+| Ícone de mapa/bússola | `web/assets/ui/icone-mapa-bussola.webp` | APROVADO |
+| Ícone de baú | `web/assets/ui/icone-bau-tesouro.webp` | APROVADO |
+| Ícone de recompensa | `web/assets/ui/icone-recompensa-magica.webp` | APROVADO |
+| Baú náutico | `web/assets/ui/chest-nautical.webp` | PROMOVIDO PARA HOME |
+| Baú de itens | `web/assets/ui/chest-items.webp` | PROMOVIDO PARA HOME |
+| Axolote Capitão | `web/assets/pets/axolotl-captain.webp` | PROMOVIDO PARA CARD PETS |
+
+## Regras
+
+- avatar, nome, nível, XP, moedas e gemas são dinâmicos;
+- nenhum desses dados pode ser rasterizado nos assets;
+- fundo e moldura são personalizações independentes;
+- novos fundos/molduras só entram após Direção Visual + Qualidade + promoção física;
+- não reutilizar assets de franquias ou nomenclatura antiga sem revisão;
+- `web/` permanece fonte única para navegador e Android WebView.
