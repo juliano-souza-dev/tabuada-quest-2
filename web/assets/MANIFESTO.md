@@ -66,3 +66,12 @@ web/assets/ui/home-pirata-fundo-principal.webp
 A dimensão 1080 × 1918 foi aceita explicitamente pelo usuário como arte padrão.
 
 Outros fundos só entram no seletor após Direção Visual + Qualidade + promoção física para `web/assets/`.
+
+
+## Molduras de perfil
+
+| Asset | Caminho | Estado |
+|---|---|---|
+| Moldura pirata tesouro | `web/assets/frames/profile-frame-pirate-treasure.webp` | APROVADA PARA CATÁLOGO INICIAL |
+
+A moldura do perfil é um slot cosmético selecionável e não deve conter avatar, nome, nível, XP, moedas ou gemas embutidos.
