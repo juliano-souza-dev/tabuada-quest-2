@@ -5,14 +5,23 @@
         return TQ.content.assets.avatars[avatarId] ? avatarId : "luna";
     }
 
+    function resolveHomeBackground(backgroundId) {
+        return TQ.content.homeBackgrounds.find((item) => item.id === backgroundId)
+            || TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)
+            || TQ.content.homeBackgrounds[0];
+    }
+
     function renderHomeScreen({ state }) {
         const avatarId = safeAvatarId(state.player.avatarId);
         const avatarSrc = TQ.content.assets.avatars[avatarId];
+        const background = resolveHomeBackground(state.ui.homeBackgroundId);
         const mapOne = state.campaign.specialMaps["1"];
         const totals = TQ.content.campaignTotals;
 
         const screen = document.createElement("section");
         screen.className = "home-screen";
+        screen.dataset.backgroundId = background.id;
+        screen.style.setProperty("--home-background-image", `url("${background.src}")`);
         screen.setAttribute("aria-label", "Início do Tabuada Quest");
 
         screen.innerHTML = `
@@ -107,5 +116,5 @@
     }
 
     TQ.screens = TQ.screens || {};
-    TQ.screens.home = Object.freeze({ renderHomeScreen });
+    TQ.screens.home = Object.freeze({ renderHomeScreen, resolveHomeBackground });
 })(globalThis);
