@@ -1295,3 +1295,14 @@ Fluxo retomado:
 → verificar pendências residuais de refino visual
 → somente depois retornar à #4
 ```
+
+
+### Issue #22 aprovada e encerrada
+
+O líder aprovou explicitamente o refino visual da Home.
+
+```text
+#22 → APROVADA PELO LÍDER → CLOSED
+```
+
+Fluxo retorna para a issue raiz #4 para encerramento formal dos gates restantes antes da liberação da #5.
