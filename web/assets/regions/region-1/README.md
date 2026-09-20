@@ -61,7 +61,14 @@ A tela atual renderiza **5 Ilhas visíveis**:
 05 Ilha da Caveira Rosa
 ```
 
-Os assets 06–10 permanecem preservados para futura reorganização de navegação.
+A navegação da CORSÁRIO é dividida em duas composições visuais:
+
+```text
+CORSÁRIO 1 → Ilhas 01–05 → mapa_marítimo_do_corsário.png
+CORSÁRIO 2 → Ilhas 06–10 → corsario-2-background.webp
+```
+
+O fundo da CORSÁRIO 2 contém somente a composição fixa. Ilhas, status, hitboxes e Mapa Mundo continuam dinâmicos.
 
 Fonte do posicionamento:
 
