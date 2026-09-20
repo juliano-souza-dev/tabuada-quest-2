@@ -212,6 +212,22 @@ h=150
 
 Nenhuma Região pode inventar nova malha sem decisão explícita do líder.
 
+## CORSÁRIO 2
+
+CORSÁRIO 2 reutiliza as cinco Ilhas remanescentes da remake anterior:
+
+```text
+Ilha 06
+Ilha 07
+Ilha 08
+Ilha 09
+Ilha 10
+```
+
+Os assets existentes correspondentes são a referência aprovada a ser reaproveitada/adaptada para os cinco slots da malha canônica. Eles não devem ser redesenhados apenas por terem mudado de tela.
+
+A tela CORSÁRIO 2 usa a mesma geometria global de 5 slots, statusBox, hitboxes, Mapa mundo, rota e respiro definidos pela CORSÁRIO 1.
+
 ## O que muda entre Regiões
 
 Pode mudar:
