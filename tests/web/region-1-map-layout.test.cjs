@@ -61,6 +61,7 @@ test("CORSÁRIO 2 usa pixel-map próprio sem duplicar renderer", () => {
     };
 
     const page = islands.getRegionVisualPage(state, 1);
+    // Slots superiores usam 300×300 porque os redemoinhos aprovados encostam nas bordas do stage.
     const expected = {
         1: { art: [0,361,300,300], status: [48,603,204,42], hitbox: [12,373,276,276] },
         2: { art: [641,361,300,300], status: [689,603,204,42], hitbox: [653,373,276,276] },
