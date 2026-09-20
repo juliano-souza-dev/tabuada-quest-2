@@ -93,16 +93,50 @@ Desafio misto
 
 Não exibir a composição de tabuadas como nome, subtítulo ou tema da Ilha.
 
-## Contrato para assets futuros
+## Contrato visual dos mapas de Ilhas
 
-Quando os assets forem produzidos:
+Decisão corrigida e aprovada pelo líder durante a produção da Região 1.
 
-- o `sceneKey` identifica a composição visual da Ilha;
-- o nome da Ilha permanece texto dinâmico;
-- estados e CTAs permanecem camada dinâmica;
-- o asset não deve embutir nome, tabuada, progresso ou estado;
-- botões/hitboxes devem preservar `data-island-id`;
-- trocar arte não altera scheduler, gameplay-session ou player-state.
+### Fixo dentro da arte
+
+- cenário oceânico e composição das Ilhas;
+- header temático;
+- seta visual de voltar;
+- nome da Região;
+- nomes das 10 Ilhas;
+- molduras/slots reservados para status;
+- molduras/slots reservados para recompensa.
+
+### Dinâmico sobre a arte
+
+- status de cada Ilha;
+- estado bloqueada/desbloqueada;
+- revisão;
+- conclusão;
+- continuidade de sessão;
+- recompensa associada a cada Ilha;
+- hitboxes da seta e das 10 Ilhas;
+- estados de acessibilidade.
+
+Contrato:
+
+```text
+FIXO
+nome da Região
+nome das Ilhas
+arte
+molduras
+
+DINÂMICO
+status
+recompensa
+hitboxes
+estado do jogador
+```
+
+Os nomes fixos continuam também no catálogo de conteúdo para acessibilidade, testes e regras de domínio, mas não são redesenhados em HTML sobre a arte.
+
+Trocar o estado do jogador não exige regenerar o asset. Trocar a arte não altera scheduler, gameplay-session ou player-state.
 
 ## Primeiro exemplo executável
 
@@ -122,3 +156,53 @@ Ilha 10 → Cabo do Capitão
 ```
 
 Os marcos de PET, mapa e baú definidos anteriormente continuam independentes dos nomes das Ilhas.
+
+
+## Região 1 — asset canônico implementado
+
+Asset:
+
+```text
+web/assets/regions/region-1-islands-static.webp
+```
+
+Stage canônico:
+
+```text
+941 × 1672
+```
+
+A imagem contém de forma fixa:
+
+- header e seta visual;
+- `CORSÁRIO`;
+- as 10 Ilhas;
+- os 10 nomes;
+- slots vazios para status e recompensa.
+
+Implementação dinâmica:
+
+```text
+web/js/screens/islands-screen.js
+REGION_1_LAYOUT
+```
+
+Overlays:
+
+```text
+status    → texto dinâmico
+recompensa → símbolo/conteúdo dinâmico
+hitbox    → ação dinâmica invisível
+```
+
+Estados exibidos no slot:
+
+```text
+BLOQUEADA
+DESBLOQUEADA
+REVISAR
+CONTINUAR
+CONCLUÍDA ✓
+```
+
+As Regiões 2–11 permanecem temporariamente no layout textual até receberem suas respectivas artes.
