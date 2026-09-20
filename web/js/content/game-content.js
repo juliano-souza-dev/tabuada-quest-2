@@ -39,7 +39,7 @@
             regionId: 1,
             tagline: "O começo da rota pirata.",
             visualTheme: "portos de madeira, velas, cordas e águas azul-escuras",
-            islandNames: Object.freeze(["Porto da Âncora","Enseada do Saque","Rochedo da Bandeira","Ilha do Vulcão","Ilha da Caveira Rosa","Atol do Timão","Ponta da Caravela","Praia das Cordas","Ilha do Canhão","Cabo do Capitão"])
+            islandNames: Object.freeze(["Porto da Âncora","Enseada do Saque","Rochedo da Bandeira","Ilha do Vulcão","Ilha da Caveira Rosa","Atol do Timão","Ponta da Caravela","Praia das Cordas","Ilha do Canhão","Ilha Lamen"])
         }),
         Object.freeze({
             regionId: 2,
@@ -190,47 +190,47 @@
             regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
             region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130",
             region1Modular: Object.freeze({
-                background: "./assets/regions/region-1/background.png?v=20260920-1245",
+                background: "./assets/regions/region-1/background.png?v=20260920-1628",
                 islands: Object.freeze({
                     1: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-01-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-01-locked.png?v=20260920-1628"
                     }),
                     2: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-02-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-02-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-02-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-02-locked.png?v=20260920-1628"
                     }),
                     3: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-03-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-03-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-03-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-03-locked.png?v=20260920-1628"
                     }),
                     4: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-04-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-04-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-04-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-04-locked.png?v=20260920-1628"
                     }),
                     5: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-05-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-05-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-05-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-05-locked.png?v=20260920-1628"
                     }),
                     6: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-06-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-06-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-06-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-06-locked.png?v=20260920-1628"
                     }),
                     7: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-07-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-07-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-07-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-07-locked.png?v=20260920-1628"
                     }),
                     8: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-08-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-08-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-08-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-08-locked.png?v=20260920-1628"
                     }),
                     9: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-09-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-09-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-09-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-09-locked.png?v=20260920-1628"
                     }),
                     10: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-10-unlocked.png?v=20260920-1245",
-                        locked: "./assets/regions/region-1/island-10-locked.png?v=20260920-1245"
+                        unlocked: "./assets/regions/region-1/island-10-unlocked.png?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-10-locked.png?v=20260920-1628"
                     })
                 })
             })
