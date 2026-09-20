@@ -7,9 +7,6 @@
         screen.setAttribute("aria-label", "Composição estática da tela de Regiões");
         screen.innerHTML = `
             <div class="regions-static-composition">
-                <div class="regions-static-header" aria-hidden="true">
-                    <img src="${TQ.content.assets.regionsHeaderStatic}" alt="">
-                </div>
                 <div class="regions-static-map" aria-hidden="true">
                     <img src="${TQ.content.assets.regionsMapStatic}" alt="">
                 </div>

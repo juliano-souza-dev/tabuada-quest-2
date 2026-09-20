@@ -56,9 +56,7 @@
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
             homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2228",
-            regionsMap: "./assets/regions/regions-map-base.webp?v=20260920-0241",
-            regionsHeaderStatic: "./assets/regions/regions-header-static.png?v=20260920-0241",
-            regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0241"
+            regionsMap: "./assets/regions/regions-map-base.webp?v=20260920-0241",            regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0255"
         })
     });
 })(globalThis);

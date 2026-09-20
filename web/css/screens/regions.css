@@ -9,37 +9,19 @@
 .regions-static-composition {
     position: absolute;
     inset: 0;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
     background: #0a4969;
 }
 
-.regions-static-header {
-    position: relative;
-    z-index: 2;
-    flex: 0 0 18.75%;
-    overflow: hidden;
-    background: #ffffff;
-}
-
-.regions-static-header img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
 .regions-static-map {
-    position: relative;
-    z-index: 1;
-    flex: 1 1 auto;
-    min-height: 0;
+    position: absolute;
+    inset: 0;
     overflow: hidden;
     background: #0a4969;
 }
 
 .regions-static-map img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
