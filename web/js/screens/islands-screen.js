@@ -187,11 +187,16 @@
 
                 ${islandsMarkup}
 
-                <img class="global-world-map-asset"
-                    src="${TQ.content.assets.global.worldMap}"
+                <button class="global-world-map-button"
+                    type="button"
                     style="${rectStyle(REGION_1_LAYOUT.worldMap)}"
-                    alt=""
-                    aria-hidden="true">
+                    data-action="open-world-map"
+                    aria-label="Abrir Mapa mundo">
+                    <img class="global-world-map-asset"
+                        src="${TQ.content.assets.global.worldMap}"
+                        alt=""
+                        aria-hidden="true">
+                </button>
             </div>
         `;
 
@@ -217,6 +222,11 @@
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="back-regions"]')) {
                 onNavigate("regions");
+                return;
+            }
+
+            if (event.target.closest('[data-action="open-world-map"]')) {
+                TQ.core.worldMap.open({ onNavigate });
                 return;
             }
 
