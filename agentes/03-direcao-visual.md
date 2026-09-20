@@ -39,16 +39,61 @@ Regras:
 
 ## Gate obrigatório antes de gerar ou editar arte
 
+A Direção Visual deve ser consultada **todas as vezes** antes de gerar, regenerar ou editar qualquer arte.
+
+Primeiro, classificar explicitamente o tipo de arte que será produzido. Exemplos:
+
+```text
+BACKGROUND_DE_REGIAO
+ILHA
+AVATAR
+MODA
+ÍCONE
+BOTÃO
+BANNER
+MAPA
+TRANSIÇÃO
+OUTRO
+```
+
+Depois, consultar nesta persona **as regras específicas daquele tipo de arte** e montar o prompt somente a partir dessas regras, da referência aprovada e da alteração pedida.
+
 Antes de qualquer geração, regeneração ou edição:
 
 ```text
+TIPO_DE_ARTE        = categoria exata do asset
 REFERENCIA_APROVADA = composição/asset que deve ser preservado
 ALTERACAO_PEDIDA    = o que pode mudar
 DADOS_DINAMICOS     = o que deve ficar fora da arte
 ASSET_DECISION      = REUTILIZAR | ADAPTAR | CRIAR NOVO
+PROMPT_PROPOSTO     = prompt final que será enviado ao gerador
 ```
 
-É proibido gerar primeiro e tentar adequar depois.
+### Aprovação obrigatória do prompt
+
+O `PROMPT_PROPOSTO` deve ser apresentado ao líder **antes de qualquer chamada ao gerador de imagem**.
+
+Fluxo obrigatório:
+
+```text
+pedido de arte
+→ consultar Direção Visual
+→ identificar TIPO_DE_ARTE
+→ ler regras específicas daquele tipo
+→ montar PROMPT_PROPOSTO
+→ entregar prompt ao líder
+→ aguardar aprovação explícita
+→ somente então gerar/editar a imagem
+```
+
+Se o líder pedir alteração no prompt, atualizar o prompt e submetê-lo novamente antes da geração.
+
+É proibido:
+
+- gerar primeiro e tentar adequar depois;
+- reutilizar um prompt antigo sem reconferir o tipo de arte;
+- gerar arte sem consultar esta persona;
+- chamar o gerador antes da aprovação explícita do prompt pelo líder.
 
 ## Regra global x local
 
