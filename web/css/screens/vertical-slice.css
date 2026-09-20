@@ -146,9 +146,6 @@
     opacity: .82;
 }
 
-.island-text-button.is-review {
-    border-style: dashed;
-}
 
 .island-text-button.is-completed .island-name {
     text-decoration: underline;
@@ -214,9 +211,6 @@
     color: #c9c9c9;
 }
 
-.region1-island-overlay.is-review .region1-island-status {
-    color: #ffe079;
-}
 
 .region1-island-overlay.is-completed .region1-island-status {
     color: #a9f5b7;
