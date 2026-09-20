@@ -117,6 +117,61 @@ Antes de aprovar uma animação, validar:
 - imagens auxiliares, quando indispensáveis, em WebP externo e caminho relativo;
 - animação legível e fluida em dispositivo móvel.
 
+## Padrão global obrigatório para telas de Região
+
+Fonte de verdade:
+
+```text
+docs/arte/PADRAO-GLOBAL-REGIOES-5-ILHAS.md
+```
+
+A CORSÁRIO define a malha canônica das telas de Região.
+
+Toda nova Região deve preservar:
+
+```text
+stage 941 × 1672
+5 slots de Ilha
+mesmas coordenadas
+mesmos tamanhos
+mesmos statusBox
+mesmas hitboxes
+mesma posição do Mapa mundo
+mesma geometria das 5 marcações de água
+mesma rota visual
+mesmo respiro entre assets
+```
+
+A Direção Visual pode alterar somente a identidade:
+
+- cenário/background;
+- header e nome da Região;
+- paleta e clima;
+- visual/nome das Ilhas;
+- props;
+- medalhões coerentes com as recompensas reais.
+
+Ao gerar o background de outra Região, deve copiar a malha estrutural da CORSÁRIO e trocar apenas a identidade visual. Não adicionar ilhas decorativas grandes que ocupem os slots jogáveis.
+
+O asset global:
+
+```text
+web/assets/global/mapa-mundo.png
+```
+
+permanece em:
+
+```text
+x=98
+y=1405
+w=200
+h=200
+```
+
+em todas as telas de Região.
+
+Qualquer desvio de composição exige decisão explícita do líder antes de gerar ou implementar a arte.
+
 ## Limites
 
 - Não recriar nem descaracterizar artes de referência sem decisão de Produto.
