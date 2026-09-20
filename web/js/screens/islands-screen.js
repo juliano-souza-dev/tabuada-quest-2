@@ -5,6 +5,7 @@
         viewport: Object.freeze({ width: 941, height: 1672 }),
         visibleIslandIds: Object.freeze([1, 2, 3, 4, 5]),
         back: Object.freeze({ x: 58, y: 18, width: 150, height: 150 }),
+        worldMap: Object.freeze({ x: 98, y: 1405, width: 200, height: 200 }),
         islands: Object.freeze({
             1: Object.freeze({
                 art: Object.freeze({ x: 0, y: 320, width: 380, height: 380 }),
@@ -185,6 +186,12 @@
                 </button>
 
                 ${islandsMarkup}
+
+                <img class="global-world-map-asset"
+                    src="${TQ.content.assets.global.worldMap}"
+                    style="${rectStyle(REGION_1_LAYOUT.worldMap)}"
+                    alt=""
+                    aria-hidden="true">
             </div>
         `;
 
