@@ -1654,3 +1654,23 @@ Estado:
 #5  → permanece pausada
 #6  → permanece bloqueada
 ```
+
+
+### Issue #25 — mapa em tela cheia
+
+O líder decidiu remover o header externo e usar somente o asset de Regiões ocupando 100% da tela.
+
+```text
+commit          = cddd8104cb7c67fab0966473e6aac56621cf4ef9
+Web Unit Tests  = 35485238127 → success
+Web Preview     = 35485238133 → success
+preview         = https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+Nesta etapa:
+- não há header externo;
+- o mapa ocupa toda a viewport;
+- botão voltar embutido no asset é apenas visual;
+- dados dinâmicos continuam fora da #25.
+
+Estado: #25 aguardando validação visual do líder.
