@@ -2,74 +2,172 @@
 
 ## Missão
 
-Definir **o que o Tabuada Quest 2.0 deve ser**, quais problemas resolve, quais sistemas entram no escopo e em que prioridade.
-
-## Leitura obrigatória antes de atuar
-
-1. `ORQUESTRADOR.md`
-2. `MAPA-DO-PROJETO.md`
-3. issue ativa
-4. decisões relevantes em `docs/decisoes/`
+Definir **o que o Tabuada Quest 2.0 é**, quais sistemas existem, qual problema cada um resolve e qual prioridade de desenvolvimento deve ser seguida.
 
 ## Autoridade
 
-Produto decide:
+Produto é a fonte canônica para:
 
-- escopo;
+- escopo funcional;
 - prioridade;
 - entrada, remoção ou adiamento de funcionalidades;
 - macroestrutura da experiência;
-- quantidade e papel de sistemas globais;
-- mudanças de direção do produto;
-- o que é requisito e o que é apenas referência.
+- nomenclatura funcional;
+- regras globais de produto;
+- distinção entre regra global e exceção local.
 
-Produto tem a palavra final quando uma decisão muda o escopo geral do jogo.
+Produto não define implementação técnica detalhada, arte final, scheduler pedagógico ou validação de build.
 
-## Responsabilidades
+## Identidade vigente do produto
 
-- definir objetivo e valor de cada funcionalidade;
-- separar V1, M2 e M3;
-- manter o produto coerente com a identidade pirata/mágica;
-- impedir que legado vire requisito automaticamente;
-- decidir quando um sistema pode ser removido ou adiado;
-- aprovar mudanças nos totais globais já definidos;
-- registrar decisões permanentes em `docs/decisoes/`.
+O Tabuada Quest 2.0 é um jogo infantil de aprendizagem de multiplicação com identidade de **aventura pirata mágica**.
 
-## Limites
+Princípios:
 
-Produto não deve:
+```text
+mundo/narrativa visual != tabuada fixa
+Ilha != uma tabuada exclusiva
+conteúdo pedagógico vem do scheduler
+```
 
-- escolher implementação técnica detalhada;
-- alterar regras pedagógicas sozinho;
-- criar direção visual no lugar da Direção Visual;
-- aprovar build ou regressão no lugar de Qualidade;
-- inventar assets ou caminhos físicos.
+A identidade narrativa das Ilhas existe para dar contexto e progressão ao mundo. O desafio de uma Ilha pode misturar operações conforme o plano pedagógico.
 
-## Entrega esperada
+## Estrutura atual das telas de Região
 
-Para cada decisão:
+Cada **tela visual de Região** exibe exatamente:
 
-- problema/objetivo;
-- decisão tomada;
-- escopo incluído;
-- escopo excluído;
-- impactos nas milestones/issues;
-- critérios de aceite de produto;
-- pontos ainda abertos.
+```text
+5 Ilhas jogáveis
++ Mapa mundo global
+```
 
-## Handoff
+A composição de 5 Ilhas é regra global da interface.
 
-- para Game Design quando a decisão exige regras de jogo/aprendizagem;
-- para Direção Visual quando exige expressão visual;
-- para Desenvolvimento quando o comportamento já está definido;
-- para Experience Validator quando precisa validação infantil;
-- para Qualidade quando entra em validação final.
+A futura divisão macro do mundo em Regiões/Regiões internas ainda pode ser redefinida. Não deduzir quantidade total de Regiões ou total de Ilhas a partir de documentos antigos.
+
+Regra preservada:
+
+```text
+a reorganização visual não pode reduzir o conteúdo pedagógico total
+```
+
+## Estados de Ilha
+
+Estados de domínio válidos:
+
+```text
+locked
+available
+completed
+```
+
+Apresentação:
+
+```text
+locked    → BLOQUEADA
+available → DESBLOQUEADA
+completed → CONCLUÍDA
+```
+
+`CONTINUAR` é uma ação contextual quando existe sessão ativa. Não é um quarto estado de Ilha.
+
+Recuperação pedagógica não cria status visual adicional.
+
+## Mapa mundo
+
+Existe um asset global **Mapa mundo** presente nas telas de Região.
+
+Objetivo futuro:
+
+```text
+Mapa mundo
+→ abrir mapa geral
+→ exibir todas as Regiões
+```
+
+Enquanto a tela real não existe, o clique apresenta aviso de funcionalidade em produção.
+
+O comportamento é global e não deve ser redefinido Região por Região.
+
+## Home e personalização
+
+A Home possui dados dinâmicos de jogador e personalização visual.
+
+Dados já previstos:
+
+```text
+avatar
+nome
+nível
+XP
+moedas
+gemas
+fundo da Home
+moldura/moda
+```
+
+O fundo da Home é selecionável e persiste.
+
+A personalização visual não altera scheduler, progressão pedagógica ou conteúdo das atividades.
+
+## Moda / Provador
+
+Regra global de experiência:
+
+```text
+selecionar != equipar
+```
+
+Fluxo:
+
+```text
+abrir Moda
+→ Provador
+→ selecionar item
+→ prévia temporária
+→ USAR confirma
+→ somente então persistir/equipar
+```
+
+Fechar sem confirmar preserva o item equipado anteriormente.
+
+O Provador deve ser extensível a outros tipos de personalização e não ficar conceitualmente limitado a molduras.
+
+## PETs, recompensas, economia e inventário
+
+Esses sistemas existem como domínios distintos e só devem ser implementados quando suas regras estiverem definidas pelas personas responsáveis.
+
+Produto determina se o sistema pertence ao escopo e seus objetivos. Game Design define distribuição/regras pedagógicas quando aplicável. Desenvolvimento implementa somente após o contrato estar fechado.
+
+Não reutilizar distribuições antigas de 10 Ilhas por tela como regra vigente.
+
+## Regra global x local
+
+Toda decisão deve ser classificada:
+
+```text
+GLOBAL → afeta produto/componente compartilhado
+LOCAL  → afeta somente tela/fluxo explicitamente citado
+```
+
+Uma correção local nunca se propaga automaticamente.
 
 ## Regra de documentação
 
-Toda decisão relevante deve atualizar:
+Conhecimento permanente de Produto vive neste arquivo.
 
-- issue ativa;
-- `ORQUESTRADOR.md`;
-- `docs/decisoes/`, quando permanente;
-- `MAPA-DO-PROJETO.md`, se localização/estrutura física mudar.
+Issues **não são fonte de verdade de produto**. Elas servem apenas para organizar fluxo de desenvolvimento.
+
+Quando uma decisão permanente mudar:
+
+1. atualizar este contrato;
+2. atualizar `MAPA-DO-PROJETO.md` se a forma de acessar/localizar o conhecimento ou implementação mudar;
+3. usar a issue apenas para rastrear a execução necessária.
+
+## Handoff
+
+- Game Design e Aprendizagem: regras de aprendizagem/jogo;
+- Direção Visual: expressão visual;
+- Desenvolvimento: implementação;
+- Experience Validator: clareza infantil;
+- Qualidade e Build: validação técnica.
