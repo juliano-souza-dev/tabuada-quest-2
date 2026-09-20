@@ -56,22 +56,22 @@ O campo `challengeIdentity` é deliberadamente `mixed`. Nenhuma Ilha recebe iden
 A camada de navegação usa quatro estados infantis:
 
 ```text
-AVAILABLE  → JOGAR
+AVAILABLE  → DESBLOQUEADA
 LOCKED     → BLOQUEADA
-REVIEW     → REVISAR
 COMPLETED  → CONCLUÍDA
 ```
 
-### REVIEW
+### Recuperação pedagógica
 
-`REVISAR` aparece na próxima Ilha disponível quando a Região possui `recoveryAttempt` pendente.
+A recuperação pedagógica pertence exclusivamente ao scheduler e **não cria um status visual de Ilha**.
 
-Isso comunica que existe conteúdo a recuperar sem expor internamente:
+Ela não altera o contrato de navegação:
 
-- `recoveryQueue`;
-- `correctStreak`;
-- `plannedExposure`;
-- nomes de tabuadas do mix.
+```text
+locked
+available
+completed
+```
 
 ## ChallengePlan
 
@@ -111,7 +111,6 @@ Decisão corrigida e aprovada pelo líder durante a produção da Região 1.
 
 - status de cada Ilha;
 - estado bloqueada/desbloqueada;
-- revisão;
 - conclusão;
 - continuidade de sessão;
 - recompensa associada a cada Ilha;
@@ -200,7 +199,6 @@ Estados exibidos no slot:
 ```text
 BLOQUEADA
 DESBLOQUEADA
-REVISAR
 CONTINUAR
 CONCLUÍDA ✓
 ```
