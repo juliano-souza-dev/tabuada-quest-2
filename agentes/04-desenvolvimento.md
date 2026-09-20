@@ -86,6 +86,22 @@ identidade
 
 A geometria compartilhada não pode alterar as coordenadas aprovadas pela Direção Visual.
 
+## CORSÁRIO 2
+
+CORSÁRIO 2 deve ser implementada como uma nova configuração da infraestrutura compartilhada de telas de Região.
+
+Ela reutiliza as unidades/identidades 06–10 da CORSÁRIO e as projeta nos cinco slots visuais compartilhados.
+
+Não criar renderer, layout ou CSS exclusivo para CORSÁRIO 2.
+
+A navegação deve preservar a continuidade:
+
+```text
+CORSÁRIO 1 (01–05)
+→ CORSÁRIO 2 (06–10)
+→ próximo fluxo liberado pelo Orquestrador
+```
+
 ## Mapa mundo
 
 Controlador global:
