@@ -36,7 +36,23 @@
     });
 
     const REGION_VISUAL_CONFIG = Object.freeze({
-        1: Object.freeze({ assetKey: "region1Modular" })
+        1: Object.freeze({
+            assetKey: "region1Modular",
+            pages: Object.freeze([
+                Object.freeze({
+                    id: "corsario-1",
+                    backgroundId: 1,
+                    islandIds: Object.freeze([1, 2, 3, 4, 5]),
+                    unlockAfterCompleted: 0
+                }),
+                Object.freeze({
+                    id: "corsario-2",
+                    backgroundId: 2,
+                    islandIds: Object.freeze([6, 7, 8, 9, 10]),
+                    unlockAfterCompleted: 5
+                })
+            ])
+        })
     });
 
     function getRegionVisualConfig(regionId) {
@@ -48,7 +64,37 @@
         return Object.freeze({
             regionId: normalizedRegionId,
             assetKey: config.assetKey,
-            assets
+            assets,
+            pages: config.pages || Object.freeze([
+                Object.freeze({
+                    id: `region-${normalizedRegionId}`,
+                    backgroundId: 1,
+                    islandIds: REGION_LAYOUT.visibleIslandIds,
+                    unlockAfterCompleted: 0
+                })
+            ])
+        });
+    }
+
+    function getRegionVisualPage(state, regionId) {
+        const visual = getRegionVisualConfig(regionId);
+        if (!visual) return null;
+
+        const completed = Number(
+            state?.campaign?.regionProgress?.[String(regionId)]?.islandsCompleted
+        ) || 0;
+
+        const page = visual.pages.reduce((selected, candidate) =>
+            completed >= candidate.unlockAfterCompleted ? candidate : selected
+        , visual.pages[0]);
+
+        const background = visual.assets.backgrounds?.[page.backgroundId]
+            || visual.assets.background;
+
+        return Object.freeze({
+            ...page,
+            background,
+            assets: visual.assets
         });
     }
 
@@ -144,7 +190,8 @@
     function renderRegionMap({ state, onStateChange, onNavigate }) {
         const regionId = state.campaign.currentRegionId;
         const visual = getRegionVisualConfig(regionId);
-        if (!visual) {
+        const visualPage = getRegionVisualPage(state, regionId);
+        if (!visual || !visualPage) {
             return renderTextIslandsScreen({ state, onStateChange, onNavigate });
         }
 
@@ -153,10 +200,12 @@
         const screen = document.createElement("section");
         screen.className = "region-islands-map-screen";
         screen.dataset.regionId = String(regionId);
+        screen.dataset.regionPage = visualPage.id;
         screen.setAttribute("aria-label", `Ilhas da Região ${region ? region.label : regionId}`);
 
-        const islandsMarkup = REGION_LAYOUT.visibleIslandIds.map((islandId) => {
-            const layout = REGION_LAYOUT.islands[islandId];
+        const islandsMarkup = visualPage.islandIds.map((islandId, slotIndex) => {
+            const slotId = REGION_LAYOUT.visibleIslandIds[slotIndex];
+            const layout = REGION_LAYOUT.islands[slotId];
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             const identity = TQ.content.getIslandIdentity(regionId, islandId);
             const rewards = TQ.content.getIslandRewards(regionId, islandId);
@@ -199,7 +248,7 @@
         screen.innerHTML = `
             <div class="region-islands-canonical-stage">
                 <img class="region-islands-background"
-                    src="${visual.assets.background}"
+                    src="${visualPage.background}"
                     alt=""
                     aria-hidden="true">
 
@@ -381,6 +430,7 @@
         formatRegionStatus,
         rewardLabel,
         getRegionVisualConfig,
+        getRegionVisualPage,
         getRegionIslandAsset,
         createIslandEntryState,
         REGION_LAYOUT,
