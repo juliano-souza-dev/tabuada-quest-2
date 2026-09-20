@@ -69,6 +69,10 @@ CORSÁRIO
 OBSIDIANA
 ZONA RUBI
 ESCARLATE
+ZONA DO DRAGÃO
+TERRAS GÉLIDAS
+ZONA OURO
+BIRADES
 ```
 
 A aprovação acima valida os **nomes**, não define automaticamente a posição final de cada um na sequência.
