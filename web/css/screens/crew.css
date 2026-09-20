@@ -1,0 +1,193 @@
+.crew-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: #fff7de;
+    background: #17100c;
+}
+
+.crew-tavern-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 18%, rgba(255, 196, 92, .16), transparent 26%),
+        radial-gradient(circle at 78% 32%, rgba(205, 93, 42, .14), transparent 28%),
+        linear-gradient(180deg, #3a2116 0%, #21140f 48%, #120c0a 100%);
+}
+
+.crew-tavern-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .23;
+    background: repeating-linear-gradient(90deg, transparent 0 58px, rgba(255,255,255,.05) 59px 61px);
+}
+
+.crew-header {
+    position: relative;
+    z-index: 2;
+    min-height: 74px;
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+    border-bottom: 2px solid rgba(239, 187, 79, .62);
+    background: rgba(35, 20, 14, .92);
+}
+
+.crew-header button {
+    width: 42px;
+    height: 42px;
+    border: 2px solid #e6b64d;
+    border-radius: 50%;
+    color: white;
+    background: #6f3a1f;
+    font-size: 1.25rem;
+    font-weight: 900;
+}
+
+.crew-header small {
+    display: block;
+    color: #e9bd5e;
+    font-size: .64rem;
+    font-weight: 900;
+    letter-spacing: .13em;
+}
+
+.crew-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.crew-gold {
+    padding: 7px 10px;
+    border: 2px solid #e4b548;
+    border-radius: 999px;
+    color: #542b0e;
+    background: #ffd867;
+    font-weight: 1000;
+    white-space: nowrap;
+}
+
+.crew-summary {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr repeat(3, auto);
+    align-items: center;
+    gap: 6px;
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    background: rgba(12, 9, 8, .72);
+}
+
+.crew-summary strong {
+    color: #ffe7a3;
+    font-size: .72rem;
+}
+
+.crew-summary span {
+    padding: 5px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.09);
+    font-size: .62rem;
+    font-weight: 900;
+}
+
+.crew-list {
+    position: relative;
+    z-index: 2;
+    height: calc(100% - 132px);
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 10px;
+    padding: 12px 12px max(18px, env(safe-area-inset-bottom));
+}
+
+.crew-card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-width: 0;
+    padding: 8px;
+    border: 2px solid rgba(228,181,72,.58);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(91,49,28,.96), rgba(39,23,16,.97));
+    box-shadow: 0 8px 18px rgba(0,0,0,.28);
+}
+
+.crew-card.is-hired {
+    border-color: #70d9a1;
+    box-shadow: 0 0 0 2px rgba(112,217,161,.12), 0 8px 18px rgba(0,0,0,.28);
+}
+
+.crew-portrait {
+    display: grid;
+    place-items: end center;
+    min-height: 112px;
+    margin: -4px -4px 3px;
+    border-radius: 14px;
+    background: radial-gradient(circle at 50% 58%, rgba(255,219,132,.24), transparent 58%);
+}
+
+.crew-portrait img {
+    width: min(100%, 128px);
+    aspect-ratio: 1;
+    object-fit: contain;
+}
+
+.crew-info h2 {
+    margin: 2px 0 3px;
+    color: #fff1c8;
+    font-size: .92rem;
+}
+
+.crew-info p { margin: 2px 0; }
+
+.crew-bonus {
+    color: #7fe1ff;
+    font-size: .72rem;
+    font-weight: 1000;
+}
+
+.crew-price {
+    color: #ffd86b;
+    font-size: .68rem;
+    font-weight: 850;
+}
+
+.crew-card > button {
+    width: 100%;
+    min-height: 36px;
+    margin-top: 7px;
+    padding: 6px 5px;
+    border: 0;
+    border-radius: 11px;
+    color: #3a1f0d;
+    background: linear-gradient(180deg, #ffde72, #e6a937);
+    font-size: .62rem;
+    font-weight: 1000;
+}
+
+.crew-card > button:disabled {
+    color: rgba(255,255,255,.78);
+    background: rgba(255,255,255,.14);
+}
+
+.crew-card.is-hired > button:disabled {
+    color: #123a27;
+    background: #74d7a3;
+}
+
+@media (max-width: 350px) {
+    .crew-summary { gap: 3px; }
+    .crew-summary span { padding: 4px; font-size: .53rem; }
+    .crew-list { gap: 7px; padding-inline: 8px; }
+    .crew-card { padding: 6px; }
+}
