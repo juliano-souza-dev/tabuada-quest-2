@@ -51,6 +51,19 @@ Regra preservada:
 a reorganização visual não pode reduzir o conteúdo pedagógico total
 ```
 
+## Estrutura interna da CORSÁRIO
+
+A CORSÁRIO é dividida em duas telas visuais sequenciais:
+
+```text
+CORSÁRIO 1 → Ilhas 01–05
+CORSÁRIO 2 → Ilhas 06–10 da remake anterior
+```
+
+Cada tela continua obedecendo à regra global de exatamente 5 Ilhas jogáveis + Mapa mundo.
+
+CORSÁRIO 2 deve ser concluída antes de avançar o fluxo de implementação para NEBLINAS.
+
 ## Estados de Ilha
 
 Estados de domínio válidos:
