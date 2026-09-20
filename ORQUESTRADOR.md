@@ -2061,3 +2061,36 @@ depois → assets aprovados + botões/hitboxes mapeados
 Objetivo: validar o fluxo jogável sem fazer a produção visual bloquear a integração do scheduler, persistência e gameplay.
 
 A Logic deve permanecer independente de coordenadas e assets. Os controles temporários devem usar contratos semânticos estáveis para permitir substituição visual posterior.
+
+
+### Issue #7 — vertical slice textual publicado
+
+A primeira experiência jogável ponta a ponta foi integrada com UI textual temporária.
+
+```text
+Home
+→ Regiões
+→ Ilhas
+→ Desafio
+→ Feedback
+→ Resultado
+→ persistência
+```
+
+Pipelines:
+
+```text
+Web Unit Tests = 35488302258 → success
+Web Preview    = 35488302269 → success
+Android Debug  = 35488302274 → success
+```
+
+Gates internos:
+
+```text
+Qualidade            = APROVADO
+Experience Validator = APROVADO para o slice textual
+Líder                = PENDENTE
+```
+
+A produção de assets não faz parte desta validação temporária. O visual futuro deverá substituir a camada textual preservando os contratos semânticos existentes.
