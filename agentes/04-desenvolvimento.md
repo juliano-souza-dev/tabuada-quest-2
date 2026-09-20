@@ -111,6 +111,7 @@ backgroundId
 islandIds
 unlockAfterCompleted
 slotLayout (opcional, somente quando aprovado pela Direção Visual)
+hideIslands (temporário, somente quando liberado pela Direção Visual)
 ```
 
 Para a CORSÁRIO:
@@ -120,6 +121,8 @@ corsario-1 → Ilhas 01–05
 corsario-2 → Ilhas 06–10
 ```
 
+Enquanto os novos assets de Ilha não forem refeitos, ambas as páginas usam `hideIslands: true` e exibem apenas background, voltar e Mapa mundo.
+
 Background canônico da segunda página:
 
 ```text
@@ -128,7 +131,9 @@ web/assets/regions/region-1/corsario-2-background.jpg
 
 A seleção da página visual usa a progressão já existente. Não alterar scheduler ou persistência apenas para realizar essa troca visual.
 
-Quando uma página possuir `slotLayout`, o renderer compartilhado usa esse mapa apenas para `art`, `status` e `hitbox` dos cinco slots. Stage, Back, Mapa mundo, eventos e CSS continuam compartilhados. Não criar renderer ou stylesheet exclusivo para a página.
+Quando uma página possuir `slotLayout`, o renderer compartilhado usa esse mapa apenas para `art` e `hitbox` dos cinco slots. Stage, Back, Mapa mundo, eventos e CSS continuam compartilhados. Não criar renderer ou stylesheet exclusivo para a página.
+
+Quando `hideIslands: true`, a página não renderiza arte de Ilha nem hitbox. Essa flag é temporária e existe apenas para composições explicitamente liberadas pela Direção Visual.
 
 ## Mapa mundo
 
@@ -179,6 +184,21 @@ completed → unlocked
 ```
 
 Assets locked/unlocked usam o mesmo registro visual.
+
+### Regra global das telas de Região
+
+Os estados de domínio continuam existindo, mas **nenhum status textual é renderizado visualmente sobre as Ilhas**.
+
+Não criar novamente overlays com:
+
+```text
+BLOQUEADA
+DESBLOQUEADA
+CONCLUÍDA
+CONTINUAR
+```
+
+Se o estado precisar ser comunicado para acessibilidade, usar atributos/descrições acessíveis sem reintroduzir texto visual na composição.
 
 ## Viagem na primeira entrada
 

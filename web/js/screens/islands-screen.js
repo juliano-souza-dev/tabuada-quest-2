@@ -43,6 +43,7 @@
                     id: "corsario-1",
                     backgroundId: 1,
                     islandIds: Object.freeze([1, 2, 3, 4, 5]),
+                    hideIslands: true,
                     unlockAfterCompleted: 0
                 }),
                 Object.freeze({
@@ -76,6 +77,7 @@
                             hitbox: Object.freeze({ x: 590, y: 1106, width: 370, height: 370 })
                         })
                     }),
+                    hideIslands: true,
                     unlockAfterCompleted: 5
                 })
             ])
@@ -131,23 +133,6 @@
 
     function statusStyle(rect) {
         return `${rectStyle(rect)};font-size:${rect.fontSize || 22}px;line-height:${rect.height}px`;
-    }
-
-    function fitRegionStatusLabels(screen) {
-        if (!screen?.isConnected || typeof screen.querySelectorAll !== "function") return;
-
-        screen.querySelectorAll(".region-island-status").forEach((label) => {
-            const maxSize = Number(label.dataset.maxFontSize) || 22;
-            const minSize = Number(label.dataset.minFontSize) || 18;
-            let size = maxSize;
-
-            label.style.fontSize = `${size}px`;
-
-            while (size > minSize && label.scrollWidth > label.clientWidth) {
-                size -= 1;
-                label.style.fontSize = `${size}px`;
-            }
-        });
     }
 
     function computeRegionStageGeometry(viewportWidth, viewportHeight) {
@@ -247,7 +232,7 @@
         screen.dataset.regionPage = visualPage.id;
         screen.setAttribute("aria-label", `Ilhas da Região ${region ? region.label : regionId}`);
 
-        const islandsMarkup = visualPage.islandIds.map((islandId, slotIndex) => {
+        const islandsMarkup = visualPage.hideIslands ? "" : visualPage.islandIds.map((islandId, slotIndex) => {
             const slotId = REGION_LAYOUT.visibleIslandIds[slotIndex];
             const layout = visualPage.slotLayout?.[slotId] || REGION_LAYOUT.islands[slotId];
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
@@ -273,12 +258,6 @@
                             aria-hidden="true">
                         <span class="region-fallback-lock" aria-hidden="true">🔒</span>
                     </div>
-
-                    <span class="region-island-status"
-                        style="${statusStyle(layout.status)}"
-                        data-max-font-size="${layout.status.fontSize || 22}"
-                        data-min-font-size="18"
-                        aria-hidden="true">${statusText}</span>
 
                     <button class="region-island-hitbox"
                         type="button"
@@ -337,7 +316,6 @@
             stage.style.left = `${geometry.offsetX}px`;
             stage.style.top = `${geometry.offsetY}px`;
             stage.style.transform = `scale(${geometry.scale})`;
-            fitRegionStatusLabels(screen);
         }
 
         screen.addEventListener("click", (event) => {
@@ -350,6 +328,8 @@
                 TQ.core.worldMap.open({ onNavigate });
                 return;
             }
+
+            if (visualPage.hideIslands) return;
 
             const islandButton = event.target.closest("[data-island-id]");
             if (!islandButton) return;
@@ -482,7 +462,6 @@
         createIslandEntryState,
         REGION_LAYOUT,
         REGION_VISUAL_CONFIG,
-        computeRegionStageGeometry,
-        fitRegionStatusLabels
+        computeRegionStageGeometry
     });
 })(globalThis);

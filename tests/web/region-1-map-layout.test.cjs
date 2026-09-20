@@ -51,38 +51,6 @@ test("CORSÁRIO 2 usa fundo próprio e reaproveita Ilhas 06–10", () => {
     assert.equal(page.background, content.assets.region1Modular.backgrounds[2]);
 });
 
-test("CORSÁRIO 2 usa pixel-map próprio sem duplicar renderer", () => {
-    const state = {
-        campaign: {
-            regionProgress: {
-                "1": { islandsCompleted: 5, islandsTotal: 10 }
-            }
-        }
-    };
-
-    const page = islands.getRegionVisualPage(state, 1);
-    // Slots superiores usam 300×300 porque os redemoinhos aprovados encostam nas bordas do stage.
-    const expected = {
-        1: { art: [72,348,340,340], status: [122,620,240,48], hitbox: [88,364,308,308] },
-        2: { art: [641,361,300,300], status: [689,603,204,42], hitbox: [653,373,276,276] },
-        3: { art: [267,618,400,400], status: [359,940,216,44], hitbox: [282,633,370,370] },
-        4: { art: [0,974,386,386], status: [87,1288,213,44], hitbox: [10,987,366,366] },
-        5: { art: [575,1091,400,400], status: [667,1413,216,44], hitbox: [590,1106,370,370] }
-    };
-
-    function rectTuple(rect) {
-        return [rect.x, rect.y, rect.width, rect.height];
-    }
-
-    for (const slotId of islands.REGION_LAYOUT.visibleIslandIds) {
-        const slot = page.slotLayout[slotId];
-        assert.deepEqual(rectTuple(slot.art), expected[slotId].art);
-        assert.deepEqual(rectTuple(slot.status), expected[slotId].status);
-        assert.deepEqual(rectTuple(slot.hitbox), expected[slotId].hitbox);
-    }
-});
-
-
 test("fundo final da CORSÁRIO 2 permanece dentro do orçamento web", () => {
     const file = path.join(__dirname, "../../web/assets/regions/region-1/corsario-2-background.jpg");
     const stat = fs.statSync(file);
@@ -94,29 +62,36 @@ test("fundo final da CORSÁRIO 2 permanece dentro do orçamento web", () => {
 });
 
 
-test("auto-fit reduz o status até caber na placa", () => {
-    const label = {
-        dataset: { maxFontSize: "27", minFontSize: "18" },
-        style: {},
-        clientWidth: 240,
-        get scrollWidth() {
-            const size = Number.parseInt(this.style.fontSize || "27", 10);
-            return (size * 9) + 16;
-        }
-    };
+test("CORSÁRIO 1 e CORSÁRIO 2 ficam em composição limpa temporária", () => {
+    const pages = islands.REGION_VISUAL_CONFIG[1].pages;
+    assert.equal(pages[0].id, "corsario-1");
+    assert.equal(pages[0].hideIslands, true);
+    assert.equal(pages[1].id, "corsario-2");
+    assert.equal(pages[1].hideIslands, true);
+});
 
-    const screen = {
-        isConnected: true,
-        querySelectorAll(selector) {
-            assert.equal(selector, ".region-island-status");
-            return [label];
-        }
-    };
+test("nenhuma Região renderiza status textual sobre as Ilhas", () => {
+    const source = fs.readFileSync(
+        path.join(__dirname, "../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+    const css = fs.readFileSync(
+        path.join(__dirname, "../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
 
-    islands.fitRegionStatusLabels(screen);
+    assert.doesNotMatch(source, /class="region-island-status"/);
+    assert.doesNotMatch(css, /\.region-island-status/);
+});
 
-    assert.ok(Number.parseInt(label.style.fontSize, 10) < 27);
-    assert.ok(label.scrollWidth <= label.clientWidth);
+test("modo limpo não cria overlays nem interação de Ilha", () => {
+    const source = fs.readFileSync(
+        path.join(__dirname, "../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+
+    assert.match(source, /visualPage\.hideIslands \? "" : visualPage\.islandIds\.map/);
+    assert.match(source, /if \(visualPage\.hideIslands\) return;/);
 });
 
 test("CORSÁRIO 1 permanece ativo antes da conclusão da Ilha 05", () => {
@@ -169,7 +144,7 @@ test("cover geometry preserva stage 941x1672", () => {
     );
 });
 
-test("status visual diferencia bloqueio, desbloqueio, conclusão e retomada", () => {
+test("descrição acessível preserva os estados de domínio", () => {
     assert.equal(islands.formatRegionStatus("locked", false), "BLOQUEADA");
     assert.equal(islands.formatRegionStatus("available", false), "DESBLOQUEADA");
     assert.equal(islands.formatRegionStatus("completed", false), "CONCLUÍDA ✓");
@@ -267,49 +242,6 @@ test("Ilhas ampliadas preservam respiro entre os centros", () => {
         assert.ok(distance >= 315, `Ilhas ${aId} e ${bId} ficaram próximas demais: ${distance}`);
     }
 });
-
-test("status usa fonte maior após refino de legibilidade", () => {
-    const layout = islands.REGION_LAYOUT;
-    for (const islandId of layout.visibleIslandIds) {
-        assert.ok(layout.islands[islandId].status.fontSize >= 28);
-        assert.ok(layout.islands[islandId].status.height >= 42);
-    }
-});
-
-
-
-test("CORSÁRIO 2 usa tratamento de status entalhado sem cobrir a placa", () => {
-    const css = fs.readFileSync(
-        path.join(__dirname, "../../web/css/screens/vertical-slice.css"),
-        "utf8"
-    );
-
-    assert.match(
-        css,
-        /\[data-region-page="corsario-2"\] \.region-island-status\s*\{[\s\S]*background:\s*transparent/
-    );
-    assert.match(
-        css,
-        /\[data-region-page="corsario-2"\] \.region-island-status\s*\{[\s\S]*font-family:\s*Georgia/
-    );
-    assert.match(
-        css,
-        /\[data-region-page="corsario-2"\] \.region-island-status\s*\{[\s\S]*-webkit-text-stroke:/
-    );
-});
-
-test("CSS do status garante contraste sobre a placa", () => {
-    const css = fs.readFileSync(
-        path.join(__dirname, "../../web/css/screens/vertical-slice.css"),
-        "utf8"
-    );
-
-    assert.match(css, /\.region-island-status\s*\{[\s\S]*-webkit-text-stroke:/);
-    assert.match(css, /\.region-island-status\s*\{[\s\S]*text-shadow:/);
-    assert.match(css, /\.region-island-overlay\.is-completed \.region-island-status/);
-    assert.match(css, /\.region-island-overlay\.is-resume \.region-island-status/);
-});
-
 
 test("Mapa mundo global é PNG transparente 200x200 e está cadastrado", () => {
     assert.match(
