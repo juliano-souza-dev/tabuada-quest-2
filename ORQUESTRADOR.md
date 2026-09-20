@@ -1760,3 +1760,43 @@ Estado:
 #5  → permanece pausada
 #6  → permanece bloqueada
 ```
+
+
+### Issue #27 — Provador de Moda
+
+Nova correção de produto/UX identificada na Home.
+
+Problema atual:
+
+```text
+Moda → frames → toque em opção → equipa imediatamente
+```
+
+Fluxo aprovado:
+
+```text
+Moda
+→ Provador
+→ selecionar
+→ pré-visualizar
+→ USAR
+→ somente então persistir
+```
+
+Regra central:
+
+```text
+selecionar != equipar
+previewItem != equippedItem
+```
+
+A prévia é temporária e deve ser descartada ao fechar sem confirmação.
+
+Estado de fila:
+
+```text
+#26 → permanece ativa aguardando validação final do líder
+#27 → criada como correção independente da Home / Moda
+```
+
+A #27 não deve ser misturada com a implementação pixel-perfect das Regiões.
