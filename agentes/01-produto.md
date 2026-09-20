@@ -32,37 +32,45 @@ conteúdo pedagógico vem do scheduler
 
 A identidade narrativa das Ilhas existe para dar contexto e progressão ao mundo. O desafio de uma Ilha pode misturar operações conforme o plano pedagógico.
 
-## Estrutura atual das telas de Região
+## Macroestrutura canônica de Regiões
 
-Cada **tela visual de Região** exibe exatamente:
-
-```text
-5 Ilhas jogáveis
-+ Mapa mundo global
-```
-
-A composição de 5 Ilhas é regra global da interface.
-
-A futura divisão macro do mundo em Regiões/Regiões internas ainda pode ser redefinida. Não deduzir quantidade total de Regiões ou total de Ilhas a partir de documentos antigos.
-
-Regra preservada:
+A estrutura do mundo está fechada em:
 
 ```text
-a reorganização visual não pode reduzir o conteúdo pedagógico total
+22 Regiões
+×
+5 Ilhas por Região
+=
+110 Ilhas
 ```
 
-## Estrutura interna da CORSÁRIO
+Regras absolutas:
 
-A CORSÁRIO é dividida em duas telas visuais sequenciais:
+- **não existem sub-regiões**;
+- cada Região é uma unidade real e independente do mundo;
+- cada Região possui exatamente 5 Ilhas;
+- uma tela visual de Região corresponde a **uma única Região**;
+- não usar segunda página, subpágina, Região interna ou continuação escondida para acomodar mais 5 Ilhas;
+- o Mapa mundo deve tratar as 22 Regiões como entidades próprias;
+- a expansão de 11 para 22 Regiões preserva as 110 Ilhas e não reduz o conteúdo pedagógico total.
+
+A antiga estrutura de 11 Regiões com 10 Ilhas por Região está descontinuada.
+
+A antiga solução de dividir CORSÁRIO em `CORSÁRIO 1` e `CORSÁRIO 2` como duas páginas da mesma Região também está descontinuada como arquitetura de Produto. Durante a migração técnica, nomes ou páginas antigas podem continuar existindo no código apenas como legado temporário, mas não devem ser usados como modelo para novas Regiões.
+
+A nomenclatura definitiva das novas Regiões adicionais deve ser definida separadamente. Não inventar nomes para completar as 22 Regiões.
+
+### Composição visual de cada Região
+
+Cada Região exibe:
 
 ```text
-CORSÁRIO 1 → Ilhas 01–05
-CORSÁRIO 2 → Ilhas 06–10 da remake anterior
+5 Ilhas
++
+Mapa mundo global
 ```
 
-Cada tela continua obedecendo à regra global de exatamente 5 Ilhas jogáveis + Mapa mundo.
-
-CORSÁRIO 2 deve ser concluída antes de avançar o fluxo de implementação para NEBLINAS.
+Nenhuma Região exibe status textual sobre as Ilhas. Os estados de domínio continuam existindo para comportamento e progressão, mas não fazem parte da composição visual.
 
 ## Estados de Ilha
 
@@ -74,17 +82,11 @@ available
 completed
 ```
 
-Apresentação:
+Esses estados não são apresentados como texto nas telas de Região.
 
-```text
-locked    → BLOQUEADA
-available → DESBLOQUEADA
-completed → CONCLUÍDA
-```
+`CONTINUAR` pode continuar existindo como conceito de sessão, mas não é exibido como status textual sobre a Ilha.
 
-`CONTINUAR` é uma ação contextual quando existe sessão ativa. Não é um quarto estado de Ilha.
-
-Recuperação pedagógica não cria status visual adicional.
+Recuperação pedagógica também não cria status visual adicional.
 
 ## Mapa mundo
 
