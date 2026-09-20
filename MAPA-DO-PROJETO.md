@@ -231,7 +231,7 @@ CORSÁRIO 2 → assets 06–10
 Background canônico da CORSÁRIO 2:
 
 ```text
-web/assets/regions/region-1/corsario-2-background.webp
+web/assets/regions/region-1/corsario-2-background.jpg
 ```
 
 Na CORSÁRIO 2, continuam dinâmicos e separados do background:
@@ -244,6 +244,8 @@ Mapa mundo global
 ```
 
 A implementação continua em `web/js/screens/islands-screen.js` e usa a infraestrutura compartilhada registrada em `agentes/04-desenvolvimento.md`.
+
+O pixel-map da CORSÁRIO 2 fica em `REGION_VISUAL_CONFIG.pages[].slotLayout`; as coordenadas canônicas pertencem à Direção Visual.
 
 ## Mapa mundo
 
