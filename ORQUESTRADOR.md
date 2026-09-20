@@ -1965,3 +1965,43 @@ Quando prioridade, ordem ou gate mudar:
 ```
 
 Esta regra é GLOBAL para todas as milestones e issues do projeto.
+
+
+### Issue #5 — matriz de 11 Regiões encerrada
+
+Produto + Game Design recalcularam o scheduler para a campanha definitiva de 11 Regiões.
+
+```text
+11 Regiões
+110 Ilhas
+20 plannedExposure por Ilha
+200 por Região
+2.200 na campanha
+220 por tabuada
+22 por operação
+```
+
+Interleaving:
+
+```text
+R1-R2   K=2
+R3-R4   K=3
+R5-R6   K=4
+R7-R8   K=5
+R9-R11  K=10
+```
+
+Qualidade validou a matriz sem inconsistências aritméticas.
+
+```text
+#5 → CLOSED
+#6 → ATIVA
+#27 → permanece aberta como correção independente da Home / Moda
+```
+
+Fonte de verdade:
+
+```text
+docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
+docs/validacao/ISSUE-005-verificacao-matriz.md
+```
