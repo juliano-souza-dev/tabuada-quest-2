@@ -199,7 +199,6 @@ stage = 941 × 1672
 5 slots de Ilha
 mesmas coordenadas
 mesmos tamanhos
-mesmos statusBox
 mesmas hitboxes
 mesma geometria das 5 marcações de água
 mesma rota
@@ -215,16 +214,6 @@ Ilha 02 → x=561 y=360  w=380 h=380
 Ilha 03 → x=270 y=590  w=400 h=400
 Ilha 04 → x=0   y=915  w=395 h=395
 Ilha 05 → x=541 y=1240 w=400 h=400
-```
-
-Status:
-
-```text
-01 → x=88  y=626  w=204 h=42 fonte=28
-02 → x=649 y=666  w=204 h=42 fonte=28
-03 → x=362 y=912  w=216 h=44 fonte=29
-04 → x=91  y=1233 w=213 h=44 fonte=29
-05 → x=633 y=1562 w=216 h=44 fonte=29
 ```
 
 Hitboxes:
@@ -259,45 +248,33 @@ Nenhuma Região pode inventar nova malha sem decisão explícita do líder.
 
 ## CORSÁRIO 2
 
-CORSÁRIO 2 reutiliza as cinco Ilhas remanescentes da remake anterior:
-
-```text
-Ilha 06
-Ilha 07
-Ilha 08
-Ilha 09
-Ilha 10
-```
-
-Os assets existentes correspondentes são a referência aprovada e não devem ser redesenhados apenas por terem mudado de tela.
-
 O stage permanece canônico em `941 × 1672`. Back e Mapa mundo permanecem globais.
 
-O background aprovado mantém as laterais livres de ilhas artificiais grandes e usa cinco áreas de água para receber as Ilhas dinâmicas.
+O background aprovado mantém as laterais livres de ilhas artificiais grandes e usa cinco áreas de água para receber futuras Ilhas dinâmicas.
 
-Centros visuais aproximados das novas áreas de água:
-
-```text
-Ilha 06 → (131, 511)
-Ilha 07 → (807, 511)
-Ilha 08 → (467, 818)
-Ilha 09 → (193, 1171)
-Ilha 10 → (775, 1291)
-```
-
-Como as duas áreas superiores ficam próximas às bordas, as Ilhas 06 e 07 usam escala reduzida para permanecer integralmente dentro do stage. Essa redução é específica desta composição aprovada.
-
-Pixel-map canônico da CORSÁRIO 2:
+Centros visuais aproximados das áreas de água:
 
 ```text
-06 art 0,361,300,300     status 48,603,204,42    hitbox 12,373,276,276
-07 art 641,361,300,300   status 689,603,204,42   hitbox 653,373,276,276
-08 art 267,618,400,400   status 359,940,216,44   hitbox 282,633,370,370
-09 art 0,974,386,386     status 87,1288,213,44   hitbox 10,987,366,366
-10 art 575,1091,400,400  status 667,1413,216,44  hitbox 590,1106,370,370
+slot superior esquerdo → (131, 511)
+slot superior direito  → (807, 511)
+slot central           → (467, 818)
+slot inferior esquerdo → (193, 1171)
+slot inferior direito  → (775, 1291)
 ```
 
-A composição continua usando o renderer compartilhado. O `slotLayout` específico existe apenas para alinhar art, status e hitbox às marcações do background aprovado.
+### Composição temporária aprovada
+
+CORSÁRIO 1 e CORSÁRIO 2 permanecem **sem Ilhas** enquanto os novos assets são refeitos.
+
+Durante esse período, cada tela exibe apenas:
+
+```text
+background
+botão voltar
+Mapa mundo
+```
+
+Não renderizar arte de Ilha, placa de status ou hitbox de Ilha nessas duas páginas.
 
 ## O que muda entre Regiões
 
@@ -317,7 +294,6 @@ Não muda:
 - cinco slots;
 - posições;
 - tamanhos;
-- statusBox;
 - hitboxes;
 - Mapa mundo;
 - geometria das marcações;
@@ -394,7 +370,7 @@ ELEMENTOS PROIBIDOS
 - qualquer texto além do título aprovado da Região.
 
 OBJETIVO
-Criar um background premium e funcional para composição em código, em que Ilhas, status, hitboxes e Mapa Mundo permaneçam elementos dinâmicos e possam ser posicionados sem colisão visual com o cenário fixo.
+Criar um background premium e funcional para composição em código, em que Ilhas, hitboxes e Mapa Mundo permaneçam elementos dinâmicos e possam ser posicionados sem colisão visual com o cenário fixo. Nenhum status textual deve ser previsto na composição.
 ```
 
 Antes de gerar, adaptar esse prompt à Região específica, produzir o `PROMPT_PROPOSTO` final e submetê-lo ao líder conforme o gate obrigatório de aprovação.
@@ -409,8 +385,6 @@ diorama 3D isolado
 placa principal com nome canônico
 +
 medalhão(ões) somente das recompensas reais
-+
-placa inferior de madeira para status dinâmico
 ```
 
 Representação:
@@ -469,18 +443,20 @@ Fixo no asset:
 
 - diorama;
 - nome canônico;
-- medalhões das recompensas reais;
-- placa inferior vazia.
+- medalhões das recompensas reais.
 
 Dinâmico por HTML/CSS/JS:
 
-- status;
 - seleção locked/unlocked;
 - hitbox;
 - continuidade de sessão;
 - acessibilidade.
 
-Status visuais:
+### Regra global — sem status textual
+
+Nenhuma tela de Região exibe status textual sobre a Ilha.
+
+Portanto, não renderizar:
 
 ```text
 BLOQUEADA
@@ -489,7 +465,7 @@ CONCLUÍDA
 CONTINUAR
 ```
 
-`CONTINUAR` é ação contextual.
+Os estados de domínio podem continuar existindo para controlar progressão, bloqueio, escolha de asset, interação e acessibilidade, mas não aparecem como texto visual na composição da Região.
 
 ## Mapa mundo visual
 
