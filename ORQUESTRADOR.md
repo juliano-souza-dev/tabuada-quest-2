@@ -981,3 +981,85 @@ DESBLOQUEIA = validação visual do líder sobre a composição real das 10 Ilha
 ```
 
 A Issue #8 permanece aberta até a validação visual final e demais critérios de aceite.
+
+
+### Issue #8 — CORSÁRIO com 5 Ilhas
+
+Reformulação visual aprovada pelo líder para a tela CORSÁRIO.
+
+Decisão:
+
+```text
+CORSÁRIO atual = 5 Ilhas visíveis
+Ilhas 06–10 = preservadas para futura divisão/navegação
+arquitetura geral de Regiões = não alterar agora
+didática global = não redistribuir nesta task
+```
+
+O antigo mapa de 10 Ilhas na mesma tela foi rejeitado visualmente e deixou de ser fonte de verdade.
+
+Fundo canônico:
+
+```text
+web/assets/regions/region-1/mapa_marítimo_do_corsário.png
+941 × 1672
+```
+
+Implementação atual:
+
+```text
+01 Porto da Âncora      → topo esquerdo
+02 Enseada do Saque     → topo direito
+03 Rochedo da Bandeira  → centro
+04 Ilha do Vulcão       → inferior esquerdo
+05 Ilha da Caveira Rosa → inferior direito
+```
+
+As Ilhas foram ampliadas para melhorar a leitura das placas e posicionadas sobre as cinco marcações de água do fundo.
+
+Fonte técnica:
+
+```text
+docs/arte/ISSUE-008-REGIAO1-PIXEL-MAP.md
+web/js/screens/islands-screen.js
+web/js/content/game-content.js
+tests/web/region-1-map-layout.test.cjs
+```
+
+Commits principais:
+
+```text
+c9cb8e44 → registra mapa_marítimo_do_corsário.png canônico
+58fe8297 → renderiza 5 Ilhas maiores na CORSÁRIO
+d7b7bb7e → aponta runtime para o novo background
+ec6e1d7d → atualiza testes para o layout de 5 Ilhas
+a3832f9a → remove arquivo .png.png duplicado
+92bad436 → atualiza mapa técnico
+f520b0f8 → atualiza MAPA-DO-PROJETO
+406eef42 → atualiza cache do frontend
+96e9f59a → atualiza README dos assets
+```
+
+Validações já concluídas:
+
+```text
+Web Unit Tests 35526141301 → success
+Android Debug   35526233257 → success
+```
+
+Validação ainda necessária:
+
+```text
+Web Preview → aguardando execução do workflow Pages
+Validação visual do líder → necessária após publicação
+```
+
+O workflow de Web Preview atual está aguardando um deploy Pages anterior que permanece em execução. Isso é infraestrutura de CI e não invalida os testes já concluídos.
+
+Próximo gate:
+
+```text
+Web Preview publicado
+→ líder valida tamanho/posição das 5 Ilhas
+→ somente depois considerar a task visual aceita
+```
