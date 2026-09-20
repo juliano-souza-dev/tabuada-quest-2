@@ -220,13 +220,12 @@
                 return;
             }
 
-            if (action === "regions") {
+            if (action === "regions" || action === "play") {
                 onNavigate("regions");
                 return;
             }
 
             const messages = {
-                play: "A rota está pronta para a próxima etapa.",
                 daily: "Recompensa diária preparada para a evolução da campanha.",
                 shop: "A Loja será liberada na evolução da campanha.",
                 collection: "Sua coleção ficará reunida aqui.",
