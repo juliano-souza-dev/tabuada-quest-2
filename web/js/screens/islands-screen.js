@@ -3,57 +3,33 @@
 
     const REGION_1_LAYOUT = Object.freeze({
         viewport: Object.freeze({ width: 941, height: 1672 }),
+        visibleIslandIds: Object.freeze([1, 2, 3, 4, 5]),
         back: Object.freeze({ x: 58, y: 18, width: 150, height: 150 }),
         islands: Object.freeze({
             1: Object.freeze({
-                art: Object.freeze({ x: 234, y: 288, width: 224, height: 214 }),
-                status: Object.freeze({ x: 277, y: 457, width: 139, height: 26, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 242, y: 294, width: 208, height: 202 })
+                art: Object.freeze({ x: 5, y: 340, width: 330, height: 330 }),
+                status: Object.freeze({ x: 80, y: 604, width: 180, height: 36, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 15, y: 350, width: 310, height: 310 })
             }),
             2: Object.freeze({
-                art: Object.freeze({ x: 518, y: 391, width: 224, height: 214 }),
-                status: Object.freeze({ x: 561, y: 560, width: 139, height: 26, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 526, y: 397, width: 208, height: 202 })
+                art: Object.freeze({ x: 595, y: 380, width: 330, height: 330 }),
+                status: Object.freeze({ x: 670, y: 644, width: 180, height: 36, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 605, y: 390, width: 310, height: 310 })
             }),
             3: Object.freeze({
-                art: Object.freeze({ x: 213, y: 538, width: 224, height: 214 }),
-                status: Object.freeze({ x: 256, y: 707, width: 139, height: 26, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 221, y: 544, width: 208, height: 202 })
+                art: Object.freeze({ x: 295, y: 615, width: 350, height: 350 }),
+                status: Object.freeze({ x: 375, y: 895, width: 190, height: 38, fontSize: 23 }),
+                hitbox: Object.freeze({ x: 305, y: 625, width: 330, height: 330 })
             }),
             4: Object.freeze({
-                art: Object.freeze({ x: 519, y: 678, width: 226, height: 216 }),
-                status: Object.freeze({ x: 562, y: 849, width: 140, height: 26, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 527, y: 684, width: 210, height: 204 })
+                art: Object.freeze({ x: 10, y: 940, width: 350, height: 350 }),
+                status: Object.freeze({ x: 90, y: 1220, width: 190, height: 38, fontSize: 23 }),
+                hitbox: Object.freeze({ x: 20, y: 950, width: 330, height: 330 })
             }),
             5: Object.freeze({
-                art: Object.freeze({ x: 175, y: 780, width: 236, height: 220 }),
-                status: Object.freeze({ x: 220, y: 954, width: 146, height: 26, fontSize: 23 }),
-                hitbox: Object.freeze({ x: 183, y: 786, width: 220, height: 208 })
-            }),
-            6: Object.freeze({
-                art: Object.freeze({ x: 523, y: 899, width: 236, height: 220 }),
-                status: Object.freeze({ x: 568, y: 1073, width: 146, height: 26, fontSize: 23 }),
-                hitbox: Object.freeze({ x: 531, y: 905, width: 220, height: 208 })
-            }),
-            7: Object.freeze({
-                art: Object.freeze({ x: 193, y: 1038, width: 224, height: 214 }),
-                status: Object.freeze({ x: 236, y: 1207, width: 139, height: 26, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 201, y: 1044, width: 208, height: 202 })
-            }),
-            8: Object.freeze({
-                art: Object.freeze({ x: 546, y: 1158, width: 232, height: 218 }),
-                status: Object.freeze({ x: 590, y: 1330, width: 144, height: 26, fontSize: 23 }),
-                hitbox: Object.freeze({ x: 554, y: 1164, width: 216, height: 206 })
-            }),
-            9: Object.freeze({
-                art: Object.freeze({ x: 220, y: 1269, width: 224, height: 214 }),
-                status: Object.freeze({ x: 263, y: 1438, width: 139, height: 26, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 228, y: 1275, width: 208, height: 202 })
-            }),
-            10: Object.freeze({
-                art: Object.freeze({ x: 524, y: 1401, width: 238, height: 222 }),
-                status: Object.freeze({ x: 569, y: 1576, width: 148, height: 27, fontSize: 23 }),
-                hitbox: Object.freeze({ x: 532, y: 1407, width: 222, height: 210 })
+                art: Object.freeze({ x: 560, y: 1275, width: 350, height: 350 }),
+                status: Object.freeze({ x: 640, y: 1555, width: 190, height: 38, fontSize: 23 }),
+                hitbox: Object.freeze({ x: 570, y: 1285, width: 330, height: 330 })
             })
         })
     });
@@ -153,8 +129,7 @@
         screen.className = "region1-islands-map-screen";
         screen.setAttribute("aria-label", "Ilhas da Região CORSÁRIO");
 
-        const islandsMarkup = Array.from({ length: 10 }, (_, index) => {
-            const islandId = index + 1;
+        const islandsMarkup = REGION_1_LAYOUT.visibleIslandIds.map((islandId) => {
             const layout = REGION_1_LAYOUT.islands[islandId];
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             const identity = TQ.content.getIslandIdentity(regionId, islandId);
