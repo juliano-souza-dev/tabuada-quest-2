@@ -1250,3 +1250,32 @@ web/css/screens/vertical-slice.css
 ```
 
 A UI desta etapa é textual e funcional. Os contratos `data-action`, `data-island-id` e `data-answer` devem permanecer estáveis para posterior substituição por assets e hitboxes mapeados.
+
+
+## Identidade de Regiões e Ilhas — Issue #8
+
+Contrato de identidade:
+
+```text
+docs/arte/ISSUE-008-DIRECAO-REGIOES-ILHAS.md
+```
+
+Catálogo executável:
+
+```text
+web/js/content/game-content.js
+TQ.content.regionIdentities
+TQ.content.islandIdentities
+TQ.content.getRegionIdentity(...)
+TQ.content.getIslandIdentity(...)
+```
+
+Estado `REVISAR`:
+
+```text
+web/js/domain/player-state.js
+TQ.domain.playerState.hasPendingRecovery(...)
+TQ.domain.playerState.getIslandStatus(...)
+```
+
+A identidade narrativa/visual não define a tabuada da Ilha. O conteúdo pedagógico continua vindo de `web/js/domain/scheduler.js`.
