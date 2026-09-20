@@ -62,7 +62,7 @@ A nomenclatura definitiva das novas Regiões adicionais deve ser definida separa
 
 ### Nomes de Região aprovados
 
-Nomes já aprovados pelo líder para compor a lista final das 22 Regiões:
+Pool canônico de nomes já aprovados pelo líder para compor a seleção final das 22 Regiões:
 
 ```text
 CORSÁRIO
@@ -74,11 +74,35 @@ TERRAS GÉLIDAS
 ZONA OURO
 BIRADES
 FANTASMAS
+TEMPESTÁRIA
+CRISTÁLIA
+MAR DE FERRO
+ZONA SAFIRA
+TERRAS DE CINZA
+VALE ESMERALDA
+AURORA
+ZONA KRAKEN
+MARÉ SOMBRIA
+ILHAS CELESTES
+COROA DO MAR
+TERRAS DO TROVÃO
+COSTA ESMERALDA
+MAR DOURADO
+ZONA FÊNIX
+NEBULÁRIA
+TERRAS DO TITÃ
+MAREMÍSTICA
+REINO DAS MARÉS
 ```
+
+`ARQUIPÉLAGO FANTASMA` foi rejeitado como nomenclatura final e substituído por `FANTASMAS`.
 
 A aprovação acima valida os **nomes**, não define automaticamente a posição final de cada um na sequência.
 
-Nenhum outro nome proposto está aprovado enquanto não houver validação explícita do líder.
+Como o pool aprovado possui mais nomes do que as 22 vagas da macroestrutura, a seleção final e a ordem das 22 Regiões devem ser fechadas explicitamente pelo líder antes de atualizar o catálogo executável.
+
+Nenhum nome fora deste pool deve ser tratado como aprovado sem validação explícita do líder.
+
 
 ### Composição visual de cada Região
 
