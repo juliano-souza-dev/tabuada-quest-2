@@ -23,8 +23,16 @@ test("Região 1 usa fundo e Ilhas modulares", () => {
     }
 });
 
+test("configuração visual é resolvida por Região sem duplicar renderer", () => {
+    const corsario = islands.getRegionVisualConfig(1);
+    assert.ok(corsario);
+    assert.equal(corsario.assetKey, "region1Modular");
+    assert.equal(corsario.assets, content.assets.region1Modular);
+    assert.equal(islands.getRegionVisualConfig(2), null);
+});
+
 test("layout canônico da Corsário possui back e 5 Ilhas visíveis", () => {
-    const layout = islands.REGION_1_LAYOUT;
+    const layout = islands.REGION_LAYOUT;
     assert.deepEqual(layout.viewport, { width: 941, height: 1672 });
     assert.deepEqual(layout.visibleIslandIds, [1, 2, 3, 4, 5]);
     assert.deepEqual(layout.back, { x: 58, y: 18, width: 150, height: 150 });
@@ -45,7 +53,7 @@ test("layout canônico da Corsário possui back e 5 Ilhas visíveis", () => {
 });
 
 test("cover geometry preserva stage 941x1672", () => {
-    const geometry = islands.computeRegion1StageGeometry(360, 800);
+    const geometry = islands.computeRegionStageGeometry(360, 800);
     assert.ok(geometry.scale > 0);
     assert.ok(geometry.renderWidth >= 360);
     assert.ok(geometry.renderHeight >= 800);
@@ -60,15 +68,15 @@ test("cover geometry preserva stage 941x1672", () => {
 });
 
 test("status visual diferencia bloqueio, desbloqueio, conclusão e retomada", () => {
-    assert.equal(islands.formatRegion1Status("locked", false), "BLOQUEADA");
-    assert.equal(islands.formatRegion1Status("available", false), "DESBLOQUEADA");
-    assert.equal(islands.formatRegion1Status("completed", false), "CONCLUÍDA ✓");
-    assert.equal(islands.formatRegion1Status("available", true), "CONTINUAR");
+    assert.equal(islands.formatRegionStatus("locked", false), "BLOQUEADA");
+    assert.equal(islands.formatRegionStatus("available", false), "DESBLOQUEADA");
+    assert.equal(islands.formatRegionStatus("completed", false), "CONCLUÍDA ✓");
+    assert.equal(islands.formatRegionStatus("available", true), "CONTINUAR");
 });
 
 test("recompensas visuais são fixas nos assets e labels seguem acessíveis", () => {
-    for (const islandId of islands.REGION_1_LAYOUT.visibleIslandIds) {
-        assert.equal("reward" in islands.REGION_1_LAYOUT.islands[islandId], false);
+    for (const islandId of islands.REGION_LAYOUT.visibleIslandIds) {
+        assert.equal("reward" in islands.REGION_LAYOUT.islands[islandId], false);
     }
 
     assert.equal(
@@ -101,15 +109,15 @@ test("nomes fixos usados pela arte continuam no catálogo para acessibilidade", 
 
 test("seleção de asset troca entre locked e unlocked", () => {
     assert.match(
-        islands.getRegion1IslandAsset(1, "locked"),
+        islands.getRegionIslandAsset(1, 1, "locked"),
         /island-01-locked\.png/
     );
     assert.match(
-        islands.getRegion1IslandAsset(1, "available"),
+        islands.getRegionIslandAsset(1, 1, "available"),
         /island-01-unlocked\.png/
     );
     assert.match(
-        islands.getRegion1IslandAsset(1, "completed"),
+        islands.getRegionIslandAsset(1, 1, "completed"),
         /island-01-unlocked\.png/
     );
 });
@@ -130,8 +138,8 @@ test("Corsário usa as cinco marcações de água com assets maiores", () => {
         return [rect.x, rect.y, rect.width, rect.height];
     }
 
-    for (const islandId of islands.REGION_1_LAYOUT.visibleIslandIds) {
-        const item = islands.REGION_1_LAYOUT.islands[islandId];
+    for (const islandId of islands.REGION_LAYOUT.visibleIslandIds) {
+        const item = islands.REGION_LAYOUT.islands[islandId];
         assert.deepEqual(rectTuple(item.art), expected[islandId].art);
         assert.deepEqual(rectTuple(item.status), expected[islandId].status);
         assert.deepEqual(rectTuple(item.hitbox), expected[islandId].hitbox);
@@ -140,7 +148,7 @@ test("Corsário usa as cinco marcações de água com assets maiores", () => {
 
 
 test("Ilhas ampliadas preservam respiro entre os centros", () => {
-    const layout = islands.REGION_1_LAYOUT;
+    const layout = islands.REGION_LAYOUT;
     const pairs = [[1,2],[1,3],[2,3],[3,4],[3,5],[4,5]];
 
     function center(rect) {
@@ -159,7 +167,7 @@ test("Ilhas ampliadas preservam respiro entre os centros", () => {
 });
 
 test("status usa fonte maior após refino de legibilidade", () => {
-    const layout = islands.REGION_1_LAYOUT;
+    const layout = islands.REGION_LAYOUT;
     for (const islandId of layout.visibleIslandIds) {
         assert.ok(layout.islands[islandId].status.fontSize >= 28);
         assert.ok(layout.islands[islandId].status.height >= 42);
@@ -173,10 +181,10 @@ test("CSS do status garante contraste sobre a placa", () => {
         "utf8"
     );
 
-    assert.match(css, /\.region1-island-status\s*\{[\s\S]*-webkit-text-stroke:/);
-    assert.match(css, /\.region1-island-status\s*\{[\s\S]*text-shadow:/);
-    assert.match(css, /\.region1-island-overlay\.is-completed \.region1-island-status/);
-    assert.match(css, /\.region1-island-overlay\.is-resume \.region1-island-status/);
+    assert.match(css, /\.region-island-status\s*\{[\s\S]*-webkit-text-stroke:/);
+    assert.match(css, /\.region-island-status\s*\{[\s\S]*text-shadow:/);
+    assert.match(css, /\.region-island-overlay\.is-completed \.region-island-status/);
+    assert.match(css, /\.region-island-overlay\.is-resume \.region-island-status/);
 });
 
 
@@ -198,7 +206,7 @@ test("Mapa mundo global é PNG transparente 200x200 e está cadastrado", () => {
 });
 
 test("Mapa mundo fica no canto inferior da Corsário abaixo da Ilha do Vulcão", () => {
-    const layout = islands.REGION_1_LAYOUT;
+    const layout = islands.REGION_LAYOUT;
     const map = layout.worldMap;
     const volcano = layout.islands[4].art;
     const island5 = layout.islands[5].art;
