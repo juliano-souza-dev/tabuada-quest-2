@@ -170,16 +170,55 @@
     overflow: hidden;
 }
 
-.region1-islands-map-image {
+.region1-islands-background {
     position: absolute;
     inset: 0;
+    z-index: 1;
     display: block;
     width: 941px;
     height: 1672px;
     max-width: none;
+    object-fit: fill;
     user-select: none;
     pointer-events: none;
     -webkit-user-drag: none;
+}
+
+.region1-island-art-shell {
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.region1-island-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.region1-fallback-lock {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    font-size: 56px;
+    line-height: 1;
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .85));
+}
+
+.region1-island-overlay.is-fallback-locked .region1-island-art {
+    filter: brightness(.38) saturate(.42);
+}
+
+.region1-island-overlay.is-fallback-locked .region1-fallback-lock {
+    display: grid;
 }
 
 .region1-island-status,
