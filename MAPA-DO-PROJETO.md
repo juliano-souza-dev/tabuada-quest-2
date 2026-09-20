@@ -228,6 +228,21 @@ CORSÁRIO 1 → assets 01–05
 CORSÁRIO 2 → assets 06–10
 ```
 
+Background canônico da CORSÁRIO 2:
+
+```text
+web/assets/regions/region-1/corsario-2-background.webp
+```
+
+Na CORSÁRIO 2, continuam dinâmicos e separados do background:
+
+```text
+Ilhas 06–10
+status
+hitboxes
+Mapa mundo global
+```
+
 A implementação continua em `web/js/screens/islands-screen.js` e usa a infraestrutura compartilhada registrada em `agentes/04-desenvolvimento.md`.
 
 ## Mapa mundo
