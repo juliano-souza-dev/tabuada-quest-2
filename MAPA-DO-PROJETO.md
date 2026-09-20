@@ -43,9 +43,11 @@ Toda IA/agente deve ler:
 ISSUE != fonte de verdade
 ```
 
-Issues definem somente fluxo de desenvolvimento.
+Issues representam somente tarefas concretas de implementação ou correção.
 
-Se uma issue contiver detalhe de produto, arte, código ou UX que não esteja na persona responsável, migrar para a persona antes de concluir o trabalho.
+Coordenação, dependências conceituais, handoffs e definição de qual persona deve atuar pertencem ao `ORQUESTRADOR.md`.
+
+Se uma issue contiver detalhe de produto, arte, código ou UX que não esteja na persona responsável, retirar esse conteúdo da issue e migrá-lo para a persona antes de prosseguir.
 
 ## Branches
 
@@ -334,17 +336,16 @@ decisão mais recente do líder
 
 ## Issues
 
-Issues servem somente para fluxo.
+Issues servem somente para execução concreta.
 
 Formato esperado:
 
 ```text
-Objetivo
-DEPENDE_DE
-DESBLOQUEIA
-PERSONA_DONA
-Critério de pronto
+TAREFA
+PRONTO
 ```
+
+O Orquestrador, e não a issue, controla dependências, personas, handoffs e ordem.
 
 Não colocar em issue:
 
