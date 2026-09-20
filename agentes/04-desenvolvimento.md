@@ -102,6 +102,31 @@ CORSÁRIO 1 (01–05)
 → próximo fluxo liberado pelo Orquestrador
 ```
 
+A mesma Região pode possuir páginas visuais declaradas em `REGION_VISUAL_CONFIG.pages`.
+
+Cada página declara somente o que muda na composição:
+
+```text
+backgroundId
+islandIds
+unlockAfterCompleted
+```
+
+Para a CORSÁRIO:
+
+```text
+corsario-1 → Ilhas 01–05
+corsario-2 → Ilhas 06–10
+```
+
+Background canônico da segunda página:
+
+```text
+web/assets/regions/region-1/corsario-2-background.webp
+```
+
+A seleção da página visual usa a progressão já existente. Não alterar scheduler ou persistência apenas para realizar essa troca visual.
+
 ## Mapa mundo
 
 Controlador global:
