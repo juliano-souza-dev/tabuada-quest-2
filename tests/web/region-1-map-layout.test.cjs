@@ -235,3 +235,15 @@ test("Mapa mundo está conectado ao controlador global", () => {
     assert.match(source, /data-action="open-world-map"/);
     assert.match(source, /TQ\.core\.worldMap\.open\(\{ onNavigate \}\)/);
 });
+
+
+test("malha compartilhada não reintroduz layout específico por Região", () => {
+    const source = fs.readFileSync(
+        path.join(__dirname, "../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+
+    assert.match(source, /REGION_LAYOUT/);
+    assert.match(source, /REGION_VISUAL_CONFIG/);
+    assert.doesNotMatch(source, /REGION_\d+_LAYOUT/);
+});
