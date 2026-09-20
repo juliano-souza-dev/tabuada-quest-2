@@ -11,7 +11,7 @@ const islands = globalThis.TabuadaQuest.screens.islands;
 test("Região 1 usa fundo e Ilhas modulares", () => {
     assert.match(
         content.assets.region1Modular.background,
-        /assets\/regions\/region-1\/background\.png/
+        /assets\/regions\/region-1\/mapa_marítimo_do_corsário\.png/
     );
 
     for (let islandId = 1; islandId <= 10; islandId += 1) {
@@ -21,13 +21,14 @@ test("Região 1 usa fundo e Ilhas modulares", () => {
     }
 });
 
-test("layout canônico da Região 1 possui back e 10 Ilhas", () => {
+test("layout canônico da Corsário possui back e 5 Ilhas visíveis", () => {
     const layout = islands.REGION_1_LAYOUT;
     assert.deepEqual(layout.viewport, { width: 941, height: 1672 });
+    assert.deepEqual(layout.visibleIslandIds, [1, 2, 3, 4, 5]);
     assert.deepEqual(layout.back, { x: 58, y: 18, width: 150, height: 150 });
-    assert.equal(Object.keys(layout.islands).length, 10);
+    assert.equal(Object.keys(layout.islands).length, 5);
 
-    for (let islandId = 1; islandId <= 10; islandId += 1) {
+    for (const islandId of layout.visibleIslandIds) {
         const item = layout.islands[islandId];
         assert.ok(item);
         for (const rect of [item.art, item.status, item.hitbox]) {
@@ -64,7 +65,7 @@ test("status visual diferencia bloqueio, desbloqueio, conclusão e retomada", ()
 });
 
 test("recompensas visuais são fixas nos assets e labels seguem acessíveis", () => {
-    for (let islandId = 1; islandId <= 10; islandId += 1) {
+    for (const islandId of islands.REGION_1_LAYOUT.visibleIslandIds) {
         assert.equal("reward" in islands.REGION_1_LAYOUT.islands[islandId], false);
     }
 
@@ -112,25 +113,22 @@ test("seleção de asset troca entre locked e unlocked", () => {
 });
 
 
-test("novo mapa serpenteado usa coordenadas pixel-perfect aprovadas", () => {
+
+
+test("Corsário usa as cinco marcações de água com assets maiores", () => {
     const expected = {
-        1: { art: [234,288,224,214], status: [277,457,139,26], hitbox: [242,294,208,202] },
-        2: { art: [518,391,224,214], status: [561,560,139,26], hitbox: [526,397,208,202] },
-        3: { art: [213,538,224,214], status: [256,707,139,26], hitbox: [221,544,208,202] },
-        4: { art: [519,678,226,216], status: [562,849,140,26], hitbox: [527,684,210,204] },
-        5: { art: [175,780,236,220], status: [220,954,146,26], hitbox: [183,786,220,208] },
-        6: { art: [523,899,236,220], status: [568,1073,146,26], hitbox: [531,905,220,208] },
-        7: { art: [193,1038,224,214], status: [236,1207,139,26], hitbox: [201,1044,208,202] },
-        8: { art: [546,1158,232,218], status: [590,1330,144,26], hitbox: [554,1164,216,206] },
-        9: { art: [220,1269,224,214], status: [263,1438,139,26], hitbox: [228,1275,208,202] },
-        10: { art: [524,1401,238,222], status: [569,1576,148,27], hitbox: [532,1407,222,210] }
+        1: { art: [5,340,330,330], status: [80,604,180,36], hitbox: [15,350,310,310] },
+        2: { art: [595,380,330,330], status: [670,644,180,36], hitbox: [605,390,310,310] },
+        3: { art: [295,615,350,350], status: [375,895,190,38], hitbox: [305,625,330,330] },
+        4: { art: [10,940,350,350], status: [90,1220,190,38], hitbox: [20,950,330,330] },
+        5: { art: [560,1275,350,350], status: [640,1555,190,38], hitbox: [570,1285,330,330] }
     };
 
     function rectTuple(rect) {
         return [rect.x, rect.y, rect.width, rect.height];
     }
 
-    for (let islandId = 1; islandId <= 10; islandId += 1) {
+    for (const islandId of islands.REGION_1_LAYOUT.visibleIslandIds) {
         const item = islands.REGION_1_LAYOUT.islands[islandId];
         assert.deepEqual(rectTuple(item.art), expected[islandId].art);
         assert.deepEqual(rectTuple(item.status), expected[islandId].status);
