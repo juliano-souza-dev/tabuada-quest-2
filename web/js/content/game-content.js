@@ -186,7 +186,8 @@
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
             homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2228",
             regionsMap: "./assets/regions/regions-map-base.webp?v=20260920-0318",
-            regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318"
+            regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
+            region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130"
         })
     });
 })(globalThis);
