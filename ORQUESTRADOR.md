@@ -1488,3 +1488,53 @@ Região 11  = 9 fragmentos → Ilha 10 → Grande Baú Final
 ```
 
 Desenvolvimento recebeu autorização para implementar sem redesenhar a arte.
+
+
+### Issue #24 — pronta para validação do líder
+
+Desenvolvimento concluiu a implementação funcional:
+
+```text
+commit = a7c38fdf41a79a8321620caf58b4d5d7cb415523
+```
+
+Pipelines da mesma entrega:
+
+```text
+Web Unit Tests = 35479435122 → success
+Web Preview    = 35479435097 → success
+Android Debug  = 35479435099 → success
+```
+
+Gates:
+
+```text
+Direção Visual       = 82% → APROVADO PARA QUALIDADE
+Qualidade e Build    = APROVADO
+Experience Validator = APROVADO
+Líder de equipe      = PENDENTE
+```
+
+Documentos:
+
+```text
+docs/validacao/ISSUE-024-fidelidade-visual.md
+docs/validacao/ISSUE-024-qualidade.md
+docs/validacao/ISSUE-024-experience.md
+```
+
+Estado:
+
+```text
+#24 → IMPLEMENTAÇÃO CONCLUÍDA / AGUARDANDO VALIDAÇÃO DO LÍDER
+#5  → permanece PAUSADA até o fechamento da #24
+#6  → permanece BLOQUEADA
+```
+
+Preview oficial liberado para o líder:
+
+```text
+https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+A #24 não será fechada sem aprovação explícita do líder.
