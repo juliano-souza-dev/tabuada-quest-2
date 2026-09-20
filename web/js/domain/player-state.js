@@ -294,6 +294,44 @@
         return isValidState(migrated) ? migrated : createInitialState();
     }
 
+    function withDevelopmentProgress(state, implementedRegionIds) {
+        const s = normalizeState(state);
+        const implemented = uniqueRegionIds(implementedRegionIds);
+        if (implemented.length === 0) return s;
+
+        const completedIslandIds = [...s.campaign.completedIslandIds];
+        const completedRegionIds = [...s.campaign.completedRegionIds];
+        const unlockedRegionIds = [...s.campaign.unlockedRegionIds];
+        const regionProgress = { ...s.campaign.regionProgress };
+
+        for (const regionId of implemented) {
+            for (let islandId = 1; islandId <= ISLANDS_PER_REGION; islandId += 1) {
+                const key = `region-${regionId}-island-${islandId}`;
+                if (!completedIslandIds.includes(key)) completedIslandIds.push(key);
+            }
+
+            if (!completedRegionIds.includes(regionId)) completedRegionIds.push(regionId);
+            if (!unlockedRegionIds.includes(regionId)) unlockedRegionIds.push(regionId);
+
+            regionProgress[String(regionId)] = {
+                ...regionProgress[String(regionId)],
+                islandsCompleted: ISLANDS_PER_REGION,
+                islandsTotal: ISLANDS_PER_REGION
+            };
+        }
+
+        return {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                unlockedRegionIds: uniqueRegionIds(unlockedRegionIds),
+                completedRegionIds: uniqueRegionIds(completedRegionIds),
+                completedIslandIds,
+                regionProgress
+            }
+        };
+    }
+
     function withHomeBackground(state, backgroundId, allowedIds) {
         const s = normalizeState(state);
         return Array.isArray(allowedIds) && allowedIds.includes(backgroundId)
@@ -607,6 +645,7 @@
         migrateState,
         isValidState,
         normalizeState,
+        withDevelopmentProgress,
         withHomeBackground,
         withProfileFrame,
         withLastScreen,
