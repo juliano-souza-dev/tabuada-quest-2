@@ -1,6 +1,6 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STATE_VERSION = 7;
+    const STATE_VERSION = 8;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = 11;
@@ -50,6 +50,7 @@
             },
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
+            crew: { hiredIds: [] },
             campaign: {
                 currentRegionId: 1,
                 currentIslandId: 1,
@@ -166,6 +167,14 @@
             };
         }
 
+        if (migrated.schemaVersion === 7) {
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                crew: { hiredIds: [] }
+            };
+        }
+
         return migrated;
     }
 
@@ -264,6 +273,10 @@
             && value.wallet.coins >= 0
             && Number.isInteger(value.wallet.gems)
             && value.wallet.gems >= 0
+            && isObject(value.crew)
+            && Array.isArray(value.crew.hiredIds)
+            && value.crew.hiredIds.every((id) => typeof id === "string")
+            && new Set(value.crew.hiredIds).size === value.crew.hiredIds.length
             && isObject(value.campaign)
             && Number.isInteger(value.campaign.currentRegionId)
             && value.campaign.currentRegionId >= 1
@@ -310,9 +323,60 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "regions", "islands", "travel", "challenge", "result"].includes(screenId)
+        return ["home", "crew", "regions", "islands", "travel", "challenge", "result"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
+    }
+
+    function hireCrewMember(state, crewMember) {
+        const s = normalizeState(state);
+        if (!isObject(crewMember) || typeof crewMember.id !== "string") return s;
+        if (!Number.isInteger(crewMember.cost) || crewMember.cost < 0) return s;
+        if (s.crew.hiredIds.includes(crewMember.id)) return s;
+        if (s.wallet.coins < crewMember.cost) return s;
+
+        return {
+            ...s,
+            wallet: { ...s.wallet, coins: s.wallet.coins - crewMember.cost },
+            crew: { ...s.crew, hiredIds: [...s.crew.hiredIds, crewMember.id] }
+        };
+    }
+
+    function getCrewBonusSummary(state, crewMembers) {
+        const s = normalizeState(state);
+        const summary = { xp: 0, coins: 0, gems: 0 };
+        if (!Array.isArray(crewMembers)) return summary;
+        for (const member of crewMembers) {
+            if (!isObject(member) || !s.crew.hiredIds.includes(member.id)) continue;
+            if (!Object.prototype.hasOwnProperty.call(summary, member.bonusType)) continue;
+            if (!Number.isFinite(member.bonusPercent) || member.bonusPercent < 0) continue;
+            summary[member.bonusType] += member.bonusPercent;
+        }
+        return summary;
+    }
+
+    function calculateCrewReward(state, crewMembers, reward) {
+        const base = {
+            xp: Number.isInteger(reward?.xp) && reward.xp > 0 ? reward.xp : 0,
+            coins: Number.isInteger(reward?.coins) && reward.coins > 0 ? reward.coins : 0,
+            gems: Number.isInteger(reward?.gems) && reward.gems > 0 ? reward.gems : 0
+        };
+        const percent = getCrewBonusSummary(state, crewMembers);
+        const bonus = {
+            xp: Math.floor(base.xp * percent.xp / 100),
+            coins: Math.floor(base.coins * percent.coins / 100),
+            gems: Math.floor(base.gems * percent.gems / 100)
+        };
+        return {
+            base,
+            percent,
+            bonus,
+            total: {
+                xp: base.xp + bonus.xp,
+                coins: base.coins + bonus.coins,
+                gems: base.gems + bonus.gems
+            }
+        };
     }
 
     function getIslandStatus(state, regionId, islandId) {
@@ -610,6 +674,9 @@
         withHomeBackground,
         withProfileFrame,
         withLastScreen,
+        hireCrewMember,
+        getCrewBonusSummary,
+        calculateCrewReward,
         getIslandStatus,
         getRegionStatus,
         selectRegion,
