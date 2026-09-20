@@ -18,42 +18,42 @@
             3: Object.freeze({
                 status: Object.freeze({ x: 145, y: 759, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 331, y: 757, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 500, width: 390, height: 310 })
+                hitbox: Object.freeze({ x: 35, y: 525, width: 390, height: 287 })
             }),
             4: Object.freeze({
                 status: Object.freeze({ x: 575, y: 759, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 763, y: 757, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 500, width: 405, height: 310 })
+                hitbox: Object.freeze({ x: 500, y: 525, width: 405, height: 287 })
             }),
             5: Object.freeze({
                 status: Object.freeze({ x: 145, y: 1049, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 332, y: 1045, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 805, width: 390, height: 300 })
+                hitbox: Object.freeze({ x: 35, y: 812, width: 390, height: 296 })
             }),
             6: Object.freeze({
                 status: Object.freeze({ x: 575, y: 1049, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 765, y: 1045, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 805, width: 405, height: 300 })
+                hitbox: Object.freeze({ x: 500, y: 812, width: 405, height: 296 })
             }),
             7: Object.freeze({
                 status: Object.freeze({ x: 145, y: 1327, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 331, y: 1326, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 1088, width: 390, height: 300 })
+                hitbox: Object.freeze({ x: 35, y: 1108, width: 390, height: 280 })
             }),
             8: Object.freeze({
                 status: Object.freeze({ x: 575, y: 1327, width: 176, height: 40 }),
                 reward: Object.freeze({ x: 764, y: 1325, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 1088, width: 405, height: 300 })
+                hitbox: Object.freeze({ x: 500, y: 1108, width: 405, height: 280 })
             }),
             9: Object.freeze({
                 status: Object.freeze({ x: 145, y: 1613, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 331, y: 1609, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 1375, width: 390, height: 292 })
+                hitbox: Object.freeze({ x: 35, y: 1388, width: 390, height: 284 })
             }),
             10: Object.freeze({
                 status: Object.freeze({ x: 575, y: 1613, width: 176, height: 40 }),
                 reward: Object.freeze({ x: 763, y: 1609, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 1375, width: 405, height: 292 })
+                hitbox: Object.freeze({ x: 500, y: 1388, width: 405, height: 284 })
             })
         })
     });
