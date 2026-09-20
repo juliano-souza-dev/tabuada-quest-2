@@ -1538,3 +1538,58 @@ https://juliano-souza-dev.github.io/tabuada-quest-2/
 ```
 
 A #24 não será fechada sem aprovação explícita do líder.
+
+
+## Regra de escopo das decisões — GLOBAL x LOCAL
+
+Toda decisão nova deve ser classificada pelo Orquestrador antes de ser propagada pelo projeto.
+
+```text
+GLOBAL
+→ vale para o produto inteiro ou para todas as telas/componentes abrangidos explicitamente.
+
+LOCAL
+→ vale somente para a tela, fluxo, componente ou contexto citado pelo líder.
+```
+
+### Regra de não propagação
+
+Uma decisão local **não altera automaticamente** padrões globais, componentes compartilhados ou outras telas.
+
+Exemplos:
+
+- "nesta tela o header não precisa de avatar" = decisão LOCAL daquela tela;
+- "remova avatar dos headers do jogo" = decisão GLOBAL;
+- "o botão voltar desta tela fica dentro da arte" = decisão LOCAL;
+- "todo botão voltar do projeto usa este padrão" = decisão GLOBAL.
+
+Se o usuário mencionar uma tela, componente ou fluxo específico, o padrão é interpretar a decisão como **LOCAL**, salvo quando houver linguagem explícita de abrangência global como "em todas as telas", "no projeto inteiro", "sempre", "padrão global" ou equivalente.
+
+### Conflito entre regra global e exceção local
+
+Uma tela pode possuir exceção própria sem invalidar a regra global.
+
+```text
+REGRA GLOBAL
+    ↓
+aplica por padrão
+
+EXCEÇÃO LOCAL DOCUMENTADA
+    ↓
+substitui a regra global somente naquele escopo
+```
+
+O Orquestrador deve registrar a exceção no artefato mais próximo do contexto (issue, spec da tela ou decisão específica) e impedir que agentes generalizem a exceção para outras partes do produto.
+
+### Gate obrigatório antes de implementar pedido visual/UX
+
+Antes do handoff, registrar mental ou documentalmente:
+
+```text
+ESCOPO_DA_DECISAO = GLOBAL | LOCAL
+ALVO              = produto inteiro | tela/componente/fluxo específico
+REGRA_AFETADA      = qual padrão anterior continua ou é sobrescrito
+PROPAGA            = sim | não
+```
+
+Na dúvida sobre abrangência, não globalizar silenciosamente.
