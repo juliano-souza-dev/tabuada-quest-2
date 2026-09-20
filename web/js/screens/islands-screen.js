@@ -1,7 +1,7 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
-    const REGION_1_LAYOUT = Object.freeze({
+    const REGION_LAYOUT = Object.freeze({
         viewport: Object.freeze({ width: 941, height: 1672 }),
         visibleIslandIds: Object.freeze([1, 2, 3, 4, 5]),
         back: Object.freeze({ x: 58, y: 18, width: 150, height: 150 }),
@@ -35,6 +35,23 @@
         })
     });
 
+    const REGION_VISUAL_CONFIG = Object.freeze({
+        1: Object.freeze({ assetKey: "region1Modular" })
+    });
+
+    function getRegionVisualConfig(regionId) {
+        const normalizedRegionId = Number(regionId);
+        const config = REGION_VISUAL_CONFIG[normalizedRegionId];
+        const assets = config ? TQ.content?.assets?.[config.assetKey] : null;
+        if (!config || !assets) return null;
+
+        return Object.freeze({
+            regionId: normalizedRegionId,
+            assetKey: config.assetKey,
+            assets
+        });
+    }
+
     function rectStyle(rect) {
         return `left:${rect.x}px;top:${rect.y}px;width:${rect.width}px;height:${rect.height}px`;
     }
@@ -43,15 +60,15 @@
         return `${rectStyle(rect)};font-size:${rect.fontSize || 22}px;line-height:${rect.height}px`;
     }
 
-    function computeRegion1StageGeometry(viewportWidth, viewportHeight) {
+    function computeRegionStageGeometry(viewportWidth, viewportHeight) {
         const width = Number(viewportWidth) || 0;
         const height = Number(viewportHeight) || 0;
         const scale = Math.max(
-            width / REGION_1_LAYOUT.viewport.width,
-            height / REGION_1_LAYOUT.viewport.height
+            width / REGION_LAYOUT.viewport.width,
+            height / REGION_LAYOUT.viewport.height
         );
-        const renderWidth = REGION_1_LAYOUT.viewport.width * scale;
-        const renderHeight = REGION_1_LAYOUT.viewport.height * scale;
+        const renderWidth = REGION_LAYOUT.viewport.width * scale;
+        const renderHeight = REGION_LAYOUT.viewport.height * scale;
 
         return Object.freeze({
             scale,
@@ -81,7 +98,7 @@
         return "BLOQUEADA";
     }
 
-    function formatRegion1Status(status, isResume) {
+    function formatRegionStatus(status, isResume) {
         if (isResume) return "CONTINUAR";
         if (status === "completed") return "CONCLUÍDA ✓";
         if (status === "available") return "DESBLOQUEADA";
@@ -97,8 +114,9 @@
         return "Recompensa";
     }
 
-    function getRegion1IslandAsset(islandId, status) {
-        const entry = TQ.content.assets.region1Modular.islands[islandId];
+    function getRegionIslandAsset(regionId, islandId, status) {
+        const visual = getRegionVisualConfig(regionId);
+        const entry = visual?.assets?.islands?.[islandId];
         if (!entry) return "";
         return status === "locked" ? entry.locked : entry.unlocked;
     }
@@ -123,15 +141,22 @@
             );
     }
 
-    function renderRegion1Map({ state, onStateChange, onNavigate }) {
-        const regionId = 1;
+    function renderRegionMap({ state, onStateChange, onNavigate }) {
+        const regionId = state.campaign.currentRegionId;
+        const visual = getRegionVisualConfig(regionId);
+        if (!visual) {
+            return renderTextIslandsScreen({ state, onStateChange, onNavigate });
+        }
+
+        const region = TQ.content.regions.find((item) => item.id === regionId);
         const active = state.learning.activeSession;
         const screen = document.createElement("section");
-        screen.className = "region1-islands-map-screen";
-        screen.setAttribute("aria-label", "Ilhas da Região CORSÁRIO");
+        screen.className = "region-islands-map-screen";
+        screen.dataset.regionId = String(regionId);
+        screen.setAttribute("aria-label", `Ilhas da Região ${region ? region.label : regionId}`);
 
-        const islandsMarkup = REGION_1_LAYOUT.visibleIslandIds.map((islandId) => {
-            const layout = REGION_1_LAYOUT.islands[islandId];
+        const islandsMarkup = REGION_LAYOUT.visibleIslandIds.map((islandId) => {
+            const layout = REGION_LAYOUT.islands[islandId];
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             const identity = TQ.content.getIslandIdentity(regionId, islandId);
             const rewards = TQ.content.getIslandRewards(regionId, islandId);
@@ -140,27 +165,27 @@
                 && active.regionId === regionId
                 && active.islandId === islandId
             );
-            const statusText = formatRegion1Status(status, isResume);
+            const statusText = formatRegionStatus(status, isResume);
             const rewardText = rewardLabel(rewards);
-            const islandAsset = getRegion1IslandAsset(islandId, status);
-            const unlockedAsset = TQ.content.assets.region1Modular.islands[islandId].unlocked;
+            const islandAsset = getRegionIslandAsset(regionId, islandId, status);
+            const unlockedAsset = visual.assets.islands[islandId].unlocked;
 
             return `
-                <div class="region1-island-overlay is-${status}${isResume ? " is-resume" : ""}" data-island-ui="${islandId}">
-                    <div class="region1-island-art-shell" style="${rectStyle(layout.art)}">
-                        <img class="region1-island-art"
+                <div class="region-island-overlay is-${status}${isResume ? " is-resume" : ""}" data-island-ui="${islandId}">
+                    <div class="region-island-art-shell" style="${rectStyle(layout.art)}">
+                        <img class="region-island-art"
                             src="${islandAsset}"
                             data-fallback-src="${status === "locked" ? unlockedAsset : ""}"
                             alt=""
                             aria-hidden="true">
-                        <span class="region1-fallback-lock" aria-hidden="true">🔒</span>
+                        <span class="region-fallback-lock" aria-hidden="true">🔒</span>
                     </div>
 
-                    <span class="region1-island-status"
+                    <span class="region-island-status"
                         style="${statusStyle(layout.status)}"
                         aria-hidden="true">${statusText}</span>
 
-                    <button class="region1-island-hitbox"
+                    <button class="region-island-hitbox"
                         type="button"
                         style="${rectStyle(layout.hitbox)}"
                         data-island-id="${islandId}"
@@ -172,15 +197,15 @@
         }).join("");
 
         screen.innerHTML = `
-            <div class="region1-islands-canonical-stage">
-                <img class="region1-islands-background"
-                    src="${TQ.content.assets.region1Modular.background}"
+            <div class="region-islands-canonical-stage">
+                <img class="region-islands-background"
+                    src="${visual.assets.background}"
                     alt=""
                     aria-hidden="true">
 
-                <button class="region1-back-hitbox"
+                <button class="region-back-hitbox"
                     type="button"
-                    style="${rectStyle(REGION_1_LAYOUT.back)}"
+                    style="${rectStyle(REGION_LAYOUT.back)}"
                     data-action="back-regions"
                     aria-label="Voltar para Regiões">
                 </button>
@@ -189,7 +214,7 @@
 
                 <button class="global-world-map-button"
                     type="button"
-                    style="${rectStyle(REGION_1_LAYOUT.worldMap)}"
+                    style="${rectStyle(REGION_LAYOUT.worldMap)}"
                     data-action="open-world-map"
                     aria-label="Abrir Mapa mundo">
                     <img class="global-world-map-asset"
@@ -200,20 +225,20 @@
             </div>
         `;
 
-        const stage = screen.querySelector(".region1-islands-canonical-stage");
+        const stage = screen.querySelector(".region-islands-canonical-stage");
 
         screen.addEventListener("error", (event) => {
-            const image = event.target.closest?.(".region1-island-art");
+            const image = event.target.closest?.(".region-island-art");
             if (!image || !image.dataset.fallbackSrc) return;
 
             const fallback = image.dataset.fallbackSrc;
             image.dataset.fallbackSrc = "";
             image.src = fallback;
-            image.closest(".region1-island-overlay")?.classList.add("is-fallback-locked");
+            image.closest(".region-island-overlay")?.classList.add("is-fallback-locked");
         }, true);
 
         function applyStageGeometry() {
-            const geometry = computeRegion1StageGeometry(screen.clientWidth, screen.clientHeight);
+            const geometry = computeRegionStageGeometry(screen.clientWidth, screen.clientHeight);
             stage.style.left = `${geometry.offsetX}px`;
             stage.style.top = `${geometry.offsetY}px`;
             stage.style.transform = `scale(${geometry.scale})`;
@@ -341,23 +366,25 @@
     }
 
     function renderIslandsScreen(context) {
-        return context.state.campaign.currentRegionId === 1
-            ? renderRegion1Map(context)
+        return getRegionVisualConfig(context.state.campaign.currentRegionId)
+            ? renderRegionMap(context)
             : renderTextIslandsScreen(context);
     }
 
     TQ.screens = TQ.screens || {};
     TQ.screens.islands = Object.freeze({
         renderIslandsScreen,
-        renderRegion1Map,
+        renderRegionMap,
         renderTextIslandsScreen,
         islandLabel,
         renderRewardLabels,
-        formatRegion1Status,
+        formatRegionStatus,
         rewardLabel,
-        getRegion1IslandAsset,
+        getRegionVisualConfig,
+        getRegionIslandAsset,
         createIslandEntryState,
-        REGION_1_LAYOUT,
-        computeRegion1StageGeometry
+        REGION_LAYOUT,
+        REGION_VISUAL_CONFIG,
+        computeRegionStageGeometry
     });
 })(globalThis);
