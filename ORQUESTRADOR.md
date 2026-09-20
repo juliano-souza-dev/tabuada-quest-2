@@ -175,19 +175,30 @@ Não associar issue a milestone sem necessidade explícita de planejamento.
 
 O Orquestrador mantém o encadeamento atual fora das issues.
 
-Prioridade vigente definida pelo líder:
+Nova regra estrutural já fechada pelas personas:
 
 ```text
-1. implementar CORSÁRIO 2
-   → reutilizar Ilhas 06–10 da remake anterior
-   → projetar nos 5 slots compartilhados
-   → validar progressão CORSÁRIO 1 → CORSÁRIO 2
-   → Qualidade / Experience / líder
-
-2. somente depois retomar NEBLINAS
+22 Regiões
+×
+5 Ilhas por Região
+=
+110 Ilhas
+sem sub-regiões
 ```
 
-As issues de NEBLINAS podem permanecer abertas como tarefas futuras, mas estão fora da execução até CORSÁRIO 2 ser concluída e validada.
+A arquitetura histórica de 11 Regiões × 10 Ilhas e a solução de segunda página/sub-região estão descontinuadas.
+
+Sequência operacional recomendada:
+
+```text
+1. concluir/validar a composição limpa atual da CORSÁRIO na issue vigente
+2. preparar uma tarefa executável para migrar a macroestrutura 11×10 → 22×5
+3. preservar progressão e carga pedagógica durante a migração
+4. remover dependência arquitetural de REGION_VISUAL_CONFIG.pages como subdivisão de Região
+5. somente depois retomar expansão visual das novas Regiões
+```
+
+A migração estrutural só vira issue quando o Orquestrador tiver a tarefa concreta fechada pelas personas. A definição conceitual já está nas personas e não deve ser repetida dentro da issue.
 
 Para expansões futuras:
 
