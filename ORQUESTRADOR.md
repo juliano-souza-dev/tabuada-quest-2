@@ -1200,3 +1200,71 @@ validação visual do líder
 ```
 
 A Issue #32 permanece aberta até essa validação.
+
+
+### Issue #33 — padrão global das telas de Região
+
+Decisão global do líder:
+
+```text
+a composição aprovada na CORSÁRIO
+→ passa a ser o padrão obrigatório de todas as demais telas de Região
+```
+
+Invariantes:
+
+```text
+stage = 941 × 1672
+5 Ilhas visíveis
+mesmas coordenadas
+mesmos tamanhos
+mesmos statusBox
+mesmas hitboxes
+mesma geometria das marcações de água
+mesma rota
+Mapa mundo = x98 y1405 200×200
+mesmo tratamento CSS de status
+```
+
+Entre Regiões mudam apenas:
+
+```text
+background
+header/nome
+identidade visual das Ilhas
+props
+medalhões conforme recompensa real
+```
+
+Fonte de verdade:
+
+```text
+docs/arte/PADRAO-GLOBAL-REGIOES-5-ILHAS.md
+```
+
+Direção Visual foi atualizada para consultar esse contrato antes de criar qualquer nova Região.
+
+Dependências:
+
+```text
+DEPENDE_DE  = #8 + #32
+DESBLOQUEIA = produção visual consistente das próximas Regiões
+MILESTONE   = nenhuma
+```
+
+Regra de implementação futura:
+
+```text
+quando a segunda Região visual for implementada,
+promover REGION_1_LAYOUT para configuração compartilhada
+sem alterar as coordenadas aprovadas
+```
+
+Commits:
+
+```text
+2ca33930 → cria padrão global das telas de Região
+045c3a0f → atualiza direção da Issue #8
+3f95098f → ensina padrão à Direção Visual
+fd92e5c7 → atualiza MAPA-DO-PROJETO
+```
