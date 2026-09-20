@@ -1,5 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 
 delete globalThis.TabuadaQuest;
 require("../../web/js/content/game-content.js");
@@ -162,4 +164,17 @@ test("status usa fonte maior após refino de legibilidade", () => {
         assert.ok(layout.islands[islandId].status.fontSize >= 28);
         assert.ok(layout.islands[islandId].status.height >= 42);
     }
+});
+
+
+test("CSS do status garante contraste sobre a placa", () => {
+    const css = fs.readFileSync(
+        path.join(__dirname, "../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    assert.match(css, /\.region1-island-status\s*\{[\s\S]*-webkit-text-stroke:/);
+    assert.match(css, /\.region1-island-status\s*\{[\s\S]*text-shadow:/);
+    assert.match(css, /\.region1-island-overlay\.is-completed \.region1-island-status/);
+    assert.match(css, /\.region1-island-overlay\.is-resume \.region1-island-status/);
 });
