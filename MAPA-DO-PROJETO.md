@@ -1270,23 +1270,36 @@ TQ.content.getRegionIdentity(...)
 TQ.content.getIslandIdentity(...)
 ```
 
-Estado `REVISAR`:
+Estados válidos de Ilha:
 
 ```text
-web/js/domain/player-state.js
-TQ.domain.playerState.hasPendingRecovery(...)
-TQ.domain.playerState.getIslandStatus(...)
+locked
+available
+completed
 ```
+
+A recuperação pedagógica permanece interna ao scheduler e não cria estado visual de Ilha.
 
 A identidade narrativa/visual não define a tabuada da Ilha. O conteúdo pedagógico continua vindo de `web/js/domain/scheduler.js`.
 
 
 ## Região 1 — mapa visual das Ilhas
 
-Asset canônico:
+Pasta canônica:
 
 ```text
-web/assets/regions/region-1-islands-static.webp
+web/assets/regions/region-1/
+```
+
+Assets:
+
+```text
+background.png
+island-01-unlocked.png
+island-01-locked.png
+...
+island-10-unlocked.png
+island-10-locked.png
 ```
 
 Implementação:
@@ -1302,25 +1315,26 @@ Stage lógico:
 941 × 1672
 ```
 
-Camada fixa no asset:
+Composição:
 
 ```text
-header
-seta visual
-CORSÁRIO
-10 cenários de Ilha
-10 nomes de Ilha
-slots de status
-slots de recompensa
+background fixo
++
+10 Ilhas posicionadas por CSS
++
+troca locked/unlocked pelo estado
++
+status/recompensas/hitboxes dinâmicos
 ```
 
-Camada dinâmica:
+Seleção:
 
 ```text
-status
-recompensa
-hitboxes
-estado de sessão/progresso
+locked    → variante locked
+available → variante unlocked
+completed → variante unlocked
 ```
 
-As Regiões 2–11 ainda usam a apresentação textual temporária.
+A composição monolítica anterior não é mais a arquitetura vigente.
+
+As Regiões 2–11 continuam temporariamente na apresentação textual até receberem seus próprios assets.
