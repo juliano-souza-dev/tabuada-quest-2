@@ -2405,3 +2405,49 @@ Android Debug  = 35511485974 → success
 ```
 
 A #8 permanece em validação visual da montagem modular da Região 1.
+
+
+### Issue #8 — padrão global de criação de Ilhas
+
+Direção Visual formalizou a gramática obrigatória dos assets de Ilha.
+
+Padrão invariável:
+
+```text
+diorama 3D infantil premium
++
+placa de madeira com nome canônico
++
+medalhão(ões) somente das recompensas reais
++
+placa inferior de madeira vazia para status
+```
+
+Recompensas:
+
+```text
+PET            → patinha
+FRAGMENTO MAPA → pergaminho/mapa rasgado
+BAÚ            → baú
+```
+
+Não existem slots genéricos ou medalhões vazios.
+
+A Direção Visual deve consultar a recompensa real antes de gerar cada Ilha, evitando elementos de PET, mapa ou baú onde não correspondam ao conteúdo da Ilha.
+
+Variantes:
+
+```text
+UNLOCKED → composição-base clara
+LOCKED   → mesma composição + leve sombra + corrente/cadeado
+```
+
+O tema de cada Ilha continua sendo definido por seu nome e identidade narrativa. A recompensa apenas aparece nos medalhões e não substitui o conceito do cenário.
+
+Fontes atualizadas:
+
+```text
+agentes/03-direcao-visual.md
+docs/arte/ISSUE-008-DIRECAO-REGIOES-ILHAS.md
+MAPA-DO-PROJETO.md
+```
