@@ -1279,3 +1279,48 @@ TQ.domain.playerState.getIslandStatus(...)
 ```
 
 A identidade narrativa/visual não define a tabuada da Ilha. O conteúdo pedagógico continua vindo de `web/js/domain/scheduler.js`.
+
+
+## Região 1 — mapa visual das Ilhas
+
+Asset canônico:
+
+```text
+web/assets/regions/region-1-islands-static.webp
+```
+
+Implementação:
+
+```text
+web/js/screens/islands-screen.js
+REGION_1_LAYOUT
+```
+
+Stage lógico:
+
+```text
+941 × 1672
+```
+
+Camada fixa no asset:
+
+```text
+header
+seta visual
+CORSÁRIO
+10 cenários de Ilha
+10 nomes de Ilha
+slots de status
+slots de recompensa
+```
+
+Camada dinâmica:
+
+```text
+status
+recompensa
+hitboxes
+estado de sessão/progresso
+```
+
+As Regiões 2–11 ainda usam a apresentação textual temporária.
