@@ -65,7 +65,7 @@ A navegação da CORSÁRIO é dividida em duas composições visuais:
 
 ```text
 CORSÁRIO 1 → Ilhas 01–05 → mapa_marítimo_do_corsário.png
-CORSÁRIO 2 → Ilhas 06–10 → corsario-2-background.webp
+CORSÁRIO 2 → Ilhas 06–10 → corsario-2-background.jpg
 ```
 
 O fundo da CORSÁRIO 2 contém somente a composição fixa. Ilhas, status, hitboxes e Mapa Mundo continuam dinâmicos.

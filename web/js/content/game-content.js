@@ -196,7 +196,7 @@
                 background: "./assets/regions/region-1/mapa_marítimo_do_corsário.png?v=20260920-1727",
                 backgrounds: Object.freeze({
                     1: "./assets/regions/region-1/mapa_marítimo_do_corsário.png?v=20260920-1727",
-                    2: "./assets/regions/region-1/corsario-2-background.webp?v=20260920-1930"
+                    2: "./assets/regions/region-1/corsario-2-background.jpg?v=20260920-2017"
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
