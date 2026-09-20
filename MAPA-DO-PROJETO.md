@@ -1362,3 +1362,35 @@ placa inferior vazia de status
 O texto de status permanece na camada HTML/CSS/JS.
 
 As variantes `locked` e `unlocked` devem manter a mesma geometria e registro visual.
+
+
+## Transição de viagem entre Ilhas
+
+Implementação:
+
+```text
+web/js/screens/travel-screen.js
+web/assets/transitions/island-travel.mp4
+web/assets/transitions/README.md
+```
+
+Persistência:
+
+```text
+schemaVersion = 7
+campaign.travelPlayedIslandIds
+```
+
+Fluxo:
+
+```text
+primeira entrada na Ilha
+→ travel
+→ vídeo termina
+→ challenge
+
+entrada posterior
+→ challenge
+```
+
+O vídeo deve ser H.264/AVC + yuv420p para compatibilidade com navegador e Android WebView.
