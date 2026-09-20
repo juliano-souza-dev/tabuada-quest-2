@@ -78,6 +78,9 @@
                 <button class="art-hotspot hotspot-fashion" type="button" data-action="frames" aria-label="Escolher moldura"></button>
 
                 <button class="play-slot" type="button" data-action="play" aria-label="Jogar"></button>
+                <button class="crew-menu-button" type="button" data-action="crew" aria-label="Abrir Tripulação">
+                    <span>⚓</span><strong>TRIPULAÇÃO</strong>
+                </button>
 
                 <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
                     <span style="width:${chestPercent}%"></span>
@@ -217,6 +220,11 @@
 
             if (action === "close-sheet") {
                 closeSheets();
+                return;
+            }
+
+            if (action === "crew") {
+                onNavigate("crew");
                 return;
             }
 
