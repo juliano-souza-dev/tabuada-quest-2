@@ -73,6 +73,7 @@ ZONA DO DRAGÃO
 TERRAS GÉLIDAS
 ZONA OURO
 BIRADES
+FANTASMAS
 ```
 
 A aprovação acima valida os **nomes**, não define automaticamente a posição final de cada um na sequência.
