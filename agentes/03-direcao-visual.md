@@ -521,3 +521,33 @@ REFERÊNCIA APROVADA = ?
 ```
 
 Se qualquer resposta estiver indefinida, a arte não deve ser gerada.
+
+
+### Convenção canônica de nomes dos arquivos de Ilha
+
+O nome do arquivo é técnico e **não representa o nome narrativo da Ilha**.
+
+Padrão obrigatório:
+
+```text
+island-NN-unlocked
+island-NN-locked
+```
+
+Onde `NN` é o número da Ilha com dois dígitos.
+
+Exemplos:
+
+```text
+Ilha 01 → island-01-unlocked / island-01-locked
+Ilha 02 → island-02-unlocked / island-02-locked
+Ilha 10 → island-10-unlocked / island-10-locked
+```
+
+Regra:
+
+- somente a numeração muda entre Ilhas;
+- `unlocked` e `locked` indicam apenas a variante visual;
+- o nome narrativo continua dentro da arte e no catálogo de conteúdo;
+- não usar o nome da Ilha no filename;
+- manter a extensão definida pelo pipeline de produção final.
