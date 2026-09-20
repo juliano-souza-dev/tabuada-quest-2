@@ -54,6 +54,17 @@ Quando a hierarquia definitiva de Regiões internas for fechada, o scheduler dev
 
 Não reaproveitar automaticamente matrizes antigas baseadas em 10 Ilhas por tela. Antes de mapear uma nova divisão, recalcular a distribuição a partir do contrato pedagógico vigente.
 
+## CORSÁRIO 1 e CORSÁRIO 2
+
+A divisão visual da CORSÁRIO não elimina as dez unidades já existentes do percurso.
+
+```text
+CORSÁRIO 1 → unidades/Ilhas 01–05
+CORSÁRIO 2 → unidades/Ilhas 06–10
+```
+
+A passagem para CORSÁRIO 2 preserva a continuidade pedagógica existente entre as dez Ilhas. A divisão é de apresentação/navegação, não uma redução de carga.
+
 ## Estado visual x estado pedagógico
 
 A camada visual trabalha com:
