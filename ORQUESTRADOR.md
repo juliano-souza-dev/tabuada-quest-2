@@ -860,15 +860,9 @@ Nenhuma issue futura é liberada apenas por número, milestone ou ordem de cria�
 
 
 
-### Correção visual ativa — Issue #30
+### Correção visual concluída — Issue #30
 
-Pedido do líder:
-
-```text
-locked e unlocked não podem ser artes diferentes
-```
-
-Regra operacional:
+Regra consolidada:
 
 ```text
 unlocked aprovada
@@ -876,15 +870,20 @@ unlocked aprovada
 → somente corrente + cadeado + leve sombra
 ```
 
-A Issue #30:
+Aprovação explícita do líder em 20/09/2026:
 
 ```text
-DEPENDE_DE  = versões unlocked aprovadas das Ilhas 07–10
-DESBLOQUEIA = pacote final 07–10 e continuidade visual da Região 1
-MILESTONE   = nenhuma
+Issue #30 concluída.
 ```
 
-As variantes locked geradas anteriormente para 07–10 estão REPROVADAS e não podem entrar no pacote final.
+Status:
+
+```text
+CLOSED
+MILESTONE = nenhuma
+```
+
+A #30 não bloqueia mais trabalhos subsequentes.
 
 
 ### Correção concluída — Issue #31
