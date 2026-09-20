@@ -3,73 +3,67 @@
 
     const REGION_1_LAYOUT = Object.freeze({
         viewport: Object.freeze({ width: 941, height: 1672 }),
-        back: Object.freeze({ x: 8, y: 5, width: 118, height: 118 }),
+        back: Object.freeze({ x: 58, y: 18, width: 150, height: 150 }),
         islands: Object.freeze({
             1: Object.freeze({
-                art: Object.freeze({ x: 45, y: 185, width: 370, height: 265 }),
-                status: Object.freeze({ x: 145, y: 472, width: 174, height: 39 }),
-                reward: Object.freeze({ x: 331, y: 468, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 145, width: 390, height: 380 })
+                art: Object.freeze({ x: 234, y: 288, width: 224, height: 214 }),
+                status: Object.freeze({ x: 277, y: 457, width: 139, height: 26, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 242, y: 294, width: 208, height: 202 })
             }),
             2: Object.freeze({
-                art: Object.freeze({ x: 515, y: 185, width: 370, height: 265 }),
-                status: Object.freeze({ x: 575, y: 472, width: 176, height: 39 }),
-                reward: Object.freeze({ x: 764, y: 468, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 145, width: 405, height: 380 })
+                art: Object.freeze({ x: 518, y: 391, width: 224, height: 214 }),
+                status: Object.freeze({ x: 561, y: 560, width: 139, height: 26, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 526, y: 397, width: 208, height: 202 })
             }),
             3: Object.freeze({
-                art: Object.freeze({ x: 45, y: 485, width: 370, height: 250 }),
-                status: Object.freeze({ x: 145, y: 759, width: 174, height: 40 }),
-                reward: Object.freeze({ x: 331, y: 757, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 525, width: 390, height: 287 })
+                art: Object.freeze({ x: 213, y: 538, width: 224, height: 214 }),
+                status: Object.freeze({ x: 256, y: 707, width: 139, height: 26, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 221, y: 544, width: 208, height: 202 })
             }),
             4: Object.freeze({
-                art: Object.freeze({ x: 515, y: 485, width: 370, height: 250 }),
-                status: Object.freeze({ x: 575, y: 759, width: 174, height: 40 }),
-                reward: Object.freeze({ x: 763, y: 757, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 525, width: 405, height: 287 })
+                art: Object.freeze({ x: 519, y: 678, width: 226, height: 216 }),
+                status: Object.freeze({ x: 562, y: 849, width: 140, height: 26, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 527, y: 684, width: 210, height: 204 })
             }),
             5: Object.freeze({
-                art: Object.freeze({ x: 45, y: 775, width: 370, height: 250 }),
-                status: Object.freeze({ x: 145, y: 1049, width: 174, height: 40 }),
-                reward: Object.freeze({ x: 332, y: 1045, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 812, width: 390, height: 296 })
+                art: Object.freeze({ x: 175, y: 780, width: 236, height: 220 }),
+                status: Object.freeze({ x: 220, y: 954, width: 146, height: 26, fontSize: 23 }),
+                hitbox: Object.freeze({ x: 183, y: 786, width: 220, height: 208 })
             }),
             6: Object.freeze({
-                art: Object.freeze({ x: 515, y: 775, width: 370, height: 250 }),
-                status: Object.freeze({ x: 575, y: 1049, width: 174, height: 40 }),
-                reward: Object.freeze({ x: 765, y: 1045, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 812, width: 405, height: 296 })
+                art: Object.freeze({ x: 523, y: 899, width: 236, height: 220 }),
+                status: Object.freeze({ x: 568, y: 1073, width: 146, height: 26, fontSize: 23 }),
+                hitbox: Object.freeze({ x: 531, y: 905, width: 220, height: 208 })
             }),
             7: Object.freeze({
-                art: Object.freeze({ x: 45, y: 1060, width: 370, height: 245 }),
-                status: Object.freeze({ x: 145, y: 1327, width: 174, height: 40 }),
-                reward: Object.freeze({ x: 331, y: 1326, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 1108, width: 390, height: 280 })
+                art: Object.freeze({ x: 193, y: 1038, width: 224, height: 214 }),
+                status: Object.freeze({ x: 236, y: 1207, width: 139, height: 26, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 201, y: 1044, width: 208, height: 202 })
             }),
             8: Object.freeze({
-                art: Object.freeze({ x: 515, y: 1060, width: 370, height: 245 }),
-                status: Object.freeze({ x: 575, y: 1327, width: 176, height: 40 }),
-                reward: Object.freeze({ x: 764, y: 1325, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 1108, width: 405, height: 280 })
+                art: Object.freeze({ x: 546, y: 1158, width: 232, height: 218 }),
+                status: Object.freeze({ x: 590, y: 1330, width: 144, height: 26, fontSize: 23 }),
+                hitbox: Object.freeze({ x: 554, y: 1164, width: 216, height: 206 })
             }),
             9: Object.freeze({
-                art: Object.freeze({ x: 45, y: 1340, width: 370, height: 245 }),
-                status: Object.freeze({ x: 145, y: 1613, width: 174, height: 40 }),
-                reward: Object.freeze({ x: 331, y: 1609, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 35, y: 1388, width: 390, height: 284 })
+                art: Object.freeze({ x: 220, y: 1269, width: 224, height: 214 }),
+                status: Object.freeze({ x: 263, y: 1438, width: 139, height: 26, fontSize: 22 }),
+                hitbox: Object.freeze({ x: 228, y: 1275, width: 208, height: 202 })
             }),
             10: Object.freeze({
-                art: Object.freeze({ x: 515, y: 1340, width: 370, height: 245 }),
-                status: Object.freeze({ x: 575, y: 1613, width: 176, height: 40 }),
-                reward: Object.freeze({ x: 763, y: 1609, width: 56, height: 56 }),
-                hitbox: Object.freeze({ x: 500, y: 1388, width: 405, height: 284 })
+                art: Object.freeze({ x: 524, y: 1401, width: 238, height: 222 }),
+                status: Object.freeze({ x: 569, y: 1576, width: 148, height: 27, fontSize: 23 }),
+                hitbox: Object.freeze({ x: 532, y: 1407, width: 222, height: 210 })
             })
         })
     });
 
     function rectStyle(rect) {
         return `left:${rect.x}px;top:${rect.y}px;width:${rect.width}px;height:${rect.height}px`;
+    }
+
+    function statusStyle(rect) {
+        return `${rectStyle(rect)};font-size:${rect.fontSize || 22}px;line-height:${rect.height}px`;
     }
 
     function computeRegion1StageGeometry(viewportWidth, viewportHeight) {
@@ -115,15 +109,6 @@
         if (status === "completed") return "CONCLUÍDA ✓";
         if (status === "available") return "DESBLOQUEADA";
         return "BLOQUEADA";
-    }
-
-    function rewardSymbol(rewards) {
-        const reward = Array.isArray(rewards) ? rewards[0] : null;
-        if (!reward) return "";
-        if (reward.type === "map_fragment") return "🧩";
-        if (reward.type === "chest") return "🎁";
-        if (reward.type === "pet") return "🐾";
-        return "";
     }
 
     function rewardLabel(rewards) {
@@ -181,7 +166,6 @@
             );
             const statusText = formatRegion1Status(status, isResume);
             const rewardText = rewardLabel(rewards);
-            const reward = rewardSymbol(rewards);
             const islandAsset = getRegion1IslandAsset(islandId, status);
             const unlockedAsset = TQ.content.assets.region1Modular.islands[islandId].unlocked;
 
@@ -197,12 +181,8 @@
                     </div>
 
                     <span class="region1-island-status"
-                        style="${rectStyle(layout.status)}"
+                        style="${statusStyle(layout.status)}"
                         aria-hidden="true">${statusText}</span>
-
-                    <span class="region1-island-reward"
-                        style="${rectStyle(layout.reward)}"
-                        aria-hidden="true">${reward}</span>
 
                     <button class="region1-island-hitbox"
                         type="button"
@@ -382,7 +362,6 @@
         islandLabel,
         renderRewardLabels,
         formatRegion1Status,
-        rewardSymbol,
         rewardLabel,
         getRegion1IslandAsset,
         createIslandEntryState,
