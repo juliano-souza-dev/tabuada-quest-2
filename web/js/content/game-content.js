@@ -13,9 +13,23 @@
         Object.freeze({ id: "tide-wheel", label: "Timão das marés", src: "./assets/frames/profile-frame-tide-wheel.webp" })
     ]);
 
-    const regions = Object.freeze(Array.from({ length: 11 }, (_, i) => Object.freeze({
+    const regionNames = Object.freeze([
+        "CORSÁRIO",
+        "NEBLINAS",
+        "CAVEIRAS",
+        "NÁUFRAGO",
+        "VULCÂNIA",
+        "RELÍQUIA",
+        "CORALINA",
+        "VENTANIA",
+        "MURALHAS",
+        "ZONA RUBI",
+        "FORTALEZA"
+    ]);
+
+    const regions = Object.freeze(regionNames.map((label, i) => Object.freeze({
         id: i + 1,
-        label: `Região ${i + 1}`,
+        label,
         islandsTotal: 10,
         isFinalRegion: i === 10
     })));
