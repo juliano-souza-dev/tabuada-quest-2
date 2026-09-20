@@ -1622,3 +1622,35 @@ Estado de fila:
 ```
 
 A nova issue não deve implementar progresso, estados, navegação, hitboxes, dados do jogador ou lógica de campanha. O gate visual deve acontecer antes da camada dinâmica.
+
+
+### Issue #25 — composição estática publicada
+
+A montagem estática da tela de Regiões foi implementada usando somente os dois assets aprovados.
+
+```text
+commit = f20fb59e8a4fa521a9d60f497ce21b69fd5dd73e
+Web Unit Tests = 35484685734 → success
+Web Preview    = 35484685658 → success
+preview        = https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+Implementação vigente da #25:
+
+- header/placa estático no topo;
+- mapa estático abaixo;
+- sem dados dinâmicos;
+- sem hitboxes;
+- sem estados;
+- sem navegação interna;
+- sem progresso;
+- sem HUD do jogador.
+
+Estado:
+
+```text
+#25 → AGUARDANDO VALIDAÇÃO VISUAL DO LÍDER
+#24 → permanece aberta como issue-pai
+#5  → permanece pausada
+#6  → permanece bloqueada
+```
