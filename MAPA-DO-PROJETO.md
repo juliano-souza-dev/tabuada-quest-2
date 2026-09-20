@@ -1235,3 +1235,18 @@ docs/validacao/ISSUE-005-verificacao-matriz.md
 ```
 
 O scheduler é domínio puro: não acessa DOM, localStorage ou componentes de tela.
+
+
+## Vertical slice textual — Issue #7
+
+Implementação temporária de fluxo:
+
+```text
+web/js/domain/gameplay-session.js
+web/js/screens/islands-screen.js
+web/js/screens/challenge-screen.js
+web/js/screens/result-screen.js
+web/css/screens/vertical-slice.css
+```
+
+A UI desta etapa é textual e funcional. Os contratos `data-action`, `data-island-id` e `data-answer` devem permanecer estáveis para posterior substituição por assets e hitboxes mapeados.
