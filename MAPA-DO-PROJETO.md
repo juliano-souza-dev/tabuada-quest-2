@@ -1294,13 +1294,15 @@ web/assets/regions/region-1/
 Assets:
 
 ```text
-background.png
+mapa_marítimo_do_corsário.png   # fundo canônico atual
 island-01-unlocked.png
 island-01-locked.png
 ...
 island-10-unlocked.png
 island-10-locked.png
 ```
+
+A tela CORSÁRIO atual renderiza somente 01–05. Os assets 06–10 permanecem preservados para a futura reorganização de navegação.
 
 Implementação:
 
@@ -1322,14 +1324,14 @@ Mapa pixel-perfect vigente:
 docs/arte/ISSUE-008-REGIAO1-PIXEL-MAP.md
 ```
 
-O novo fundo usa percurso serpenteado e coordenadas específicas por Ilha. Não voltar ao layout rígido de duas colunas.
+O fundo atual da CORSÁRIO usa cinco marcações de água e recebe cinco assets maiores. O mapa anterior de 10 Ilhas na mesma tela foi rejeitado e não deve voltar a ser usado como referência.
 
 Composição:
 
 ```text
-background fixo
+mapa_marítimo_do_corsário.png
 +
-10 Ilhas posicionadas por CSS
+5 Ilhas visíveis posicionadas por CSS
 +
 troca locked/unlocked pelo estado
 +
