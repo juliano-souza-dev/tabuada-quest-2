@@ -329,3 +329,24 @@ ALTERACAO_PEDIDA    = o que exatamente pode mudar
 DADOS_DINAMICOS     = o que deve permanecer fora da imagem
 ASSET_DECISION      = REUTILIZAR / ADAPTAR / CRIAR NOVO
 ```
+
+
+## Escopo visual: regra global x exceção local
+
+Toda orientação visual recebida deve preservar o escopo em que foi dada.
+
+- **GLOBAL:** altera o padrão visual compartilhado do produto ou de um componente explicitamente global.
+- **LOCAL:** altera somente a tela, componente, estado ou fluxo citado.
+
+Uma solicitação local nunca autoriza a Direção Visual a redesenhar o equivalente em outras telas.
+
+Exemplo aplicado:
+
+```text
+Tela de Regiões:
+header local = botão voltar + título "REGIÕES"
+
+Isso NÃO remove nem altera automaticamente HUDs/headers de outras telas.
+```
+
+Quando existir componente global com uma exceção local, a exceção deve ser tratada como variante específica da tela, e não como substituição do componente global.
