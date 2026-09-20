@@ -54,9 +54,26 @@ tests/web/           → testes automatizados
 
 ## Telas de Região
 
-A geometria visual aprovada é global.
+Contrato técnico-alvo:
 
-A geometria canônica já está promovida para configuração compartilhada:
+```text
+22 Regiões
+×
+5 Ilhas por Região
+=
+110 Ilhas
+```
+
+Não existem sub-regiões.
+
+Cada Região visual é uma entidade própria e possui uma única composição de 5 Ilhas. Não implementar uma Região como:
+
+- segunda página de outra Região;
+- sub-região;
+- Região interna;
+- continuação escondida com outras 5 Ilhas.
+
+A infraestrutura compartilhada continua sendo a direção correta:
 
 ```text
 REGION_LAYOUT
@@ -64,7 +81,17 @@ REGION_LAYOUT
 REGION_VISUAL_CONFIG
 ```
 
-Cada nova Região visual entra por configuração, preservando exatamente a mesma malha. Regiões sem assets visuais aprovados continuam no fallback textual até o handoff da Direção Visual.
+Porém, após a migração, cada entrada de `REGION_VISUAL_CONFIG` deve representar **uma Região real**, e não páginas que simulem subdivisões.
+
+Cada Região deve variar apenas o necessário:
+
+```text
+background
+assets das 5 Ilhas
+identidade
+slotLayout, somente quando aprovado pela Direção Visual
+hideIslands, somente como estado temporário de produção
+```
 
 Não criar:
 
@@ -74,66 +101,52 @@ REGION_3_LAYOUT
 ...
 ```
 
-nem duplicar renderer, coordenadas ou CSS por Região.
+nem duplicar renderer ou CSS por Região.
 
-Configuração por Região deve apontar apenas o que varia:
+### Legado atual a migrar
 
-```text
-background
-assets das 5 Ilhas
-identidade
-```
-
-A geometria compartilhada não pode alterar as coordenadas aprovadas pela Direção Visual.
-
-## CORSÁRIO 2
-
-CORSÁRIO 2 deve ser implementada como uma nova configuração da infraestrutura compartilhada de telas de Região.
-
-Ela reutiliza as unidades/identidades 06–10 da CORSÁRIO e as projeta nos cinco slots visuais compartilhados.
-
-Não criar renderer, layout ou CSS exclusivo para CORSÁRIO 2.
-
-A navegação deve preservar a continuidade:
+O código atual ainda contém a solução histórica:
 
 ```text
-CORSÁRIO 1 (01–05)
-→ CORSÁRIO 2 (06–10)
-→ próximo fluxo liberado pelo Orquestrador
+CORSÁRIO 1 → Ilhas 01–05
+CORSÁRIO 2 → Ilhas 06–10
+dentro da mesma Região usando REGION_VISUAL_CONFIG.pages
 ```
 
-A mesma Região pode possuir páginas visuais declaradas em `REGION_VISUAL_CONFIG.pages`.
+Essa arquitetura está **descontinuada**.
 
-Cada página declara somente o que muda na composição:
+Também permanecem no domínio constantes históricas equivalentes a:
 
 ```text
-backgroundId
-islandIds
-unlockAfterCompleted
-slotLayout (opcional, somente quando aprovado pela Direção Visual)
-hideIslands (temporário, somente quando liberado pela Direção Visual)
+11 Regiões
+10 Ilhas por Região
 ```
 
-Para a CORSÁRIO:
+Elas não devem ser copiadas ou ampliadas. A migração correta é para:
 
 ```text
-corsario-1 → Ilhas 01–05
-corsario-2 → Ilhas 06–10
+22 Regiões
+5 Ilhas por Região
 ```
 
-Enquanto os novos assets de Ilha não forem refeitos, ambas as páginas usam `hideIslands: true` e exibem apenas background, voltar e Mapa mundo.
+preservando as 110 Ilhas e o estado/progresso do jogador.
 
-Background canônico da segunda página:
+Enquanto os novos assets de Ilha não forem refeitos, as composições atuais da CORSÁRIO podem permanecer temporariamente com `hideIslands: true`, mas isso não altera a macroestrutura-alvo.
+
+### Status visual
+
+Estados de domínio como `locked`, `available` e `completed` continuam válidos internamente.
+
+Nenhuma Região renderiza status textual sobre as Ilhas. Não reintroduzir overlays com:
 
 ```text
-web/assets/regions/region-1/corsario-2-background.jpg
+BLOQUEADA
+DESBLOQUEADA
+CONCLUÍDA
+CONTINUAR
 ```
 
-A seleção da página visual usa a progressão já existente. Não alterar scheduler ou persistência apenas para realizar essa troca visual.
-
-Quando uma página possuir `slotLayout`, o renderer compartilhado usa esse mapa apenas para `art` e `hitbox` dos cinco slots. Stage, Back, Mapa mundo, eventos e CSS continuam compartilhados. Não criar renderer ou stylesheet exclusivo para a página.
-
-Quando `hideIslands: true`, a página não renderiza arte de Ilha nem hitbox. Essa flag é temporária e existe apenas para composições explicitamente liberadas pela Direção Visual.
+Acessibilidade deve comunicar estado por atributos/descrições acessíveis, sem status visual sobre a composição.
 
 ## Mapa mundo
 
