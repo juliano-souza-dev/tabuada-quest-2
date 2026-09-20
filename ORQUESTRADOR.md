@@ -584,6 +584,7 @@ Todo o trabalho realizado recentemente foi reconciliado dentro da #8:
 - arquitetura modular do fundo + Ilhas;
 - variantes `locked/unlocked`;
 - padrão visual global de criação de Ilhas;
+- convenção técnica `island-NN-unlocked / island-NN-locked`, alterando somente `NN`;
 - placa com nome canônico;
 - medalhões de recompensa baseados na recompensa real;
 - placa inferior vazia para status dinâmico;
