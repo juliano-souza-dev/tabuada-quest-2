@@ -2128,3 +2128,40 @@ Web Unit Tests = 35504831715 → success
 Web Preview    = 35504831701 → success
 Android Debug  = 35504831754 → success
 ```
+
+
+### Issue #7 — recompensas da Região 1 persistentes
+
+A distribuição estrutural da Região 1 foi integrada ao vertical slice e agora altera estado persistente real.
+
+```text
+I1  → PET 1
+I2  → Mapa 1 / fragmento 1
+I3  → Baú 1
+I4  → PET 2
+I5  → Mapa 1 / fragmento 2
+I6  → Baú 2
+I7  → PET 3
+I8  → Mapa 1 / fragmento 3
+I9  → Baú 3
+I10 → Mapa 1 / fragmento 4 → MAP_COMPLETE_MISSION_PENDING
+```
+
+Estado atualizado ao concluir Ilhas:
+
+```text
+petsRescuedIds
+claimedChestIds
+specialMaps["1"].fragments
+specialMaps["1"].missionStatus
+```
+
+O quarto fragmento é aplicado antes do fechamento da Região, portanto a Região 2 não é liberada enquanto a missão especial do Mapa 1 estiver pendente.
+
+Validação final:
+
+```text
+Web Unit Tests = 35504932854 → success
+Web Preview    = 35504932871 → success
+Android Debug  = 35504932870 → success
+```
