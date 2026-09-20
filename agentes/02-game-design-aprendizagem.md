@@ -99,6 +99,28 @@ REFORÇO
 
 a menos que Produto aprove explicitamente uma nova experiência visual.
 
+## Bônus de Tripulação
+
+Tripulantes contratados podem modificar recompensas econômicas futuras.
+
+Contrato inicial:
+
+```text
+Mestre de Convés   → custo 250 ouro → +5% XP
+Intendente         → custo 400 ouro → +5% ouro
+Lapidadora         → custo 600 ouro → +5% gemas
+```
+
+Esses valores são o balanceamento inicial e podem ser recalibrados sem alterar a regra do sistema.
+
+Regras de cálculo:
+
+- bônus percentuais da mesma categoria somam entre si;
+- o bônus é aplicado somente quando aquela recompensa é concedida;
+- não criar recompensa-base apenas para justificar um bônus;
+- a Tripulação não altera a quantidade de exercícios, dificuldade ou scheduler;
+- bônus econômicos não podem reduzir planned exposure nem substituir recovery.
+
 ## Recompensas
 
 Medalhões e recompensas mostrados nas artes devem refletir **somente a recompensa realmente configurada** para aquela Ilha.
