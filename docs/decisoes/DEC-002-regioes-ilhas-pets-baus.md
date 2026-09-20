@@ -249,6 +249,62 @@ Isso cria marcos de mapa completo nas Regiões:
 1, 3, 5, 7 e 10
 ```
 
+### Distribuição da Região 1 — CORSÁRIO
+
+A primeira Região distribui exatamente **3 PETs**, **3 baús normais** e os **4 fragmentos do Mapa 1**.
+
+| Ilha | Marco |
+|---:|---|
+| 1 | PET 1 para salvar |
+| 2 | Mapa 1 — fragmento 1/4 |
+| 3 | Baú normal #R1-1 |
+| 4 | PET 2 para salvar |
+| 5 | Mapa 1 — fragmento 2/4 |
+| 6 | Baú normal #R1-2 |
+| 7 | PET 3 para salvar |
+| 8 | Mapa 1 — fragmento 3/4 |
+| 9 | Baú normal #R1-3 |
+| 10 | Mapa 1 — fragmento 4/4 → **Mapa 1 completo** |
+
+Cadência:
+
+```text
+PET → MAPA → BAÚ
+PET → MAPA → BAÚ
+PET → MAPA → BAÚ
+MAPA COMPLETO
+```
+
+Regras:
+
+- exatamente um marco estrutural por Ilha;
+- nenhum baú divide Ilha com PET ou fragmento;
+- os 4 fragmentos não se repetem;
+- o quarto fragmento fica na Ilha 10;
+- a missão especial do Mapa 1 acontece após o fechamento da Região 1;
+- conteúdo interno dos baús e identidade visual/nome dos PETs serão definidos separadamente.
+
+Ledger parcial após a Região 1:
+
+```text
+BAÚS
+planejados   = 30
+distribuídos = 3
+restantes    = 27
+
+PETS
+planejados   = 30
+distribuídos = 3
+restantes    = 27
+
+FRAGMENTOS DOS 5 MAPAS
+planejados   = 20
+distribuídos = 4
+restantes    = 16
+```
+
+A recompensa de 1.000 diamantes da missão do Mapa 1 permanece separada e não consome PET nem baú.
+
 ### Regra especial da Região 1
 
 A Região 1 entrega um mapa completo.
