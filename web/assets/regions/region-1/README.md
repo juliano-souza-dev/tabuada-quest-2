@@ -2,35 +2,48 @@
 
 Pasta de assets modulares da tela de Ilhas da Região 1.
 
-Estrutura esperada:
+Estrutura canônica:
 
 ```text
-background.webp
-island-01-unlocked.webp
-island-01-locked.webp
-island-02-unlocked.webp
-island-02-locked.webp
-island-03-unlocked.webp
-island-03-locked.webp
-island-04-unlocked.webp
-island-04-locked.webp
-island-05-unlocked.webp
-island-05-locked.webp
-island-06-unlocked.webp
-island-06-locked.webp
-island-07-unlocked.webp
-island-07-locked.webp
-island-08-unlocked.webp
-island-08-locked.webp
-island-09-unlocked.webp
-island-09-locked.webp
-island-10-unlocked.webp
-island-10-locked.webp
+background.png
+
+island-01-unlocked.png
+island-01-locked.png
+island-02-unlocked.png
+island-02-locked.png
+island-03-unlocked.png
+island-03-locked.png
+island-04-unlocked.png
+island-04-locked.png
+island-05-unlocked.png
+island-05-locked.png
+island-06-unlocked.png
+island-06-locked.png
+island-07-unlocked.png
+island-07-locked.png
+island-08-unlocked.png
+island-08-locked.png
+island-09-unlocked.png
+island-09-locked.png
+island-10-unlocked.png
+island-10-locked.png
 ```
 
 Regras:
 
-- fundo contém apenas elementos fixos da Região;
+- `background.png` contém apenas a composição fixa da Região;
 - cada Ilha possui variante `unlocked` e `locked`;
-- a variante `locked` inclui sombra + cadeado;
-- status e recompensas continuam dinâmicos e não devem ser rasterizados nas Ilhas.
+- a variante `locked` contém o tratamento visual de bloqueio, incluindo sombra + cadeado;
+- as Ilhas são posicionadas por CSS sobre o fundo;
+- status, recompensa, hitbox e progresso continuam dinâmicos;
+- recuperação pedagógica não cria um estado visual de Ilha.
+
+Seleção em runtime:
+
+```text
+locked    → island-N-locked.png
+available → island-N-unlocked.png
+completed → island-N-unlocked.png
+```
+
+Se uma variante `locked` estiver ausente, a UI usa temporariamente a variante `unlocked` com fallback visual de bloqueio.
