@@ -350,3 +350,174 @@ Isso NÃO remove nem altera automaticamente HUDs/headers de outras telas.
 ```
 
 Quando existir componente global com uma exceção local, a exceção deve ser tratada como variante específica da tela, e não como substituição do componente global.
+
+
+## Padrão global obrigatório para criação de Ilhas
+
+Esta seção é a fonte de verdade visual para qualquer nova Ilha do Tabuada Quest 2.0.
+
+Antes de gerar uma Ilha, a Direção Visual deve consultar:
+
+```text
+1. Região a que a Ilha pertence
+2. nome canônico da Ilha
+3. identidade narrativa/visual da Ilha
+4. recompensa(s) realmente atribuída(s) à Ilha
+5. referência visual já aprovada da Região
+6. par de estados necessário: unlocked + locked
+```
+
+É proibido criar uma Ilha genérica e só depois tentar encaixar nome, recompensa ou tema.
+
+### O que é PADRÃO em todas as Ilhas
+
+Toda Ilha deve preservar a mesma gramática visual:
+
+- diorama 3D estilizado, infantil e premium;
+- universo pirata/marítimo mágico;
+- formas arredondadas e leitura imediata em tela pequena;
+- fundo transparente com alpha real;
+- enquadramento e escala consistentes dentro do conjunto da Região;
+- mesma composição-base entre a versão `unlocked` e a versão `locked`;
+- placa principal de madeira integrada à arte com o **nome canônico da Ilha**;
+- medalhão(ões) circulares de madeira junto à placa do nome mostrando **somente** as recompensas reais daquela Ilha;
+- placa inferior de madeira, vazia, abaixo do diorama, reservada para o texto dinâmico de status;
+- área segura para toque/hitbox definida pela implementação, sem exigir crop destrutivo;
+- acabamento de game mobile, com objeto principal legível antes dos microdetalhes.
+
+### Exceção local à regra geral de "sem texto"
+
+Para assets de Ilha, o **nome da Ilha pode e deve ser embutido na placa principal**.
+
+Essa exceção vale somente para o nome canônico da Ilha.
+
+Não embutir na arte:
+
+```text
+BLOQUEADA
+DESBLOQUEADA
+CONTINUAR
+CONCLUÍDA
+progresso
+CTA
+texto pedagógico
+```
+
+Esses textos continuam dinâmicos e usam a placa inferior vazia.
+
+### Medalhões de recompensa
+
+A quantidade de medalhões deve corresponder exatamente às recompensas configuradas para aquela Ilha.
+
+```text
+PET            → medalhão com patinha
+FRAGMENTO MAPA → medalhão com pedaço de pergaminho/mapa rasgado
+BAÚ            → medalhão com ícone de baú
+```
+
+Regras:
+
+- uma recompensa = um medalhão;
+- duas recompensas = dois medalhões;
+- sem segunda recompensa = não criar segundo medalhão vazio;
+- nunca mostrar patinha em Ilha que não recompensa PET;
+- nunca mostrar fragmento de mapa em Ilha que não recompensa fragmento;
+- nunca mostrar baú em Ilha que não recompensa baú;
+- não criar "campo de PET", espaço de fragmento ou qualquer ornamento de recompensa inexistente.
+
+A Direção Visual deve consultar a distribuição real de recompensas **antes** da geração.
+
+### Versão UNLOCKED
+
+A variante `unlocked` deve ter:
+
+- iluminação clara e convidativa;
+- cores completas e saturação compatível com a Região;
+- leitura nítida do marco principal;
+- placa do nome totalmente legível;
+- medalhões de recompensa legíveis;
+- placa inferior de status vazia;
+- nenhum cadeado ou corrente de bloqueio.
+
+### Versão LOCKED
+
+A variante `locked` deve preservar **a mesma Ilha, câmera, enquadramento, escala, nome, medalhões e placa inferior** da versão `unlocked`.
+
+Aplicar somente o tratamento de bloqueio:
+
+- leve sombra geral sobre a Ilha;
+- redução moderada de luminosidade, sem destruir a leitura;
+- corrente(s) e cadeado visíveis;
+- nome e recompensa permanecem reconhecíveis;
+- placa inferior continua vazia;
+- não redesenhar ou reposicionar elementos.
+
+A versão locked deve ser derivada visualmente da versão unlocked aprovada, não criada como uma Ilha diferente.
+
+### O que MUDA de uma Ilha para outra
+
+Cada Ilha deve possuir identidade própria derivada do seu nome e função narrativa.
+
+Podem variar:
+
+- marco visual principal;
+- topografia;
+- vegetação;
+- arquitetura;
+- objetos náuticos;
+- tipo de cais/porto/rochedo/praia;
+- elementos de navegação;
+- pequenos detalhes ambientais;
+- cor de destaque dentro da paleta da Região;
+- quantidade e tipo de medalhões de recompensa.
+
+A identidade da Ilha deve vir do próprio conceito, não da tabuada.
+
+Exemplos da Região CORSÁRIO:
+
+```text
+Porto da Âncora      → âncora monumental + porto/cais
+Enseada do Saque     → enseada escondida + elementos de saque/tesouro
+Rochedo da Bandeira  → formação rochosa + bandeira como marco
+Cais do Barril       → cais + barris como assinatura
+Baía do Farol        → farol como elemento-herói
+Atol do Timão        → timão como símbolo principal
+Ponta da Caravela    → caravelas/navegação como referência
+Praia das Cordas     → cordas e amarrações náuticas
+Ilha do Canhão       → canhão estilizado e não realista como marco
+Cabo do Capitão      → posto/cabo de comando com presença de capitão sem personagem obrigatório
+```
+
+### Regra de coerência temática
+
+A recompensa não substitui a identidade da Ilha.
+
+Exemplo:
+
+```text
+Porto da Âncora recompensa PET
+→ continua sendo um porto da âncora
+→ recebe apenas o medalhão de patinha
+→ não vira "Ilha dos PETs"
+```
+
+Do mesmo modo, uma Ilha de fragmento de mapa não deve virar um cenário inteiro de pergaminhos. O medalhão comunica a recompensa; o cenário comunica a identidade da Ilha.
+
+### Checklist obrigatório antes de gerar uma Ilha
+
+```text
+REGIÃO             = ?
+ILHA               = ?
+MARCO PRINCIPAL     = ?
+RECOMPENSA(S)       = ?
+MEDALHÕES           = quais e quantos?
+NOME NA PLACA       = confirmado
+PLACA DE STATUS     = presente e vazia
+UNLOCKED            = composição-base
+LOCKED              = mesma composição + leve sombra + corrente/cadeado
+FUNDO               = transparente
+ASSET_DECISION      = CRIAR NOVO / ADAPTAR
+REFERÊNCIA APROVADA = ?
+```
+
+Se qualquer resposta estiver indefinida, a arte não deve ser gerada.
