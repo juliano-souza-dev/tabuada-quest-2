@@ -1324,6 +1324,12 @@ Mapa pixel-perfect vigente:
 docs/arte/ISSUE-008-REGIAO1-PIXEL-MAP.md
 ```
 
+Padrão global obrigatório para todas as telas de Região:
+
+```text
+docs/arte/PADRAO-GLOBAL-REGIOES-5-ILHAS.md
+```
+
 O fundo atual da CORSÁRIO usa cinco marcações de água e recebe cinco assets maiores. O mapa anterior de 10 Ilhas na mesma tela foi rejeitado e não deve voltar a ser usado como referência.
 
 Composição:
@@ -1350,7 +1356,7 @@ completed → variante unlocked
 
 A composição monolítica anterior não é mais a arquitetura vigente.
 
-As Regiões 2–11 continuam temporariamente na apresentação textual até receberem seus próprios assets.
+As Regiões ainda sem arte permanecem temporariamente na apresentação textual. Quando forem promovidas para visual, devem reutilizar exatamente a malha global de 5 Ilhas; só background e identidade das Ilhas podem mudar.
 
 
 ### Padrão visual dos assets de Ilha
@@ -1423,12 +1429,12 @@ PNG transparente
 TQ.content.assets.global.worldMap
 ```
 
-Uso atual:
+Uso:
 
 ```text
-CORSÁRIO
+todas as telas de Região
 → canto inferior esquerdo
-→ abaixo da Ilha do Vulcão
+→ abaixo do slot da Ilha 04
 ```
 
 Layout atual:
@@ -1440,4 +1446,4 @@ w=200
 h=200
 ```
 
-O asset é global e pode ser reutilizado futuramente em outras telas de Região sem duplicação de arquivo.
+O asset é global e seu posicionamento é parte do padrão obrigatório das telas de Região. Não duplicar nem reposicionar por Região.
