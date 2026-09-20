@@ -39,3 +39,27 @@ test("recompensas estruturais da Região 1 persistem e o 4º fragmento bloqueia 
     assert.equal(s.campaign.completedRegionIds.includes(1),true);
     assert.equal(s.campaign.unlockedRegionIds.includes(2),false);
 });
+
+test("próxima Ilha entra em estado REVISAR quando há recuperação pendente",()=>{
+    let s=d.createInitialState();
+    s=d.completeIsland(s,1,1);
+    s={
+        ...s,
+        learning:{
+            ...s.learning,
+            regionStates:{
+                "1":{
+                    regionId:1,
+                    recoveryGap:2,
+                    mastery:{},
+                    recoveryQueue:[{key:"2x3",table:2,multiplier:3,remainingGap:1}],
+                    plannedExposureCount:20,
+                    recoveryAttemptCount:0
+                }
+            }
+        }
+    };
+    assert.equal(d.getIslandStatus(s,1,1),"completed");
+    assert.equal(d.getIslandStatus(s,1,2),"review");
+    assert.equal(d.hasPendingRecovery(s,1),true);
+});
