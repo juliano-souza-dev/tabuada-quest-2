@@ -2165,3 +2165,51 @@ Web Unit Tests = 35504932854 → success
 Web Preview    = 35504932871 → success
 Android Debug  = 35504932870 → success
 ```
+
+
+### Issue #7 — aprovada e encerrada
+
+O líder aprovou explicitamente o vertical slice textual.
+
+Entrega validada:
+
+```text
+Home
+→ Regiões
+→ Ilhas
+→ Desafio
+→ Feedback
+→ Resultado
+→ persistência
+```
+
+Também ficou integrada a distribuição estrutural da Região 1:
+
+```text
+I1  → PET 1
+I2  → Mapa 1 / fragmento 1
+I3  → Baú 1
+I4  → PET 2
+I5  → Mapa 1 / fragmento 2
+I6  → Baú 2
+I7  → PET 3
+I8  → Mapa 1 / fragmento 3
+I9  → Baú 3
+I10 → Mapa 1 / fragmento 4 → MAP_COMPLETE_MISSION_PENDING
+```
+
+Pipelines finais:
+
+```text
+Web Unit Tests = 35504932854 → success
+Web Preview    = 35504932871 → success
+Android Debug  = 35504932870 → success
+```
+
+Fluxo:
+
+```text
+#7 → CLOSED
+#8 → ATIVA
+#27 → permanece aberta como correção independente da Home / Moda
+```
