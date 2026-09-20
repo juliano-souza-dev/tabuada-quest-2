@@ -1674,3 +1674,38 @@ Nesta etapa:
 - dados dinâmicos continuam fora da #25.
 
 Estado: #25 aguardando validação visual do líder.
+
+
+### Issue #26 — camada dinâmica pixel-perfect de Regiões
+
+Criada para documentar e implementar a camada dinâmica sobre a base estática da #25.
+
+```text
+asset canônico = 941 × 1672
+botão voltar   = x8 y8 w112 h112
+slots R1-R10   = número + título + progresso/estado
+R11            = número + título + 0/9 + mapa final + Ilha 10 + Grande Baú
+```
+
+Fontes dinâmicas já existentes:
+
+```text
+campaign.currentRegionId
+campaign.unlockedRegionIds
+campaign.completedRegionIds
+campaign.regionProgress
+campaign.finalJourney
+getRegionStatus(...)
+```
+
+Fila:
+
+```text
+#25 → AGUARDANDO validação visual do líder
+#26 → CRIADA / BLOQUEADA até liberação após #25
+#24 → permanece issue-pai
+#5  → permanece pausada
+#6  → permanece bloqueada
+```
+
+Regra técnica central: imagem e overlays devem compartilhar o mesmo stage lógico `941 × 1672` e a mesma transformação de escala/crop.
