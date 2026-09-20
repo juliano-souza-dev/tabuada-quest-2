@@ -1434,3 +1434,42 @@ Direção Visual também recebeu contrato novo:
 - preservar composição já aprovada;
 - separar arte fixa de dados dinâmicos;
 - header da tela de Regiões deve reutilizar a linguagem visual da Home com slots vazios.
+
+
+### Issue #24 — prioridade imediata: Regiões
+
+Criada e ativada por decisão explícita do líder:
+
+```text
+#24 [M1-05A] Implementar tela de Regiões, navegação sequencial e arco final da Região 11
+```
+
+Estado do fluxo:
+
+```text
+#24 → ATIVA AGORA
+#5  → PAUSADA temporariamente
+#6  → BLOQUEADA
+```
+
+Escopo central da #24:
+
+- implementar a tela de Regiões com a composição visual aprovada;
+- manter dados dinâmicos fora da arte rasterizada;
+- reutilizar a linguagem visual do header da Home;
+- suportar 11 Regiões e navegação sequencial;
+- implementar o arco da Região 11: 9 fragmentos → Ilha 10 → Grande Baú Final;
+- preservar o Grande Baú Final fora do ledger dos 30 baús normais.
+
+Fluxo visual obrigatório:
+
+```text
+Orquestrador
+→ Direção Visual
+→ Desenvolvimento
+→ Orquestrador
+→ Direção Visual
+→ Qualidade
+→ Experience Validator
+→ Líder
+```
