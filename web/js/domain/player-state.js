@@ -1,6 +1,6 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STATE_VERSION = 5;
+    const STATE_VERSION = 6;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = 11;
@@ -31,6 +31,14 @@
         };
     }
 
+    function createLearningState() {
+        return {
+            activeSession: null,
+            regionStates: {},
+            lastResult: null
+        };
+    }
+
     function createInitialState() {
         return {
             schemaVersion: STATE_VERSION,
@@ -55,6 +63,7 @@
                 specialMaps: createSpecialMaps(),
                 diamonds: 0
             },
+            learning: createLearningState(),
             ui: { lastScreen: "home", homeBackgroundId: DEFAULT_HOME_BACKGROUND_ID }
         };
     }
@@ -118,7 +127,7 @@
             const unlocked = uniqueRegionIds(campaign.unlockedRegionIds);
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 5,
                 campaign: {
                     ...campaign,
                     unlockedRegionIds: unlocked.length ? unlocked : [1],
@@ -126,6 +135,14 @@
                     regionProgress: createRegionProgress(),
                     finalJourney: createFinalJourney()
                 }
+            };
+        }
+
+        if (migrated.schemaVersion === 5) {
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                learning: createLearningState()
             };
         }
 
@@ -153,6 +170,58 @@
             && ["finalMapCompleted", "island10Unlocked", "island10Completed", "finalGrandChestUnlocked", "finalGrandChestClaimed"]
                 .every((key) => typeof value[key] === "boolean")
         );
+    }
+
+    function validRegionLearningState(value) {
+        return Boolean(
+            isObject(value)
+            && Number.isInteger(value.regionId)
+            && value.regionId >= 1
+            && value.regionId <= TOTAL_REGIONS
+            && Number.isInteger(value.recoveryGap)
+            && value.recoveryGap >= 0
+            && isObject(value.mastery)
+            && Array.isArray(value.recoveryQueue)
+            && Number.isInteger(value.plannedExposureCount)
+            && value.plannedExposureCount >= 0
+            && Number.isInteger(value.recoveryAttemptCount)
+            && value.recoveryAttemptCount >= 0
+        );
+    }
+
+    function validActiveSession(value) {
+        return value === null || Boolean(
+            isObject(value)
+            && value.version === 1
+            && Number.isInteger(value.regionId)
+            && value.regionId >= 1
+            && value.regionId <= TOTAL_REGIONS
+            && Number.isInteger(value.islandId)
+            && value.islandId >= 1
+            && value.islandId <= ISLANDS_PER_REGION
+            && typeof value.seed === "string"
+            && Number.isInteger(value.plannedCursor)
+            && value.plannedCursor >= 0
+            && value.plannedCursor <= 20
+            && Number.isInteger(value.plannedAnswered)
+            && value.plannedAnswered >= 0
+            && value.plannedAnswered <= 20
+            && Number.isInteger(value.correctAnswers)
+            && value.correctAnswers >= 0
+            && Number.isInteger(value.wrongAnswers)
+            && value.wrongAnswers >= 0
+            && Number.isInteger(value.recoveryAnswers)
+            && value.recoveryAnswers >= 0
+            && Number.isInteger(value.totalAttempts)
+            && value.totalAttempts >= 0
+            && ["question", "feedback", "complete"].includes(value.phase)
+        );
+    }
+
+    function validLearning(value) {
+        if (!isObject(value) || !validActiveSession(value.activeSession) || !isObject(value.regionStates)) return false;
+        if (!Object.values(value.regionStates).every(validRegionLearningState)) return false;
+        return value.lastResult === null || isObject(value.lastResult);
     }
 
     function isValidState(value) {
@@ -191,6 +260,7 @@
             && isObject(value.campaign.specialMaps)
             && Number.isInteger(value.campaign.diamonds)
             && value.campaign.diamonds >= 0
+            && validLearning(value.learning)
             && isObject(value.ui)
             && typeof value.ui.lastScreen === "string"
             && typeof value.ui.homeBackgroundId === "string"
@@ -218,9 +288,26 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "regions"].includes(screenId)
+        return ["home", "regions", "islands", "challenge", "result"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
+    }
+
+    function getIslandStatus(state, regionId, islandId) {
+        const s = normalizeState(state);
+        if (!Number.isInteger(regionId) || !Number.isInteger(islandId)) return "locked";
+        if (regionId < 1 || regionId > TOTAL_REGIONS || islandId < 1 || islandId > ISLANDS_PER_REGION) return "locked";
+        if (!s.campaign.unlockedRegionIds.includes(regionId)) return "locked";
+
+        const key = `region-${regionId}-island-${islandId}`;
+        if (s.campaign.completedIslandIds.includes(key)) return "completed";
+
+        if (regionId === 11 && islandId === 10 && !s.campaign.finalJourney.island10Unlocked) {
+            return "locked";
+        }
+
+        const completed = s.campaign.regionProgress[String(regionId)].islandsCompleted;
+        return islandId === completed + 1 ? "available" : "locked";
     }
 
     function getRegionStatus(state, regionId) {
@@ -324,6 +411,56 @@
             : next;
     }
 
+    function getRegionLearningState(state, regionId) {
+        const s = normalizeState(state);
+        return s.learning.regionStates[String(regionId)] || null;
+    }
+
+    function withGameplaySession(state, session, regionState) {
+        const s = normalizeState(state);
+        if (!validActiveSession(session) || !validRegionLearningState(regionState)) return s;
+        return {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                currentRegionId: session.regionId,
+                currentIslandId: session.islandId
+            },
+            learning: {
+                ...s.learning,
+                activeSession: session,
+                regionStates: {
+                    ...s.learning.regionStates,
+                    [String(session.regionId)]: regionState
+                }
+            },
+            ui: { ...s.ui, lastScreen: "challenge" }
+        };
+    }
+
+    function updateGameplaySession(state, session, regionState) {
+        return withGameplaySession(state, session, regionState);
+    }
+
+    function completeGameplaySession(state, result, regionState) {
+        let s = normalizeState(state);
+        if (!isObject(result) || !validRegionLearningState(regionState)) return s;
+        s = completeIsland(s, result.regionId, result.islandId);
+        return {
+            ...s,
+            learning: {
+                ...s.learning,
+                activeSession: null,
+                lastResult: result,
+                regionStates: {
+                    ...s.learning.regionStates,
+                    [String(result.regionId)]: regionState
+                }
+            },
+            ui: { ...s.ui, lastScreen: "result" }
+        };
+    }
+
     function claimFinalGrandChest(state) {
         const s = normalizeState(state);
         if (!s.campaign.finalJourney.finalGrandChestUnlocked || s.campaign.finalJourney.finalGrandChestClaimed) return s;
@@ -346,6 +483,7 @@
         ISLANDS_PER_REGION,
         DEFAULT_HOME_BACKGROUND_ID,
         DEFAULT_PROFILE_FRAME_ID,
+        createLearningState,
         createInitialState,
         migrateState,
         isValidState,
@@ -353,10 +491,15 @@
         withHomeBackground,
         withProfileFrame,
         withLastScreen,
+        getIslandStatus,
         getRegionStatus,
         selectRegion,
         completeIsland,
         unlockNextRegionIfEligible,
+        getRegionLearningState,
+        withGameplaySession,
+        updateGameplaySession,
+        completeGameplaySession,
         claimFinalGrandChest
     });
 })(globalThis);
