@@ -263,31 +263,37 @@ Esses pontos deverão ser fechados por Produto e Game Design antes da implementa
 
 ## Fechamento dos pontos abertos — Issue #5
 
-Os pontos numéricos e operacionais desta decisão foram fechados em:
+A matriz executável está definida em:
 
 ```text
 docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
 ```
 
-Valores aprovados para a V1:
+A campanha final possui 11 Regiões e 110 Ilhas.
+
+A decisão posterior de Produto que adicionou a 11ª Região também aprovou o aumento proporcional de exposição. Por isso, a regra original de equivalência absoluta com a campanha de referência é substituída, apenas neste ponto, pela preservação da **densidade pedagógica por Ilha e por Região**.
+
+Valores vigentes:
 
 ```text
-X = 200 plannedExposure por tabuada
+20 plannedExposure por Ilha
+200 plannedExposure por Região
 20 plannedExposure por tabuada / Região
 2 plannedExposure por operação / Região
-20 plannedExposure por operação / campanha
-20 plannedExposure por Ilha
-2.000 plannedExposure na campanha
+
+X = 220 plannedExposure por tabuada / campanha
+22 plannedExposure por operação / campanha
+2.200 plannedExposure na campanha
 ```
 
 Progressão de mistura:
 
 ```text
-Regiões 1-2  → 2 tabuadas por Ilha
-Regiões 3-4  → 3 tabuadas por Ilha
-Regiões 5-6  → 4 tabuadas por Ilha
-Regiões 7-8  → 5 tabuadas por Ilha
-Regiões 9-10 → 10 tabuadas por Ilha
+Regiões 1-2   → K=2
+Regiões 3-4   → K=3
+Regiões 5-6   → K=4
+Regiões 7-8   → K=5
+Regiões 9-11  → K=10
 ```
 
-A DEC-004 passa a ser a especificação executável para a Issue #6.
+A separação entre `plannedExposure` e `recoveryAttempt` continua obrigatória.

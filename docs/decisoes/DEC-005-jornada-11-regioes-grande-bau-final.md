@@ -75,9 +75,25 @@ desbloqueia a Ilha 10
 
 ## Impacto pedagógico
 
-A criação da Região 11 invalida a distribuição numérica fechada na primeira versão da DEC-004.
+A matriz para 11 Regiões foi fechada na DEC-004 atualizada.
 
-A nova matriz precisa ser recalculada antes da implementação da Issue #6.
+A Região 11 participa integralmente do scheduler com:
+
+```text
+K = 10
+10 Ilhas
+20 plannedExposure por Ilha
+200 plannedExposure na Região
+2 plannedExposure por operação / Região
+```
+
+A campanha completa passa a possuir:
+
+```text
+2.200 plannedExposure
+220 por tabuada
+22 por operação
+```
 
 Permanecem obrigatórios:
 
@@ -86,6 +102,8 @@ Permanecem obrigatórios:
 - plannedExposure separado de recoveryAttempt;
 - recuperação após erro;
 - invariantes automatizáveis.
+
+Os nove fragmentos do Mapa Final e o Grande Baú Final são marcos narrativos/progressivos e não alteram as cotas pedagógicas.
 
 ## Impacto visual
 

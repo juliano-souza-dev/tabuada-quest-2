@@ -1,98 +1,93 @@
-# DEC-004 — Scheduler pedagógico V1 e carga equivalente ao jogo de referência
+# DEC-004 — Scheduler pedagógico V2 para campanha de 11 Regiões
 
 **Status:** Aprovado para implementação  
-**Data:** 2026-09-19  
+**Data:** 2026-09-20  
 **Responsáveis principais:** Produto + Game Design e Aprendizagem  
 **Origem:** Issue #5  
 **Impacta:** scheduler, geração de desafios, recuperação após erro, testes de invariantes e progressão pedagógica
 
-## 1. Medição da referência
+## 1. Decisão de Produto que altera a V1
 
-No jogo de referência:
-
-- existem 10 Portais;
-- cada Portal possui 10 Mundos;
-- cada Mundo corresponde a uma tabuada;
-- o Mundo inicia com as operações `n×1` até `n×10`;
-- cada operação precisa de 2 acertos consecutivos para ser dominada;
-- um erro zera a sequência daquela operação e a recoloca na fila;
-- repetições causadas por erro aumentam o número real de tentativas, mas não fazem parte da carga curricular planejada.
-
-No 2.0:
+A campanha passou de:
 
 ```text
-Portal → Região
-Mundo  → Ilha
+10 Regiões
+100 Ilhas
 ```
 
-## 2. Valor de X
-
-Cada tabuada possui, por Região, 10 operações e 2 exposições planejadas por operação:
+para:
 
 ```text
-10 operações × 2 exposições = 20 plannedExposure por tabuada / Região
+11 Regiões
+110 Ilhas
 ```
 
-Como existem 10 Regiões:
+A expansão é intencional e acrescenta uma Região completa ao arco pedagógico.
+
+Por isso, a equivalência com a referência passa a ser preservada na **densidade por Região e por Ilha**, e não mais no total absoluto da campanha.
+
+A densidade aprovada continua sendo:
 
 ```text
-X = 20 × 10 = 200 plannedExposure por tabuada na campanha
+20 plannedExposure por Ilha
+200 plannedExposure por Região
+20 plannedExposure por tabuada / Região
+2 plannedExposure por operação / Região
 ```
+
+Como a campanha ganhou 10% mais Ilhas, a carga planejada total também cresce 10%.
+
+## 2. Totais oficiais da campanha
+
+```text
+11 Regiões × 10 Ilhas = 110 Ilhas
+
+110 Ilhas × 20 plannedExposure
+= 2.200 plannedExposure na campanha
+```
+
+Para cada tabuada:
+
+```text
+20 plannedExposure / Região × 11 Regiões
+= X = 220 plannedExposure por tabuada
+```
+
+Para cada operação individual, por exemplo `7×8`:
+
+```text
+2 plannedExposure / Região × 11 Regiões
+= 22 plannedExposure por operação na campanha
+```
+
+Conferências equivalentes:
+
+```text
+10 tabuadas × 220 = 2.200
+100 operações × 22 = 2.200
+11 Regiões × 200 = 2.200
+110 Ilhas × 20 = 2.200
+```
+
+## 3. Unidade fixa da Ilha
+
+Toda Ilha comum, inclusive as 10 Ilhas da Região 11, contém exatamente:
+
+```text
+20 plannedExposure
+```
+
+Tentativas criadas por erro não entram nessa conta.
 
 Logo:
 
 ```text
-plannedExposure(T1)  = 200
-plannedExposure(T2)  = 200
-...
-plannedExposure(T10) = 200
+plannedExposure(island) = 20
 ```
 
-Carga planejada global:
+para todas as 110 Ilhas.
 
-```text
-10 tabuadas × 200 = 2.000 plannedExposure
-```
-
-Cada operação individual, por exemplo `7×8`, possui:
-
-```text
-2 plannedExposure / Região × 10 Regiões = 20 plannedExposure
-```
-
-### Distinção importante
-
-Existem 100 identidades de operação:
-
-```text
-10 tabuadas × 10 multiplicadores = 100 operações
-```
-
-Mas a carga de exposição não é 100 por tabuada. Cada operação precisa de duas oportunidades planejadas em cada Região, preservando a regra de dois acertos consecutivos da referência.
-
-## 3. Unidade fixa de uma Ilha
-
-Cada Região possui:
-
-```text
-10 Ilhas
-```
-
-Cada Região precisa distribuir:
-
-```text
-10 tabuadas × 20 exposições = 200 plannedExposure
-```
-
-Portanto cada Ilha recebe exatamente:
-
-```text
-200 / 10 = 20 plannedExposure
-```
-
-A quantidade de tentativas reais pode ser maior que 20 quando existirem erros.
-
-## 4. Progressão de interleaving por Região
+## 4. Progressão de interleaving
 
 Quantidade de tabuadas distintas que coexistem em cada Ilha:
 
@@ -108,14 +103,15 @@ Quantidade de tabuadas distintas que coexistem em cada Ilha:
 | 8 | 5 | 5 |
 | 9 | 10 | 6 |
 | 10 | 10 | 6 |
+| 11 | 10 | 6 |
 
-O interleaving aumenta por estágios:
+Progressão:
 
 ```text
-2 → 3 → 4 → 5 → 10 tabuadas por Ilha
+2 → 3 → 4 → 5 → 10 → 10 → 10
 ```
 
-As duas Regiões finais trabalham com mistura completa.
+A Região 11 mantém mistura completa. Ela é o fechamento do percurso, não uma volta a blocos de tabuada.
 
 ## 5. Algoritmo determinístico de composição
 
@@ -126,22 +122,22 @@ island = 1..10
 role   = 0..K-1
 ```
 
-A tabuada associada a um papel dentro da Ilha é:
+A tabuada associada ao papel dentro da Ilha é:
 
 ```text
 table = 1 + ((island - 1 + role) mod 10)
 ```
 
-Assim:
+Consequências:
 
 - cada Ilha contém exatamente K tabuadas distintas;
 - cada tabuada ocupa cada papel exatamente uma vez ao longo das 10 Ilhas;
-- a soma das cotas de cada papel é sempre 20;
-- cada tabuada recebe exatamente 20 plannedExposure por Região.
+- cada tabuada recebe exatamente 20 plannedExposure por Região;
+- cada operação recebe exatamente 2 plannedExposure por Região.
 
 ## 6. Multiplicadores por papel
 
-Os conjuntos abaixo são a fonte de verdade da matriz V1.
+Os conjuntos permanecem os mesmos da matriz V1.
 
 ### K = 2
 
@@ -187,8 +183,6 @@ Cotas:
 5 + 5 + 5 + 5 = 20
 ```
 
-As duas exposições da mesma operação ficam separadas por dois papéis.
-
 ### K = 5
 
 ```text
@@ -205,7 +199,7 @@ Cotas:
 4 + 4 + 4 + 4 + 4 = 20
 ```
 
-Cada multiplicador aparece duas vezes, com separação de dois papéis.
+Cada multiplicador aparece exatamente duas vezes.
 
 ### K = 10
 
@@ -228,84 +222,53 @@ Cotas:
 2 × 10 papéis = 20
 ```
 
-As duas exposições da mesma operação ficam separadas por cinco papéis.
+Esse conjunto é usado nas Regiões 9, 10 e 11.
 
-## 7. Exemplo
+## 7. Ordem de apresentação
 
-### Região 5, Ilha 1
+A matriz define o multiconjunto obrigatório de cada Ilha.
 
-A Região 5 usa K=4.
+A ordem pode variar desde que:
 
-Aplicando a fórmula:
+1. as 20 plannedExposure sejam preservadas;
+2. nenhuma operação seja adicionada ou removida;
+3. a mesma operação não apareça duas vezes seguidas;
+4. sejam evitadas mais de duas questões consecutivas da mesma tabuada;
+5. uma seed produza ordem reproduzível em testes.
 
-```text
-role 0 → tabuada 1 → ×1, ×2, ×3, ×4, ×5
-role 1 → tabuada 2 → ×6, ×7, ×8, ×9, ×10
-role 2 → tabuada 3 → ×1, ×2, ×3, ×4, ×5
-role 3 → tabuada 4 → ×6, ×7, ×8, ×9, ×10
-```
+Aleatoriedade altera ordem, nunca cota.
 
-Total:
-
-```text
-20 plannedExposure
-4 tabuadas distintas
-nenhuma operação duplicada dentro da mesma Ilha
-```
-
-Nas Ilhas seguintes os papéis avançam ciclicamente. Ao fim da Região, cada uma das 10 tabuadas terá exatamente 20 exposições e cada operação terá aparecido exatamente duas vezes.
-
-## 8. Ordem de apresentação
-
-A matriz define o multiconjunto obrigatório.
-
-A ordem das 20 exposições dentro da Ilha pode variar, mas deve respeitar:
-
-1. não alterar quantidades;
-2. não remover nem duplicar plannedExposure;
-3. não apresentar a mesma operação duas vezes seguidas;
-4. evitar mais de duas questões consecutivas da mesma tabuada;
-5. usar ordem reproduzível em testes quando uma seed for fornecida.
-
-A aleatoriedade, quando existir, altera apenas a ordem, nunca a matriz.
-
-## 9. plannedExposure e recoveryAttempt
+## 8. plannedExposure e recoveryAttempt
 
 ### plannedExposure
 
-Uma entrada da matriz curricular base.
+É uma entrada da matriz curricular base.
 
-Regras:
-
-- existe independentemente do desempenho do jogador;
-- é contabilizada exatamente uma vez quando apresentada;
-- nunca é criada por erro;
-- nunca é removida porque houve uma recuperação.
+- existe independentemente do desempenho;
+- é contabilizada uma única vez quando apresentada;
+- não é criada por erro;
+- não desaparece por causa de recuperação.
 
 ### recoveryAttempt
 
-Uma tentativa criada por erro.
+É uma tentativa criada por erro.
 
-Regras:
-
-- não incrementa a cota curricular;
-- não substitui plannedExposure;
+- não incrementa plannedExposure;
+- não substitui uma exposição planejada;
 - não altera X;
-- pode existir várias vezes para a mesma operação;
-- desaparece quando a condição de recuperação é satisfeita.
+- pode ocorrer várias vezes para a mesma operação;
+- deixa de existir quando a condição de recuperação é satisfeita.
 
-Contadores independentes:
+Contadores:
 
 ```text
 plannedExposureCount
 recoveryAttemptCount
 ```
 
-## 10. Regra de dois acertos consecutivos
+## 9. Regra de dois acertos consecutivos
 
-A regra da referência é preservada no estado pedagógico da operação dentro da Região.
-
-Para cada operação:
+Para cada operação dentro da Região:
 
 ```text
 correctStreak = 0..2
@@ -324,72 +287,80 @@ correctStreak = 0
 scheduleRecovery(operation)
 ```
 
-Tanto plannedExposure quanto recoveryAttempt podem contribuir para o correctStreak.
+Como toda operação possui exatamente duas plannedExposure por Região, a matriz continua compatível com a regra de dois acertos consecutivos sem criar uma categoria extra de tentativa.
 
-O tipo da tentativa e o estado de domínio são conceitos diferentes.
-
-## 11. Recuperação após erro
+## 10. Recuperação após erro
 
 Ao errar:
 
-1. a tentativa atual mantém seu tipo original;
-2. `correctStreak` da operação volta para 0;
-3. uma recuperação é agendada;
-4. ela só fica elegível depois de `recoveryGap` outras tentativas;
-5. se a recuperação também for errada, uma nova recoveryAttempt é agendada;
-6. enquanto a operação não atingir `correctStreak = 2`, ela pode continuar retornando por recuperação;
-7. atingir streak 2 cancela qualquer recuperação pendente da mesma operação.
+1. a tentativa mantém seu tipo original;
+2. `correctStreak` volta a 0;
+3. uma recoveryAttempt é agendada;
+4. ela fica elegível após `recoveryGap` outras tentativas;
+5. erro em recuperação gera nova recoveryAttempt;
+6. atingir `correctStreak = 2` cancela recuperação pendente da mesma operação.
 
-`recoveryGap` é definido pela tabela da seção 4.
+A fila de recuperação pertence à Região e pode atravessar Ilhas.
 
-### Fronteira entre Ilhas
-
-A fila de recuperação pertence à Região, não exclusivamente à Ilha.
-
-Uma recuperação ainda não elegível ao final de uma Ilha pode atravessar para a Ilha seguinte.
-
-A Região só é considerada pedagogicamente concluída quando:
+A Região só é pedagogicamente concluída quando:
 
 ```text
-todos os 200 plannedExposure foram apresentados
+200 plannedExposure apresentados
 AND
-não existem recoveryAttempt pendentes
+nenhuma recoveryAttempt pendente
 AND
-todas as 100 operações estão com correctStreak = 2
+100 operações com correctStreak = 2
 ```
 
-### Caso terminal
+No fim da Região, se o gap integral não puder ser satisfeito sem deadlock, ele pode ser reduzido progressivamente. Essa redução não cria plannedExposure.
 
-Depois da última plannedExposure da Região, o scheduler continua consumindo a fila de recuperação.
+## 11. Região 11
 
-Se não houver tentativas distintas suficientes para satisfazer integralmente o gap alvo, o gap pode ser reduzido progressivamente até evitar deadlock.
+A Região 11 participa integralmente do scheduler.
 
-Essa redução terminal:
+Ela usa:
 
-- não cria plannedExposure;
-- não muda cotas;
-- só afeta a distância da recuperação.
+```text
+K = 10
+20 plannedExposure por Ilha
+200 plannedExposure na Região
+20 plannedExposure por tabuada
+2 plannedExposure por operação
+recoveryGap = 6
+```
+
+As Ilhas 1..9 continuam entregando os nove fragmentos do Mapa Final conforme DEC-005.
+
+A Ilha 10 continua sendo o fechamento do arco final.
+
+O significado narrativo dos fragmentos e do Grande Baú não altera as cotas pedagógicas da Região.
 
 ## 12. Invariantes obrigatórios
 
-Para cada Região:
+Por Ilha:
 
 ```text
-islands = 10
-plannedExposure por Ilha = 20
-plannedExposure total = 200
+plannedExposure = 20
+tabuadas distintas = K da Região
+```
+
+Por Região:
+
+```text
+Ilhas = 10
+plannedExposure = 200
 plannedExposure por tabuada = 20
 plannedExposure por operação = 2
 ```
 
-Para a campanha:
+Por campanha:
 
 ```text
-Regiões = 10
-Ilhas = 100
-plannedExposure total = 2.000
-plannedExposure por tabuada = 200
-plannedExposure por operação = 20
+Regiões = 11
+Ilhas = 110
+plannedExposure total = 2.200
+plannedExposure por tabuada = 220
+plannedExposure por operação = 22
 ```
 
 Erros:
@@ -405,11 +376,12 @@ Cobertura:
 para toda tabuada n ∈ [1,10]
 para todo multiplicador m ∈ [1,10]
 plannedExposure(n,m,Região) = 2
+plannedExposure(n,m,campanha) = 22
 ```
 
 ## 13. Contrato para Desenvolvimento
 
-A Issue #6 deve implementar no domínio, sem dependência da UI:
+A implementação de domínio deve representar, no mínimo:
 
 ```text
 RegionPlan
@@ -420,74 +392,38 @@ RecoveryQueue
 OperationMasteryState
 ```
 
-A implementação deve ser capaz de provar os invariantes acima com testes automatizados.
+A geração deve ser independente da UI e demonstrável por testes automatizados.
 
 ## 14. Impacto de Produto
 
-Nenhum total estrutural é alterado:
+A expansão de 100 para 110 Ilhas aumenta a carga planejada da campanha de:
 
 ```text
-10 Regiões
-10 Ilhas por Região
-100 Ilhas
-10 tabuadas
-10 operações por tabuada
+2.000 → 2.200 plannedExposure
 ```
 
-A mudança reorganiza a prática. Não aumenta a carga curricular planejada em relação à referência.
+Aumento:
 
-A duração real de uma Região pode crescer em caso de erros, assim como ocorria no jogo de referência.
+```text
++200 plannedExposure
++10%
+```
+
+Esse aumento é proporcional ao crescimento estrutural de 10%.
+
+A densidade pedagógica não muda:
+
+```text
+20 plannedExposure por Ilha
+200 por Região
+```
 
 ## 15. Decisão final
 
 ```text
-X = 200 plannedExposure por tabuada
+X = 220 plannedExposure por tabuada
+plannedExposure total = 2.200
+plannedExposure por operação = 22
 ```
 
-A matriz e as regras desta decisão fecham os pontos pedagógicos deixados em aberto pela DEC-001 para a V1.
-
-
-## REVISÃO OBRIGATÓRIA — campanha agora possui 11 Regiões
-
-A estrutura de campanha foi alterada após esta decisão.
-
-Nova macroestrutura:
-
-```text
-11 Regiões
-10 Ilhas por Região
-110 Ilhas
-Região 11 = arco final com mapa de 9 fragmentos + Ilha 10
-```
-
-Consequência:
-
-**a matriz numérica desta DEC-004 não pode ser implementada pela Issue #6 enquanto não for redistribuída para a nova campanha.**
-
-Os conceitos abaixo continuam válidos:
-
-- `plannedExposure`;
-- `recoveryAttempt`;
-- separação entre cota curricular e recuperação;
-- cobertura `n×1...n×10`;
-- regra de recuperação após erro;
-- necessidade de invariantes testáveis.
-
-Os valores abaixo ficam **suspensos como fonte de implementação**:
-
-```text
-10 Regiões
-2.000 plannedExposure totais
-X = 200 por tabuada
-matriz K definida para R1..R10
-```
-
-Produto + Game Design devem recalcular a distribuição pedagógica considerando:
-
-1. progressão sequencial entre Regiões;
-2. introdução/revisão de tabuadas coerente com a sensação de viagem;
-3. Região 11 e suas 10 Ilhas;
-4. aumento de exposição pretendido pelo Produto;
-5. manutenção da separação plannedExposure/recoveryAttempt.
-
-Até essa revisão, a Issue #6 permanece bloqueada para implementação.
+Esta versão substitui os totais da primeira versão da DEC-004 e é a fonte de verdade para a campanha de 11 Regiões.
