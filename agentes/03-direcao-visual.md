@@ -224,9 +224,33 @@ Ilha 09
 Ilha 10
 ```
 
-Os assets existentes correspondentes são a referência aprovada a ser reaproveitada/adaptada para os cinco slots da malha canônica. Eles não devem ser redesenhados apenas por terem mudado de tela.
+Os assets existentes correspondentes são a referência aprovada e não devem ser redesenhados apenas por terem mudado de tela.
 
-A tela CORSÁRIO 2 usa a mesma geometria global de 5 slots, statusBox, hitboxes, Mapa mundo, rota e respiro definidos pela CORSÁRIO 1.
+O stage permanece canônico em `941 × 1672`. Back e Mapa mundo permanecem globais.
+
+O fundo aprovado da CORSÁRIO 2 possui marcações próprias de água. Portanto a página usa um pixel-map de slots próprio, calculado sobre o próprio background, sem alterar tamanho dos assets e sem criar outro renderer.
+
+Centros de encaixe aprovados:
+
+```text
+Ilha 06 → (248, 528)
+Ilha 07 → (699, 527)
+Ilha 08 → (472, 799)
+Ilha 09 → (226, 1055)
+Ilha 10 → (718, 1056)
+```
+
+Retângulos canônicos da CORSÁRIO 2:
+
+```text
+06 art 58,338,380,380   status 146,644,204,42   hitbox 72,352,352,352
+07 art 509,337,380,380  status 597,643,204,42   hitbox 523,351,352,352
+08 art 272,599,400,400  status 364,921,216,44   hitbox 287,614,370,370
+09 art 29,857,395,395   status 120,1175,213,44  hitbox 44,872,365,365
+10 art 518,856,400,400  status 610,1178,216,44  hitbox 533,871,370,370
+```
+
+A composição continua obedecendo à regra de cinco Ilhas + Mapa mundo. A diferença é apenas o posicionamento dos cinco slots para coincidir pixel-perfect com as marcações do background aprovado.
 
 ## O que muda entre Regiões
 
