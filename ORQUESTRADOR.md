@@ -2047,3 +2047,17 @@ Fluxo:
 #7 → ATIVA
 #27 → permanece independente no backlog da Home / Moda
 ```
+
+
+### Issue #7 — estratégia textual temporária
+
+Decisão de execução do vertical slice:
+
+```text
+agora  → UI textual funcional + Logic completa
+depois → assets aprovados + botões/hitboxes mapeados
+```
+
+Objetivo: validar o fluxo jogável sem fazer a produção visual bloquear a integração do scheduler, persistência e gameplay.
+
+A Logic deve permanecer independente de coordenadas e assets. Os controles temporários devem usar contratos semânticos estáveis para permitir substituição visual posterior.
