@@ -24,6 +24,7 @@
             home: TQ.screens.home.renderHomeScreen,
             regions: TQ.screens.regions.renderRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,
+            travel: TQ.screens.travel.renderIslandTravelScreen,
             challenge: TQ.screens.challenge.renderChallengeScreen,
             result: TQ.screens.result.renderResultScreen
         };
