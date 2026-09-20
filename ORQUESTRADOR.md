@@ -2345,3 +2345,63 @@ COMPLETED → CONCLUÍDA
 `CONTINUAR` é ação contextual quando existe sessão ativa, não estado.
 
 A recuperação pedagógica continua no scheduler e na recoveryQueue, mas não altera o estado visual da Ilha.
+
+
+### Issue #8 — assets locais integrados na Região 1
+
+Os assets preparados localmente pelo líder foram integrados à montagem modular.
+
+Fonte:
+
+```text
+web/assets/regions/region-1/
+```
+
+Implementação:
+
+```text
+background.png
++
+island-01..10-unlocked.png
++
+island-01..10-locked.png
++
+CSS positioning
++
+overlays dinâmicos
+```
+
+Seleção em runtime:
+
+```text
+LOCKED    → variante locked
+AVAILABLE → variante unlocked
+COMPLETED → variante unlocked
+```
+
+`CONTINUAR` permanece ação contextual de sessão ativa.
+
+Status e recompensas continuam dinâmicos e não estão embutidos nas Ilhas.
+
+Situação dos assets recebidos:
+
+```text
+background.png           = presente
+island-01..09 unlocked   = presentes
+island-01..09 locked     = presentes
+island-10-unlocked.png   = presente
+island-10-locked.png     = AUSENTE
+```
+
+Enquanto `island-10-locked.png` estiver ausente, a UI usa fallback automático:
+variante unlocked escurecida + cadeado visual. Assim que o arquivo correto for adicionado com o nome esperado, ele passa a ser usado sem mudança de código.
+
+Validação técnica:
+
+```text
+Web Unit Tests = 35511485966 → success
+Web Preview    = 35511485972 → success
+Android Debug  = 35511485974 → success
+```
+
+A #8 permanece em validação visual da montagem modular da Região 1.
