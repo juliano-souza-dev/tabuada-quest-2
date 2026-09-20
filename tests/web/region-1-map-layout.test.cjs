@@ -51,6 +51,36 @@ test("CORSÁRIO 2 usa fundo próprio e reaproveita Ilhas 06–10", () => {
     assert.equal(page.background, content.assets.region1Modular.backgrounds[2]);
 });
 
+test("CORSÁRIO 2 usa pixel-map próprio sem duplicar renderer", () => {
+    const state = {
+        campaign: {
+            regionProgress: {
+                "1": { islandsCompleted: 5, islandsTotal: 10 }
+            }
+        }
+    };
+
+    const page = islands.getRegionVisualPage(state, 1);
+    const expected = {
+        1: { art: [58,338,380,380], status: [146,644,204,42], hitbox: [72,352,352,352] },
+        2: { art: [509,337,380,380], status: [597,643,204,42], hitbox: [523,351,352,352] },
+        3: { art: [272,599,400,400], status: [364,921,216,44], hitbox: [287,614,370,370] },
+        4: { art: [29,857,395,395], status: [120,1175,213,44], hitbox: [44,872,365,365] },
+        5: { art: [518,856,400,400], status: [610,1178,216,44], hitbox: [533,871,370,370] }
+    };
+
+    function rectTuple(rect) {
+        return [rect.x, rect.y, rect.width, rect.height];
+    }
+
+    for (const slotId of islands.REGION_LAYOUT.visibleIslandIds) {
+        const slot = page.slotLayout[slotId];
+        assert.deepEqual(rectTuple(slot.art), expected[slotId].art);
+        assert.deepEqual(rectTuple(slot.status), expected[slotId].status);
+        assert.deepEqual(rectTuple(slot.hitbox), expected[slotId].hitbox);
+    }
+});
+
 test("CORSÁRIO 1 permanece ativo antes da conclusão da Ilha 05", () => {
     const state = {
         campaign: {
