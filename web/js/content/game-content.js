@@ -187,7 +187,52 @@
             homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2228",
             regionsMap: "./assets/regions/regions-map-base.webp?v=20260920-0318",
             regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
-            region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130"
+            region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130",
+            region1Modular: Object.freeze({
+                background: "./assets/regions/region-1/background.png?v=20260920-1245",
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-01-locked.png?v=20260920-1245"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-02-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-02-locked.png?v=20260920-1245"
+                    }),
+                    3: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-03-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-03-locked.png?v=20260920-1245"
+                    }),
+                    4: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-04-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-04-locked.png?v=20260920-1245"
+                    }),
+                    5: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-05-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-05-locked.png?v=20260920-1245"
+                    }),
+                    6: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-06-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-06-locked.png?v=20260920-1245"
+                    }),
+                    7: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-07-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-07-locked.png?v=20260920-1245"
+                    }),
+                    8: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-08-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-08-locked.png?v=20260920-1245"
+                    }),
+                    9: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-09-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-09-locked.png?v=20260920-1245"
+                    }),
+                    10: Object.freeze({
+                        unlocked: "./assets/regions/region-1/island-10-unlocked.png?v=20260920-1245",
+                        locked: "./assets/regions/region-1/island-10-locked.png?v=20260920-1245"
+                    })
+                })
+            })
         })
     });
 })(globalThis);
