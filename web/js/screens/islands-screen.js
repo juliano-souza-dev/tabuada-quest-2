@@ -51,29 +51,29 @@
                     islandIds: Object.freeze([6, 7, 8, 9, 10]),
                     slotLayout: Object.freeze({
                         1: Object.freeze({
-                            art: Object.freeze({ x: 58, y: 338, width: 380, height: 380 }),
-                            status: Object.freeze({ x: 146, y: 644, width: 204, height: 42, fontSize: 28 }),
-                            hitbox: Object.freeze({ x: 72, y: 352, width: 352, height: 352 })
+                            art: Object.freeze({ x: 0, y: 361, width: 300, height: 300 }),
+                            status: Object.freeze({ x: 48, y: 603, width: 204, height: 42, fontSize: 28 }),
+                            hitbox: Object.freeze({ x: 12, y: 373, width: 276, height: 276 })
                         }),
                         2: Object.freeze({
-                            art: Object.freeze({ x: 509, y: 337, width: 380, height: 380 }),
-                            status: Object.freeze({ x: 597, y: 643, width: 204, height: 42, fontSize: 28 }),
-                            hitbox: Object.freeze({ x: 523, y: 351, width: 352, height: 352 })
+                            art: Object.freeze({ x: 641, y: 361, width: 300, height: 300 }),
+                            status: Object.freeze({ x: 689, y: 603, width: 204, height: 42, fontSize: 28 }),
+                            hitbox: Object.freeze({ x: 653, y: 373, width: 276, height: 276 })
                         }),
                         3: Object.freeze({
-                            art: Object.freeze({ x: 272, y: 599, width: 400, height: 400 }),
-                            status: Object.freeze({ x: 364, y: 921, width: 216, height: 44, fontSize: 29 }),
-                            hitbox: Object.freeze({ x: 287, y: 614, width: 370, height: 370 })
+                            art: Object.freeze({ x: 267, y: 618, width: 400, height: 400 }),
+                            status: Object.freeze({ x: 359, y: 940, width: 216, height: 44, fontSize: 29 }),
+                            hitbox: Object.freeze({ x: 282, y: 633, width: 370, height: 370 })
                         }),
                         4: Object.freeze({
-                            art: Object.freeze({ x: 29, y: 857, width: 395, height: 395 }),
-                            status: Object.freeze({ x: 120, y: 1175, width: 213, height: 44, fontSize: 29 }),
-                            hitbox: Object.freeze({ x: 44, y: 872, width: 365, height: 365 })
+                            art: Object.freeze({ x: 0, y: 974, width: 386, height: 386 }),
+                            status: Object.freeze({ x: 87, y: 1288, width: 213, height: 44, fontSize: 29 }),
+                            hitbox: Object.freeze({ x: 10, y: 987, width: 366, height: 366 })
                         }),
                         5: Object.freeze({
-                            art: Object.freeze({ x: 518, y: 856, width: 400, height: 400 }),
-                            status: Object.freeze({ x: 610, y: 1178, width: 216, height: 44, fontSize: 29 }),
-                            hitbox: Object.freeze({ x: 533, y: 871, width: 370, height: 370 })
+                            art: Object.freeze({ x: 575, y: 1091, width: 400, height: 400 }),
+                            status: Object.freeze({ x: 667, y: 1413, width: 216, height: 44, fontSize: 29 }),
+                            hitbox: Object.freeze({ x: 590, y: 1106, width: 370, height: 370 })
                         })
                     }),
                     unlockAfterCompleted: 5
