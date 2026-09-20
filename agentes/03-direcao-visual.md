@@ -551,3 +551,39 @@ Regra:
 - o nome narrativo continua dentro da arte e no catálogo de conteúdo;
 - não usar o nome da Ilha no filename;
 - manter a extensão definida pelo pipeline de produção final.
+
+
+### Regra de derivação obrigatória do LOCKED
+
+A variante `locked` **não pode ser gerada como uma nova composição**.
+
+Fluxo obrigatório:
+
+```text
+UNLOCKED aprovada
+→ usar a mesma imagem como base
+→ adicionar corrente(s)
+→ adicionar cadeado
+→ aplicar leve sombra/escurecimento
+→ preservar TODO o restante
+```
+
+A versão `locked` deve manter exatamente:
+
+- câmera;
+- enquadramento;
+- escala;
+- posição de todos os elementos;
+- arquitetura;
+- vegetação;
+- props;
+- água;
+- placa do nome;
+- medalhão de recompensa;
+- placa inferior;
+- tipografia;
+- proporções.
+
+Qualquer mudança estrutural entre `unlocked` e `locked` reprova o par.
+
+A Direção Visual deve comparar as duas versões lado a lado antes do handoff.
