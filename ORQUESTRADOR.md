@@ -492,8 +492,9 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 **Última consolidação:** 2026-09-20  
 **Branch de trabalho:** `main`  
-**Milestone em execução:** M2 — Progressão Pirata e Sistemas de Jogo  
-**Única issue em execução:** **#8 — [M2-01] Reestruturar Regiões e Ilhas para identidade pirata e mix de tabuadas**
+**Trilha principal de roadmap:** M2 — Progressão Pirata e Sistemas de Jogo  
+**Issue de roadmap atualmente em foco:** **#8 — [M2-01] Reestruturar Regiões e Ilhas para identidade pirata e mix de tabuadas**  
+**Regra para novos pedidos do líder:** cada atualização cria uma issue própria, sem milestone automática.
 
 ## Gate operacional vigente
 
