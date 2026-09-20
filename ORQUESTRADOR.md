@@ -1128,7 +1128,7 @@ líder valida visualmente o novo tamanho e o contraste
 A Issue #8 permanece aberta.
 
 
-### Issue #32 — asset global Mapa mundo
+### Issue #32 — asset global Mapa mundo — CONCLUÍDA
 
 Pedido do líder:
 
@@ -1192,16 +1192,21 @@ Web Preview    35528326173 → success
 Android Debug  35528326081 → success
 ```
 
-Gate restante:
+Validação final do líder em 20/09/2026:
 
 ```text
-validação visual do líder
+clique funcionando
 ```
 
-A Issue #32 permanece aberta até essa validação.
+Status:
+
+```text
+CLOSED
+MILESTONE = nenhuma
+```
 
 
-### Issue #33 — padrão global das telas de Região
+### Issue #33 — padrão global das telas de Região — CONCLUÍDA
 
 Decisão global do líder:
 
@@ -1269,7 +1274,7 @@ fd92e5c7 → atualiza MAPA-DO-PROJETO
 ```
 
 
-### Issue #33 — clique global do Mapa mundo aguardando validação
+### Issue #33 — clique global do Mapa mundo — CONCLUÍDA
 
 Última task antes do encerramento solicitado pelo líder.
 
@@ -1330,13 +1335,44 @@ Web Preview    35529219339 → success
 Android Debug  35529219382 → success
 ```
 
-Gate restante:
+Validação final do líder em 20/09/2026:
 
 ```text
-líder clica no Mapa mundo no preview
-→ aviso aparece
-→ líder confirma
-→ Issue #33 pode ser encerrada
+clique funcionando
 ```
 
-Não encerrar antes dessa confirmação.
+Status:
+
+```text
+CLOSED
+MILESTONE = nenhuma
+```
+
+
+## Próximo foco após #32/#33
+
+As duas issues auxiliares do Mapa mundo e da malha global foram concluídas.
+
+Ordem operacional recalculada por dependência:
+
+```text
+#8  → próxima issue em foco
+#9  → executável em paralelo, mas não assume prioridade enquanto #8 segue aberta
+#10 → bloqueada por #8 + #9
+```
+
+Próxima issue:
+
+```text
+#8 — [M2-01] Reestruturar Regiões e Ilhas para identidade pirata e mix de tabuadas
+```
+
+Motivo:
+
+```text
+#8 já é a issue de roadmap ativa
+#8 ainda possui critérios de aceite pendentes
+#8 desbloqueia #10, #13 e parte das validações M3
+```
+
+Não avançar para #10 antes de concluir #8 e #9.
