@@ -479,8 +479,8 @@ Exemplos da Região CORSÁRIO:
 Porto da Âncora      → âncora monumental + porto/cais
 Enseada do Saque     → enseada escondida + elementos de saque/tesouro
 Rochedo da Bandeira  → formação rochosa + bandeira como marco
-Cais do Barril       → cais + barris como assinatura
-Baía do Farol        → farol como elemento-herói
+Ilha do Vulcão      → vulcão central + lava estilizada como marco
+Ilha da Caveira Rosa → caveira rosa estilizada como marco principal
 Atol do Timão        → timão como símbolo principal
 Ponta da Caravela    → caravelas/navegação como referência
 Praia das Cordas     → cordas e amarrações náuticas
