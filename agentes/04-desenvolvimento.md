@@ -56,9 +56,15 @@ tests/web/           → testes automatizados
 
 A geometria visual aprovada é global.
 
-Enquanto apenas a CORSÁRIO está implementada visualmente, o código ainda pode conter nomes históricos como `REGION_1_LAYOUT`.
+A geometria canônica já está promovida para configuração compartilhada:
 
-Ao implementar a segunda Região visual, promover a geometria para configuração compartilhada.
+```text
+REGION_LAYOUT
++
+REGION_VISUAL_CONFIG
+```
+
+Cada nova Região visual entra por configuração, preservando exatamente a mesma malha. Regiões sem assets visuais aprovados continuam no fallback textual até o handoff da Direção Visual.
 
 Não criar:
 
@@ -68,14 +74,11 @@ REGION_3_LAYOUT
 ...
 ```
 
-com cópia manual das mesmas coordenadas.
+nem duplicar renderer, coordenadas ou CSS por Região.
 
-Objetivo técnico:
+Configuração por Região deve apontar apenas o que varia:
 
 ```text
-REGION_LAYOUT compartilhado
-+
-configuração por Região:
 background
 assets das 5 Ilhas
 identidade
