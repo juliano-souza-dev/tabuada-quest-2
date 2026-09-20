@@ -1429,6 +1429,22 @@ PNG transparente
 TQ.content.assets.global.worldMap
 ```
 
+Controlador global:
+
+```text
+web/js/core/world-map.js
+TQ.core.worldMap.open({ onNavigate })
+```
+
+Enquanto a tela real não existe:
+
+```text
+clique
+→ aviso "Mapa mundo ainda está em produção."
+```
+
+O comportamento futuro deve ser alterado somente nesse controlador global.
+
 Uso:
 
 ```text
