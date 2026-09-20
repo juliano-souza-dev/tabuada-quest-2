@@ -2094,3 +2094,37 @@ Líder                = PENDENTE
 ```
 
 A produção de assets não faz parte desta validação temporária. O visual futuro deverá substituir a camada textual preservando os contratos semânticos existentes.
+
+
+### Issue #7 — distribuição estrutural da Região 1
+
+Game Design fechou a primeira distribuição de marcos da campanha.
+
+```text
+I1  → PET 1
+I2  → Mapa 1 / fragmento 1
+I3  → Baú 1
+I4  → PET 2
+I5  → Mapa 1 / fragmento 2
+I6  → Baú 2
+I7  → PET 3
+I8  → Mapa 1 / fragmento 3
+I9  → Baú 3
+I10 → Mapa 1 / fragmento 4 → MAPA 1 COMPLETO
+```
+
+Ledger parcial:
+
+```text
+Baús distribuídos = 3/30
+PETs distribuídos = 3/30
+Fragmentos especiais distribuídos = 4/20
+```
+
+Validação:
+
+```text
+Web Unit Tests = 35504831715 → success
+Web Preview    = 35504831701 → success
+Android Debug  = 35504831754 → success
+```
