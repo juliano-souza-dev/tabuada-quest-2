@@ -418,3 +418,23 @@
     white-space: nowrap !important;
     border: 0 !important;
 }
+
+
+/* CORSÁRIO 2: o texto repousa sobre a placa desenhada no próprio asset. */
+.region-islands-map-screen[data-region-page="corsario-2"] .region-island-status {
+    padding: 0 8px;
+    color: #f0ca78;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 900;
+    letter-spacing: .15px;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    -webkit-text-stroke: 1.15px rgba(66, 30, 7, .98);
+    paint-order: stroke fill;
+    text-shadow:
+        0 -1px 0 rgba(255, 239, 181, .62),
+        0 1px 0 rgba(71, 31, 6, .98),
+        0 2px 1px rgba(37, 14, 2, .78),
+        0 0 3px rgba(114, 57, 13, .38);
+}

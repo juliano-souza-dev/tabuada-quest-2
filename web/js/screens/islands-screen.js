@@ -51,9 +51,9 @@
                     islandIds: Object.freeze([6, 7, 8, 9, 10]),
                     slotLayout: Object.freeze({
                         1: Object.freeze({
-                            art: Object.freeze({ x: 0, y: 361, width: 300, height: 300 }),
-                            status: Object.freeze({ x: 48, y: 603, width: 204, height: 42, fontSize: 28 }),
-                            hitbox: Object.freeze({ x: 12, y: 373, width: 276, height: 276 })
+                            art: Object.freeze({ x: 72, y: 348, width: 340, height: 340 }),
+                            status: Object.freeze({ x: 122, y: 620, width: 240, height: 48, fontSize: 27 }),
+                            hitbox: Object.freeze({ x: 88, y: 364, width: 308, height: 308 })
                         }),
                         2: Object.freeze({
                             art: Object.freeze({ x: 641, y: 361, width: 300, height: 300 }),
@@ -131,6 +131,23 @@
 
     function statusStyle(rect) {
         return `${rectStyle(rect)};font-size:${rect.fontSize || 22}px;line-height:${rect.height}px`;
+    }
+
+    function fitRegionStatusLabels(screen) {
+        if (!screen?.isConnected || typeof screen.querySelectorAll !== "function") return;
+
+        screen.querySelectorAll(".region-island-status").forEach((label) => {
+            const maxSize = Number(label.dataset.maxFontSize) || 22;
+            const minSize = Number(label.dataset.minFontSize) || 18;
+            let size = maxSize;
+
+            label.style.fontSize = `${size}px`;
+
+            while (size > minSize && label.scrollWidth > label.clientWidth) {
+                size -= 1;
+                label.style.fontSize = `${size}px`;
+            }
+        });
     }
 
     function computeRegionStageGeometry(viewportWidth, viewportHeight) {
@@ -259,6 +276,8 @@
 
                     <span class="region-island-status"
                         style="${statusStyle(layout.status)}"
+                        data-max-font-size="${layout.status.fontSize || 22}"
+                        data-min-font-size="18"
                         aria-hidden="true">${statusText}</span>
 
                     <button class="region-island-hitbox"
@@ -318,6 +337,7 @@
             stage.style.left = `${geometry.offsetX}px`;
             stage.style.top = `${geometry.offsetY}px`;
             stage.style.transform = `scale(${geometry.scale})`;
+            fitRegionStatusLabels(screen);
         }
 
         screen.addEventListener("click", (event) => {
@@ -462,6 +482,7 @@
         createIslandEntryState,
         REGION_LAYOUT,
         REGION_VISUAL_CONFIG,
-        computeRegionStageGeometry
+        computeRegionStageGeometry,
+        fitRegionStatusLabels
     });
 })(globalThis);
