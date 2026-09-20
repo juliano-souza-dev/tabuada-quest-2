@@ -197,6 +197,36 @@ Fechar sem confirmar preserva o item equipado anteriormente.
 
 O Provador deve ser extensível a outros tipos de personalização e não ficar conceitualmente limitado a molduras.
 
+## Tripulação e Taberna
+
+A Home possui um acesso permanente chamado **TRIPULAÇÃO**.
+
+Fluxo:
+
+```text
+Home
+→ TRIPULAÇÃO
+→ TABERNA
+→ escolher tripulante
+→ pagar custo em ouro
+→ tripulante contratado permanentemente
+```
+
+Regras:
+
+- cada tripulante possui custo fixo em ouro;
+- contratação é única e persistente;
+- não existe recontratação do mesmo tripulante;
+- contratação só ocorre quando há ouro suficiente;
+- o custo é descontado de forma atômica no momento da contratação;
+- todos os tripulantes contratados ficam ativos;
+- bônus de tripulantes contratados se acumulam;
+- bônus não são retroativos;
+- cada tripulante concede um bônus de uma das categorias: XP, ouro ou gemas;
+- na implementação atual, a categoria citada pelo líder como diamantes/rubis usa o saldo já existente de `wallet.gems`; separar Rubi e Diamante em moedas diferentes exige decisão futura de Produto.
+
+A Taberna é a tela funcional para descoberta e contratação da Tripulação. Arte final específica da Taberna e retratos dos tripulantes dependem de Direção Visual e não devem ser inventados pela implementação.
+
 ## PETs, recompensas, economia e inventário
 
 Esses sistemas existem como domínios distintos e só devem ser implementados quando suas regras estiverem definidas pelas personas responsáveis.
