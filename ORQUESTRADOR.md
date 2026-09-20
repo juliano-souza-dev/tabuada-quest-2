@@ -2005,3 +2005,45 @@ Fonte de verdade:
 docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
 docs/validacao/ISSUE-005-verificacao-matriz.md
 ```
+
+
+### Issue #6 — scheduler implementado e validado
+
+Desenvolvimento implementou o scheduler pedagógico da campanha de 11 Regiões como domínio puro.
+
+```text
+commit = 5b0f072871f3cfa98ecbefe88fb8920295f122ac
+```
+
+Invariantes comprovados:
+
+```text
+20 plannedExposure / Ilha
+200 / Região
+2.200 / campanha
+220 / tabuada
+22 / operação
+plannedExposure != recoveryAttempt
+```
+
+Pipelines:
+
+```text
+Web Unit Tests = 35487813947 → success
+Web Preview    = 35487813943 → success
+Android Debug  = 35487813973 → success
+```
+
+Validação:
+
+```text
+docs/validacao/ISSUE-006-scheduler.md
+```
+
+Fluxo:
+
+```text
+#6 → CLOSED
+#7 → ATIVA
+#27 → permanece independente no backlog da Home / Moda
+```
