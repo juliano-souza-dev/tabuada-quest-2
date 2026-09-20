@@ -337,3 +337,35 @@ arquivo bloqueado    = island-02-locked
 ```
 
 O texto `Enseada do Saque` continua sendo o nome da Ilha e permanece na placa principal da arte.
+
+
+## Locked deve ser derivada da unlocked
+
+Para cada Ilha:
+
+```text
+island-NN-unlocked = composição canônica
+island-NN-locked   = edição da MESMA composição
+```
+
+Na versão locked, somente podem mudar:
+
+- corrente(s);
+- cadeado;
+- leve sombra/escurecimento.
+
+Não podem mudar:
+
+- layout;
+- câmera;
+- enquadramento;
+- escala;
+- cenário;
+- vegetação;
+- props;
+- medalhão;
+- placas;
+- textos;
+- posição dos elementos.
+
+Gerar `locked` separadamente do `unlocked` é proibido.
