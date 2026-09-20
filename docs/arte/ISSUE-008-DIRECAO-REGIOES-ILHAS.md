@@ -206,3 +206,38 @@ CONCLUÍDA ✓
 ```
 
 As Regiões 2–11 permanecem temporariamente no layout textual até receberem suas respectivas artes.
+
+
+## Arquitetura modular aprovada
+
+A tela final das Ilhas será composta, não rasterizada como uma única imagem.
+
+Estrutura:
+
+```text
+background-region-01.webp
++
+island-01-unlocked.webp
+island-01-locked.webp
+...
+island-10-unlocked.webp
+island-10-locked.webp
++
+overlays dinâmicos
+```
+
+O background contém somente elementos fixos da Região.
+
+Cada Ilha é um asset independente, posicionado em coordenadas canônicas por CSS.
+
+Regra de seleção:
+
+```text
+getIslandStatus(...) === "locked"
+    ? lockedAsset
+    : unlockedAsset
+```
+
+Status, recompensa e hitbox permanecem fora das imagens.
+
+Esta arquitetura substitui a composição monolítica anterior da Região 1.
