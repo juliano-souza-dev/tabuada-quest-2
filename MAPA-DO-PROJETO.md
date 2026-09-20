@@ -1405,3 +1405,39 @@ entrada posterior
 ```
 
 O vídeo deve ser H.264/AVC + yuv420p para compatibilidade com navegador e Android WebView.
+
+
+## Asset global — Mapa mundo
+
+Asset físico:
+
+```text
+web/assets/global/mapa-mundo.png
+```
+
+Contrato:
+
+```text
+200 × 200 px
+PNG transparente
+TQ.content.assets.global.worldMap
+```
+
+Uso atual:
+
+```text
+CORSÁRIO
+→ canto inferior esquerdo
+→ abaixo da Ilha do Vulcão
+```
+
+Layout atual:
+
+```text
+x=98
+y=1405
+w=200
+h=200
+```
+
+O asset é global e pode ser reutilizado futuramente em outras telas de Região sem duplicação de arquivo.
