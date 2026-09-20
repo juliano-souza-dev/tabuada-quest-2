@@ -34,6 +34,96 @@
         isFinalRegion: i === 10
     })));
 
+    const regionIdentities = Object.freeze([
+        Object.freeze({
+            regionId: 1,
+            tagline: "O começo da rota pirata.",
+            visualTheme: "portos de madeira, velas, cordas e águas azul-escuras",
+            islandNames: Object.freeze(["Porto da Âncora","Enseada do Saque","Rochedo da Bandeira","Cais do Barril","Baía do Farol","Atol do Timão","Ponta da Caravela","Praia das Cordas","Ilha do Canhão","Cabo do Capitão"])
+        }),
+        Object.freeze({
+            regionId: 2,
+            tagline: "A rota some dentro da névoa.",
+            visualTheme: "bruma, lanternas, silhuetas de mastros e luz difusa",
+            islandNames: Object.freeze(["Véu de Bruma","Farol Velado","Ponta Cinzenta","Enseada Oculta","Banco de Névoa","Cais do Sussurro","Recife Nublado","Baía Silenciosa","Ilha da Lanterna","Passagem Velada"])
+        }),
+        Object.freeze({
+            regionId: 3,
+            tagline: "Pedras antigas vigiam o mar.",
+            visualTheme: "rochedos em forma de caveira, cavernas e fósseis marítimos",
+            islandNames: Object.freeze(["Pedra da Caveira","Gruta dos Ossos","Baía do Dente","Recife do Crânio","Cais Sombrio","Ponta do Fêmur","Ilha das Costelas","Praia do Eco","Morro da Mandíbula","Porto das Caveiras"])
+        }),
+        Object.freeze({
+            regionId: 4,
+            tagline: "Destroços contam histórias de antigas viagens.",
+            visualTheme: "navios partidos, mastros quebrados, botes e praias de destroços",
+            islandNames: Object.freeze(["Praia dos Destroços","Mastro Partido","Enseada do Bote","Recife Rasgado","Cais Abandonado","Baía dos Barris","Ponta do Casco","Ilha da Vela","Gruta do Náufrago","Porto Reerguido"])
+        }),
+        Object.freeze({
+            regionId: 5,
+            tagline: "O mar ferve ao redor das ilhas de fogo.",
+            visualTheme: "lava, basalto, cinzas, vapor e praias escuras",
+            islandNames: Object.freeze(["Cratera Rubra","Praia de Cinzas","Cais de Basalto","Baía Fumegante","Ponta de Lava","Ilha da Caldeira","Recife de Obsidiana","Gruta Ardente","Porto de Pedra","Coroa Vulcânica"])
+        }),
+        Object.freeze({
+            regionId: 6,
+            tagline: "Ruínas guardam tesouros esquecidos.",
+            visualTheme: "templos costeiros, pedras douradas, inscrições e relíquias",
+            islandNames: Object.freeze(["Templo da Maré","Cais Dourado","Praia das Runas","Arco Antigo","Baía do Ídolo","Ponta do Medalhão","Ilha do Selo","Recife das Colunas","Gruta do Cofre","Santuário das Marés"])
+        }),
+        Object.freeze({
+            regionId: 7,
+            tagline: "Um jardim de coral cresce sobre o oceano.",
+            visualTheme: "corais coloridos, águas claras, conchas e recifes vivos",
+            islandNames: Object.freeze(["Jardim de Coral","Recife Arco-Íris","Praia das Conchas","Baía Turquesa","Atol das Estrelas","Cais das Pérolas","Ponta Anêmona","Ilha do Cavalo-Marinho","Lagoa Cristalina","Coroa de Coral"])
+        }),
+        Object.freeze({
+            regionId: 8,
+            tagline: "As correntes de ar mudam a rota a cada instante.",
+            visualTheme: "velas infladas, nuvens rápidas, moinhos náuticos e mar agitado",
+            islandNames: Object.freeze(["Cabo dos Ventos","Baía da Rajada","Ilha do Catavento","Ponta do Vendaval","Cais das Velas","Recife do Sopro","Praia da Brisa","Canal dos Alísios","Morro do Assobio","Porto da Ventania"])
+        }),
+        Object.freeze({
+            regionId: 9,
+            tagline: "Pedra e mar formam uma defesa quase impenetrável.",
+            visualTheme: "muros costeiros, torres, portões, pontes e rochedos fortificados",
+            islandNames: Object.freeze(["Muralha do Mar","Torre da Maré","Portão de Pedra","Ponte do Vigia","Baía Murada","Cais da Sentinela","Ilha do Bastião","Recife da Guarda","Ponta da Torre","Porto das Muralhas"])
+        }),
+        Object.freeze({
+            regionId: 10,
+            tagline: "Cristais vermelhos brilham sob a água.",
+            visualTheme: "rochas rubras, cristais, cavernas luminosas e reflexos vermelhos",
+            islandNames: Object.freeze(["Costa Rubra","Ilha da Gema","Cais Escarlate","Baía Carmesim","Ponta do Cristal","Recife Granado","Gruta Vermelha","Praia da Faísca","Atol do Rubi","Coroa Escarlate"])
+        }),
+        Object.freeze({
+            regionId: 11,
+            tagline: "A última rota leva ao coração da Fortaleza.",
+            visualTheme: "fortificação final, torres altas, mar profundo e arquitetura monumental",
+            islandNames: Object.freeze(["Portão Exterior","Torre da Vigília","Bastião das Ondas","Ponte do Horizonte","Pátio da Maré","Torre do Farol","Muralha Interna","Cais do Guardião","Portão Final","Coração da Fortaleza"])
+        })
+    ]);
+
+    const islandIdentities = Object.freeze(
+        Object.fromEntries(regionIdentities.map((region) => [
+            String(region.regionId),
+            Object.freeze(region.islandNames.map((label, index) => Object.freeze({
+                id: index + 1,
+                regionId: region.regionId,
+                label,
+                sceneKey: `r${region.regionId}-i${index + 1}`,
+                challengeIdentity: "mixed"
+            })))
+        ]))
+    );
+
+    function getRegionIdentity(regionId) {
+        return regionIdentities.find((item) => item.regionId === Number(regionId)) || null;
+    }
+
+    function getIslandIdentity(regionId, islandId) {
+        return islandIdentities[String(regionId)]?.[Number(islandId) - 1] || null;
+    }
+
     const regionRewards = Object.freeze({
         "1": Object.freeze({
             "1": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r1-i1" })]),
@@ -66,6 +156,10 @@
             diamondsPerMapMission: 1000
         }),
         regions,
+        regionIdentities,
+        islandIdentities,
+        getRegionIdentity,
+        getIslandIdentity,
         regionRewards,
         getIslandRewards,
         homeBackgrounds,
