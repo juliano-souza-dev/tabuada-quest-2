@@ -63,7 +63,7 @@ test("CORSÁRIO 2 usa pixel-map próprio sem duplicar renderer", () => {
     const page = islands.getRegionVisualPage(state, 1);
     // Slots superiores usam 300×300 porque os redemoinhos aprovados encostam nas bordas do stage.
     const expected = {
-        1: { art: [0,361,300,300], status: [48,603,204,42], hitbox: [12,373,276,276] },
+        1: { art: [72,348,340,340], status: [122,620,240,48], hitbox: [88,364,308,308] },
         2: { art: [641,361,300,300], status: [689,603,204,42], hitbox: [653,373,276,276] },
         3: { art: [267,618,400,400], status: [359,940,216,44], hitbox: [282,633,370,370] },
         4: { art: [0,974,386,386], status: [87,1288,213,44], hitbox: [10,987,366,366] },
@@ -91,6 +91,32 @@ test("fundo final da CORSÁRIO 2 permanece dentro do orçamento web", () => {
     assert.ok(stat.size <= 450000, `fundo excedeu orçamento: ${stat.size} bytes`);
     assert.equal(bytes[0], 0xFF);
     assert.equal(bytes[1], 0xD8);
+});
+
+
+test("auto-fit reduz o status até caber na placa", () => {
+    const label = {
+        dataset: { maxFontSize: "27", minFontSize: "18" },
+        style: {},
+        clientWidth: 240,
+        get scrollWidth() {
+            const size = Number.parseInt(this.style.fontSize || "27", 10);
+            return (size * 9) + 16;
+        }
+    };
+
+    const screen = {
+        isConnected: true,
+        querySelectorAll(selector) {
+            assert.equal(selector, ".region-island-status");
+            return [label];
+        }
+    };
+
+    islands.fitRegionStatusLabels(screen);
+
+    assert.ok(Number.parseInt(label.style.fontSize, 10) < 27);
+    assert.ok(label.scrollWidth <= label.clientWidth);
 });
 
 test("CORSÁRIO 1 permanece ativo antes da conclusão da Ilha 05", () => {
@@ -250,6 +276,27 @@ test("status usa fonte maior após refino de legibilidade", () => {
     }
 });
 
+
+
+test("CORSÁRIO 2 usa tratamento de status entalhado sem cobrir a placa", () => {
+    const css = fs.readFileSync(
+        path.join(__dirname, "../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    assert.match(
+        css,
+        /\[data-region-page="corsario-2"\] \.region-island-status\s*\{[\s\S]*background:\s*transparent/
+    );
+    assert.match(
+        css,
+        /\[data-region-page="corsario-2"\] \.region-island-status\s*\{[\s\S]*font-family:\s*Georgia/
+    );
+    assert.match(
+        css,
+        /\[data-region-page="corsario-2"\] \.region-island-status\s*\{[\s\S]*-webkit-text-stroke:/
+    );
+});
 
 test("CSS do status garante contraste sobre a placa", () => {
     const css = fs.readFileSync(
