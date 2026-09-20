@@ -192,81 +192,35 @@ Antes de aprovar Moda, comparar lado a lado com o avatar-base.
 
 ## Padrão global das telas de Região
 
-A CORSÁRIO define a malha canônica.
+A macroestrutura visual segue Produto:
+
+```text
+22 Regiões
+5 Ilhas por Região
+sem sub-regiões
+```
+
+Cada Região é uma tela/composição independente.
+
+Regra global:
 
 ```text
 stage = 941 × 1672
 5 slots de Ilha
-mesmas coordenadas
-mesmos tamanhos
-mesmas hitboxes
-mesma geometria das 5 marcações de água
-mesma rota
-mesmo respiro
-Mapa mundo no mesmo ponto
+Mapa mundo global
+botão voltar
+nenhum status textual sobre as Ilhas
 ```
 
-### Slots canônicos
+Uma Região não pode ser visualmente dividida em `Região 1`, `Região 2`, segunda página, sub-região ou continuação interna para acomodar mais 5 Ilhas.
 
-```text
-Ilha 01 → x=0   y=320  w=380 h=380
-Ilha 02 → x=561 y=360  w=380 h=380
-Ilha 03 → x=270 y=590  w=400 h=400
-Ilha 04 → x=0   y=915  w=395 h=395
-Ilha 05 → x=541 y=1240 w=400 h=400
-```
+Quando as marcações de água de um background aprovado exigirem posições diferentes, a Direção Visual pode aprovar um `slotLayout` específico para aquela Região, sem criar outro renderer.
 
-Hitboxes:
+### CORSÁRIO durante a transição
 
-```text
-01 → x=14  y=334  w=352 h=352
-02 → x=575 y=374  w=352 h=352
-03 → x=285 y=605  w=370 h=370
-04 → x=15  y=930  w=365 h=365
-05 → x=556 y=1255 w=370 h=370
-```
+A implementação atual ainda possui duas composições históricas chamadas `corsario-1` e `corsario-2`. Elas são legado técnico e **não representam o modelo futuro de Região**.
 
-Mapa mundo:
-
-```text
-x=98
-y=1405
-w=200
-h=200
-```
-
-Botão voltar:
-
-```text
-x=58
-y=18
-w=150
-h=150
-```
-
-Nenhuma Região pode inventar nova malha sem decisão explícita do líder.
-
-## CORSÁRIO 2
-
-O stage permanece canônico em `941 × 1672`. Back e Mapa mundo permanecem globais.
-
-O background aprovado mantém as laterais livres de ilhas artificiais grandes e usa cinco áreas de água para receber futuras Ilhas dinâmicas.
-
-Centros visuais aproximados das áreas de água:
-
-```text
-slot superior esquerdo → (131, 511)
-slot superior direito  → (807, 511)
-slot central           → (467, 818)
-slot inferior esquerdo → (193, 1171)
-slot inferior direito  → (775, 1291)
-```
-
-### Composição temporária aprovada
-
-CORSÁRIO 1 e CORSÁRIO 2 permanecem **sem Ilhas** enquanto os novos assets são refeitos.
-
-Durante esse período, cada tela exibe apenas:
+Enquanto as novas Ilhas são refeitas, essas composições permanecem temporariamente limpas:
 
 ```text
 background
@@ -274,9 +228,11 @@ botão voltar
 Mapa mundo
 ```
 
-Não renderizar arte de Ilha, placa de status ou hitbox de Ilha nessas duas páginas.
+Sem arte de Ilha, sem hitbox de Ilha e sem status textual.
 
-## O que muda entre Regiões
+A futura reorganização das Ilhas 01–10 em duas Regiões reais deve obedecer à regra global de 5 Ilhas por Região. A nomenclatura dessas Regiões só pode ser definida por Produto/líder; não inventar nomes.
+
+## O que pode mudar entre Regiões
 
 Pode mudar:
 
@@ -286,20 +242,17 @@ Pode mudar:
 - paleta;
 - identidade/visual das Ilhas;
 - props;
-- medalhões conforme recompensa real.
+- medalhões conforme recompensa real;
+- slotLayout quando explicitamente aprovado.
 
-Não muda:
+Permanece global:
 
-- stage;
-- cinco slots;
-- posições;
-- tamanhos;
-- hitboxes;
+- 5 Ilhas por Região;
+- ausência de sub-regiões;
+- ausência de status textual;
 - Mapa mundo;
-- geometria das marcações;
-- rota;
-- regra locked/unlocked;
-- respiro.
+- botão voltar;
+- linguagem visual do projeto.
 
 ## Regra para backgrounds de Região
 
