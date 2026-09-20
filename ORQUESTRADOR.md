@@ -2287,3 +2287,32 @@ Gate atual:
 implementação = concluída
 líder = validar mapa interativo no preview
 ```
+
+
+### Issue #8 — arquitetura modular das Ilhas
+
+Decisão visual/técnica atual:
+
+```text
+1 fundo fixo por Região
++
+10 Ilhas independentes
++
+2 variantes por Ilha
+  - unlocked
+  - locked (sombra + cadeado)
++
+overlays dinâmicos
+```
+
+A arte monolítica deixa de ser a arquitetura final. Ela pode permanecer apenas como referência de composição.
+
+Dinâmico:
+
+```text
+status
+recompensa
+hitbox
+progresso
+sessão
+```
