@@ -1,6 +1,18 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
+    function renderRewardLabels(regionId, islandId) {
+        const rewards = TQ.content.getIslandRewards(regionId, islandId);
+        if (!rewards.length) return "";
+
+        return `<span class="island-reward-labels">${rewards.map((reward) => {
+            if (reward.type === "map_fragment") return `🧩 Mapa ${reward.mapId}: peça ${reward.fragment}/4`;
+            if (reward.type === "chest") return "🎁 Baú";
+            if (reward.type === "pet") return "🐾 PET para salvar";
+            return "";
+        }).filter(Boolean).join(" • ")}</span>`;
+    }
+
     function islandLabel(state, regionId, islandId) {
         const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
         if (status === "completed") return "CONCLUÍDA ✓";
@@ -41,7 +53,10 @@
                                 class="slice-choice island-text-button is-${status}"
                                 data-island-id="${islandId}"
                                 ${status === "locked" ? "disabled" : ""}>
-                                <span>Ilha ${islandId}</span>
+                                <span class="island-copy">
+                                    <span>Ilha ${islandId}</span>
+                                    ${renderRewardLabels(regionId, islandId)}
+                                </span>
                                 <strong>${actionText}</strong>
                             </button>
                         `;
@@ -88,6 +103,7 @@
     TQ.screens = TQ.screens || {};
     TQ.screens.islands = Object.freeze({
         renderIslandsScreen,
-        islandLabel
+        islandLabel,
+        renderRewardLabels
     });
 })(globalThis);
