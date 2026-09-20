@@ -613,6 +613,14 @@ Somente trabalho necessário para concluir a #8.
 
 Prioridade atual:
 
+Identidades atualizadas pelo líder:
+
+```text
+Ilha 04 → Ilha do Vulcão
+Ilha 05 → Ilha da Caveira Rosa
+```
+
+
 ```text
 1. produzir/concluir as artes finais das 10 Ilhas da Região 1;
 2. garantir par unlocked/locked correto para cada Ilha;
