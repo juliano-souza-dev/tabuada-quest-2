@@ -34,6 +34,25 @@
         isFinalRegion: i === 10
     })));
 
+    const regionRewards = Object.freeze({
+        "1": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r1-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 1 })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r1-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 2 })]),
+            "6": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i6" })]),
+            "7": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r1-i7" })]),
+            "8": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 3 })]),
+            "9": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i9" })]),
+            "10": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 4 })])
+        })
+    });
+
+    function getIslandRewards(regionId, islandId) {
+        return regionRewards[String(regionId)]?.[String(islandId)] || Object.freeze([]);
+    }
+
     TQ.content = Object.freeze({
         campaignTotals: Object.freeze({
             regions: 11,
@@ -47,6 +66,8 @@
             diamondsPerMapMission: 1000
         }),
         regions,
+        regionRewards,
+        getIslandRewards,
         homeBackgrounds,
         profileFrames,
         defaultHomeBackgroundId: "pirate-main",
