@@ -1,55 +1,70 @@
-# Issue #8 — Região 1 — mapa pixel-perfect
+# Issue #8 — CORSÁRIO — mapa técnico de 5 Ilhas
 
 ## Base canônica
 
 ```text
 stage = 941 × 1672 px
-background = web/assets/regions/region-1/background.png
+background = web/assets/regions/region-1/mapa_marítimo_do_corsário.png
 ```
 
-O fundo usa rota serpenteada. As Ilhas não seguem duas colunas rígidas.
+A tela atual da CORSÁRIO usa **5 Ilhas visíveis**.
 
-## Regra de composição
+As Ilhas 06–10 continuam preservadas no catálogo e nos assets para a futura reorganização de navegação. Esta task não redefine ainda a arquitetura geral de Regiões nem a didática.
+
+## Composição vigente
 
 ```text
-background
+background oceânico
 +
-asset PNG da Ilha
+Ilha 01
++
+Ilha 02
++
+Ilha 03
++
+Ilha 04
++
+Ilha 05
 +
 status textual dinâmico
 +
-hitbox
+hitboxes
 ```
 
-A recompensa visual não é desenhada pela UI. Ela já pertence ao PNG da Ilha.
+Os símbolos de recompensa já fazem parte dos PNGs de Ilha e não são renderizados dinamicamente.
 
 ## Coordenadas canônicas
 
 | Ilha | Asset x | Asset y | W | H | Status x | Status y | Status W | Status H | Hitbox x | Hitbox y | Hitbox W | Hitbox H |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 01 | 234 | 288 | 224 | 214 | 277 | 457 | 139 | 26 | 242 | 294 | 208 | 202 |
-| 02 | 518 | 391 | 224 | 214 | 561 | 560 | 139 | 26 | 526 | 397 | 208 | 202 |
-| 03 | 213 | 538 | 224 | 214 | 256 | 707 | 139 | 26 | 221 | 544 | 208 | 202 |
-| 04 | 519 | 678 | 226 | 216 | 562 | 849 | 140 | 26 | 527 | 684 | 210 | 204 |
-| 05 | 175 | 780 | 236 | 220 | 220 | 954 | 146 | 26 | 183 | 786 | 220 | 208 |
-| 06 | 523 | 899 | 236 | 220 | 568 | 1073 | 146 | 26 | 531 | 905 | 220 | 208 |
-| 07 | 193 | 1038 | 224 | 214 | 236 | 1207 | 139 | 26 | 201 | 1044 | 208 | 202 |
-| 08 | 546 | 1158 | 232 | 218 | 590 | 1330 | 144 | 26 | 554 | 1164 | 216 | 206 |
-| 09 | 220 | 1269 | 224 | 214 | 263 | 1438 | 139 | 26 | 228 | 1275 | 208 | 202 |
-| 10 | 524 | 1401 | 238 | 222 | 569 | 1576 | 148 | 27 | 532 | 1407 | 222 | 210 |
+| 01 | 5 | 340 | 330 | 330 | 80 | 604 | 180 | 36 | 15 | 350 | 310 | 310 |
+| 02 | 595 | 380 | 330 | 330 | 670 | 644 | 180 | 36 | 605 | 390 | 310 | 310 |
+| 03 | 295 | 615 | 350 | 350 | 375 | 895 | 190 | 38 | 305 | 625 | 330 | 330 |
+| 04 | 10 | 940 | 350 | 350 | 90 | 1220 | 190 | 38 | 20 | 950 | 330 | 330 |
+| 05 | 560 | 1275 | 350 | 350 | 640 | 1555 | 190 | 38 | 570 | 1285 | 330 | 330 |
 
 Botão de retorno:
 
 ```text
-x=58
-y=18
-w=150
-h=150
+x = 58
+y = 18
+w = 150
+h = 150
 ```
 
-## Status
+## Ordem visual
 
-Estados visuais:
+```text
+01 → topo esquerdo
+02 → topo direito
+03 → centro
+04 → inferior esquerdo
+05 → inferior direito
+```
+
+Cada asset fica sobre a respectiva marca de água do background.
+
+## Status
 
 ```text
 locked    → BLOQUEADA
@@ -58,51 +73,40 @@ active    → CONTINUAR
 completed → CONCLUÍDA ✓
 ```
 
-O texto é o único dado visual dinâmico em cima de cada asset de Ilha.
-
-Tipografia canônica:
-
-```text
-font-weight = 900
-letter-spacing = .5px
-text-transform = uppercase
-padding-x = 10px
-text-shadow = 0 1px 2px rgba(0,0,0,.55)
-```
-
-Tamanho base por Ilha:
-
-```text
-01–04 = 22 px
-05–06 = 23 px
-07    = 22 px
-08    = 23 px
-09    = 22 px
-10    = 23 px
-```
+O status é a única informação visual dinâmica sobre o asset da Ilha.
 
 ## Responsividade
 
-Toda composição permanece no stage lógico de `941 × 1672`.
-
-`computeRegion1StageGeometry(...)` aplica uma única escala uniforme ao stage inteiro. As coordenadas não são recalculadas individualmente em CSS responsivo.
-
-Consequência:
+O stage permanece em `941 × 1672` e recebe uma única transformação uniforme.
 
 ```text
 asset + status + hitbox
-→ sempre preservam o mesmo registro relativo
+→ preservam o mesmo registro relativo
 ```
+
+Não criar media queries com reposicionamento individual das Ilhas.
 
 ## Fonte executável
 
 ```text
 web/js/screens/islands-screen.js
-REGION_1_LAYOUT
+REGION_1_LAYOUT.visibleIslandIds
+REGION_1_LAYOUT.islands
 ```
 
-Teste de regressão:
+Teste:
 
 ```text
 tests/web/region-1-map-layout.test.cjs
 ```
+
+## Decisão substituída
+
+O mapa anterior de 10 Ilhas na mesma tela foi rejeitado visualmente por:
+
+- assets pequenos;
+- leitura insuficiente;
+- excesso de elementos na composição;
+- uso ruim do espaço.
+
+Ele não deve voltar a ser utilizado como referência de posicionamento.
