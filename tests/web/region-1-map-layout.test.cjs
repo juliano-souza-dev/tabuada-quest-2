@@ -117,11 +117,11 @@ test("seleção de asset troca entre locked e unlocked", () => {
 
 test("Corsário usa as cinco marcações de água com assets maiores", () => {
     const expected = {
-        1: { art: [5,340,330,330], status: [80,604,180,36], hitbox: [15,350,310,310] },
-        2: { art: [595,380,330,330], status: [670,644,180,36], hitbox: [605,390,310,310] },
-        3: { art: [295,615,350,350], status: [375,895,190,38], hitbox: [305,625,330,330] },
-        4: { art: [10,940,350,350], status: [90,1220,190,38], hitbox: [20,950,330,330] },
-        5: { art: [560,1275,350,350], status: [640,1555,190,38], hitbox: [570,1285,330,330] }
+        1: { art: [0,320,380,380], status: [88,626,204,42], hitbox: [14,334,352,352] },
+        2: { art: [561,360,380,380], status: [649,666,204,42], hitbox: [575,374,352,352] },
+        3: { art: [270,590,400,400], status: [362,912,216,44], hitbox: [285,605,370,370] },
+        4: { art: [0,915,395,395], status: [91,1233,213,44], hitbox: [15,930,365,365] },
+        5: { art: [541,1240,400,400], status: [633,1562,216,44], hitbox: [556,1255,370,370] }
     };
 
     function rectTuple(rect) {
@@ -133,5 +133,33 @@ test("Corsário usa as cinco marcações de água com assets maiores", () => {
         assert.deepEqual(rectTuple(item.art), expected[islandId].art);
         assert.deepEqual(rectTuple(item.status), expected[islandId].status);
         assert.deepEqual(rectTuple(item.hitbox), expected[islandId].hitbox);
+    }
+});
+
+
+test("Ilhas ampliadas preservam respiro entre os centros", () => {
+    const layout = islands.REGION_1_LAYOUT;
+    const pairs = [[1,2],[1,3],[2,3],[3,4],[3,5],[4,5]];
+
+    function center(rect) {
+        return {
+            x: rect.x + rect.width / 2,
+            y: rect.y + rect.height / 2
+        };
+    }
+
+    for (const [aId, bId] of pairs) {
+        const a = center(layout.islands[aId].art);
+        const b = center(layout.islands[bId].art);
+        const distance = Math.hypot(a.x - b.x, a.y - b.y);
+        assert.ok(distance >= 315, `Ilhas ${aId} e ${bId} ficaram próximas demais: ${distance}`);
+    }
+});
+
+test("status usa fonte maior após refino de legibilidade", () => {
+    const layout = islands.REGION_1_LAYOUT;
+    for (const islandId of layout.visibleIslandIds) {
+        assert.ok(layout.islands[islandId].status.fontSize >= 28);
+        assert.ok(layout.islands[islandId].status.height >= 42);
     }
 });
