@@ -47,3 +47,24 @@ completed → island-N-unlocked.png
 ```
 
 Se uma variante `locked` estiver ausente, a UI usa temporariamente a variante `unlocked` com fallback visual de bloqueio.
+
+
+## Composição CORSÁRIO vigente
+
+A tela atual renderiza **5 Ilhas visíveis**:
+
+```text
+01 Porto da Âncora
+02 Enseada do Saque
+03 Rochedo da Bandeira
+04 Ilha do Vulcão
+05 Ilha da Caveira Rosa
+```
+
+Os assets 06–10 permanecem preservados para futura reorganização de navegação.
+
+Fonte do posicionamento:
+
+```text
+docs/arte/ISSUE-008-REGIAO1-PIXEL-MAP.md
+```
