@@ -241,7 +241,8 @@ web/
     ├── content/
     │   └── game-content.js
     ├── domain/
-    │   └── player-state.js
+    │   ├── player-state.js
+    │   └── scheduler.js
     ├── persistence/
     │   └── local-storage.js
     └── screens/
@@ -253,7 +254,10 @@ Testes unitários ficam fora da pasta publicada:
 ```text
 tests/web/
 ├── player-state.test.cjs
-└── local-storage.test.cjs
+├── local-storage.test.cjs
+├── regions-layout.test.cjs
+├── regions-content.test.cjs
+└── scheduler.test.cjs
 ```
 
 ## Regra de fonte única
@@ -1212,3 +1216,22 @@ docs/arte/ISSUE-024-DIRECAO-REGIOES.md
 ```
 
 A tela usa 11 Regiões, 10 Ilhas por Região e separa a arte fixa de todos os dados dinâmicos.
+
+
+## Scheduler pedagógico — Issue #6
+
+Implementação física:
+
+```text
+web/js/domain/scheduler.js
+tests/web/scheduler.test.cjs
+```
+
+Contrato pedagógico:
+
+```text
+docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
+docs/validacao/ISSUE-005-verificacao-matriz.md
+```
+
+O scheduler é domínio puro: não acessa DOM, localStorage ou componentes de tela.
