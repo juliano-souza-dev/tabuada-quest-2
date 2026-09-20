@@ -2451,3 +2451,47 @@ agentes/03-direcao-visual.md
 docs/arte/ISSUE-008-DIRECAO-REGIOES-ILHAS.md
 MAPA-DO-PROJETO.md
 ```
+
+
+### Issue #8 — viagem na primeira entrada da Ilha
+
+Nova regra global de navegação definida pelo líder:
+
+```text
+primeiro clique em cada Ilha
+→ reproduzir animação de viagem
+→ abrir desafio
+
+cliques posteriores
+→ abrir desafio diretamente
+```
+
+Implementação:
+
+```text
+schemaVersion = 7
+campaign.travelPlayedIslandIds
+web/js/screens/travel-screen.js
+web/js/screens/islands-screen.js
+web/assets/transitions/island-travel.mp4
+```
+
+A viagem só é registrada como concluída quando o vídeo termina.
+
+Se o vídeo falhar ao carregar:
+
+```text
+→ segue ao desafio
+→ NÃO marca a viagem como vista
+→ próxima entrada tenta reproduzir novamente
+```
+
+A animação enviada pelo líder possui aproximadamente 5 segundos. A cópia para produção deve usar H.264/AVC + yuv420p para compatibilidade com Web/Android.
+
+Validação automática do domínio/persistência:
+
+```text
+Web Unit Tests = 35513925097 → success
+```
+
+O asset binário ainda precisa existir no caminho canônico do repositório para a validação visual final.
