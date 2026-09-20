@@ -1307,6 +1307,7 @@ Implementação:
 ```text
 web/js/screens/islands-screen.js
 REGION_1_LAYOUT
+docs/arte/ISSUE-008-REGIAO1-PIXEL-MAP.md
 ```
 
 Stage lógico:
@@ -1314,6 +1315,14 @@ Stage lógico:
 ```text
 941 × 1672
 ```
+
+Mapa pixel-perfect vigente:
+
+```text
+docs/arte/ISSUE-008-REGIAO1-PIXEL-MAP.md
+```
+
+O novo fundo usa percurso serpenteado e coordenadas específicas por Ilha. Não voltar ao layout rígido de duas colunas.
 
 Composição:
 
@@ -1326,7 +1335,7 @@ troca locked/unlocked pelo estado
 +
 medalhões de recompensa embutidos por Ilha
 +
-status/hitboxes dinâmicos
+somente status textual + hitbox dinâmicos
 ```
 
 Seleção:
