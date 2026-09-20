@@ -208,7 +208,8 @@
             const status = TQ.domain.playerState.getRegionStatus(state, regionId);
             if (status === "locked") return;
 
-            onStateChange(TQ.domain.playerState.selectRegion(state, regionId));
+            const selected = TQ.domain.playerState.selectRegion(state, regionId);
+            onStateChange(TQ.domain.playerState.withLastScreen(selected, "islands"));
         });
 
         if (typeof root.ResizeObserver === "function") {
