@@ -96,7 +96,6 @@
     function islandLabel(state, regionId, islandId) {
         const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
         if (status === "completed") return "CONCLUÍDA ✓";
-        if (status === "review") return "REVISAR";
         if (status === "available") return "JOGAR";
         return "BLOQUEADA";
     }
@@ -104,7 +103,6 @@
     function formatRegion1Status(status, isResume) {
         if (isResume) return "CONTINUAR";
         if (status === "completed") return "CONCLUÍDA ✓";
-        if (status === "review") return "REVISAR";
         if (status === "available") return "DESBLOQUEADA";
         return "BLOQUEADA";
     }
