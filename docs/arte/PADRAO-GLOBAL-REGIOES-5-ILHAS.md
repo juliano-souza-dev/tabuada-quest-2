@@ -102,6 +102,34 @@ O Mapa mundo fica sempre no canto inferior esquerdo da composição, abaixo da I
 
 Essa posição é global e não varia entre Regiões.
 
+## Clique global do Mapa mundo
+
+O asset é interativo em todas as telas de Região.
+
+Contrato:
+
+```text
+data-action = open-world-map
+→ TQ.core.worldMap.open({ onNavigate })
+```
+
+Fonte única:
+
+```text
+web/js/core/world-map.js
+```
+
+Enquanto a tela real não existe:
+
+```text
+clique
+→ aviso "Mapa mundo ainda está em produção."
+```
+
+Quando a tela `world-map` for implementada, o comportamento deve ser alterado somente nesse controlador global.
+
+Não criar handlers diferentes por Região.
+
 ## Header e retorno
 
 O header pode mudar de material, ornamentos, iluminação e identidade de acordo com a Região.
