@@ -1063,3 +1063,67 @@ Web Preview publicado
 → líder valida tamanho/posição das 5 Ilhas
 → somente depois considerar a task visual aceita
 ```
+
+
+### Issue #8 — refino de escala e contraste
+
+Diagnóstico do líder após validar a primeira versão CORSÁRIO 5:
+
+```text
+oceano deve continuar respirando
+Ilhas podem crescer mais
+Ilhas não devem se encostar
+status precisa contrastar melhor com a placa
+```
+
+Implementação aplicada:
+
+```text
+Ilha 01 = 380 × 380
+Ilha 02 = 380 × 380
+Ilha 03 = 400 × 400
+Ilha 04 = 395 × 395
+Ilha 05 = 400 × 400
+```
+
+Os centros visuais foram preservados aproximadamente e o espaço negativo do oceano continua fazendo parte da composição.
+
+Status:
+
+```text
+font-size lógico = 28–29 px
+caixa = 42–44 px
+text-stroke
+sombras em camadas
+leve tratamento de fundo
+cores específicas para locked / completed / resume
+```
+
+Commits:
+
+```text
+9c0dc2b7 → amplia Ilhas preservando respiro
+5b01de02 → reforça contraste dos status
+defa0563 → testes de escala e respiro
+3e87972e → testes de contraste CSS
+b8e7f555 → cache CSS
+e8934b25 → cache frontend
+57e06799 → documentação técnica
+```
+
+Validação automática final do código publicado:
+
+```text
+Web Unit Tests 35527098858 → success
+Web Preview    35527098869 → success
+Android Debug  35527098870 → success
+```
+
+Próximo gate:
+
+```text
+líder valida visualmente o novo tamanho e o contraste
+→ somente após aprovação considerar o refino aceito
+```
+
+A Issue #8 permanece aberta.
