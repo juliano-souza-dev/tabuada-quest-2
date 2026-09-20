@@ -1127,3 +1127,76 @@ líder valida visualmente o novo tamanho e o contraste
 ```
 
 A Issue #8 permanece aberta.
+
+
+### Issue #32 — asset global Mapa mundo
+
+Pedido do líder:
+
+```text
+criar asset global "Mapa mundo"
+200 × 200
+PNG transparente
+posicionar na CORSÁRIO no canto inferior
+abaixo da Ilha do Vulcão
+```
+
+Asset:
+
+```text
+web/assets/global/mapa-mundo.png
+```
+
+Catálogo:
+
+```text
+TQ.content.assets.global.worldMap
+```
+
+Posicionamento CORSÁRIO:
+
+```text
+x=98
+y=1405
+w=200
+h=200
+```
+
+A integração não adiciona comportamento de clique. É somente composição visual nesta etapa.
+
+Dependências:
+
+```text
+DEPENDE_DE  = asset aprovado + tela CORSÁRIO existente
+DESBLOQUEIA = reutilização futura em outras Regiões
+MILESTONE   = nenhuma
+```
+
+Commits principais:
+
+```text
+1de911c4 → sobe PNG global 200×200
+5954377d → cadastra asset global
+005ef74d → posiciona na CORSÁRIO
+108ce230 → estilo visual do asset
+f02c3243 → testes do PNG e posicionamento
+549bbe17 → cache CSS
+c79cace2 → cache frontend
+dfd4d415 → documentação física
+```
+
+Validação automática:
+
+```text
+Web Unit Tests 35528326226 → success
+Web Preview    35528326173 → success
+Android Debug  35528326081 → success
+```
+
+Gate restante:
+
+```text
+validação visual do líder
+```
+
+A Issue #32 permanece aberta até essa validação.
