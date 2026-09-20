@@ -199,53 +199,66 @@ Padrão visual e coordenadas: `agentes/03-direcao-visual.md`.
 
 Regra técnica de compartilhamento: `agentes/04-desenvolvimento.md`.
 
-### CORSÁRIO
+### CORSÁRIO / legado de transição
 
-Assets:
+Assets físicos atuais:
 
 ```text
 web/assets/regions/region-1/
 ```
 
-Background canônico atual:
+Backgrounds atuais:
 
 ```text
 web/assets/regions/region-1/mapa_marítimo_do_corsário.png
-```
-
-Ilhas visíveis atuais:
-
-```text
-island-01-unlocked.png / island-01-locked.png
-...
-island-05-unlocked.png / island-05-locked.png
-```
-
-Assets 06–10 existentes pertencem à implementação de **CORSÁRIO 2** e devem ser reutilizados nos cinco slots da malha compartilhada.
-
-```text
-CORSÁRIO 1 → assets 01–05
-CORSÁRIO 2 → assets 06–10
-```
-
-Background canônico da CORSÁRIO 2:
-
-```text
 web/assets/regions/region-1/corsario-2-background.jpg
 ```
 
-Na CORSÁRIO 2, continuam dinâmicos e separados do background:
+A implementação corrente ainda contém duas composições históricas sob a mesma Região:
 
 ```text
-Ilhas 06–10
-status
-hitboxes
-Mapa mundo global
+corsario-1
+corsario-2
 ```
 
-A implementação continua em `web/js/screens/islands-screen.js` e usa a infraestrutura compartilhada registrada em `agentes/04-desenvolvimento.md`.
+Isso é **legado pendente de migração**.
 
-O pixel-map da CORSÁRIO 2 fica em `REGION_VISUAL_CONFIG.pages[].slotLayout`; as coordenadas canônicas pertencem à Direção Visual.
+Contrato canônico atual:
+
+```text
+22 Regiões
+5 Ilhas por Região
+sem sub-regiões
+uma composição de Região por Região real
+```
+
+Enquanto os novos assets das Ilhas são refeitos, as duas composições históricas da CORSÁRIO permanecem limpas, sem arte/hitbox de Ilha e sem status textual.
+
+Implementação física do legado:
+
+```text
+web/js/screens/islands-screen.js
+web/js/content/game-content.js
+web/css/screens/vertical-slice.css
+```
+
+Migração estrutural futura deve atuar principalmente em:
+
+```text
+web/js/content/game-content.js
+web/js/domain/scheduler.js
+web/js/domain/player-state.js
+web/js/screens/islands-screen.js
+tests/web/
+```
+
+Regras de Produto: `agentes/01-produto.md`.
+
+Regras pedagógicas: `agentes/02-game-design-aprendizagem.md`.
+
+Contrato técnico-alvo: `agentes/04-desenvolvimento.md`.
+
+Não usar os paths/nomes históricos `corsario-1/corsario-2` como modelo para novas Regiões.
 
 ## Mapa mundo
 
