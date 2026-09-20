@@ -1,6 +1,6 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STATE_VERSION = 6;
+    const STATE_VERSION = 7;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = 11;
@@ -56,6 +56,7 @@
                 unlockedRegionIds: [1],
                 completedRegionIds: [],
                 completedIslandIds: [],
+                travelPlayedIslandIds: [],
                 regionProgress: createRegionProgress(),
                 finalJourney: createFinalJourney(),
                 petsRescuedIds: [],
@@ -141,8 +142,27 @@
         if (migrated.schemaVersion === 5) {
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 6,
                 learning: createLearningState()
+            };
+        }
+
+        if (migrated.schemaVersion === 6) {
+            const campaign = isObject(migrated.campaign) ? migrated.campaign : {};
+            const completed = Array.isArray(campaign.completedIslandIds)
+                ? campaign.completedIslandIds.filter((id) => /^region-\d+-island-\d+$/.test(String(id)))
+                : [];
+            const active = isObject(migrated.learning?.activeSession)
+                ? `region-${migrated.learning.activeSession.regionId}-island-${migrated.learning.activeSession.islandId}`
+                : null;
+
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                campaign: {
+                    ...campaign,
+                    travelPlayedIslandIds: active ? addUnique(completed, active) : completed
+                }
             };
         }
 
@@ -253,6 +273,8 @@
             && value.campaign.unlockedRegionIds.includes(1)
             && Array.isArray(value.campaign.completedRegionIds)
             && Array.isArray(value.campaign.completedIslandIds)
+            && Array.isArray(value.campaign.travelPlayedIslandIds)
+            && value.campaign.travelPlayedIslandIds.every((id) => /^region-\d+-island-\d+$/.test(String(id)))
             && validRegionProgress(value.campaign.regionProgress)
             && validFinalJourney(value.campaign.finalJourney)
             && Array.isArray(value.campaign.petsRescuedIds)
@@ -288,7 +310,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "regions", "islands", "challenge", "result"].includes(screenId)
+        return ["home", "regions", "islands", "travel", "challenge", "result"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }
@@ -467,9 +489,22 @@
         return s.learning.regionStates[String(regionId)] || null;
     }
 
-    function withGameplaySession(state, session, regionState) {
+    function islandTravelKey(regionId, islandId) {
+        if (!Number.isInteger(regionId) || !Number.isInteger(islandId)) return null;
+        if (regionId < 1 || regionId > TOTAL_REGIONS || islandId < 1 || islandId > ISLANDS_PER_REGION) return null;
+        return `region-${regionId}-island-${islandId}`;
+    }
+
+    function hasPlayedIslandTravel(state, regionId, islandId) {
+        const s = normalizeState(state);
+        const key = islandTravelKey(regionId, islandId);
+        return Boolean(key && s.campaign.travelPlayedIslandIds.includes(key));
+    }
+
+    function withGameplaySessionTarget(state, session, regionState, screenId) {
         const s = normalizeState(state);
         if (!validActiveSession(session) || !validRegionLearningState(regionState)) return s;
+        if (!["travel", "challenge"].includes(screenId)) return s;
         return {
             ...s,
             campaign: {
@@ -484,6 +519,30 @@
                     ...s.learning.regionStates,
                     [String(session.regionId)]: regionState
                 }
+            },
+            ui: { ...s.ui, lastScreen: screenId }
+        };
+    }
+
+    function withGameplaySession(state, session, regionState) {
+        return withGameplaySessionTarget(state, session, regionState, "challenge");
+    }
+
+    function withIslandTravelSession(state, session, regionState) {
+        return withGameplaySessionTarget(state, session, regionState, "travel");
+    }
+
+    function completeIslandTravel(state, regionId, islandId) {
+        const s = normalizeState(state);
+        const key = islandTravelKey(regionId, islandId);
+        const active = s.learning.activeSession;
+        if (!key || !active || active.regionId !== regionId || active.islandId !== islandId) return s;
+
+        return {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                travelPlayedIslandIds: addUnique(s.campaign.travelPlayedIslandIds, key)
             },
             ui: { ...s.ui, lastScreen: "challenge" }
         };
@@ -558,7 +617,11 @@
         unlockNextRegionIfEligible,
         applyIslandRewards,
         getRegionLearningState,
+        islandTravelKey,
+        hasPlayedIslandTravel,
         withGameplaySession,
+        withIslandTravelSession,
+        completeIslandTravel,
         updateGameplaySession,
         completeGameplaySession,
         claimFinalGrandChest
