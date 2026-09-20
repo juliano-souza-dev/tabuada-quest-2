@@ -6,51 +6,61 @@
         back: Object.freeze({ x: 8, y: 5, width: 118, height: 118 }),
         islands: Object.freeze({
             1: Object.freeze({
+                art: Object.freeze({ x: 45, y: 185, width: 370, height: 265 }),
                 status: Object.freeze({ x: 145, y: 472, width: 174, height: 39 }),
                 reward: Object.freeze({ x: 331, y: 468, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 35, y: 145, width: 390, height: 380 })
             }),
             2: Object.freeze({
+                art: Object.freeze({ x: 515, y: 185, width: 370, height: 265 }),
                 status: Object.freeze({ x: 575, y: 472, width: 176, height: 39 }),
                 reward: Object.freeze({ x: 764, y: 468, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 500, y: 145, width: 405, height: 380 })
             }),
             3: Object.freeze({
+                art: Object.freeze({ x: 45, y: 485, width: 370, height: 250 }),
                 status: Object.freeze({ x: 145, y: 759, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 331, y: 757, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 35, y: 525, width: 390, height: 287 })
             }),
             4: Object.freeze({
+                art: Object.freeze({ x: 515, y: 485, width: 370, height: 250 }),
                 status: Object.freeze({ x: 575, y: 759, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 763, y: 757, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 500, y: 525, width: 405, height: 287 })
             }),
             5: Object.freeze({
+                art: Object.freeze({ x: 45, y: 775, width: 370, height: 250 }),
                 status: Object.freeze({ x: 145, y: 1049, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 332, y: 1045, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 35, y: 812, width: 390, height: 296 })
             }),
             6: Object.freeze({
+                art: Object.freeze({ x: 515, y: 775, width: 370, height: 250 }),
                 status: Object.freeze({ x: 575, y: 1049, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 765, y: 1045, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 500, y: 812, width: 405, height: 296 })
             }),
             7: Object.freeze({
+                art: Object.freeze({ x: 45, y: 1060, width: 370, height: 245 }),
                 status: Object.freeze({ x: 145, y: 1327, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 331, y: 1326, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 35, y: 1108, width: 390, height: 280 })
             }),
             8: Object.freeze({
+                art: Object.freeze({ x: 515, y: 1060, width: 370, height: 245 }),
                 status: Object.freeze({ x: 575, y: 1327, width: 176, height: 40 }),
                 reward: Object.freeze({ x: 764, y: 1325, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 500, y: 1108, width: 405, height: 280 })
             }),
             9: Object.freeze({
+                art: Object.freeze({ x: 45, y: 1340, width: 370, height: 245 }),
                 status: Object.freeze({ x: 145, y: 1613, width: 174, height: 40 }),
                 reward: Object.freeze({ x: 331, y: 1609, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 35, y: 1388, width: 390, height: 284 })
             }),
             10: Object.freeze({
+                art: Object.freeze({ x: 515, y: 1340, width: 370, height: 245 }),
                 status: Object.freeze({ x: 575, y: 1613, width: 176, height: 40 }),
                 reward: Object.freeze({ x: 763, y: 1609, width: 56, height: 56 }),
                 hitbox: Object.freeze({ x: 500, y: 1388, width: 405, height: 284 })
@@ -125,6 +135,12 @@
         return "Recompensa";
     }
 
+    function getRegion1IslandAsset(islandId, status) {
+        const entry = TQ.content.assets.region1Modular.islands[islandId];
+        if (!entry) return "";
+        return status === "locked" ? entry.locked : entry.unlocked;
+    }
+
     function renderRegion1Map({ state, onStateChange, onNavigate }) {
         const regionId = 1;
         const active = state.learning.activeSession;
@@ -146,9 +162,20 @@
             const statusText = formatRegion1Status(status, isResume);
             const rewardText = rewardLabel(rewards);
             const reward = rewardSymbol(rewards);
+            const islandAsset = getRegion1IslandAsset(islandId, status);
+            const unlockedAsset = TQ.content.assets.region1Modular.islands[islandId].unlocked;
 
             return `
                 <div class="region1-island-overlay is-${status}" data-island-ui="${islandId}">
+                    <div class="region1-island-art-shell" style="${rectStyle(layout.art)}">
+                        <img class="region1-island-art"
+                            src="${islandAsset}"
+                            data-fallback-src="${status === "locked" ? unlockedAsset : ""}"
+                            alt=""
+                            aria-hidden="true">
+                        <span class="region1-fallback-lock" aria-hidden="true">🔒</span>
+                    </div>
+
                     <span class="region1-island-status"
                         style="${rectStyle(layout.status)}"
                         aria-hidden="true">${statusText}</span>
@@ -170,8 +197,8 @@
 
         screen.innerHTML = `
             <div class="region1-islands-canonical-stage">
-                <img class="region1-islands-map-image"
-                    src="${TQ.content.assets.region1IslandsMapStatic}"
+                <img class="region1-islands-background"
+                    src="${TQ.content.assets.region1Modular.background}"
                     alt=""
                     aria-hidden="true">
 
@@ -187,6 +214,16 @@
         `;
 
         const stage = screen.querySelector(".region1-islands-canonical-stage");
+
+        screen.addEventListener("error", (event) => {
+            const image = event.target.closest?.(".region1-island-art");
+            if (!image || !image.dataset.fallbackSrc) return;
+
+            const fallback = image.dataset.fallbackSrc;
+            image.dataset.fallbackSrc = "";
+            image.src = fallback;
+            image.closest(".region1-island-overlay")?.classList.add("is-fallback-locked");
+        }, true);
 
         function applyStageGeometry() {
             const geometry = computeRegion1StageGeometry(screen.clientWidth, screen.clientHeight);
@@ -349,6 +386,7 @@
         formatRegion1Status,
         rewardSymbol,
         rewardLabel,
+        getRegion1IslandAsset,
         REGION_1_LAYOUT,
         computeRegion1StageGeometry
     });
