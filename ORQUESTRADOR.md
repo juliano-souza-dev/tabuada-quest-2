@@ -29,30 +29,37 @@ Experience Validator       → agentes/06-experience-validator.md
 
 O `MAPA-DO-PROJETO.md` registra como acessar o conhecimento e onde está a implementação.
 
-## Nova função das issues
+## Função das issues
 
 A partir de 20/09/2026:
 
-> **Issues definem fluxo de desenvolvimento. Elas não armazenam conhecimento permanente do produto.**
+> **Issue é tarefa de implementação ou correção. Não é instrumento de definição, planejamento conceitual ou coordenação entre personas.**
 
-Uma issue deve ser curta.
+Uma issue só deve nascer quando o Orquestrador já souber **o que deve ser executado**.
 
 Formato padrão:
 
 ```text
-OBJETIVO
-DEPENDE_DE
-DESBLOQUEIA
-PERSONA_DONA
-CRITERIO_DE_PRONTO
+TAREFA
+PRONTO
 ```
 
 Opcional:
 
 ```text
-PRIORIDADE
-ARTEFATO_ESPERADO
+ARTEFATO
 ```
+
+Não colocar em issue:
+
+- qual persona precisa pensar a regra;
+- cadeia de handoffs;
+- dependências conceituais;
+- decisões ainda abertas;
+- definição de Produto/Game Design/Arte;
+- conhecimento permanente do projeto.
+
+Esses elementos são manobrados pelo Orquestrador e registrados nas personas quando viram regra permanente.
 
 ## O que não pertence a issues
 
@@ -76,28 +83,35 @@ Esses dados pertencem às personas e ao MAPA.
 
 ## Regra de migração de conhecimento
 
-Se durante uma issue surgir uma nova regra permanente:
+Se durante uma execução surgir uma nova regra permanente:
 
 ```text
-1. identificar a persona dona
-2. atualizar a persona
-3. atualizar MAPA-DO-PROJETO.md se paths/acesso mudaram
-4. manter na issue apenas o impacto no fluxo
+1. pausar a decisão na issue
+2. Orquestrador chama a persona dona
+3. atualizar a persona
+4. atualizar MAPA-DO-PROJETO.md se paths/acesso mudaram
+5. voltar para a issue somente com a tarefa executável
 ```
 
-A issue pode então ser encerrada sem virar arquivo de documentação.
+A issue nunca vira repositório de decisão.
 
-## Dependências
+## Coordenação e dependências
 
-A ordem de execução é definida por dependência, não por número.
+A ordem de trabalho pertence ao Orquestrador.
+
+Ele deve controlar:
 
 ```text
-A DEPENDE_DE B
-→ B precisa estar pronta
-→ A não entra em execução antes disso
+qual persona atua
+→ qual definição precisa fechar
+→ qual handoff vem depois
+→ quando uma tarefa concreta pode virar issue
+→ qual issue pode entrar em execução
 ```
 
-Se duas issues forem independentes, a prioridade é definida pelo líder.
+Dependências conceituais não devem ser empurradas para o corpo das issues.
+
+Issues podem coexistir abertas como tarefas futuras, mas só entram em execução quando o Orquestrador liberar.
 
 ## Handoff
 
@@ -148,6 +162,24 @@ Milestone é agrupamento de planejamento, não fonte de verdade nem ordem autom�
 
 Não associar issue a milestone sem necessidade explícita de planejamento.
 
+## Fila operacional atual
+
+O Orquestrador mantém o encadeamento atual fora das issues.
+
+Para a expansão das Regiões, a sequência é:
+
+```text
+Produto + Game Design fecham regras nas personas
+→ Orquestrador libera produção visual
+→ issue de produção visual
+→ Direção Visual entrega/aprova assets
+→ Orquestrador libera implementação
+→ issue de implementação
+→ Qualidade / Experience / líder conforme gates
+```
+
+A etapa de definição entre Produto e Game Design **não gera issue**.
+
 ## Estado após reset de issues
 
 Em 20/09/2026 foi determinado:
@@ -177,8 +209,8 @@ Antes de encerrar uma issue:
 ## Regra absoluta
 
 ```text
-PERSONA = conhecimento
-MAPA    = acesso/localização
-ISSUE   = fluxo
-ORQUESTRADOR = ordem
+PERSONA      = conhecimento
+MAPA         = acesso/localização
+ISSUE        = implementação/correção
+ORQUESTRADOR = coordenação, dependências e ordem
 ```
