@@ -1473,3 +1473,18 @@ Orquestrador
 → Experience Validator
 → Líder
 ```
+
+
+### Issue #24 — Desenvolvimento em execução
+
+Direção Visual concluiu o handoff da composição aprovada:
+
+```text
+asset fixo = mapa vertical aprovado pelo líder
+header     = dinâmico / linguagem da Home
+dados      = HTML/CSS/JS
+11 Regiões = obrigatório
+Região 11  = 9 fragmentos → Ilha 10 → Grande Baú Final
+```
+
+Desenvolvimento recebeu autorização para implementar sem redesenhar a arte.

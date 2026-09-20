@@ -1196,3 +1196,19 @@ docs/decisoes/DEC-005-jornada-11-regioes-grande-bau-final.md
 ```
 
 A composição aprovada da tela de Regiões deve separar cenário/slots fixos de dados dinâmicos. O header segue a linguagem visual aprovada da Home e deve ser produzido com slots vazios para os dados do jogador.
+
+
+# Issue #24 — Tela de Regiões
+
+Implementação física:
+
+```text
+web/assets/regions/regions-map-base.webp
+web/css/screens/regions.css
+web/js/screens/regions-screen.js
+web/js/domain/player-state.js   # schema v5 / campanha
+tests/web/                      # invariantes de campanha e persistência
+docs/arte/ISSUE-024-DIRECAO-REGIOES.md
+```
+
+A tela usa 11 Regiões, 10 Ilhas por Região e separa a arte fixa de todos os dados dinâmicos.

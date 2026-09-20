@@ -21,7 +21,7 @@
         return Math.max(0, Math.min(100, value));
     }
 
-    function renderHomeScreen({ state, onStateChange }) {
+    function renderHomeScreen({ state, onStateChange, onNavigate }) {
         const avatarId = safeAvatarId(state.player.avatarId);
         const avatarSrc = TQ.content.assets.avatars[avatarId];
         const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
@@ -220,9 +220,13 @@
                 return;
             }
 
+            if (action === "regions") {
+                onNavigate("regions");
+                return;
+            }
+
             const messages = {
                 play: "A rota está pronta para a próxima etapa.",
-                regions: "As Regiões serão o mapa principal da campanha.",
                 daily: "Recompensa diária preparada para a evolução da campanha.",
                 shop: "A Loja será liberada na evolução da campanha.",
                 collection: "Sua coleção ficará reunida aqui.",

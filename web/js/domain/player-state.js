@@ -1,16 +1,33 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STATE_VERSION = 4;
+    const STATE_VERSION = 5;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
+    const TOTAL_REGIONS = 11;
+    const ISLANDS_PER_REGION = 10;
 
     function createSpecialMaps() {
+        return Object.fromEntries(Array.from({ length: 5 }, (_, i) => [
+            String(i + 1),
+            { fragments: 0, missionStatus: "collecting", rewardClaimed: false }
+        ]));
+    }
+
+    function createRegionProgress() {
+        return Object.fromEntries(Array.from({ length: TOTAL_REGIONS }, (_, i) => [
+            String(i + 1),
+            { islandsCompleted: 0, islandsTotal: ISLANDS_PER_REGION }
+        ]));
+    }
+
+    function createFinalJourney() {
         return {
-            "1": { fragments: 0, missionStatus: "collecting", rewardClaimed: false },
-            "2": { fragments: 0, missionStatus: "collecting", rewardClaimed: false },
-            "3": { fragments: 0, missionStatus: "collecting", rewardClaimed: false },
-            "4": { fragments: 0, missionStatus: "collecting", rewardClaimed: false },
-            "5": { fragments: 0, missionStatus: "collecting", rewardClaimed: false }
+            finalMapFragments: 0,
+            finalMapCompleted: false,
+            island10Unlocked: false,
+            island10Completed: false,
+            finalGrandChestUnlocked: false,
+            finalGrandChestClaimed: false
         };
     }
 
@@ -23,91 +40,91 @@
                 avatarId: "luna",
                 profileFrameId: DEFAULT_PROFILE_FRAME_ID
             },
-            progression: {
-                level: 1,
-                xpCurrent: 0,
-                xpRequired: 100
-            },
-            wallet: {
-                coins: 0,
-                gems: 0
-            },
+            progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
+            wallet: { coins: 0, gems: 0 },
             campaign: {
                 currentRegionId: 1,
                 currentIslandId: 1,
                 unlockedRegionIds: [1],
+                completedRegionIds: [],
                 completedIslandIds: [],
+                regionProgress: createRegionProgress(),
+                finalJourney: createFinalJourney(),
                 petsRescuedIds: [],
                 claimedChestIds: [],
                 specialMaps: createSpecialMaps(),
                 diamonds: 0
             },
-            ui: {
-                lastScreen: "home",
-                homeBackgroundId: DEFAULT_HOME_BACKGROUND_ID
-            }
+            ui: { lastScreen: "home", homeBackgroundId: DEFAULT_HOME_BACKGROUND_ID }
         };
     }
 
-    function isPlainObject(value) {
+    function isObject(value) {
         return value !== null && typeof value === "object" && !Array.isArray(value);
     }
 
-    function migrateState(value) {
-        if (!isPlainObject(value)) {
-            return value;
-        }
+    function uniqueRegionIds(value) {
+        return Array.from(new Set(
+            Array.isArray(value)
+                ? value.filter((id) => Number.isInteger(id) && id >= 1 && id <= TOTAL_REGIONS)
+                : []
+        ));
+    }
 
+    function migrateState(value) {
+        if (!isObject(value)) return value;
         let migrated = value;
 
         if (migrated.schemaVersion === 1) {
-            const oldUi = isPlainObject(migrated.ui) ? migrated.ui : {};
+            const ui = isObject(migrated.ui) ? migrated.ui : {};
             migrated = {
                 ...migrated,
                 schemaVersion: 2,
                 ui: {
-                    ...oldUi,
-                    lastScreen: typeof oldUi.lastScreen === "string" ? oldUi.lastScreen : "home",
+                    ...ui,
+                    lastScreen: typeof ui.lastScreen === "string" ? ui.lastScreen : "home",
                     homeBackgroundId: DEFAULT_HOME_BACKGROUND_ID
                 }
             };
         }
 
         if (migrated.schemaVersion === 2) {
-            const oldPlayer = isPlainObject(migrated.player) ? migrated.player : {};
+            const player = isObject(migrated.player) ? migrated.player : {};
             migrated = {
                 ...migrated,
                 schemaVersion: 3,
-                player: {
-                    ...oldPlayer,
-                    profileFrameId: "pirate-treasure"
-                },
-                progression: {
-                    level: 1,
-                    xpCurrent: 0,
-                    xpRequired: 100
-                },
-                wallet: {
-                    coins: 0,
-                    gems: 0
-                }
+                player: { ...player, profileFrameId: "pirate-treasure" },
+                progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
+                wallet: { coins: 0, gems: 0 }
             };
         }
 
         if (migrated.schemaVersion === 3) {
-            const oldPlayer = isPlainObject(migrated.player) ? migrated.player : {};
-            const oldFrameId = typeof oldPlayer.profileFrameId === "string"
-                ? oldPlayer.profileFrameId
-                : "pirate-treasure";
+            const player = isObject(migrated.player) ? migrated.player : {};
+            migrated = {
+                ...migrated,
+                schemaVersion: 4,
+                player: {
+                    ...player,
+                    profileFrameId: player.profileFrameId === "tide-wheel"
+                        ? "tide-wheel"
+                        : DEFAULT_PROFILE_FRAME_ID
+                }
+            };
+        }
 
+        if (migrated.schemaVersion === 4) {
+            const campaign = isObject(migrated.campaign) ? migrated.campaign : {};
+            const unlocked = uniqueRegionIds(campaign.unlockedRegionIds);
             migrated = {
                 ...migrated,
                 schemaVersion: STATE_VERSION,
-                player: {
-                    ...oldPlayer,
-                    profileFrameId: oldFrameId === "pirate-treasure"
-                        ? DEFAULT_PROFILE_FRAME_ID
-                        : oldFrameId
+                campaign: {
+                    ...campaign,
+                    unlockedRegionIds: unlocked.length ? unlocked : [1],
+                    completedRegionIds: [],
+                    regionProgress: createRegionProgress(),
+                    finalJourney: createFinalJourney()
                 }
             };
         }
@@ -115,79 +132,209 @@
         return migrated;
     }
 
+    function validRegionProgress(value) {
+        if (!isObject(value)) return false;
+        return Array.from({ length: TOTAL_REGIONS }, (_, i) => String(i + 1)).every((id) => {
+            const item = value[id];
+            return isObject(item)
+                && Number.isInteger(item.islandsCompleted)
+                && item.islandsCompleted >= 0
+                && item.islandsCompleted <= ISLANDS_PER_REGION
+                && item.islandsTotal === ISLANDS_PER_REGION;
+        });
+    }
+
+    function validFinalJourney(value) {
+        return Boolean(
+            isObject(value)
+            && Number.isInteger(value.finalMapFragments)
+            && value.finalMapFragments >= 0
+            && value.finalMapFragments <= 9
+            && ["finalMapCompleted", "island10Unlocked", "island10Completed", "finalGrandChestUnlocked", "finalGrandChestClaimed"]
+                .every((key) => typeof value[key] === "boolean")
+        );
+    }
+
     function isValidState(value) {
         return Boolean(
-            isPlainObject(value) &&
-            value.schemaVersion === STATE_VERSION &&
-            isPlainObject(value.player) &&
-            typeof value.player.displayName === "string" &&
-            typeof value.player.avatarId === "string" &&
-            typeof value.player.profileFrameId === "string" &&
-            value.player.profileFrameId.length > 0 &&
-            isPlainObject(value.progression) &&
-            Number.isInteger(value.progression.level) &&
-            value.progression.level >= 1 &&
-            Number.isInteger(value.progression.xpCurrent) &&
-            value.progression.xpCurrent >= 0 &&
-            Number.isInteger(value.progression.xpRequired) &&
-            value.progression.xpRequired > 0 &&
-            isPlainObject(value.wallet) &&
-            Number.isInteger(value.wallet.coins) &&
-            value.wallet.coins >= 0 &&
-            Number.isInteger(value.wallet.gems) &&
-            value.wallet.gems >= 0 &&
-            isPlainObject(value.campaign) &&
-            Number.isInteger(value.campaign.currentRegionId) &&
-            Number.isInteger(value.campaign.currentIslandId) &&
-            Array.isArray(value.campaign.unlockedRegionIds) &&
-            Array.isArray(value.campaign.completedIslandIds) &&
-            Array.isArray(value.campaign.petsRescuedIds) &&
-            Array.isArray(value.campaign.claimedChestIds) &&
-            isPlainObject(value.campaign.specialMaps) &&
-            Number.isInteger(value.campaign.diamonds) &&
-            value.campaign.diamonds >= 0 &&
-            isPlainObject(value.ui) &&
-            typeof value.ui.lastScreen === "string" &&
-            typeof value.ui.homeBackgroundId === "string" &&
-            value.ui.homeBackgroundId.length > 0
+            isObject(value)
+            && value.schemaVersion === STATE_VERSION
+            && isObject(value.player)
+            && typeof value.player.displayName === "string"
+            && typeof value.player.avatarId === "string"
+            && typeof value.player.profileFrameId === "string"
+            && isObject(value.progression)
+            && Number.isInteger(value.progression.level)
+            && value.progression.level >= 1
+            && Number.isInteger(value.progression.xpCurrent)
+            && value.progression.xpCurrent >= 0
+            && Number.isInteger(value.progression.xpRequired)
+            && value.progression.xpRequired > 0
+            && isObject(value.wallet)
+            && Number.isInteger(value.wallet.coins)
+            && value.wallet.coins >= 0
+            && Number.isInteger(value.wallet.gems)
+            && value.wallet.gems >= 0
+            && isObject(value.campaign)
+            && Number.isInteger(value.campaign.currentRegionId)
+            && value.campaign.currentRegionId >= 1
+            && value.campaign.currentRegionId <= TOTAL_REGIONS
+            && Number.isInteger(value.campaign.currentIslandId)
+            && Array.isArray(value.campaign.unlockedRegionIds)
+            && value.campaign.unlockedRegionIds.includes(1)
+            && Array.isArray(value.campaign.completedRegionIds)
+            && Array.isArray(value.campaign.completedIslandIds)
+            && validRegionProgress(value.campaign.regionProgress)
+            && validFinalJourney(value.campaign.finalJourney)
+            && Array.isArray(value.campaign.petsRescuedIds)
+            && Array.isArray(value.campaign.claimedChestIds)
+            && isObject(value.campaign.specialMaps)
+            && Number.isInteger(value.campaign.diamonds)
+            && value.campaign.diamonds >= 0
+            && isObject(value.ui)
+            && typeof value.ui.lastScreen === "string"
+            && typeof value.ui.homeBackgroundId === "string"
         );
     }
 
     function normalizeState(value) {
         const migrated = migrateState(value);
-        if (!isValidState(migrated)) {
-            return createInitialState();
-        }
-
-        return migrated;
+        return isValidState(migrated) ? migrated : createInitialState();
     }
 
     function withHomeBackground(state, backgroundId, allowedIds) {
-        const normalized = normalizeState(state);
-        if (!Array.isArray(allowedIds) || !allowedIds.includes(backgroundId)) {
-            return normalized;
-        }
+        const s = normalizeState(state);
+        return Array.isArray(allowedIds) && allowedIds.includes(backgroundId)
+            ? { ...s, ui: { ...s.ui, homeBackgroundId: backgroundId } }
+            : s;
+    }
 
+    function withProfileFrame(state, frameId, allowedIds) {
+        const s = normalizeState(state);
+        return Array.isArray(allowedIds) && allowedIds.includes(frameId)
+            ? { ...s, player: { ...s.player, profileFrameId: frameId } }
+            : s;
+    }
+
+    function withLastScreen(state, screenId) {
+        const s = normalizeState(state);
+        return ["home", "regions"].includes(screenId)
+            ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
+            : s;
+    }
+
+    function getRegionStatus(state, regionId) {
+        const s = normalizeState(state);
+        if (!Number.isInteger(regionId) || regionId < 1 || regionId > TOTAL_REGIONS) return "locked";
+        if (s.campaign.completedRegionIds.includes(regionId)) return "completed";
+        if (!s.campaign.unlockedRegionIds.includes(regionId)) return "locked";
+        return s.campaign.regionProgress[String(regionId)].islandsCompleted > 0
+            ? "in_progress"
+            : "available";
+    }
+
+    function selectRegion(state, regionId) {
+        const s = normalizeState(state);
+        if (!s.campaign.unlockedRegionIds.includes(regionId)) return s;
         return {
-            ...normalized,
-            ui: {
-                ...normalized.ui,
-                homeBackgroundId: backgroundId
+            ...s,
+            campaign: { ...s.campaign, currentRegionId: regionId },
+            ui: { ...s.ui, lastScreen: "regions" }
+        };
+    }
+
+    function addUnique(list, value) {
+        return list.includes(value) ? list : [...list, value];
+    }
+
+    function specialMapGateForRegion(regionId) {
+        return ({ 1: "1", 3: "2", 5: "3", 7: "4", 10: "5" })[regionId] || null;
+    }
+
+    function specialMapBlocksProgress(campaign, regionId) {
+        const mapId = specialMapGateForRegion(regionId);
+        if (!mapId || !isObject(campaign.specialMaps[mapId])) return false;
+        return ["map_complete_mission_pending", "mission_in_progress"]
+            .includes(campaign.specialMaps[mapId].missionStatus);
+    }
+
+    function unlockNextRegionIfEligible(state, completedRegionId) {
+        const s = normalizeState(state);
+        if (!s.campaign.completedRegionIds.includes(completedRegionId)) return s;
+        if (completedRegionId >= TOTAL_REGIONS || specialMapBlocksProgress(s.campaign, completedRegionId)) return s;
+        return {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                unlockedRegionIds: addUnique(s.campaign.unlockedRegionIds, completedRegionId + 1)
             }
         };
     }
 
-    function withProfileFrame(state, frameId, allowedIds) {
-        const normalized = normalizeState(state);
-        if (!Array.isArray(allowedIds) || !allowedIds.includes(frameId)) {
-            return normalized;
+    function completeIsland(state, regionId, islandId) {
+        const s = normalizeState(state);
+        if (!Number.isInteger(regionId) || !Number.isInteger(islandId)) return s;
+        if (regionId < 1 || regionId > TOTAL_REGIONS || islandId < 1 || islandId > ISLANDS_PER_REGION) return s;
+        if (!s.campaign.unlockedRegionIds.includes(regionId)) return s;
+        if (regionId === 11 && islandId === 10 && !s.campaign.finalJourney.island10Unlocked) return s;
+
+        const key = `region-${regionId}-island-${islandId}`;
+        if (s.campaign.completedIslandIds.includes(key)) return s;
+
+        const completedIslandIds = [...s.campaign.completedIslandIds, key];
+        const previous = s.campaign.regionProgress[String(regionId)];
+        const regionProgress = {
+            ...s.campaign.regionProgress,
+            [String(regionId)]: {
+                ...previous,
+                islandsCompleted: Math.min(ISLANDS_PER_REGION, previous.islandsCompleted + 1)
+            }
+        };
+
+        const finalJourney = { ...s.campaign.finalJourney };
+        if (regionId === 11 && islandId <= 9) {
+            finalJourney.finalMapFragments = completedIslandIds
+                .filter((id) => /^region-11-island-[1-9]$/.test(id)).length;
+            finalJourney.finalMapCompleted = finalJourney.finalMapFragments === 9;
+            finalJourney.island10Unlocked = finalJourney.finalMapCompleted;
+        }
+        if (regionId === 11 && islandId === 10) {
+            finalJourney.island10Completed = true;
+            finalJourney.finalGrandChestUnlocked = true;
         }
 
+        const completedRegionIds = regionProgress[String(regionId)].islandsCompleted === ISLANDS_PER_REGION
+            ? addUnique(s.campaign.completedRegionIds, regionId)
+            : s.campaign.completedRegionIds;
+
+        let next = {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                currentRegionId: regionId,
+                currentIslandId: Math.min(ISLANDS_PER_REGION, islandId + 1),
+                completedIslandIds,
+                completedRegionIds,
+                regionProgress,
+                finalJourney
+            }
+        };
+        return completedRegionIds.includes(regionId)
+            ? unlockNextRegionIfEligible(next, regionId)
+            : next;
+    }
+
+    function claimFinalGrandChest(state) {
+        const s = normalizeState(state);
+        if (!s.campaign.finalJourney.finalGrandChestUnlocked || s.campaign.finalJourney.finalGrandChestClaimed) return s;
         return {
-            ...normalized,
-            player: {
-                ...normalized.player,
-                profileFrameId: frameId
+            ...s,
+            campaign: {
+                ...s.campaign,
+                finalJourney: {
+                    ...s.campaign.finalJourney,
+                    finalGrandChestClaimed: true
+                }
             }
         };
     }
@@ -195,6 +342,8 @@
     TQ.domain = TQ.domain || {};
     TQ.domain.playerState = Object.freeze({
         STATE_VERSION,
+        TOTAL_REGIONS,
+        ISLANDS_PER_REGION,
         DEFAULT_HOME_BACKGROUND_ID,
         DEFAULT_PROFILE_FRAME_ID,
         createInitialState,
@@ -202,6 +351,12 @@
         isValidState,
         normalizeState,
         withHomeBackground,
-        withProfileFrame
+        withProfileFrame,
+        withLastScreen,
+        getRegionStatus,
+        selectRegion,
+        completeIsland,
+        unlockNextRegionIfEligible,
+        claimFinalGrandChest
     });
 })(globalThis);

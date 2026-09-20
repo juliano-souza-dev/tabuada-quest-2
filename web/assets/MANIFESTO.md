@@ -65,3 +65,12 @@ A escolha é persistida em `state.player.profileFrameId`.
 - novos fundos/molduras só entram após Direção Visual + Qualidade + promoção física;
 - não reutilizar assets de franquias ou nomenclatura antiga sem revisão;
 - `web/` permanece fonte única para navegador e Android WebView.
+
+
+## Tela de Regiões — Issue #24
+
+| Asset | Caminho | Estado | Função |
+|---|---|---|---|
+| Mapa-base aprovado | `web/assets/regions/regions-map-base.webp` | APROVADO / PROMOVIDO | composição fixa da jornada por 11 Regiões |
+
+A arte-base contém somente cenário/composição fixa. Números, nomes, progresso, estados, cadeados, CTAs, HUD, fragmentos e estados da Região 11 são renderizados dinamicamente.
