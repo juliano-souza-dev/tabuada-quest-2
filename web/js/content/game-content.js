@@ -39,7 +39,7 @@
             regionId: 1,
             tagline: "O começo da rota pirata.",
             visualTheme: "portos de madeira, velas, cordas e águas azul-escuras",
-            islandNames: Object.freeze(["Porto da Âncora","Enseada do Saque","Rochedo da Bandeira","Cais do Barril","Baía do Farol","Atol do Timão","Ponta da Caravela","Praia das Cordas","Ilha do Canhão","Cabo do Capitão"])
+            islandNames: Object.freeze(["Porto da Âncora","Enseada do Saque","Rochedo da Bandeira","Ilha do Vulcão","Ilha da Caveira Rosa","Atol do Timão","Ponta da Caravela","Praia das Cordas","Ilha do Canhão","Cabo do Capitão"])
         }),
         Object.freeze({
             regionId: 2,
