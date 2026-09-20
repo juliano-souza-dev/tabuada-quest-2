@@ -110,6 +110,7 @@ Cada página declara somente o que muda na composição:
 backgroundId
 islandIds
 unlockAfterCompleted
+slotLayout (opcional, somente quando aprovado pela Direção Visual)
 ```
 
 Para a CORSÁRIO:
@@ -122,10 +123,12 @@ corsario-2 → Ilhas 06–10
 Background canônico da segunda página:
 
 ```text
-web/assets/regions/region-1/corsario-2-background.webp
+web/assets/regions/region-1/corsario-2-background.jpg
 ```
 
 A seleção da página visual usa a progressão já existente. Não alterar scheduler ou persistência apenas para realizar essa troca visual.
+
+Quando uma página possuir `slotLayout`, o renderer compartilhado usa esse mapa apenas para `art`, `status` e `hitbox` dos cinco slots. Stage, Back, Mapa mundo, eventos e CSS continuam compartilhados. Não criar renderer ou stylesheet exclusivo para a página.
 
 ## Mapa mundo
 
