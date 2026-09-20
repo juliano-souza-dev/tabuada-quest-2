@@ -1050,11 +1050,11 @@ Android Debug   35526233257 → success
 Validação ainda necessária:
 
 ```text
-Web Preview → aguardando execução do workflow Pages
-Validação visual do líder → necessária após publicação
+Web Preview 35526233278 → success
+Validação visual do líder → necessária
 ```
 
-O workflow de Web Preview atual está aguardando um deploy Pages anterior que permanece em execução. Isso é infraestrutura de CI e não invalida os testes já concluídos.
+O preview foi publicado com sucesso.
 
 Próximo gate:
 
