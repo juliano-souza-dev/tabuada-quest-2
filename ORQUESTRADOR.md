@@ -2494,4 +2494,16 @@ Validação automática do domínio/persistência:
 Web Unit Tests = 35513925097 → success
 ```
 
-O asset binário ainda precisa existir no caminho canônico do repositório para a validação visual final.
+O asset binário foi enviado pelo líder e está presente no caminho canônico:
+
+```text
+web/assets/transitions/island-travel.mp4
+```
+
+Validação após upload:
+
+```text
+Web Preview = 35514153499 → success
+Android Debug = 35514153502 → em execução no momento do registro
+```
+
