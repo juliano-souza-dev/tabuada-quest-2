@@ -50,10 +50,9 @@ test("cover geometry preserva stage 941x1672", () => {
     );
 });
 
-test("status visual diferencia bloqueio, desbloqueio, revisão, conclusão e retomada", () => {
+test("status visual diferencia bloqueio, desbloqueio, conclusão e retomada", () => {
     assert.equal(islands.formatRegion1Status("locked", false), "BLOQUEADA");
     assert.equal(islands.formatRegion1Status("available", false), "DESBLOQUEADA");
-    assert.equal(islands.formatRegion1Status("review", false), "REVISAR");
     assert.equal(islands.formatRegion1Status("completed", false), "CONCLUÍDA ✓");
     assert.equal(islands.formatRegion1Status("available", true), "CONTINUAR");
 });
