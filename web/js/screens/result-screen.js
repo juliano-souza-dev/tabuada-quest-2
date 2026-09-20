@@ -1,6 +1,23 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
+    function renderIslandRewards(regionId, islandId) {
+        const rewards = TQ.content.getIslandRewards(regionId, islandId);
+        if (!rewards.length) return "";
+
+        return `
+            <section class="result-rewards" aria-label="Recompensa desta Ilha">
+                <h2>Marco desta Ilha</h2>
+                ${rewards.map((reward) => {
+                    if (reward.type === "map_fragment") return `<p>🧩 Peça ${reward.fragment}/4 do Mapa ${reward.mapId}</p>`;
+                    if (reward.type === "chest") return "<p>🎁 Baú encontrado</p>";
+                    if (reward.type === "pet") return "<p>🐾 PET salvo</p>";
+                    return "";
+                }).join("")}
+            </section>
+        `;
+    }
+
     function renderResultScreen({ state, onNavigate }) {
         const result = state.learning.lastResult;
         const screen = document.createElement("section");
@@ -26,6 +43,7 @@
                         <div><dt>Erros</dt><dd>${result.wrongAnswers}</dd></div>
                         <div><dt>Tentativas extras</dt><dd>${result.recoveryAnswers}</dd></div>
                     </dl>
+                    ${renderIslandRewards(result.regionId, result.islandId)}
                     <button type="button" data-action="islands">Voltar às Ilhas</button>
                     <button type="button" data-action="regions">Ver Regiões</button>
                 </main>
@@ -43,6 +61,7 @@
 
     TQ.screens = TQ.screens || {};
     TQ.screens.result = Object.freeze({
-        renderResultScreen
+        renderResultScreen,
+        renderIslandRewards
     });
 })(globalThis);
