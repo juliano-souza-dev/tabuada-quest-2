@@ -411,6 +411,57 @@
             : next;
     }
 
+    function applyIslandRewards(state, rewards) {
+        const s = normalizeState(state);
+        if (!Array.isArray(rewards) || rewards.length === 0) return s;
+
+        let campaign = {
+            ...s.campaign,
+            petsRescuedIds: [...s.campaign.petsRescuedIds],
+            claimedChestIds: [...s.campaign.claimedChestIds],
+            specialMaps: { ...s.campaign.specialMaps }
+        };
+
+        for (const reward of rewards) {
+            if (!isObject(reward) || typeof reward.type !== "string") continue;
+
+            if (reward.type === "pet" && typeof reward.petId === "string") {
+                campaign.petsRescuedIds = addUnique(campaign.petsRescuedIds, reward.petId);
+                continue;
+            }
+
+            if (reward.type === "chest" && typeof reward.chestId === "string") {
+                campaign.claimedChestIds = addUnique(campaign.claimedChestIds, reward.chestId);
+                continue;
+            }
+
+            if (
+                reward.type === "map_fragment"
+                && Number.isInteger(reward.mapId)
+                && reward.mapId >= 1
+                && reward.mapId <= 5
+            ) {
+                const mapId = String(reward.mapId);
+                const current = campaign.specialMaps[mapId];
+                if (!isObject(current)) continue;
+
+                const fragments = Math.min(4, current.fragments + 1);
+                campaign.specialMaps = {
+                    ...campaign.specialMaps,
+                    [mapId]: {
+                        ...current,
+                        fragments,
+                        missionStatus: fragments === 4
+                            ? "map_complete_mission_pending"
+                            : current.missionStatus
+                    }
+                };
+            }
+        }
+
+        return { ...s, campaign };
+    }
+
     function getRegionLearningState(state, regionId) {
         const s = normalizeState(state);
         return s.learning.regionStates[String(regionId)] || null;
@@ -442,10 +493,19 @@
         return withGameplaySession(state, session, regionState);
     }
 
-    function completeGameplaySession(state, result, regionState) {
+    function completeGameplaySession(state, result, regionState, rewards) {
         let s = normalizeState(state);
         if (!isObject(result) || !validRegionLearningState(regionState)) return s;
+
+        const islandKey = `region-${result.regionId}-island-${result.islandId}`;
+        const alreadyCompleted = s.campaign.completedIslandIds.includes(islandKey);
+
+        if (!alreadyCompleted) {
+            s = applyIslandRewards(s, rewards);
+        }
+
         s = completeIsland(s, result.regionId, result.islandId);
+
         return {
             ...s,
             learning: {
@@ -496,6 +556,7 @@
         selectRegion,
         completeIsland,
         unlockNextRegionIfEligible,
+        applyIslandRewards,
         getRegionLearningState,
         withGameplaySession,
         updateGameplaySession,
