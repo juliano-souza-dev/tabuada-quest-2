@@ -858,3 +858,30 @@ criar issue própria
 
 Nenhuma issue futura é liberada apenas por número, milestone ou ordem de criação.
 
+
+
+### Correção visual ativa — Issue #30
+
+Pedido do líder:
+
+```text
+locked e unlocked não podem ser artes diferentes
+```
+
+Regra operacional:
+
+```text
+unlocked aprovada
+→ locked é criada por edição da própria unlocked
+→ somente corrente + cadeado + leve sombra
+```
+
+A Issue #30:
+
+```text
+DEPENDE_DE  = versões unlocked aprovadas das Ilhas 07–10
+DESBLOQUEIA = pacote final 07–10 e continuidade visual da Região 1
+MILESTONE   = nenhuma
+```
+
+As variantes locked geradas anteriormente para 07–10 estão REPROVADAS e não podem entrar no pacote final.
