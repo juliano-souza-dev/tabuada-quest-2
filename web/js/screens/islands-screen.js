@@ -16,6 +16,7 @@
     function islandLabel(state, regionId, islandId) {
         const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
         if (status === "completed") return "CONCLUÍDA ✓";
+        if (status === "review") return "REVISAR";
         if (status === "available") return "JOGAR";
         return "BLOQUEADA";
     }
@@ -24,6 +25,7 @@
         const regionId = state.campaign.currentRegionId;
         const region = TQ.content.regions.find((item) => item.id === regionId);
         const active = state.learning.activeSession;
+        const regionIdentity = TQ.content.getRegionIdentity(regionId);
 
         const screen = document.createElement("section");
         screen.className = "slice-screen islands-text-screen";
@@ -39,7 +41,9 @@
             </header>
 
             <main class="slice-content">
-                <p class="slice-intro">Escolha uma Ilha para começar.</p>
+                <p class="slice-intro">
+                    ${regionIdentity ? regionIdentity.tagline : "Escolha uma Ilha para começar."}
+                </p>
                 <div class="island-text-list">
                     ${Array.from({ length: 10 }, (_, index) => {
                         const islandId = index + 1;
@@ -48,13 +52,16 @@
                             && active.regionId === regionId
                             && active.islandId === islandId;
                         const actionText = isResume ? "CONTINUAR" : islandLabel(state, regionId, islandId);
+                        const identity = TQ.content.getIslandIdentity(regionId, islandId);
                         return `
                             <button type="button"
                                 class="slice-choice island-text-button is-${status}"
                                 data-island-id="${islandId}"
                                 ${status === "locked" ? "disabled" : ""}>
                                 <span class="island-copy">
-                                    <span>Ilha ${islandId}</span>
+                                    <span class="island-number">Ilha ${islandId}</span>
+                                    <span class="island-name">${identity ? identity.label : `Ilha ${islandId}`}</span>
+                                    <span class="island-challenge-type">Desafio misto</span>
                                     ${renderRewardLabels(regionId, islandId)}
                                 </span>
                                 <strong>${actionText}</strong>
