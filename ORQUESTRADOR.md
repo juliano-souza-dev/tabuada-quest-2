@@ -593,7 +593,7 @@ Issues concluídas:
 
 A antiga **#27 — M1-04C / Provador** foi consolidada na **#12 — M2-05** e fechada como duplicada. O requisito `selecionar != equipar` permanece preservado na #12.
 
-## Issue em execução: #8
+## Issue de roadmap em foco: #8
 
 Objetivo resumido:
 
@@ -639,9 +639,9 @@ web/assets/regions/region-1/
 web/assets/transitions/
 ```
 
-### Trabalho permitido agora
+### Foco atual do roadmap
 
-Somente trabalho necessário para concluir a #8.
+O foco principal continua sendo concluir a #8. Novos pedidos do líder continuam gerando issues próprias e podem ser executados quando não estiverem bloqueados por dependência.
 
 Prioridade atual:
 
@@ -665,42 +665,132 @@ Ilha 05 → Ilha da Caveira Rosa
 9. somente então fechar #8.
 ```
 
-## Fila M2 após #8
+## Mapa atual de dependências
 
-A ordem oficial é:
+A fila deixa de ser tratada como uma sequência cega por número.
 
-```text
-#8  M2-01 → EM EXECUÇÃO
-#9  M2-02 → próxima após #8
-#10 M2-03
-#11 M2-04
-#12 M2-05
-#13 M2-06
-#14 M2-07
-```
-
-As issues #9–#14 permanecem abertas porque representam **backlog real ainda não executado**.
+### Núcleo M2
 
 ```text
-issue aberta != issue em execução
+#8  Regiões e Ilhas
+DEPENDE_DE  = fundação M1 concluída
+DESBLOQUEIA = #10 (hooks de recompensa), #13 (PETs nas Ilhas), #15/#16 (superfícies visuais/navegação)
+
+#9  Domínio, revisão e progressão de aprendizagem
+DEPENDE_DE  = #6 scheduler pedagógico concluído
+DESBLOQUEIA = #10 (contrato estável de resultado/progressão), #14 (histórico de aprendizagem)
+
+#10 Economia, XP, níveis e recompensas
+DEPENDE_DE  = #8 + #9
+MOTIVO      = consome eventos de conclusão/recompensa e resultados/progressão estáveis
+DESBLOQUEIA = #11, #13, #14
+
+#11 Inventário, loja, coleção e baús
+DEPENDE_DE  = #10
+MOTIVO      = precisa de economia, ledger de recompensas e regras de ganho/gasto
+DESBLOQUEIA = #12
+
+#12 Moda / Provador
+DEPENDE_DE  = #11 para o sistema completo
+MOTIVO      = precisa do catálogo/estado de itens possuídos/equipados
+OBSERVAÇÃO  = a UX de prévia é conhecida, mas a conclusão integral depende do inventário
+
+#13 Campanha de PETs
+DEPENDE_DE  = #8 + #10
+MOTIVO      = precisa dos pontos de recompensa das Ilhas e da persistência/regras de recompensa
+
+#14 Recompensas diárias, histórico e auxiliares
+DEPENDE_DE  = #9 + #10
+MOTIVO      = histórico consome sessões/aprendizagem; recompensas consomem economia/ledger
 ```
 
-O Orquestrador, e não o estado nativo open/closed do GitHub, controla qual item pode ser trabalhado.
+### Consequência operacional imediata
 
-## Fila M3
-
-Somente depois da conclusão da M2:
+Existem **duas raízes M2 atualmente executáveis**:
 
 ```text
-#15 M3-01
-#16 M3-02
-#17 M3-03
-#18 M3-04
-#19 M3-05
-#20 M3-06
+#8 → já está em foco e em andamento
+#9 → não depende da conclusão da #8
 ```
 
-Nenhuma dessas issues pode receber implementação antecipada.
+Por prioridade vigente do líder e continuidade do trabalho atual:
+
+```text
+FOCO = #8
+```
+
+A conclusão da #8 **não é falsamente tratada como requisito da #9**.
+
+Depois, para tornar #10 viável:
+
+```text
+concluir #8
++
+concluir #9
+→ liberar #10
+```
+
+A partir de #10 surgem ramos:
+
+```text
+#10
+├── #11 → #12
+├── #13 (também exige #8)
+└── #14 (também exige #9)
+```
+
+O Orquestrador deve escolher entre ramos independentes pela prioridade definida pelo líder, sem inventar bloqueios.
+
+### Núcleo M3
+
+```text
+#15 Dívida visual e feedback audiovisual
+DEPENDE_DE  = superfícies funcionais da M2 estabilizadas (#8–#14 conforme aplicável)
+DESBLOQUEIA = #16 e #18
+
+#16 Validação completa de experiência infantil
+DEPENDE_DE  = M2 funcional + #15
+DESBLOQUEIA = #19
+
+#17 Persistência, versionamento e recuperação final
+DEPENDE_DE  = modelos de estado da M2 estabilizados (#8–#14)
+DESBLOQUEIA = #19
+
+#18 Desempenho, assets e tamanho do pacote
+DEPENDE_DE  = features/assets finais + #15
+DESBLOQUEIA = #19
+
+#19 Regressão E2E Web + Android
+DEPENDE_DE  = #16 + #17 + #18
+DESBLOQUEIA = #20
+
+#20 Release candidate Android
+DEPENDE_DE  = #19
+```
+
+### Caminho crítico conhecido
+
+Sem considerar mudanças futuras de prioridade, o caminho com maior efeito de desbloqueio é:
+
+```text
+#8 + #9
+→ #10
+→ #11
+→ #12
+
+e em paralelo após #10:
+→ #13
+→ #14
+
+M2 estabilizada
+→ #15 / #17
+→ #16 / #18
+→ #19
+→ #20
+```
+
+Esse diagrama é um checkpoint operacional. Se uma issue nova alterar dependências, o Orquestrador deve recalcular o mapa antes de executar.
+
 
 ## Limites de escopo durante a #8
 
