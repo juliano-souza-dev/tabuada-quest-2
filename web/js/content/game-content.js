@@ -144,6 +144,10 @@
     }
 
     TQ.content = Object.freeze({
+        development: Object.freeze({
+            autoCompleteImplementedRegions: true,
+            implementedRegionIds: Object.freeze([1])
+        }),
         campaignTotals: Object.freeze({
             regions: 11,
             islands: 110,
