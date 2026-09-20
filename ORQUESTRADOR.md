@@ -885,3 +885,30 @@ MILESTONE   = nenhuma
 ```
 
 As variantes locked geradas anteriormente para 07–10 estão REPROVADAS e não podem entrar no pacote final.
+
+
+### Correção concluída — Issue #31
+
+A Ilha 03 havia sido empacotada com fundo preto opaco.
+
+Correção aplicada:
+
+```text
+island-03-unlocked.png → alpha real
+island-03-locked.png   → alpha real
+```
+
+Validação:
+
+```text
+alpha range = 0..255
+pixel de canto = RGBA(0,0,0,0)
+```
+
+O pacote 01–10 foi reconstruído com 20 PNGs e recebeu o nome:
+
+```text
+region-1-islands-01-10-fixed.zip
+```
+
+Issue #31 concluída sem milestone.
