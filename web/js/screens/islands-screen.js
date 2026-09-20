@@ -141,6 +141,26 @@
         return status === "locked" ? entry.locked : entry.unlocked;
     }
 
+    function createIslandEntryState(state, regionId, islandId) {
+        const existingRegionState = TQ.domain.playerState.getRegionLearningState(state, regionId)
+            || TQ.domain.gameplay.createRegionState(regionId);
+        const session = TQ.domain.gameplay.createIslandSession(regionId, islandId);
+        const prepared = TQ.domain.gameplay.prepareNextChallenge(session, existingRegionState);
+        const hasTravelPlayed = TQ.domain.playerState.hasPlayedIslandTravel(state, regionId, islandId);
+
+        return hasTravelPlayed
+            ? TQ.domain.playerState.withGameplaySession(
+                state,
+                prepared.session,
+                prepared.regionState
+            )
+            : TQ.domain.playerState.withIslandTravelSession(
+                state,
+                prepared.session,
+                prepared.regionState
+            );
+    }
+
     function renderRegion1Map({ state, onStateChange, onNavigate }) {
         const regionId = 1;
         const active = state.learning.activeSession;
@@ -250,18 +270,7 @@
                 return;
             }
 
-            const existingRegionState = TQ.domain.playerState.getRegionLearningState(state, regionId)
-                || TQ.domain.gameplay.createRegionState(regionId);
-            const session = TQ.domain.gameplay.createIslandSession(regionId, islandId);
-            const prepared = TQ.domain.gameplay.prepareNextChallenge(session, existingRegionState);
-
-            onStateChange(
-                TQ.domain.playerState.withGameplaySession(
-                    state,
-                    prepared.session,
-                    prepared.regionState
-                )
-            );
+            onStateChange(createIslandEntryState(state, regionId, islandId));
         });
 
         if (typeof root.ResizeObserver === "function") {
@@ -353,18 +362,7 @@
                 return;
             }
 
-            const existingRegionState = TQ.domain.playerState.getRegionLearningState(state, regionId)
-                || TQ.domain.gameplay.createRegionState(regionId);
-            const session = TQ.domain.gameplay.createIslandSession(regionId, islandId);
-            const prepared = TQ.domain.gameplay.prepareNextChallenge(session, existingRegionState);
-
-            onStateChange(
-                TQ.domain.playerState.withGameplaySession(
-                    state,
-                    prepared.session,
-                    prepared.regionState
-                )
-            );
+            onStateChange(createIslandEntryState(state, regionId, islandId));
         });
 
         return screen;
@@ -387,6 +385,7 @@
         rewardSymbol,
         rewardLabel,
         getRegion1IslandAsset,
+        createIslandEntryState,
         REGION_1_LAYOUT,
         computeRegion1StageGeometry
     });
