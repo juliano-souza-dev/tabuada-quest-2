@@ -190,7 +190,7 @@
             regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
             region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130",
             region1Modular: Object.freeze({
-                background: "./assets/regions/region-1/background.png?v=20260920-1628",
+                background: "./assets/regions/region-1/mapa_marítimo_do_corsário.png?v=20260920-1727",
                 islands: Object.freeze({
                     1: Object.freeze({
                         unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260920-1628",
