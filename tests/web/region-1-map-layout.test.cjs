@@ -178,3 +178,41 @@ test("CSS do status garante contraste sobre a placa", () => {
     assert.match(css, /\.region1-island-overlay\.is-completed \.region1-island-status/);
     assert.match(css, /\.region1-island-overlay\.is-resume \.region1-island-status/);
 });
+
+
+test("Mapa mundo global é PNG transparente 200x200 e está cadastrado", () => {
+    assert.match(
+        content.assets.global.worldMap,
+        /assets\/global\/mapa-mundo\.png/
+    );
+
+    const png = fs.readFileSync(
+        path.join(__dirname, "../../web/assets/global/mapa-mundo.png")
+    );
+
+    assert.equal(png.subarray(1, 4).toString("ascii"), "PNG");
+    assert.equal(png.readUInt32BE(16), 200);
+    assert.equal(png.readUInt32BE(20), 200);
+    assert.equal(png[25], 3); // PNG indexado; transparência preservada por chunk tRNS.
+    assert.ok(png.includes(Buffer.from("tRNS")));
+});
+
+test("Mapa mundo fica no canto inferior da Corsário abaixo da Ilha do Vulcão", () => {
+    const layout = islands.REGION_1_LAYOUT;
+    const map = layout.worldMap;
+    const volcano = layout.islands[4].art;
+    const island5 = layout.islands[5].art;
+
+    assert.deepEqual(map, { x: 98, y: 1405, width: 200, height: 200 });
+    assert.ok(map.y > volcano.y + volcano.height);
+
+    const overlaps = (a, b) =>
+        a.x < b.x + b.width
+        && a.x + a.width > b.x
+        && a.y < b.y + b.height
+        && a.y + a.height > b.y;
+
+    assert.equal(overlaps(map, island5), false);
+    assert.ok(map.x >= 0);
+    assert.ok(map.y + map.height <= layout.viewport.height);
+});
