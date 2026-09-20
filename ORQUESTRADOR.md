@@ -2223,7 +2223,7 @@ Primeiro bloco implementado:
 11 identidades de Região
 110 nomes de Ilha
 challengeIdentity = mixed
-estados = AVAILABLE / LOCKED / REVIEW / COMPLETED
+estados = AVAILABLE / LOCKED / COMPLETED
 ```
 
 Regra pedagógica preservada:
@@ -2234,7 +2234,7 @@ identidade narrativa da Ilha
 tabuada fixa
 ```
 
-A UI textual passa a exibir o nome da Ilha e o rótulo `Desafio misto`. O estado `REVISAR` aparece quando a próxima Ilha herda recuperação pedagógica pendente da Região.
+A UI textual passa a exibir o nome da Ilha e o rótulo `Desafio misto`. Recuperação pedagógica permanece interna ao scheduler e não cria estado visual de Ilha.
 
 Contrato visual/narrativo:
 
@@ -2316,3 +2316,32 @@ hitbox
 progresso
 sessão
 ```
+
+
+### Issue #8 — correção de status das Ilhas
+
+Correção de contrato definida pelo líder:
+
+```text
+REVISAR não é status válido de Ilha.
+```
+
+Estados de domínio/navegação:
+
+```text
+LOCKED
+AVAILABLE
+COMPLETED
+```
+
+Apresentação:
+
+```text
+LOCKED    → BLOQUEADA
+AVAILABLE → DESBLOQUEADA
+COMPLETED → CONCLUÍDA
+```
+
+`CONTINUAR` é ação contextual quando existe sessão ativa, não estado.
+
+A recuperação pedagógica continua no scheduler e na recoveryQueue, mas não altera o estado visual da Ilha.
