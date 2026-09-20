@@ -7,29 +7,29 @@
         back: Object.freeze({ x: 58, y: 18, width: 150, height: 150 }),
         islands: Object.freeze({
             1: Object.freeze({
-                art: Object.freeze({ x: 5, y: 340, width: 330, height: 330 }),
-                status: Object.freeze({ x: 80, y: 604, width: 180, height: 36, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 15, y: 350, width: 310, height: 310 })
+                art: Object.freeze({ x: 0, y: 320, width: 380, height: 380 }),
+                status: Object.freeze({ x: 88, y: 626, width: 204, height: 42, fontSize: 28 }),
+                hitbox: Object.freeze({ x: 14, y: 334, width: 352, height: 352 })
             }),
             2: Object.freeze({
-                art: Object.freeze({ x: 595, y: 380, width: 330, height: 330 }),
-                status: Object.freeze({ x: 670, y: 644, width: 180, height: 36, fontSize: 22 }),
-                hitbox: Object.freeze({ x: 605, y: 390, width: 310, height: 310 })
+                art: Object.freeze({ x: 561, y: 360, width: 380, height: 380 }),
+                status: Object.freeze({ x: 649, y: 666, width: 204, height: 42, fontSize: 28 }),
+                hitbox: Object.freeze({ x: 575, y: 374, width: 352, height: 352 })
             }),
             3: Object.freeze({
-                art: Object.freeze({ x: 295, y: 615, width: 350, height: 350 }),
-                status: Object.freeze({ x: 375, y: 895, width: 190, height: 38, fontSize: 23 }),
-                hitbox: Object.freeze({ x: 305, y: 625, width: 330, height: 330 })
+                art: Object.freeze({ x: 270, y: 590, width: 400, height: 400 }),
+                status: Object.freeze({ x: 362, y: 912, width: 216, height: 44, fontSize: 29 }),
+                hitbox: Object.freeze({ x: 285, y: 605, width: 370, height: 370 })
             }),
             4: Object.freeze({
-                art: Object.freeze({ x: 10, y: 940, width: 350, height: 350 }),
-                status: Object.freeze({ x: 90, y: 1220, width: 190, height: 38, fontSize: 23 }),
-                hitbox: Object.freeze({ x: 20, y: 950, width: 330, height: 330 })
+                art: Object.freeze({ x: 0, y: 915, width: 395, height: 395 }),
+                status: Object.freeze({ x: 91, y: 1233, width: 213, height: 44, fontSize: 29 }),
+                hitbox: Object.freeze({ x: 15, y: 930, width: 365, height: 365 })
             }),
             5: Object.freeze({
-                art: Object.freeze({ x: 560, y: 1275, width: 350, height: 350 }),
-                status: Object.freeze({ x: 640, y: 1555, width: 190, height: 38, fontSize: 23 }),
-                hitbox: Object.freeze({ x: 570, y: 1285, width: 330, height: 330 })
+                art: Object.freeze({ x: 541, y: 1240, width: 400, height: 400 }),
+                status: Object.freeze({ x: 633, y: 1562, width: 216, height: 44, fontSize: 29 }),
+                hitbox: Object.freeze({ x: 556, y: 1255, width: 370, height: 370 })
             })
         })
     });
@@ -145,7 +145,7 @@
             const unlockedAsset = TQ.content.assets.region1Modular.islands[islandId].unlocked;
 
             return `
-                <div class="region1-island-overlay is-${status}" data-island-ui="${islandId}">
+                <div class="region1-island-overlay is-${status}${isResume ? " is-resume" : ""}" data-island-ui="${islandId}">
                     <div class="region1-island-art-shell" style="${rectStyle(layout.art)}">
                         <img class="region1-island-art"
                             src="${islandAsset}"
