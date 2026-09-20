@@ -40,7 +40,8 @@ test("recompensas estruturais da Região 1 persistem e o 4º fragmento bloqueia 
     assert.equal(s.campaign.unlockedRegionIds.includes(2),false);
 });
 
-test("próxima Ilha entra em estado REVISAR quando há recuperação pendente",()=>{
+
+test("recuperação pendente não altera status visual da Ilha",()=>{
     let s=d.createInitialState();
     s=d.completeIsland(s,1,1);
     s={
@@ -60,6 +61,5 @@ test("próxima Ilha entra em estado REVISAR quando há recuperação pendente",(
         }
     };
     assert.equal(d.getIslandStatus(s,1,1),"completed");
-    assert.equal(d.getIslandStatus(s,1,2),"review");
-    assert.equal(d.hasPendingRecovery(s,1),true);
+    assert.equal(d.getIslandStatus(s,1,2),"available");
 });
