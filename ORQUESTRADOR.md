@@ -1843,3 +1843,31 @@ Estado:
 ```
 
 Não fechar até aprovação explícita do líder.
+
+
+### Issue #26 — aprovada e encerrada
+
+O líder aprovou explicitamente a camada dinâmica pixel-perfect da tela de Regiões e a nomenclatura final.
+
+```text
+#26 → APROVADA PELO LÍDER → CLOSED
+```
+
+Entrega validada:
+
+- stage canônico 941 × 1672;
+- overlays alinhados ao asset;
+- botão voltar funcional;
+- dados dinâmicos R1-R11;
+- Região 11 com arco final;
+- nomes finais das Regiões;
+- testes web, preview e Android aprovados.
+
+Próximo estado do fluxo:
+
+```text
+#24 → retoma como issue-pai para consolidação/fechamento
+#27 → permanece aberta como correção independente da Home / Moda
+#5  → permanece pausada até decisão do fluxo da #24
+#6  → permanece bloqueada
+```
