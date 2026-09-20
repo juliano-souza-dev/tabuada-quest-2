@@ -227,27 +227,64 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 10px;
+    padding: 0 12px;
     overflow: hidden;
-    color: #f8f3de;
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: 900;
-    letter-spacing: .5px;
+    color: #fff6bd;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-weight: 950;
+    letter-spacing: .7px;
     white-space: nowrap;
     pointer-events: none;
     user-select: none;
     text-align: center;
     text-transform: uppercase;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
+    border-radius: 999px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 244, 195, .07) 0%,
+            rgba(73, 33, 8, .10) 46%,
+            rgba(39, 16, 4, .24) 100%
+        );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .12),
+        inset 0 -1px 0 rgba(40, 16, 3, .18);
+    -webkit-text-stroke: 1.35px rgba(66, 29, 5, .98);
+    paint-order: stroke fill;
+    text-shadow:
+        0 1px 0 rgba(55, 22, 3, 1),
+        0 2px 0 rgba(55, 22, 3, .92),
+        0 3px 5px rgba(0, 0, 0, .72),
+        0 0 7px rgba(255, 213, 106, .26);
 }
 
 .region1-island-overlay.is-locked .region1-island-status {
-    color: #c9c9c9;
+    color: #fff1dc;
+    -webkit-text-stroke-color: rgba(62, 33, 18, .98);
+    text-shadow:
+        0 1px 0 rgba(50, 25, 12, 1),
+        0 2px 0 rgba(50, 25, 12, .92),
+        0 3px 5px rgba(0, 0, 0, .78);
 }
 
-
 .region1-island-overlay.is-completed .region1-island-status {
-    color: #a9f5b7;
+    color: #d9ffd7;
+    -webkit-text-stroke-color: rgba(18, 76, 28, .98);
+    text-shadow:
+        0 1px 0 rgba(17, 67, 25, 1),
+        0 2px 0 rgba(17, 67, 25, .92),
+        0 3px 5px rgba(0, 0, 0, .72),
+        0 0 8px rgba(126, 255, 143, .24);
+}
+
+.region1-island-overlay.is-resume .region1-island-status {
+    color: #fff0a8;
+    -webkit-text-stroke-color: rgba(86, 44, 3, .98);
+    text-shadow:
+        0 1px 0 rgba(75, 36, 2, 1),
+        0 2px 0 rgba(75, 36, 2, .94),
+        0 3px 5px rgba(0, 0, 0, .76),
+        0 0 9px rgba(255, 208, 70, .34);
 }
 
 .region1-back-hitbox,
