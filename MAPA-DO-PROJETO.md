@@ -221,7 +221,14 @@ island-01-unlocked.png / island-01-locked.png
 island-05-unlocked.png / island-05-locked.png
 ```
 
-Assets 06–10 existentes são material preservado para reorganização futura e não definem automaticamente a estrutura atual da tela.
+Assets 06–10 existentes pertencem à implementação de **CORSÁRIO 2** e devem ser reutilizados nos cinco slots da malha compartilhada.
+
+```text
+CORSÁRIO 1 → assets 01–05
+CORSÁRIO 2 → assets 06–10
+```
+
+A implementação continua em `web/js/screens/islands-screen.js` e usa a infraestrutura compartilhada registrada em `agentes/04-desenvolvimento.md`.
 
 ## Mapa mundo
 
