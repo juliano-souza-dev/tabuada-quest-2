@@ -912,3 +912,72 @@ region-1-islands-01-10-fixed.zip
 ```
 
 Issue #31 concluída sem milestone.
+
+
+### Issue #8 — task técnica pixel-perfect do novo fundo
+
+Task adicional solicitada explicitamente pelo líder e incorporada à Issue #8.
+
+Base:
+
+```text
+stage = 941 × 1672
+background = web/assets/regions/region-1/background.png
+```
+
+Implementação concluída:
+
+```text
+novo REGION_1_LAYOUT serpenteado
+10 assetBox específicos
+10 statusBox específicos
+10 hitboxes específicas
+novo hitbox do botão voltar
+recompensa visual dinâmica removida
+status = único dado visual dinâmico por Ilha
+Ilha 10 sincronizada como Ilha Lamen
+```
+
+Fonte de verdade do mapeamento:
+
+```text
+docs/arte/ISSUE-008-REGIAO1-PIXEL-MAP.md
+web/js/screens/islands-screen.js
+tests/web/region-1-map-layout.test.cjs
+```
+
+Commits principais:
+
+```text
+58838f20 → aplica mapa pixel-perfect
+93f6b23b → mantém somente status dinâmico
+a22fee58 → sincroniza assets e Ilha Lamen
+7e2a01bf → testes do mapa pixel-perfect
+09e98ffd → cache HTML
+d01a27a5 → cache CSS
+6ff11cb7 → documentação técnica
+05549bc0 → mapa físico do projeto
+```
+
+Validação automática:
+
+```text
+Web Unit Tests 35523025620 → success
+Android Debug   35523025647 → success
+Web Preview     35523025696 → success
+```
+
+Dependência resolvida:
+
+```text
+novo background + assets 01–10 presentes
+→ task pixel-perfect executável
+```
+
+Resultado:
+
+```text
+DESBLOQUEIA = validação visual do líder sobre a composição real das 10 Ilhas
+```
+
+A Issue #8 permanece aberta até a validação visual final e demais critérios de aceite.
