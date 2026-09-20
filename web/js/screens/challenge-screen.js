@@ -127,7 +127,8 @@
                     onStateChange(TQ.domain.playerState.completeGameplaySession(
                         state,
                         result,
-                        next.regionState
+                        next.regionState,
+                        TQ.content.getIslandRewards(result.regionId, result.islandId)
                     ));
                 } else {
                     onStateChange(TQ.domain.playerState.updateGameplaySession(
@@ -144,7 +145,8 @@
                 onStateChange(TQ.domain.playerState.completeGameplaySession(
                     state,
                     result,
-                    regionState
+                    regionState,
+                    TQ.content.getIslandRewards(result.regionId, result.islandId)
                 ));
             }
         });
