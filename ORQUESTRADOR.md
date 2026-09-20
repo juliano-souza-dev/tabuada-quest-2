@@ -1593,3 +1593,32 @@ PROPAGA            = sim | não
 ```
 
 Na dúvida sobre abrangência, não globalizar silenciosamente.
+
+
+### Nova issue de composição estática da tela de Regiões
+
+Foi criada uma nova unidade de trabalho para separar a montagem visual estática da integração dinâmica.
+
+```text
+issue = #25
+título = [M1-05B] Montar tela de Regiões com os dois assets estáticos aprovados
+escopo = LOCAL à tela de Regiões
+```
+
+Objetivo:
+
+- integrar somente os dois assets aprovados;
+- placa/header com seta no topo;
+- mapa vertical de Regiões abaixo;
+- sem qualquer dado dinâmico nesta etapa.
+
+Estado de fila:
+
+```text
+#24 → permanece aberta como issue-pai/correção maior
+#25 → criada, aguardando liberação explícita para execução
+#5 → permanece pausada
+#6 → permanece bloqueada
+```
+
+A nova issue não deve implementar progresso, estados, navegação, hitboxes, dados do jogador ou lógica de campanha. O gate visual deve acontecer antes da camada dinâmica.
