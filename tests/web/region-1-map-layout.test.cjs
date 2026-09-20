@@ -61,12 +61,13 @@ test("CORSÁRIO 2 usa pixel-map próprio sem duplicar renderer", () => {
     };
 
     const page = islands.getRegionVisualPage(state, 1);
+    // Slots superiores usam 300×300 porque os redemoinhos aprovados encostam nas bordas do stage.
     const expected = {
-        1: { art: [58,338,380,380], status: [146,644,204,42], hitbox: [72,352,352,352] },
-        2: { art: [509,337,380,380], status: [597,643,204,42], hitbox: [523,351,352,352] },
-        3: { art: [272,599,400,400], status: [364,921,216,44], hitbox: [287,614,370,370] },
-        4: { art: [29,857,395,395], status: [120,1175,213,44], hitbox: [44,872,365,365] },
-        5: { art: [518,856,400,400], status: [610,1178,216,44], hitbox: [533,871,370,370] }
+        1: { art: [0,361,300,300], status: [48,603,204,42], hitbox: [12,373,276,276] },
+        2: { art: [641,361,300,300], status: [689,603,204,42], hitbox: [653,373,276,276] },
+        3: { art: [267,618,400,400], status: [359,940,216,44], hitbox: [282,633,370,370] },
+        4: { art: [0,974,386,386], status: [87,1288,213,44], hitbox: [10,987,366,366] },
+        5: { art: [575,1091,400,400], status: [667,1413,216,44], hitbox: [590,1106,370,370] }
     };
 
     function rectTuple(rect) {
@@ -79,6 +80,17 @@ test("CORSÁRIO 2 usa pixel-map próprio sem duplicar renderer", () => {
         assert.deepEqual(rectTuple(slot.status), expected[slotId].status);
         assert.deepEqual(rectTuple(slot.hitbox), expected[slotId].hitbox);
     }
+});
+
+
+test("fundo final da CORSÁRIO 2 permanece dentro do orçamento web", () => {
+    const file = path.join(__dirname, "../../web/assets/regions/region-1/corsario-2-background.jpg");
+    const stat = fs.statSync(file);
+    const bytes = fs.readFileSync(file);
+
+    assert.ok(stat.size <= 450000, `fundo excedeu orçamento: ${stat.size} bytes`);
+    assert.equal(bytes[0], 0xFF);
+    assert.equal(bytes[1], 0xD8);
 });
 
 test("CORSÁRIO 1 permanece ativo antes da conclusão da Ilha 05", () => {

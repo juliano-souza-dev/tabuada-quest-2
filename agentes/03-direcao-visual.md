@@ -273,29 +273,31 @@ Os assets existentes correspondentes são a referência aprovada e não devem se
 
 O stage permanece canônico em `941 × 1672`. Back e Mapa mundo permanecem globais.
 
-O fundo aprovado da CORSÁRIO 2 possui marcações próprias de água. Portanto a página usa um pixel-map de slots próprio, calculado sobre o próprio background, sem alterar tamanho dos assets e sem criar outro renderer.
+O background aprovado mantém as laterais livres de ilhas artificiais grandes e usa cinco áreas de água para receber as Ilhas dinâmicas.
 
-Centros de encaixe aprovados:
-
-```text
-Ilha 06 → (248, 528)
-Ilha 07 → (699, 527)
-Ilha 08 → (472, 799)
-Ilha 09 → (226, 1055)
-Ilha 10 → (718, 1056)
-```
-
-Retângulos canônicos da CORSÁRIO 2:
+Centros visuais aproximados das novas áreas de água:
 
 ```text
-06 art 58,338,380,380   status 146,644,204,42   hitbox 72,352,352,352
-07 art 509,337,380,380  status 597,643,204,42   hitbox 523,351,352,352
-08 art 272,599,400,400  status 364,921,216,44   hitbox 287,614,370,370
-09 art 29,857,395,395   status 120,1175,213,44  hitbox 44,872,365,365
-10 art 518,856,400,400  status 610,1178,216,44  hitbox 533,871,370,370
+Ilha 06 → (131, 511)
+Ilha 07 → (807, 511)
+Ilha 08 → (467, 818)
+Ilha 09 → (193, 1171)
+Ilha 10 → (775, 1291)
 ```
 
-A composição continua obedecendo à regra de cinco Ilhas + Mapa mundo. A diferença é apenas o posicionamento dos cinco slots para coincidir pixel-perfect com as marcações do background aprovado.
+Como as duas áreas superiores ficam próximas às bordas, as Ilhas 06 e 07 usam escala reduzida para permanecer integralmente dentro do stage. Essa redução é específica desta composição aprovada.
+
+Pixel-map canônico da CORSÁRIO 2:
+
+```text
+06 art 0,361,300,300     status 48,603,204,42    hitbox 12,373,276,276
+07 art 641,361,300,300   status 689,603,204,42   hitbox 653,373,276,276
+08 art 267,618,400,400   status 359,940,216,44   hitbox 282,633,370,370
+09 art 0,974,386,386     status 87,1288,213,44   hitbox 10,987,366,366
+10 art 575,1091,400,400  status 667,1413,216,44  hitbox 590,1106,370,370
+```
+
+A composição continua usando o renderer compartilhado. O `slotLayout` específico existe apenas para alinhar art, status e hitbox às marcações do background aprovado.
 
 ## O que muda entre Regiões
 
@@ -334,6 +336,68 @@ Background:
 - não ocupa as laterais com ilhas decorativas grandes;
 - pode mostrar elementos distantes no horizonte;
 - deve manter água/espaço negativo ao redor dos slots.
+
+### Prompt-base canônico — `BACKGROUND_DE_REGIAO`
+
+Sempre que o tipo de arte for `BACKGROUND_DE_REGIAO`, usar este prompt-base como ponto de partida e adaptá-lo à identidade específica da Região antes de submetê-lo ao líder:
+
+```text
+Crie uma imagem de tela de seleção de fases para um jogo mobile de piratas, em formato vertical, estilo de arte semi-realista e vibrante, digna de um jogo mobile de alta qualidade.
+
+CANVAS
+- 941 × 1672 px.
+
+TOPO DA TELA
+- placa/faixa de madeira entalhada, presa por cordas;
+- título da Região em letras douradas 3D em relevo, estilo aventura pirata;
+- à esquerda do título, botão circular com leme/seta de voltar;
+- à direita, ornamentos piratas compatíveis com a identidade da Região, como lanterna, bandeira, cordas ou mastro.
+
+FUNDO
+- horizonte de oceano sob céu azul vibrante com nuvens brancas;
+- ilhas rochosas tropicais, penhascos, palmeiras ou elementos temáticos somente ao longe;
+- navios pequenos ou silhuetas podem aparecer no horizonte.
+
+PRIMEIRO PLANO
+- grande oceano azul-turquesa com textura de ondas e espuma;
+- cinco áreas circulares de água/redemoinhos para receber as Ilhas dinâmicas;
+- distribuição em caminho sinuoso/zigue-zague: superior esquerda, superior direita, centro, inferior esquerda e inferior direita;
+- setas curvas pontilhadas podem conectar as áreas em sequência;
+- deve existir água e respiro visual suficiente ao redor de cada área.
+
+REGRA ABSOLUTA DAS LATERAIS
+- manter as laterais limpas;
+- não incluir ilhas artificiais grandes nas laterais;
+- não incluir massas de terra que invadam os slots das Ilhas dinâmicas;
+- nenhuma Ilha jogável deve estar assada no background;
+- formações de terra só podem aparecer ao longe ou em áreas seguras que não disputem espaço com a composição dinâmica.
+
+ELEMENTOS PERMITIDOS
+- mar;
+- espuma;
+- recifes discretos;
+- pedras pequenas;
+- reflexos;
+- partículas mágicas suaves;
+- falésias ou formações rochosas distantes;
+- navios pequenos ao longe;
+- barris boiando;
+- atmosfera de exploração marítima mágica.
+
+ELEMENTOS PROIBIDOS
+- personagens;
+- logos de franquias;
+- armas realistas;
+- elementos assustadores;
+- ilhas jogáveis integradas ao fundo;
+- ilhas decorativas grandes nas laterais;
+- qualquer texto além do título aprovado da Região.
+
+OBJETIVO
+Criar um background premium e funcional para composição em código, em que Ilhas, status, hitboxes e Mapa Mundo permaneçam elementos dinâmicos e possam ser posicionados sem colisão visual com o cenário fixo.
+```
+
+Antes de gerar, adaptar esse prompt à Região específica, produzir o `PROMPT_PROPOSTO` final e submetê-lo ao líder conforme o gate obrigatório de aprovação.
 
 ## Padrão obrigatório de cada Ilha
 
