@@ -37,11 +37,11 @@ Os símbolos de recompensa já fazem parte dos PNGs de Ilha e não são renderiz
 
 | Ilha | Asset x | Asset y | W | H | Status x | Status y | Status W | Status H | Hitbox x | Hitbox y | Hitbox W | Hitbox H |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 01 | 5 | 340 | 330 | 330 | 80 | 604 | 180 | 36 | 15 | 350 | 310 | 310 |
-| 02 | 595 | 380 | 330 | 330 | 670 | 644 | 180 | 36 | 605 | 390 | 310 | 310 |
-| 03 | 295 | 615 | 350 | 350 | 375 | 895 | 190 | 38 | 305 | 625 | 330 | 330 |
-| 04 | 10 | 940 | 350 | 350 | 90 | 1220 | 190 | 38 | 20 | 950 | 330 | 330 |
-| 05 | 560 | 1275 | 350 | 350 | 640 | 1555 | 190 | 38 | 570 | 1285 | 330 | 330 |
+| 01 | 0 | 320 | 380 | 380 | 88 | 626 | 204 | 42 | 14 | 334 | 352 | 352 |
+| 02 | 561 | 360 | 380 | 380 | 649 | 666 | 204 | 42 | 575 | 374 | 352 | 352 |
+| 03 | 270 | 590 | 400 | 400 | 362 | 912 | 216 | 44 | 285 | 605 | 370 | 370 |
+| 04 | 0 | 915 | 395 | 395 | 91 | 1233 | 213 | 44 | 15 | 930 | 365 | 365 |
+| 05 | 541 | 1240 | 400 | 400 | 633 | 1562 | 216 | 44 | 556 | 1255 | 370 | 370 |
 
 Botão de retorno:
 
@@ -110,3 +110,47 @@ O mapa anterior de 10 Ilhas na mesma tela foi rejeitado visualmente por:
 - uso ruim do espaço.
 
 Ele não deve voltar a ser utilizado como referência de posicionamento.
+
+
+## Refino de legibilidade após validação visual
+
+A primeira versão de 5 Ilhas foi considerada correta em composição e rota, porém ainda conservadora em escala.
+
+Decisão do líder:
+
+```text
+não preencher todo o oceano
+não fazer as Ilhas se encostarem
+aumentar imediatamente os assets
+usar CSS para elevar o contraste do status
+```
+
+Escala vigente:
+
+```text
+Ilha 01 = 380 × 380
+Ilha 02 = 380 × 380
+Ilha 03 = 400 × 400
+Ilha 04 = 395 × 395
+Ilha 05 = 400 × 400
+```
+
+O aumento preserva os centros visuais da composição e mantém respiro entre os elementos.
+
+Status:
+
+- fonte lógica mínima de 28 px;
+- caixa mínima de 42 px;
+- contorno via `-webkit-text-stroke`;
+- sombras em múltiplas camadas;
+- leve tratamento de fundo dentro da área da placa;
+- cores específicas para locked, completed e resume.
+
+Fonte CSS:
+
+```text
+web/css/screens/vertical-slice.css
+.region1-island-status
+```
+
+A task permanece sujeita à validação visual final do líder.
