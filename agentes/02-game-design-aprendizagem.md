@@ -101,35 +101,31 @@ a menos que Produto aprove explicitamente uma nova experiência visual.
 
 ## Bônus de Tripulação
 
-A Tripulação real do projeto já existe e deve ser reutilizada. Não criar nomes, personagens, custos, bônus ou assets provisórios.
-
-Cada tripulante terá configuração própria fornecida pelo catálogo canônico da Tripulação:
+Catálogo inicial aprovado para implementação:
 
 ```text
-id
-nome
-asset
-custo em ouro
-tipo de bônus
-valor do bônus
+Atirador    →  250 ouro → +3% XP
+Carpinteiro →  300 ouro → +3% ouro
+Cozinheiro  →  350 ouro → +3% gemas
+Espadachim  →  650 ouro → +5% XP
+Explorador  →  750 ouro → +5% ouro
+Inventor    →  850 ouro → +5% gemas
+Médico      → 1200 ouro → +8% XP
+Músico      → 1400 ouro → +8% ouro
+Navegador   → 1600 ouro → +8% gemas
 ```
 
-Tipos de bônus previstos pelo Produto:
-
-```text
-XP
-OURO
-GEMAS
-```
+Os nove personagens e seus assets vieram do pacote real fornecido pelo líder. Não criar substitutos genéricos.
 
 Regras de cálculo:
 
-- bônus percentuais da mesma categoria somam entre si;
-- o bônus é aplicado somente quando aquela recompensa é concedida;
-- não criar recompensa-base apenas para justificar um bônus;
-- a Tripulação não altera a quantidade de exercícios, dificuldade ou scheduler;
-- bônus econômicos não podem reduzir planned exposure nem substituir recovery;
-- valores de custo e bônus só entram no contrato quando recuperados da Tripulação já existente ou aprovados explicitamente pelo líder.
+- todos os tripulantes contratados ficam ativos;
+- bônus da mesma categoria somam entre si;
+- o bônus é calculado sobre a recompensa-base e arredondado para baixo;
+- bônus só existe quando há recompensa-base daquela categoria;
+- não criar recompensa-base apenas para ativar Tripulação;
+- Tripulação não altera exercícios, dificuldade, planned exposure ou recovery;
+- custos e percentuais ficam no catálogo de conteúdo para rebalanceamento sem alterar a regra de domínio.
 
 
 ## Recompensas

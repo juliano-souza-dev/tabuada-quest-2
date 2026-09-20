@@ -292,6 +292,28 @@ preservar equippedItem
 
 O clique em uma opção de Moda não pode chamar diretamente a função persistente de equipar.
 
+## Tripulação / Taberna
+
+Implementação:
+
+```text
+web/js/screens/crew-screen.js
+web/css/screens/crew.css
+web/js/content/game-content.js
+web/js/domain/player-state.js
+```
+
+Contrato técnico:
+
+- catálogo de tripulantes pertence a conteúdo;
+- contratação pertence ao domínio;
+- UI nunca desconta ouro diretamente;
+- contratação é idempotente: tripulante já contratado não pode ser cobrado novamente;
+- estado persistente armazena somente os IDs contratados;
+- custos e bônus não são hardcodados na tela;
+- cálculo de bônus é centralizado em `player-state.js`;
+- assets reais vivem em `web/assets/crew/`.
+
 ## Assets
 
 Desenvolvimento recebe da Direção Visual:

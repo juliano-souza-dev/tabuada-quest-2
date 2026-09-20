@@ -22,6 +22,7 @@
     function render() {
         const renderers = {
             home: TQ.screens.home.renderHomeScreen,
+            crew: TQ.screens.crew.renderCrewScreen,
             regions: TQ.screens.regions.renderRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,
             travel: TQ.screens.travel.renderIslandTravelScreen,

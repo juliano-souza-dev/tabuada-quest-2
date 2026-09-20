@@ -216,6 +216,33 @@
     background: transparent;
 }
 
+.crew-menu-button {
+    position: absolute;
+    z-index: 14;
+    left: 50%;
+    top: 61.2%;
+    width: 38%;
+    min-height: 5.2%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border: 2px solid #f3c85f;
+    border-radius: 999px;
+    color: #fff6d5;
+    background: linear-gradient(180deg, rgba(118, 64, 29, .96), rgba(69, 35, 18, .97));
+    box-shadow: 0 4px 0 rgba(40, 19, 8, .68), 0 8px 18px rgba(0,0,0,.24);
+    font-size: clamp(.56rem, 1.75vh, .82rem);
+    font-weight: 950;
+    letter-spacing: .04em;
+    text-shadow: 0 1px 2px #2c1407;
+    cursor: pointer;
+}
+.crew-menu-button span { font-size: 1.12em; }
+.crew-menu-button:active { transform: translate(-50%, 2px); box-shadow: 0 2px 0 rgba(40, 19, 8, .68); }
+
 .art-hotspot {
     position: absolute;
     z-index: 13;
