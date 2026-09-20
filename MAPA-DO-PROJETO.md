@@ -1324,7 +1324,9 @@ background fixo
 +
 troca locked/unlocked pelo estado
 +
-status/recompensas/hitboxes dinâmicos
+medalhões de recompensa embutidos por Ilha
++
+status/hitboxes dinâmicos
 ```
 
 Seleção:
@@ -1338,3 +1340,25 @@ completed → variante unlocked
 A composição monolítica anterior não é mais a arquitetura vigente.
 
 As Regiões 2–11 continuam temporariamente na apresentação textual até receberem seus próprios assets.
+
+
+### Padrão visual dos assets de Ilha
+
+Fonte de verdade:
+
+```text
+agentes/03-direcao-visual.md
+→ Padrão global obrigatório para criação de Ilhas
+```
+
+Cada asset de Ilha inclui:
+
+```text
+placa com nome canônico
+medalhão(ões) das recompensas reais
+placa inferior vazia de status
+```
+
+O texto de status permanece na camada HTML/CSS/JS.
+
+As variantes `locked` e `unlocked` devem manter a mesma geometria e registro visual.
