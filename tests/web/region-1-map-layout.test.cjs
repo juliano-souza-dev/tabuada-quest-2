@@ -31,6 +31,40 @@ test("configuração visual é resolvida por Região sem duplicar renderer", () 
     assert.equal(islands.getRegionVisualConfig(2), null);
 });
 
+test("CORSÁRIO 2 usa fundo próprio e reaproveita Ilhas 06–10", () => {
+    assert.match(
+        content.assets.region1Modular.backgrounds[2],
+        /assets\/regions\/region-1\/corsario-2-background\.webp/
+    );
+
+    const state = {
+        campaign: {
+            regionProgress: {
+                "1": { islandsCompleted: 5, islandsTotal: 10 }
+            }
+        }
+    };
+
+    const page = islands.getRegionVisualPage(state, 1);
+    assert.equal(page.id, "corsario-2");
+    assert.deepEqual(page.islandIds, [6, 7, 8, 9, 10]);
+    assert.equal(page.background, content.assets.region1Modular.backgrounds[2]);
+});
+
+test("CORSÁRIO 1 permanece ativo antes da conclusão da Ilha 05", () => {
+    const state = {
+        campaign: {
+            regionProgress: {
+                "1": { islandsCompleted: 4, islandsTotal: 10 }
+            }
+        }
+    };
+
+    const page = islands.getRegionVisualPage(state, 1);
+    assert.equal(page.id, "corsario-1");
+    assert.deepEqual(page.islandIds, [1, 2, 3, 4, 5]);
+});
+
 test("layout canônico da Corsário possui back e 5 Ilhas visíveis", () => {
     const layout = islands.REGION_LAYOUT;
     assert.deepEqual(layout.viewport, { width: 941, height: 1672 });
