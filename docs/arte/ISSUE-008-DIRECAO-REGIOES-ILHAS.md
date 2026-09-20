@@ -288,3 +288,21 @@ Porto da Âncora
 ```
 
 A recompensa não deve dominar ou substituir o conceito visual da Ilha.
+
+
+## Transição de viagem ao entrar em uma Ilha
+
+A primeira entrada de cada Ilha possui uma transição visual de viagem.
+
+```text
+Ilha ainda não visitada
+→ reproduzir island-travel.mp4
+→ ao terminar, abrir o desafio
+
+Ilha já visitada
+→ abrir o desafio diretamente
+```
+
+A animação é compartilhada entre as Ilhas e não altera o conceito visual específico de cada diorama.
+
+O vídeo ocupa a tela durante a transição. Não exibir status, recompensa ou HUD por cima da animação.
