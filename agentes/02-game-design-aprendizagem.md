@@ -46,24 +46,36 @@ Recovery não substitui nem reduz a carga planejada.
 
 Recovery também não cria um novo estado visual de Ilha.
 
-## Carga pedagógica
+## Carga pedagógica e nova divisão do mundo
 
-A reorganização visual de Regiões em telas de 5 Ilhas **não pode diminuir a quantidade total de exercícios definida para o percurso**.
-
-Quando a hierarquia definitiva de Regiões internas for fechada, o scheduler deve redistribuir o conteúdo preservando a carga total e os objetivos de cobertura.
-
-Não reaproveitar automaticamente matrizes antigas baseadas em 10 Ilhas por tela. Antes de mapear uma nova divisão, recalcular a distribuição a partir do contrato pedagógico vigente.
-
-## CORSÁRIO 1 e CORSÁRIO 2
-
-A divisão visual da CORSÁRIO não elimina as dez unidades já existentes do percurso.
+A macroestrutura canônica agora é:
 
 ```text
-CORSÁRIO 1 → unidades/Ilhas 01–05
-CORSÁRIO 2 → unidades/Ilhas 06–10
+22 Regiões
+×
+5 Ilhas por Região
+=
+110 Ilhas
 ```
 
-A passagem para CORSÁRIO 2 preserva a continuidade pedagógica existente entre as dez Ilhas. A divisão é de apresentação/navegação, não uma redução de carga.
+Não existem sub-regiões.
+
+A antiga estrutura de 11 Regiões × 10 Ilhas foi substituída por 22 Regiões × 5 Ilhas.
+
+Essa mudança é estrutural e **não reduz carga pedagógica**. As 110 Ilhas continuam existindo; apenas a fronteira entre Regiões muda.
+
+Consequências pedagógicas:
+
+- cada conjunto de 5 Ilhas forma uma Região completa;
+- a passagem da quinta Ilha para a Região seguinte deve preservar continuidade pedagógica;
+- o scheduler não pode reiniciar domínio, dificuldade ou cobertura apenas porque mudou de Região;
+- planned exposure, recovery e histórico continuam atravessando fronteiras de Região quando necessário;
+- recompensas e marcos de Região devem ser recalculados para a nova divisão;
+- qualquer regra antiga baseada em 10 Ilhas por Região deixa de ser canônica.
+
+Não criar uma camada pedagógica de sub-região para reproduzir a estrutura antiga.
+
+A implementação atual ainda pode conter constantes históricas de 11 Regiões / 10 Ilhas por Região. Elas devem ser tratadas como dívida técnica até a migração correspondente, não como regra de Game Design.
 
 ## Estado visual x estado pedagógico
 
@@ -135,14 +147,15 @@ Não deve acessar:
 
 ## Regras para mudanças futuras
 
-Quando Produto alterar a macroestrutura de Regiões:
+Na migração para a macroestrutura vigente:
 
-1. identificar quantidade real de unidades pedagógicas;
-2. preservar carga total;
-3. recalcular distribuição;
-4. recalcular recompensas pedagógicas;
-5. definir invariantes;
-6. entregar ao Desenvolvimento somente após a regra estar fechada.
+1. preservar as 110 Ilhas;
+2. migrar 11×10 para 22×5;
+3. preservar carga total e histórico;
+4. recalcular distribuição e marcos por Região;
+5. recalcular recompensas dependentes de fronteira de Região;
+6. definir invariantes para 5 Ilhas por Região;
+7. entregar ao Desenvolvimento sem recriar sub-regiões.
 
 ## Regra de documentação
 
