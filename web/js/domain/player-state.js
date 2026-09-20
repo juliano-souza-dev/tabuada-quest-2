@@ -293,6 +293,12 @@
             : s;
     }
 
+    function hasPendingRecovery(state, regionId) {
+        const s = normalizeState(state);
+        const regionState = s.learning.regionStates[String(regionId)];
+        return Boolean(regionState && Array.isArray(regionState.recoveryQueue) && regionState.recoveryQueue.length > 0);
+    }
+
     function getIslandStatus(state, regionId, islandId) {
         const s = normalizeState(state);
         if (!Number.isInteger(regionId) || !Number.isInteger(islandId)) return "locked";
@@ -307,7 +313,8 @@
         }
 
         const completed = s.campaign.regionProgress[String(regionId)].islandsCompleted;
-        return islandId === completed + 1 ? "available" : "locked";
+        if (islandId !== completed + 1) return "locked";
+        return hasPendingRecovery(s, regionId) ? "review" : "available";
     }
 
     function getRegionStatus(state, regionId) {
@@ -551,6 +558,7 @@
         withHomeBackground,
         withProfileFrame,
         withLastScreen,
+        hasPendingRecovery,
         getIslandStatus,
         getRegionStatus,
         selectRegion,
