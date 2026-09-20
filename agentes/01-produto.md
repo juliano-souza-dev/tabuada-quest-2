@@ -65,6 +65,7 @@ A nomenclatura definitiva das novas Regiões adicionais deve ser definida separa
 Nomes já aprovados pelo líder para compor a lista final das 22 Regiões:
 
 ```text
+CORSÁRIO
 OBSIDIANA
 ZONA RUBI
 ESCARLATE
