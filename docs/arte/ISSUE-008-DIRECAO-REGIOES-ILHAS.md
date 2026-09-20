@@ -144,8 +144,8 @@ Região 1:
 Ilha 1  → Porto da Âncora
 Ilha 2  → Enseada do Saque
 Ilha 3  → Rochedo da Bandeira
-Ilha 4  → Cais do Barril
-Ilha 5  → Baía do Farol
+Ilha 4  → Ilha do Vulcão
+Ilha 5  → Ilha da Caveira Rosa
 Ilha 6  → Atol do Timão
 Ilha 7  → Ponta da Caravela
 Ilha 8  → Praia das Cordas
