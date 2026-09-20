@@ -328,6 +328,30 @@ Implementação/persistência: `agentes/04-desenvolvimento.md`.
 
 Validação infantil: `agentes/06-experience-validator.md`.
 
+## Tripulação / Taberna
+
+Tela:
+
+```text
+web/js/screens/crew-screen.js
+web/css/screens/crew.css
+```
+
+Catálogo/estado:
+
+```text
+web/js/content/game-content.js
+web/js/domain/player-state.js
+```
+
+Assets:
+
+```text
+web/assets/crew/
+```
+
+Produto: `agentes/01-produto.md`. Balanceamento: `agentes/02-game-design-aprendizagem.md`. Implementação: `agentes/04-desenvolvimento.md`.
+
 ## Home / Moda / Provador
 
 Tela:
