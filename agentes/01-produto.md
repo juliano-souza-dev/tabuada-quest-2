@@ -60,48 +60,53 @@ A antiga solução de dividir CORSÁRIO em `CORSÁRIO 1` e `CORSÁRIO 2` como du
 
 A nomenclatura definitiva das novas Regiões adicionais deve ser definida separadamente. Não inventar nomes para completar as 22 Regiões.
 
-### Nomes de Região aprovados
+### Regiões definitivas
 
-Pool canônico de nomes já aprovados pelo líder para compor a seleção final das 22 Regiões:
+O líder delegou a curadoria final das 22 Regiões. A seleção e a ordem canônicas passam a ser:
 
 ```text
-CORSÁRIO
-OBSIDIANA
-ZONA RUBI
-ESCARLATE
-ZONA DO DRAGÃO
-TERRAS GÉLIDAS
-ZONA OURO
-BIRADES
-FANTASMAS
-TEMPESTÁRIA
-CRISTÁLIA
-MAR DE FERRO
-ZONA SAFIRA
-TERRAS DE CINZA
-VALE ESMERALDA
+01 CORSÁRIO
+02 BIRADES
+03 ZONA OURO
+04 VALE ESMERALDA
+05 ZONA SAFIRA
+06 TERRAS GÉLIDAS
+07 FANTASMAS
+08 MARÉ SOMBRIA
+09 TEMPESTÁRIA
+10 MAR DE FERRO
+11 ZONA KRAKEN
+12 TERRAS DE CINZA
+13 OBSIDIANA
+14 ZONA RUBI
+15 ESCARLATE
+16 ZONA DO DRAGÃO
+17 TERRAS DO TITÃ
+18 CRISTÁLIA
+19 ILHAS CELESTES
+20 COROA DO MAR
+21 ZONA FÊNIX
+22 REINO DAS MARÉS
+```
+
+Essa ordem é parte do contrato de Produto. Cada nome representa uma Região independente de 5 Ilhas; não existem sub-regiões.
+
+A progressão temática foi organizada para começar em aventura pirata mais terrena, atravessar biomas e perigos marítimos cada vez mais fantásticos e terminar em uma escala mítica/regal no `REINO DAS MARÉS`.
+
+Nomes aprovados mantidos em reserva para futuras expansões:
+
+```text
 AURORA
-ZONA KRAKEN
-MARÉ SOMBRIA
-ILHAS CELESTES
-COROA DO MAR
 TERRAS DO TROVÃO
 COSTA ESMERALDA
 MAR DOURADO
-ZONA FÊNIX
 NEBULÁRIA
-TERRAS DO TITÃ
 MAREMÍSTICA
-REINO DAS MARÉS
 ```
 
-`ARQUIPÉLAGO FANTASMA` foi rejeitado como nomenclatura final e substituído por `FANTASMAS`.
+`ARQUIPÉLAGO FANTASMA` permanece descartado e substituído por `FANTASMAS`.
 
-A aprovação acima valida os **nomes**, não define automaticamente a posição final de cada um na sequência.
-
-Como o pool aprovado possui mais nomes do que as 22 vagas da macroestrutura, a seleção final e a ordem das 22 Regiões devem ser fechadas explicitamente pelo líder antes de atualizar o catálogo executável.
-
-Nenhum nome fora deste pool deve ser tratado como aprovado sem validação explícita do líder.
+Nenhum nome fora da lista definitiva ou da reserva aprovada deve ser tratado como canônico sem nova validação do líder.
 
 
 ### Composição visual de cada Região
