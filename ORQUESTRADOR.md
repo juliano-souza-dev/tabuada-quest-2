@@ -132,17 +132,26 @@ Nem todo trabalho exige todas as personas.
 
 ## Fluxo visual
 
+Toda criação ou edição de arte passa obrigatoriamente pela Direção Visual **antes da geração**.
+
 ```text
 Produto/Regra
-→ Direção Visual
-→ Desenvolvimento
+→ Direção Visual identifica o tipo de arte
+→ Direção Visual aplica as regras específicas daquele tipo
+→ prompt é montado
+→ líder revisa e aprova o prompt
+→ geração/edição da arte
+→ Direção Visual valida o asset
+→ Desenvolvimento, quando aplicável
 → Direção Visual valida fidelidade
 → Qualidade
 → Experience Validator
 → líder
 ```
 
-A ordem pode ser reduzida quando a mudança não atravessa todos esses domínios.
+A etapa `prompt → aprovação do líder` não pode ser pulada, mesmo quando a arte parecer simples ou já existir uma referência anterior.
+
+A ordem pode ser reduzida quando a mudança não atravessa todos esses domínios, mas **consulta à Direção Visual e aprovação prévia do prompt permanecem obrigatórias sempre que houver geração ou edição de imagem**.
 
 ## Gate de fidelidade
 
