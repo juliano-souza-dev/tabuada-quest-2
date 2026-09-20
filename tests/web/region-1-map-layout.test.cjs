@@ -8,11 +8,17 @@ require("../../web/js/screens/islands-screen.js");
 const content = globalThis.TabuadaQuest.content;
 const islands = globalThis.TabuadaQuest.screens.islands;
 
-test("Região 1 usa asset visual canônico", () => {
+test("Região 1 usa fundo e Ilhas modulares", () => {
     assert.match(
-        content.assets.region1IslandsMapStatic,
-        /assets\/regions\/region-1-islands-static\.webp/
+        content.assets.region1Modular.background,
+        /assets\/regions\/region-1\/background\.png/
     );
+
+    for (let islandId = 1; islandId <= 10; islandId += 1) {
+        const entry = content.assets.region1Modular.islands[islandId];
+        assert.match(entry.unlocked, new RegExp(`island-${String(islandId).padStart(2, "0")}-unlocked\\.png`));
+        assert.match(entry.locked, new RegExp(`island-${String(islandId).padStart(2, "0")}-locked\\.png`));
+    }
 });
 
 test("layout canônico da Região 1 possui back e 10 Ilhas", () => {
@@ -24,7 +30,7 @@ test("layout canônico da Região 1 possui back e 10 Ilhas", () => {
     for (let islandId = 1; islandId <= 10; islandId += 1) {
         const item = layout.islands[islandId];
         assert.ok(item);
-        for (const rect of [item.status, item.reward, item.hitbox]) {
+        for (const rect of [item.art, item.status, item.reward, item.hitbox]) {
             assert.ok(rect.x >= 0);
             assert.ok(rect.y >= 0);
             assert.ok(rect.width > 0);
@@ -90,5 +96,20 @@ test("nomes fixos usados pela arte continuam no catálogo para acessibilidade", 
             content.getIslandIdentity(1, index + 1).label
         ),
         expected
+    );
+});
+
+test("seleção de asset troca entre locked e unlocked", () => {
+    assert.match(
+        islands.getRegion1IslandAsset(1, "locked"),
+        /island-01-locked\.png/
+    );
+    assert.match(
+        islands.getRegion1IslandAsset(1, "available"),
+        /island-01-unlocked\.png/
+    );
+    assert.match(
+        islands.getRegion1IslandAsset(1, "completed"),
+        /island-01-unlocked\.png/
     );
 });
