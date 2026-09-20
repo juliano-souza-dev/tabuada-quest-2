@@ -13,6 +13,18 @@
         Object.freeze({ id: "tide-wheel", label: "Timão das marés", src: "./assets/frames/profile-frame-tide-wheel.webp" })
     ]);
 
+    const crewMembers = Object.freeze([
+        Object.freeze({ id: "atirador", label: "Atirador", asset: "./assets/crew/atirador.webp", cost: 250, bonusType: "xp", bonusPercent: 3 }),
+        Object.freeze({ id: "carpinteiro", label: "Carpinteiro", asset: "./assets/crew/carpinteiro.webp", cost: 300, bonusType: "coins", bonusPercent: 3 }),
+        Object.freeze({ id: "cozinheiro", label: "Cozinheiro", asset: "./assets/crew/cozinheiro.webp", cost: 350, bonusType: "gems", bonusPercent: 3 }),
+        Object.freeze({ id: "espadachim", label: "Espadachim", asset: "./assets/crew/espadachim.webp", cost: 650, bonusType: "xp", bonusPercent: 5 }),
+        Object.freeze({ id: "explorador", label: "Explorador", asset: "./assets/crew/explorador.webp", cost: 750, bonusType: "coins", bonusPercent: 5 }),
+        Object.freeze({ id: "inventor", label: "Inventor", asset: "./assets/crew/inventor.webp", cost: 850, bonusType: "gems", bonusPercent: 5 }),
+        Object.freeze({ id: "medico", label: "Médico", asset: "./assets/crew/medico.webp", cost: 1200, bonusType: "xp", bonusPercent: 8 }),
+        Object.freeze({ id: "musico", label: "Músico", asset: "./assets/crew/musico.webp", cost: 1400, bonusType: "coins", bonusPercent: 8 }),
+        Object.freeze({ id: "navegador", label: "Navegador", asset: "./assets/crew/navegador.webp", cost: 1600, bonusType: "gems", bonusPercent: 8 })
+    ]);
+
     const regionNames = Object.freeze([
         "CORSÁRIO",
         "NEBLINAS",
@@ -164,6 +176,7 @@
         getIslandRewards,
         homeBackgrounds,
         profileFrames,
+        crewMembers,
         defaultHomeBackgroundId: "pirate-main",
         defaultProfileFrameId: "simple",
         assets: Object.freeze({
