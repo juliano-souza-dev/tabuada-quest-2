@@ -34,7 +34,7 @@ test("configuração visual é resolvida por Região sem duplicar renderer", () 
 test("CORSÁRIO 2 usa fundo próprio e reaproveita Ilhas 06–10", () => {
     assert.match(
         content.assets.region1Modular.backgrounds[2],
-        /assets\\/regions\\/region-1\\/corsario-2-background\\.jpg/
+        /assets\/regions\/region-1\/corsario-2-background\.jpg/
     );
 
     const state = {
