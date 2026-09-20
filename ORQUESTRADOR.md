@@ -1268,3 +1268,76 @@ Commits:
 3f95098f → ensina padrão à Direção Visual
 fd92e5c7 → atualiza MAPA-DO-PROJETO
 ```
+
+
+### Issue #33 — clique global do Mapa mundo aguardando validação
+
+Última task antes do encerramento solicitado pelo líder.
+
+Contrato implementado:
+
+```text
+qualquer tela de Região visual
+→ botão Mapa mundo
+→ data-action="open-world-map"
+→ TQ.core.worldMap.open({ onNavigate })
+```
+
+Fonte única:
+
+```text
+web/js/core/world-map.js
+```
+
+Comportamento provisório:
+
+```text
+alert("Mapa mundo ainda está em produção.")
+```
+
+Destino futuro já reservado:
+
+```text
+world-map
+```
+
+Regra:
+
+```text
+quando a tela real existir,
+alterar somente TQ.core.worldMap.open(...)
+não criar handlers por Região
+```
+
+Commits:
+
+```text
+ef044b50 → cria controlador global
+bdbe7395 → liga botão da CORSÁRIO ao controlador
+99f3fc8d → feedback visual/touch/focus do botão
+d18eba9f → carrega controlador no frontend
+98f0bd87 → cache CSS
+0ac15b77 → testes do controlador
+68eb0a55 → teste do wiring da CORSÁRIO
+22f9417c → documentação do padrão global
+5a791829 → MAPA-DO-PROJETO
+```
+
+Validação automática:
+
+```text
+Web Unit Tests 35529237295 → success
+Web Preview    35529219339 → success
+Android Debug  35529219382 → success
+```
+
+Gate restante:
+
+```text
+líder clica no Mapa mundo no preview
+→ aviso aparece
+→ líder confirma
+→ Issue #33 pode ser encerrada
+```
+
+Não encerrar antes dessa confirmação.
