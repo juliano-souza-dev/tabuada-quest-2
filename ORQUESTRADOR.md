@@ -1800,3 +1800,46 @@ Estado de fila:
 ```
 
 A #27 não deve ser misturada com a implementação pixel-perfect das Regiões.
+
+
+### Issue #26 — nomes das Regiões implementados
+
+A última task de implementação da #26 foi concluída.
+
+```text
+1  CORSÁRIO
+2  NEBLINAS
+3  CAVEIRAS
+4  NÁUFRAGO
+5  VULCÂNIA
+6  RELÍQUIA
+7  CORALINA
+8  VENTANIA
+9  MURALHAS
+10 ZONA RUBI
+11 FORTALEZA
+```
+
+Validação automática garante:
+
+```text
+R1-R9   = 8 caracteres
+R10-R11 = 9 caracteres
+```
+
+Evidências:
+
+```text
+commit          = 6ebec4cf14d7eec124b019ec76727e92ee2cea65
+Web Unit Tests  = 35486742251 → success
+Web Preview     = 35486742240 → success
+Android Debug   = 35486742235 → success
+```
+
+Estado:
+
+```text
+#26 → IMPLEMENTAÇÃO COMPLETA / AGUARDANDO TESTE FINAL DO LÍDER
+```
+
+Não fechar até aprovação explícita do líder.
