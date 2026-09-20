@@ -121,3 +121,36 @@
     width: 100%;
     margin-top: 10px;
 }
+
+.island-copy {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.island-number {
+    font-size: 12px;
+    opacity: .72;
+    text-transform: uppercase;
+}
+
+.island-name {
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.island-challenge-type,
+.island-reward-labels {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: .82;
+}
+
+.island-text-button.is-review {
+    border-style: dashed;
+}
+
+.island-text-button.is-completed .island-name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
