@@ -10,3 +10,32 @@ test("missão especial pendente segura desbloqueio",()=>{let s=d.createInitialSt
 test("Região 11 exige 9 fragmentos para Ilha 10",()=>{let s=d.createInitialState();s={...s,campaign:{...s.campaign,unlockedRegionIds:Array.from({length:11},(_,i)=>i+1)}};assert.equal(d.completeIsland(s,11,10).campaign.finalJourney.island10Completed,false);for(let i=1;i<=9;i++)s=d.completeIsland(s,11,i);assert.equal(s.campaign.finalJourney.finalMapFragments,9);assert.equal(s.campaign.finalJourney.island10Unlocked,true);s=d.completeIsland(s,11,10);assert.equal(s.campaign.finalJourney.finalGrandChestUnlocked,true)});
 test("Grande Baú não consome os 30 baús",()=>{let s=d.createInitialState();s={...s,campaign:{...s.campaign,finalJourney:{...s.campaign.finalJourney,finalGrandChestUnlocked:true}}};const n=s.campaign.claimedChestIds.length;s=d.claimFinalGrandChest(s);assert.equal(s.campaign.finalJourney.finalGrandChestClaimed,true);assert.equal(s.campaign.claimedChestIds.length,n)});
 test("estado inválido volta ao inicial",()=>{const s=d.normalizeState({schemaVersion:999,wallet:{coins:999}});assert.equal(s.schemaVersion,6);assert.equal(s.wallet.coins,0)});
+
+test("recompensas estruturais da Região 1 persistem e o 4º fragmento bloqueia a próxima Região",()=>{
+    let s=d.createInitialState();
+    const regionState={regionId:1,recoveryGap:2,mastery:Object.fromEntries(Array.from({length:100},(_,i)=>[`k${i}`,{correctStreak:0}])),recoveryQueue:[],plannedExposureCount:0,recoveryAttemptCount:0};
+
+    const rewards={
+        1:[{type:"pet",petId:"pet-r1-i1"}],
+        2:[{type:"map_fragment",mapId:1,fragment:1}],
+        3:[{type:"chest",chestId:"chest-r1-i3"}],
+        4:[{type:"pet",petId:"pet-r1-i4"}],
+        5:[{type:"map_fragment",mapId:1,fragment:2}],
+        6:[{type:"chest",chestId:"chest-r1-i6"}],
+        7:[{type:"pet",petId:"pet-r1-i7"}],
+        8:[{type:"map_fragment",mapId:1,fragment:3}],
+        9:[{type:"chest",chestId:"chest-r1-i9"}],
+        10:[{type:"map_fragment",mapId:1,fragment:4}]
+    };
+
+    for(let islandId=1;islandId<=10;islandId++){
+        s=d.completeGameplaySession(s,{regionId:1,islandId},regionState,rewards[islandId]);
+    }
+
+    assert.equal(s.campaign.petsRescuedIds.length,3);
+    assert.equal(s.campaign.claimedChestIds.length,3);
+    assert.equal(s.campaign.specialMaps["1"].fragments,4);
+    assert.equal(s.campaign.specialMaps["1"].missionStatus,"map_complete_mission_pending");
+    assert.equal(s.campaign.completedRegionIds.includes(1),true);
+    assert.equal(s.campaign.unlockedRegionIds.includes(2),false);
+});
