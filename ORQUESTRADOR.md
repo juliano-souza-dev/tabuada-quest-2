@@ -497,20 +497,42 @@ Se for encontrada inconsistência entre essas fontes, o Orquestrador deve regist
 
 ## Gate operacional vigente
 
-A partir deste checkpoint:
+A partir deste checkpoint, **cada pedido de atualização do líder cria uma issue própria antes da execução**.
 
 ```text
-1 pedido
+pedido de atualização
 → Orquestrador
-→ confirmar se pertence à #8
-→ se SIM: executar dentro da #8
-→ se NÃO: registrar na issue futura correspondente
-→ não executar fora da #8
+→ criar nova issue
+→ milestone = nenhuma
+→ executar a atualização dentro dessa issue
+→ validar
+→ encerrar a issue quando concluída
 ```
 
-Exceção:
+### Regra de milestone
 
-Se o líder decidir explicitamente interromper/reordenar a fila, o Orquestrador deve atualizar este checkpoint **antes** de iniciar a nova issue.
+Uma issue nova **não entra automaticamente em milestone**.
+
+É proibido associar milestone por:
+
+- tema;
+- prefixo;
+- proximidade com outra issue;
+- milestone atualmente em execução;
+- inferência do Orquestrador.
+
+Fluxo permitido:
+
+```text
+líder solicita explicitamente associação à milestone
+→ Orquestrador associa
+```
+
+Sem solicitação explícita:
+
+```text
+milestone = nenhuma
+```
 
 ### Regra absoluta de rastreabilidade
 
@@ -525,15 +547,11 @@ Nenhuma alteração de:
 - regra visual;
 - teste;
 
-pode ser executada sem estar vinculada à issue em execução.
+pode ser executada antes da criação da issue correspondente.
 
-Se o pedido novo não couber no escopo atual:
+Não reutilizar uma issue antiga para uma nova atualização apenas porque o assunto é relacionado.
 
-```text
-pedido
-→ registrar/atualizar issue futura
-→ manter sem execução
-```
+As issues de roadmap existentes (#8–#20) continuam descrevendo entregas maiores, mas **novos pedidos pontuais do líder recebem sua própria issue**. Quando aplicável, a nova issue pode citar a issue de roadmap relacionada sem herdar sua milestone.
 
 Não usar commits soltos como substituto de uma issue.
 
