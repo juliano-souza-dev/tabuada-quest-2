@@ -1912,3 +1912,56 @@ Fluxo liberado:
 #6 → permanece bloqueada até a conclusão/revisão da #5
 #27 → continua aberta como correção independente da Home / Moda
 ```
+
+
+## Regra global — estado de fluxo pertence ao Orquestrador
+
+Issues descrevem **o trabalho**. O Orquestrador descreve **quando e em que ordem o trabalho acontece**.
+
+### Permitido dentro de uma issue
+
+- objetivo;
+- escopo;
+- fora de escopo;
+- requisitos;
+- decisões técnicas e de produto;
+- personas responsáveis;
+- critérios de aceite;
+- evidências de implementação e validação;
+- dependências técnicas quando necessárias para compreender o contrato.
+
+### Não registrar dentro de uma issue
+
+```text
+ATIVA
+PAUSADA
+BLOQUEADA
+AGUARDANDO LIBERAÇÃO
+RETOMAR
+PRÓXIMA ISSUE
+FILA
+NÃO INICIAR AINDA
+CONTINUAR DEPOIS
+```
+
+Também não registrar em issues decisões transitórias como “a próxima permanece bloqueada” ou “esta issue foi pausada por prioridade de outra”.
+
+Esses estados pertencem exclusivamente a:
+
+```text
+ORQUESTRADOR.md
+```
+
+O estado nativo do GitHub `open/closed` continua sendo usado normalmente.
+
+### Regra de atualização
+
+Quando prioridade, ordem ou gate mudar:
+
+```text
+1. atualizar ORQUESTRADOR.md
+2. não adicionar estado transitório ao corpo da issue
+3. manter a issue focada no contrato do trabalho
+```
+
+Esta regra é GLOBAL para todas as milestones e issues do projeto.
