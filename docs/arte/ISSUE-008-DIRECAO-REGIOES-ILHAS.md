@@ -157,54 +157,42 @@ Ilha 10 → Cabo do Capitão
 Os marcos de PET, mapa e baú definidos anteriormente continuam independentes dos nomes das Ilhas.
 
 
-## Região 1 — asset canônico implementado
+## Região 1 — implementação visual vigente
 
-Asset:
+A composição monolítica anterior foi substituída pela arquitetura modular.
+
+Pasta canônica:
 
 ```text
-web/assets/regions/region-1-islands-static.webp
+web/assets/regions/region-1/
 ```
 
-Stage canônico:
+Composição:
+
+```text
+background.png
++
+10 assets unlocked
++
+10 assets locked
++
+status/recompensas/hitboxes dinâmicos
+```
+
+Stage lógico:
 
 ```text
 941 × 1672
 ```
 
-A imagem contém de forma fixa:
-
-- header e seta visual;
-- `CORSÁRIO`;
-- as 10 Ilhas;
-- os 10 nomes;
-- slots vazios para status e recompensa.
-
-Implementação dinâmica:
+Implementação:
 
 ```text
 web/js/screens/islands-screen.js
 REGION_1_LAYOUT
 ```
 
-Overlays:
-
-```text
-status    → texto dinâmico
-recompensa → símbolo/conteúdo dinâmico
-hitbox    → ação dinâmica invisível
-```
-
-Estados exibidos no slot:
-
-```text
-BLOQUEADA
-DESBLOQUEADA
-CONTINUAR
-CONCLUÍDA ✓
-```
-
-As Regiões 2–11 permanecem temporariamente no layout textual até receberem suas respectivas artes.
-
+O estado da Ilha escolhe dinamicamente a variante visual.
 
 ## Arquitetura modular aprovada
 
@@ -213,13 +201,13 @@ A tela final das Ilhas será composta, não rasterizada como uma única imagem.
 Estrutura:
 
 ```text
-background-region-01.webp
+background.png
 +
-island-01-unlocked.webp
-island-01-locked.webp
+island-01-unlocked.png
+island-01-locked.png
 ...
-island-10-unlocked.webp
-island-10-locked.webp
+island-10-unlocked.png
+island-10-locked.png
 +
 overlays dinâmicos
 ```
