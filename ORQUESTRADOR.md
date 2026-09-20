@@ -1709,3 +1709,54 @@ Fila:
 ```
 
 Regra técnica central: imagem e overlays devem compartilhar o mesmo stage lógico `941 × 1672` e a mesma transformação de escala/crop.
+
+
+### Issue #26 — implementação publicada
+
+Camada dinâmica pixel-perfect implementada sobre o mapa full-screen aprovado.
+
+```text
+commit          = 2b89c666af08c8686700058c67d89b5fab06c6d3
+Web Unit Tests  = 35486161939 → success
+Web Preview     = 35486161868 → success
+Android Debug   = 35486161865 → success
+preview         = https://juliano-souza-dev.github.io/tabuada-quest-2/
+```
+
+Implementado:
+
+- stage lógico canônico `941 × 1672`;
+- escala cover única para arte e overlays;
+- hitbox voltar `8,8,112,112`;
+- Regiões 1–10: número, título, progresso e estado;
+- estados LOCKED / AVAILABLE / IN_PROGRESS / COMPLETED;
+- Região 11: `0/9...9/9`, mapa final, Ilha 10 e Grande Baú Final;
+- hitboxes transparentes das Regiões;
+- teste automatizado `tests/web/regions-layout.test.cjs`.
+
+Gates internos:
+
+```text
+Direção Visual       = 94% → APROVADO PARA QUALIDADE
+Qualidade e Build    = APROVADO
+Experience Validator = APROVADO
+Líder de equipe      = PENDENTE
+```
+
+Documentos:
+
+```text
+docs/validacao/ISSUE-026-fidelidade-visual.md
+docs/validacao/ISSUE-026-qualidade.md
+docs/validacao/ISSUE-026-experience.md
+```
+
+Estado:
+
+```text
+#25 → CLOSED
+#26 → IMPLEMENTAÇÃO CONCLUÍDA / AGUARDANDO VALIDAÇÃO DO LÍDER
+#24 → permanece issue-pai aberta
+#5  → permanece pausada
+#6  → permanece bloqueada
+```
