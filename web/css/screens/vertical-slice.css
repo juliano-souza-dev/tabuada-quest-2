@@ -192,6 +192,18 @@
     pointer-events: none;
 }
 
+.global-world-map-asset {
+    position: absolute;
+    z-index: 4;
+    display: block;
+    max-width: none;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 7px 8px rgba(24, 11, 3, .38));
+}
+
 .region1-island-art {
     display: block;
     width: 100%;
