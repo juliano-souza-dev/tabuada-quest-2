@@ -101,17 +101,26 @@ a menos que Produto aprove explicitamente uma nova experiência visual.
 
 ## Bônus de Tripulação
 
-Tripulantes contratados podem modificar recompensas econômicas futuras.
+A Tripulação real do projeto já existe e deve ser reutilizada. Não criar nomes, personagens, custos, bônus ou assets provisórios.
 
-Contrato inicial:
+Cada tripulante terá configuração própria fornecida pelo catálogo canônico da Tripulação:
 
 ```text
-Mestre de Convés   → custo 250 ouro → +5% XP
-Intendente         → custo 400 ouro → +5% ouro
-Lapidadora         → custo 600 ouro → +5% gemas
+id
+nome
+asset
+custo em ouro
+tipo de bônus
+valor do bônus
 ```
 
-Esses valores são o balanceamento inicial e podem ser recalibrados sem alterar a regra do sistema.
+Tipos de bônus previstos pelo Produto:
+
+```text
+XP
+OURO
+GEMAS
+```
 
 Regras de cálculo:
 
@@ -119,7 +128,9 @@ Regras de cálculo:
 - o bônus é aplicado somente quando aquela recompensa é concedida;
 - não criar recompensa-base apenas para justificar um bônus;
 - a Tripulação não altera a quantidade de exercícios, dificuldade ou scheduler;
-- bônus econômicos não podem reduzir planned exposure nem substituir recovery.
+- bônus econômicos não podem reduzir planned exposure nem substituir recovery;
+- valores de custo e bônus só entram no contrato quando recuperados da Tripulação já existente ou aprovados explicitamente pelo líder.
+
 
 ## Recompensas
 
