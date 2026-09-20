@@ -2213,3 +2213,33 @@ Fluxo:
 #8 → ATIVA
 #27 → permanece aberta como correção independente da Home / Moda
 ```
+
+
+### Issue #8 — identidade de Regiões e Ilhas iniciada
+
+Primeiro bloco implementado:
+
+```text
+11 identidades de Região
+110 nomes de Ilha
+challengeIdentity = mixed
+estados = AVAILABLE / LOCKED / REVIEW / COMPLETED
+```
+
+Regra pedagógica preservada:
+
+```text
+identidade narrativa da Ilha
+!=
+tabuada fixa
+```
+
+A UI textual passa a exibir o nome da Ilha e o rótulo `Desafio misto`. O estado `REVISAR` aparece quando a próxima Ilha herda recuperação pedagógica pendente da Região.
+
+Contrato visual/narrativo:
+
+```text
+docs/arte/ISSUE-008-DIRECAO-REGIOES-ILHAS.md
+```
+
+A produção de assets finais ainda não foi iniciada.
