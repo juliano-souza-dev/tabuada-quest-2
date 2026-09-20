@@ -1871,3 +1871,44 @@ Próximo estado do fluxo:
 #5  → permanece pausada até decisão do fluxo da #24
 #6  → permanece bloqueada
 ```
+
+
+### Issue #24 — aprovada e encerrada
+
+A issue-pai da tela de Regiões foi consolidada após as correções #25 e #26.
+
+Regra visual final:
+
+```text
+header externo = removido
+mapa           = full-screen
+voltar         = embutido no asset + hitbox dinâmica
+HUD jogador    = não exibido
+```
+
+Entrega final:
+
+```text
+#25 → CLOSED / base estática aprovada
+#26 → CLOSED / camada dinâmica pixel-perfect aprovada
+#24 → APROVADA PELO LÍDER → CLOSED
+```
+
+Escopo concluído:
+
+- 11 Regiões;
+- navegação sequencial;
+- estados dinâmicos;
+- persistência;
+- Região 11 completa;
+- Grande Baú Final separado dos 30 baús normais;
+- nomes finais das Regiões;
+- preview/testes/build aprovados.
+
+Fluxo liberado:
+
+```text
+#5 → RETOMAR
+#6 → permanece bloqueada até a conclusão/revisão da #5
+#27 → continua aberta como correção independente da Home / Moda
+```
