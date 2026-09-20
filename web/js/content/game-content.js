@@ -182,6 +182,7 @@
             reward: "./assets/ui/icone-recompensa-magica.webp",
             nauticalChest: "./assets/ui/chest-nautical.webp",
             itemChest: "./assets/ui/chest-items.webp",
+            islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
             homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2228",
