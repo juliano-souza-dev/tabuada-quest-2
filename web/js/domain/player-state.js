@@ -159,7 +159,7 @@
 
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 7,
                 campaign: {
                     ...campaign,
                     travelPlayedIslandIds: active ? addUnique(completed, active) : completed
