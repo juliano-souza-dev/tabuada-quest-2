@@ -166,19 +166,30 @@ Não associar issue a milestone sem necessidade explícita de planejamento.
 
 O Orquestrador mantém o encadeamento atual fora das issues.
 
-Para a expansão das Regiões, a sequência é:
+Prioridade vigente definida pelo líder:
+
+```text
+1. implementar CORSÁRIO 2
+   → reutilizar Ilhas 06–10 da remake anterior
+   → projetar nos 5 slots compartilhados
+   → validar progressão CORSÁRIO 1 → CORSÁRIO 2
+   → Qualidade / Experience / líder
+
+2. somente depois retomar NEBLINAS
+```
+
+As issues de NEBLINAS podem permanecer abertas como tarefas futuras, mas estão fora da execução até CORSÁRIO 2 ser concluída e validada.
+
+Para expansões futuras:
 
 ```text
 Produto + Game Design fecham regras nas personas
-→ Orquestrador libera produção visual
-→ issue de produção visual
-→ Direção Visual entrega/aprova assets
-→ Orquestrador libera implementação
-→ issue de implementação
-→ Qualidade / Experience / líder conforme gates
+→ Orquestrador decide se já existe tarefa executável
+→ issue concreta de implementação/correção
+→ gates aplicáveis
 ```
 
-A etapa de definição entre Produto e Game Design **não gera issue**.
+A etapa de definição entre personas **não gera issue**.
 
 ## Estado após reset de issues
 
