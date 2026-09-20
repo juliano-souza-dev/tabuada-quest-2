@@ -2243,3 +2243,47 @@ docs/arte/ISSUE-008-DIRECAO-REGIOES-ILHAS.md
 ```
 
 A produção de assets finais ainda não foi iniciada.
+
+
+### Issue #8 — mapa visual da Região 1 publicado
+
+A apresentação textual das Ilhas foi substituída, apenas na Região 1, pela arte aprovada pelo líder.
+
+Contrato visual:
+
+```text
+FIXO
+→ header
+→ seta visual
+→ CORSÁRIO
+→ arte das 10 Ilhas
+→ nomes das 10 Ilhas
+→ molduras
+
+DINÂMICO
+→ status
+→ recompensa
+→ hitboxes
+→ progresso/sessão
+```
+
+Asset:
+
+```text
+web/assets/regions/region-1-islands-static.webp
+```
+
+Pipelines:
+
+```text
+Web Unit Tests = 35508225725 → success
+Web Preview    = 35508225706 → success
+Android Debug  = 35508225781 → success
+```
+
+Gate atual:
+
+```text
+implementação = concluída
+líder = validar mapa interativo no preview
+```
