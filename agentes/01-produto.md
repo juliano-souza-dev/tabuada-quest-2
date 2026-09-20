@@ -60,6 +60,20 @@ A antiga solução de dividir CORSÁRIO em `CORSÁRIO 1` e `CORSÁRIO 2` como du
 
 A nomenclatura definitiva das novas Regiões adicionais deve ser definida separadamente. Não inventar nomes para completar as 22 Regiões.
 
+### Nomes de Região aprovados
+
+Nomes já aprovados pelo líder para compor a lista final das 22 Regiões:
+
+```text
+OBSIDIANA
+ZONA RUBI
+ESCARLATE
+```
+
+A aprovação acima valida os **nomes**, não define automaticamente a posição final de cada um na sequência.
+
+Nenhum outro nome proposto está aprovado enquanto não houver validação explícita do líder.
+
 ### Composição visual de cada Região
 
 Cada Região exibe:
