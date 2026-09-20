@@ -168,6 +168,8 @@ Documentos atuais:
 docs/decisoes/DEC-001-distribuicao-intercalada-tabuadas.md
 docs/decisoes/DEC-002-regioes-ilhas-pets-baus.md
 docs/decisoes/DEC-003-matriz-escopo-v1.md
+docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
+docs/decisoes/DEC-005-jornada-11-regioes-grande-bau-final.md
 ```
 
 Decisões novas devem seguir a numeração sequencial `DEC-XXX`.
@@ -1181,3 +1183,16 @@ web/index.html usa versionamento por query string nos CSS/JS da Home
 ```
 
 Motivo: impedir mistura entre overlay novo e camadas antigas armazenadas pelo navegador.
+
+
+## Tela de Regiões — direção visual dinâmica
+
+Fonte de regras:
+
+```text
+agentes/03-direcao-visual.md
+docs/arte/ESTRATEGIA-ASSETS-V1.md
+docs/decisoes/DEC-005-jornada-11-regioes-grande-bau-final.md
+```
+
+A composição aprovada da tela de Regiões deve separar cenário/slots fixos de dados dinâmicos. O header segue a linguagem visual aprovada da Home e deve ser produzido com slots vazios para os dados do jogador.

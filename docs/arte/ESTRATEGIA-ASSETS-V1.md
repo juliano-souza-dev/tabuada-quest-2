@@ -281,3 +281,46 @@ Em especial:
 ## Princípio final
 
 > Reutilizar economiza produção quando preserva qualidade. Quando o reuso obriga a composição a se adaptar ao arquivo, ele deixa de ser economia e vira dívida visual.
+
+
+## Regra de UI com dados dinâmicos
+
+Para telas de jogo, uma imagem de composição não deve assumir responsabilidade por conteúdo mutável.
+
+Antes de gerar o asset final, classificar cada elemento como:
+
+```text
+FIXO
+DINÂMICO
+```
+
+Elementos dinâmicos ficam em HTML/CSS/JS, mesmo quando a composição de referência os mostra preenchidos.
+
+### Tela de Regiões
+
+A arte-base deve fornecer:
+
+- cenário marítimo vertical;
+- 11 destinos visuais;
+- rota entre destinos;
+- placas vazias por Região;
+- áreas vazias para progresso/estado/CTA;
+- header com slots vazios coerente com a Home;
+- tratamento especial da Região 11;
+- 9 slots visuais do mapa final;
+- slot visual da Ilha 10;
+- área visual do Grande Baú Final.
+
+A camada dinâmica fornece:
+
+- número/nome das Regiões;
+- progresso `x/10`;
+- estados e cadeados;
+- CTAs;
+- mensagens de desbloqueio;
+- `0/9...9/9` fragmentos;
+- estado da Ilha 10;
+- estado do Grande Baú Final;
+- HUD do jogador.
+
+Uma composição aprovada pelo líder não pode ser redesenhada quando a solicitação for apenas um complemento pontual.

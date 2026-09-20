@@ -1393,3 +1393,44 @@ Fonte de verdade pedagógica da implementação:
 ```text
 docs/decisoes/DEC-004-scheduler-pedagogico-v1.md
 ```
+
+
+### Revisão de campanha — 11 Regiões / #6 bloqueada
+
+Produto atualizou a macroestrutura antes da implementação do scheduler.
+
+```text
+TOTAL_REGIONS = 11
+ISLANDS_PER_REGION = 10
+TOTAL_ISLANDS = 110
+```
+
+Região 11:
+
+```text
+Ilhas 1..9 → 9 fragmentos do Mapa Final
+9/9        → libera Ilha 10
+Ilha 10    → libera Grande Baú Final
+```
+
+Grande Baú Final:
+
+```text
+recompensa especial
+fora dos 30 baús normais
+não é chest 31
+```
+
+Consequência de gate:
+
+```text
+#5 → REABERTA para recalcular a distribuição pedagógica
+#6 → BLOQUEADA / não implementar a DEC-004 antiga
+```
+
+Direção Visual também recebeu contrato novo:
+
+- consultar o agente antes de toda geração de arte;
+- preservar composição já aprovada;
+- separar arte fixa de dados dinâmicos;
+- header da tela de Regiões deve reutilizar a linguagem visual da Home com slots vazios.

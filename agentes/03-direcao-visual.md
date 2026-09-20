@@ -249,3 +249,83 @@ Direção Visual → Orquestrador → Desenvolvimento
 ```
 
 Direção Visual não implementa a tela. Ela fornece assets e critérios de correção.
+
+## Consulta obrigatória antes de gerar qualquer arte
+
+A Direção Visual deve ser consultada **antes de toda geração, regeneração, edição ou adaptação de imagem do projeto**.
+
+Fluxo obrigatório:
+
+```text
+pedido visual
+→ Orquestrador
+→ Direção Visual lê contexto + decisões vigentes + arte já aprovada
+→ Direção Visual classifica o que é fixo e o que é dinâmico
+→ Direção Visual define o prompt/edição
+→ geração da arte
+→ líder de equipe valida
+```
+
+É proibido gerar primeiro e tentar adequar depois.
+
+### Regra de preservação de composição aprovada
+
+Quando o líder de equipe já aprovou uma composição visual:
+
+- tratá-la como referência principal;
+- não mudar orientação, hierarquia, quantidade de regiões, rota, enquadramento, estilo ou estrutura sem nova decisão;
+- pedidos de correção pontual devem alterar **somente** o item solicitado;
+- exemplo: se a arte foi aprovada e falta apenas o header, adicionar o header sem redesenhar o mapa.
+
+## Separação obrigatória: arte fixa x dados dinâmicos
+
+Toda tela que exibe estado do jogador ou progresso deve ser planejada em duas camadas.
+
+### Arte fixa
+
+Pode ser rasterizada:
+
+- cenário;
+- ilhas, mar, rotas e vegetação;
+- molduras e placas vazias;
+- slots vazios;
+- ornamentação náutica;
+- composição visual do destino final;
+- área visual do Grande Baú Final.
+
+### Dados dinâmicos
+
+Não podem ser embutidos na imagem final:
+
+- nomes e números de Regiões;
+- progresso de Ilhas;
+- estados BLOQUEADA / DISPONÍVEL / EM PROGRESSO / CONCLUÍDA;
+- condições de desbloqueio;
+- texto de CTA;
+- nome do jogador;
+- nível, XP, moedas, gemas;
+- quantidade de fragmentos;
+- estado da Ilha 10 da Região 11;
+- estado do Grande Baú Final.
+
+Esses dados devem ser renderizados pela interface sobre slots planejados pela arte.
+
+### Header compartilhado
+
+Quando uma tela reutiliza o HUD principal:
+
+- reutilizar a linguagem visual e geometria aprovadas da Home;
+- o asset deve conter apenas **molduras/slots vazios**;
+- avatar, nome, nível, XP, moedas e gemas continuam dinâmicos;
+- não introduzir um novo modelo de header sem decisão da Direção Visual.
+
+### Gate antes da geração
+
+Antes de qualquer chamada de geração de imagem, a Direção Visual deve confirmar explicitamente:
+
+```text
+REFERENCIA_APROVADA = qual arte/composição está sendo preservada
+ALTERACAO_PEDIDA    = o que exatamente pode mudar
+DADOS_DINAMICOS     = o que deve permanecer fora da imagem
+ASSET_DECISION      = REUTILIZAR / ADAPTAR / CRIAR NOVO
+```

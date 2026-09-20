@@ -445,3 +445,49 @@ X = 200 plannedExposure por tabuada
 ```
 
 A matriz e as regras desta decisão fecham os pontos pedagógicos deixados em aberto pela DEC-001 para a V1.
+
+
+## REVISÃO OBRIGATÓRIA — campanha agora possui 11 Regiões
+
+A estrutura de campanha foi alterada após esta decisão.
+
+Nova macroestrutura:
+
+```text
+11 Regiões
+10 Ilhas por Região
+110 Ilhas
+Região 11 = arco final com mapa de 9 fragmentos + Ilha 10
+```
+
+Consequência:
+
+**a matriz numérica desta DEC-004 não pode ser implementada pela Issue #6 enquanto não for redistribuída para a nova campanha.**
+
+Os conceitos abaixo continuam válidos:
+
+- `plannedExposure`;
+- `recoveryAttempt`;
+- separação entre cota curricular e recuperação;
+- cobertura `n×1...n×10`;
+- regra de recuperação após erro;
+- necessidade de invariantes testáveis.
+
+Os valores abaixo ficam **suspensos como fonte de implementação**:
+
+```text
+10 Regiões
+2.000 plannedExposure totais
+X = 200 por tabuada
+matriz K definida para R1..R10
+```
+
+Produto + Game Design devem recalcular a distribuição pedagógica considerando:
+
+1. progressão sequencial entre Regiões;
+2. introdução/revisão de tabuadas coerente com a sensação de viagem;
+3. Região 11 e suas 10 Ilhas;
+4. aumento de exposição pretendido pelo Produto;
+5. manutenção da separação plannedExposure/recoveryAttempt.
+
+Até essa revisão, a Issue #6 permanece bloqueada para implementação.

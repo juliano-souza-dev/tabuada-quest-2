@@ -460,3 +460,81 @@ Esta decisão não fixa ainda:
 - recompensa de conclusão de Região.
 
 Esses pontos serão definidos na continuação da Issue #1 e nas issues específicas de progressão.
+
+
+## Atualização de campanha — 11 Regiões e destino final
+
+Decisão aprovada pelo líder em 2026-09-19.
+
+A campanha passa a possuir:
+
+```text
+TOTAL_REGIONS = 11
+ISLANDS_PER_REGION = 10
+TOTAL_ISLANDS = 110
+```
+
+### Navegação entre Regiões
+
+A jornada é sequencial.
+
+```text
+Região 1
+→ concluir a Região
+→ libera Região 2
+→ concluir a Região
+→ libera Região 3
+→ ...
+→ Região 11
+```
+
+Uma Região posterior não fica livremente acessível antes do marco de conclusão exigido pela campanha.
+
+As missões especiais dos 5 mapas continuam podendo bloquear temporariamente a progressão normal quando o mapa correspondente for completado.
+
+### Região 11 — arco final
+
+A Região 11 possui 10 Ilhas, mas usa uma estrutura especial.
+
+```text
+Ilha 1 → fragmento final 1/9
+Ilha 2 → fragmento final 2/9
+...
+Ilha 9 → fragmento final 9/9
+       → MAPA FINAL COMPLETO
+       → Ilha 10 desbloqueada
+
+Ilha 10 concluída
+→ Grande Baú Final desbloqueado
+```
+
+O mapa final de 9 fragmentos é **separado** dos 5 mapas especiais de 4 fragmentos existentes nas Regiões 1–10.
+
+### Grande Baú Final
+
+Decisão B aprovada:
+
+```text
+TOTAL_CHESTS = 30
+FINAL_GRAND_CHEST = recompensa final especial separada
+```
+
+O Grande Baú Final:
+
+- não é o baú 31;
+- não entra no ledger dos 30 baús normais;
+- não reduz nem substitui os 30 baús;
+- é desbloqueado somente após concluir a Ilha 10 da Região 11;
+- deve possuir estado persistente próprio;
+- pode receber recompensa e apresentação visual exclusivas em decisão posterior.
+
+Estado conceitual mínimo:
+
+```text
+finalMapFragments = 0..9
+finalMapCompleted
+region11Island10Unlocked
+region11Island10Completed
+finalGrandChestUnlocked
+finalGrandChestClaimed
+```
