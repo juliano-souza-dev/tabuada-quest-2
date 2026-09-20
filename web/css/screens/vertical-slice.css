@@ -1,0 +1,123 @@
+.slice-screen {
+    width: 100%;
+    min-height: 100%;
+    overflow-y: auto;
+    background: #0c2735;
+    color: #fff;
+    padding: max(18px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.slice-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.slice-header h1,
+.slice-header small {
+    margin: 0;
+}
+
+.slice-header button,
+.slice-screen button {
+    min-height: 48px;
+    border: 2px solid currentColor;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.slice-content {
+    width: min(100%, 520px);
+    margin: 0 auto;
+}
+
+.slice-intro {
+    margin-bottom: 18px;
+}
+
+.island-text-list,
+.answer-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.slice-choice {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+}
+
+.slice-choice:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.challenge-content {
+    display: grid;
+    place-items: center;
+    min-height: 65vh;
+}
+
+.challenge-card,
+.result-card {
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+}
+
+.math-question {
+    font-size: clamp(42px, 12vw, 72px);
+    font-weight: 900;
+    margin: 32px 0;
+}
+
+.answer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.answer-button {
+    font-size: 26px !important;
+    min-height: 72px !important;
+}
+
+.challenge-progress {
+    opacity: .85;
+}
+
+.feedback-card h2 {
+    font-size: 30px;
+}
+
+.result-stats {
+    display: grid;
+    gap: 10px;
+    margin: 24px 0;
+    text-align: left;
+}
+
+.result-stats div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.result-stats dt,
+.result-stats dd {
+    margin: 0;
+}
+
+.result-card > button {
+    width: 100%;
+    margin-top: 10px;
+}
