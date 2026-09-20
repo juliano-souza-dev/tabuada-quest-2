@@ -103,17 +103,15 @@ Decisão corrigida e aprovada pelo líder durante a produção da Região 1.
 - header temático;
 - seta visual de voltar;
 - nome da Região;
-- nomes das 10 Ilhas;
-- molduras/slots reservados para status;
-- molduras/slots reservados para recompensa.
+- placa principal com o nome canônico de cada Ilha;
+- medalhão(ões) de recompensa correspondentes somente às recompensas reais daquela Ilha;
+- placa inferior de madeira vazia, reservada para o texto dinâmico de status.
 
 ### Dinâmico sobre a arte
 
-- status de cada Ilha;
-- estado bloqueada/desbloqueada;
-- conclusão;
+- texto de status de cada Ilha;
+- seleção da variante locked/unlocked;
 - continuidade de sessão;
-- recompensa associada a cada Ilha;
 - hitboxes da seta e das 10 Ilhas;
 - estados de acessibilidade.
 
@@ -124,11 +122,12 @@ FIXO
 nome da Região
 nome das Ilhas
 arte
-molduras
+medalhões de recompensa corretos
+placa inferior vazia
 
 DINÂMICO
-status
-recompensa
+texto de status
+seleção locked/unlocked
 hitboxes
 estado do jogador
 ```
@@ -176,7 +175,7 @@ background.png
 +
 10 assets locked
 +
-status/recompensas/hitboxes dinâmicos
+status/hitboxes dinâmicos
 ```
 
 Stage lógico:
@@ -224,6 +223,68 @@ getIslandStatus(...) === "locked"
     : unlockedAsset
 ```
 
-Status, recompensa e hitbox permanecem fora das imagens.
+O texto de status e as hitboxes permanecem fora das imagens. Os medalhões de recompensa pertencem ao asset específico da Ilha e devem refletir apenas a recompensa realmente atribuída a ela.
 
 Esta arquitetura substitui a composição monolítica anterior da Região 1.
+
+
+## Contrato visual específico de cada Ilha
+
+A criação de Ilhas segue o padrão global definido em:
+
+```text
+agentes/03-direcao-visual.md
+→ Padrão global obrigatório para criação de Ilhas
+```
+
+### Estrutura invariável
+
+Toda Ilha deve conter:
+
+```text
+diorama 3D isolado
++
+placa de madeira com nome canônico
++
+1..N medalhões apenas das recompensas reais
++
+placa inferior de madeira vazia para status
+```
+
+A dupla visual deve preservar registro perfeito:
+
+```text
+unlocked = composição-base
+locked   = mesma composição + leve sombra + corrente/cadeado
+```
+
+### Recompensas
+
+```text
+PET            → patinha
+FRAGMENTO MAPA → pergaminho/mapa rasgado
+BAÚ            → baú
+```
+
+Não existe slot genérico de recompensa.
+
+Se a Ilha tem apenas PET, exibe apenas a patinha.
+Se tem apenas fragmento, exibe apenas o pergaminho.
+Se possui duas recompensas, exibe dois medalhões.
+Nunca criar medalhão vazio.
+
+### Variação entre Ilhas
+
+O cenário e o marco principal mudam de acordo com o nome/identidade da Ilha.
+
+Exemplo aprovado:
+
+```text
+Porto da Âncora
+→ porto tropical
+→ grande âncora como elemento-herói
+→ cais/cordas/barris como apoio
+→ recompensa PET = um único medalhão de patinha
+```
+
+A recompensa não deve dominar ou substituir o conceito visual da Ilha.
