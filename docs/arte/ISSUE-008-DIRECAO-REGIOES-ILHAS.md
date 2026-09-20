@@ -1,7 +1,7 @@
 # Issue #8 — Direção de identidade para Regiões e Ilhas
 
-**Status:** contrato de identidade aprovado para implementação textual  
-**Escopo visual:** assets finais ainda não produzidos
+**Status:** contrato de identidade e composição visual aprovado  
+**Escopo visual:** CORSÁRIO é a referência executável do padrão global
 
 ## Objetivo
 
@@ -53,7 +53,7 @@ O campo `challengeIdentity` é deliberadamente `mixed`. Nenhuma Ilha recebe iden
 
 ## Estados de navegação
 
-A camada de navegação usa quatro estados infantis:
+A camada de navegação usa três estados de domínio:
 
 ```text
 AVAILABLE  → DESBLOQUEADA
@@ -93,6 +93,38 @@ Desafio misto
 
 Não exibir a composição de tabuadas como nome, subtítulo ou tema da Ilha.
 
+## Padrão global de composição das telas de Região
+
+A composição aprovada na CORSÁRIO passa a ser obrigatória para todas as demais telas de Região.
+
+Fonte de verdade:
+
+```text
+docs/arte/PADRAO-GLOBAL-REGIOES-5-ILHAS.md
+```
+
+Regra:
+
+```text
+mesma malha
+mesmas 5 posições
+mesmos tamanhos
+mesmos statusBox
+mesmas hitboxes
+mesma posição do Mapa mundo
+mesma geometria das marcações de água e da rota
+```
+
+Entre Regiões, mudam somente:
+
+- background/ambientação;
+- header/nome;
+- visual e nome das Ilhas;
+- props;
+- medalhões conforme a recompensa real.
+
+Nenhuma nova Região pode inventar outra malha sem decisão explícita do líder.
+
 ## Contrato visual dos mapas de Ilhas
 
 Decisão corrigida e aprovada pelo líder durante a produção da Região 1.
@@ -112,7 +144,7 @@ Decisão corrigida e aprovada pelo líder durante a produção da Região 1.
 - texto de status de cada Ilha;
 - seleção da variante locked/unlocked;
 - continuidade de sessão;
-- hitboxes da seta e das 10 Ilhas;
+- hitboxes da seta e das 5 Ilhas visíveis;
 - estados de acessibilidade.
 
 Contrato:
@@ -169,13 +201,15 @@ web/assets/regions/region-1/
 Composição:
 
 ```text
-background.png
+mapa_marítimo_do_corsário.png
 +
-10 assets unlocked
+5 assets visíveis em seus slots canônicos
 +
-10 assets locked
+variantes locked/unlocked
 +
 status/hitboxes dinâmicos
++
+Mapa mundo global
 ```
 
 Stage lógico:
@@ -200,13 +234,11 @@ A tela final das Ilhas será composta, não rasterizada como uma única imagem.
 Estrutura:
 
 ```text
-background.png
+background temático da Região
 +
-island-01-unlocked.png
-island-01-locked.png
-...
-island-10-unlocked.png
-island-10-locked.png
+5 pares island-NN-unlocked / island-NN-locked visíveis
++
+Mapa mundo global
 +
 overlays dinâmicos
 ```
