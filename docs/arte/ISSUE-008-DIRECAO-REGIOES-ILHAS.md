@@ -306,3 +306,34 @@ Ilha já visitada
 A animação é compartilhada entre as Ilhas e não altera o conceito visual específico de cada diorama.
 
 O vídeo ocupa a tela durante a transição. Não exibir status, recompensa ou HUD por cima da animação.
+
+
+## Convenção de nomeação dos assets
+
+O filename é técnico e não altera o nome narrativo da Ilha.
+
+```text
+island-01-unlocked
+island-01-locked
+
+island-02-unlocked
+island-02-locked
+
+...
+
+island-10-unlocked
+island-10-locked
+```
+
+Somente o número da Ilha varia.
+
+Exemplo atual:
+
+```text
+Ilha 02 = Enseada do Saque
+
+arquivo desbloqueado = island-02-unlocked
+arquivo bloqueado    = island-02-locked
+```
+
+O texto `Enseada do Saque` continua sendo o nome da Ilha e permanece na placa principal da arte.
