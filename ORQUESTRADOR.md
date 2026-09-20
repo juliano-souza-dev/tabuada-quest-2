@@ -840,10 +840,21 @@ Esses estados vivem exclusivamente neste `ORQUESTRADOR.md`.
 
 ## Próximo passo permitido
 
+Foco atual:
+
 ```text
 continuar a produção e integração das artes das Ilhas da Região 1
-dentro da Issue #8
+relacionadas ao roadmap #8
 ```
 
-Qualquer pedido fora desse escopo deve primeiro ser roteado e registrado, sem execução antecipada.
+Para qualquer novo pedido:
+
+```text
+criar issue própria
+→ calcular DEPENDE_DE / DESBLOQUEIA
+→ se bloqueada, focar primeiro no desbloqueador
+→ se independente, executar conforme prioridade definida pelo líder
+```
+
+Nenhuma issue futura é liberada apenas por número, milestone ou ordem de criação.
 
