@@ -20,10 +20,14 @@
     }
 
     function render() {
-        const screenId = state.ui.lastScreen === "regions" ? "regions" : "home";
-        const renderer = screenId === "regions"
-            ? TQ.screens.regions.renderRegionsScreen
-            : TQ.screens.home.renderHomeScreen;
+        const renderers = {
+            home: TQ.screens.home.renderHomeScreen,
+            regions: TQ.screens.regions.renderRegionsScreen,
+            islands: TQ.screens.islands.renderIslandsScreen,
+            challenge: TQ.screens.challenge.renderChallengeScreen,
+            result: TQ.screens.result.renderResultScreen
+        };
+        const renderer = renderers[state.ui.lastScreen] || renderers.home;
 
         screens.render(renderer, {
             state,
