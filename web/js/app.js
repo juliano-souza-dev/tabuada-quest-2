@@ -4,6 +4,16 @@
     if (!TQ || !appRoot) return;
 
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
+
+    const development = TQ.content?.development;
+    if (development?.autoCompleteImplementedRegions) {
+        state = TQ.domain.playerState.withDevelopmentProgress(
+            state,
+            development.implementedRegionIds
+        );
+        state = TQ.persistence.localStorage.saveState(root.localStorage, state);
+    }
+
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function save(nextState) {
