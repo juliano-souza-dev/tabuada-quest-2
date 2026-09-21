@@ -227,6 +227,31 @@ REGION_VISUAL_CONFIG[1]
 
 CORSÁRIO possui uma única composição com as 5 Ilhas renderizadas. Não existe segunda página/sub-região ativa.
 
+Telas de desafio imersivas da Região 1:
+
+```text
+web/assets/regions/region-1/challenges/island-01-challenge.webp
+web/assets/regions/region-1/challenges/island-02-challenge.webp
+web/assets/regions/region-1/challenges/island-03-challenge.webp
+web/assets/regions/region-1/challenges/island-04-challenge.webp
+web/assets/regions/region-1/challenges/island-05-challenge.webp
+```
+
+Associação executável:
+
+```text
+web/js/content/game-content.js
+TQ.content.assets.region1ChallengeArt
+```
+
+Renderer:
+
+```text
+web/js/screens/challenge-screen.js
+```
+
+A arte contém cenário, placas e estrutura visual. Progresso, operação matemática, respostas e feedback são sempre dados dinâmicos sobrepostos por HTML/CSS/JS.
+
 Arquivos históricos das antigas Ilhas 06–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas não pertencem ao catálogo executável.
 
 ### Macroestrutura canônica do mundo
