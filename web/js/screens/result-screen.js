@@ -4,8 +4,7 @@
     function renderIslandRewards(rewards) {
         const configured = Array.isArray(rewards) ? rewards : [];
         const visible = configured.map((reward) => {
-            if (reward.type === "map_fragment") return `<span class="result-art-reward-chip">🧩 Mapa ${reward.mapId} • ${reward.fragment}/4</span>`;
-            if (reward.type === "chest" || reward.type === "pet") return "";
+            if (reward.type === "map_fragment" || reward.type === "chest" || reward.type === "pet") return "";
             return "";
         }).filter(Boolean);
 
@@ -69,7 +68,11 @@
         const structural = Array.isArray(result?.reward?.structural)
             ? result.reward.structural
             : [];
-        return structural.find((reward) => reward?.type === "pet" || reward?.type === "chest") || null;
+        return structural.find((reward) =>
+            reward?.type === "pet"
+            || reward?.type === "chest"
+            || reward?.type === "map_fragment"
+        ) || null;
     }
 
     function renderResultScreen({ state, onStateChange, onNavigate }) {
@@ -157,9 +160,10 @@
             if (action === "islands" || action === "regions") {
                 const deferredReward = getDeferredReward(state.learning.lastResult);
                 if (deferredReward) {
-                    onNavigate(deferredReward.type === "pet" ? "pet" : "chest", {
-                        afterReward: action
-                    });
+                    const rewardScreen = deferredReward.type === "pet"
+                        ? "pet"
+                        : (deferredReward.type === "chest" ? "chest" : "map-reward");
+                    onNavigate(rewardScreen, { afterReward: action });
                     return;
                 }
                 onNavigate(action);
