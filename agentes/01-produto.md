@@ -109,6 +109,32 @@ MAREMÍSTICA
 Nenhum nome fora da lista definitiva ou da reserva aprovada deve ser tratado como canônico sem nova validação do líder.
 
 
+### Nomes temporários de Ilha
+
+Enquanto uma Ilha da macroestrutura canônica de 22 Regiões × 5 Ilhas ainda não possuir nome definitivo aprovado, ela recebe um **nome temporário textual**.
+
+Formato:
+
+```text
+Ilha <palavra> <número>
+```
+
+Exemplos possíveis:
+
+```text
+Ilha Bruma 47
+Ilha Âncora 62
+Ilha Coral 31
+```
+
+Regras:
+
+- o placeholder deve ser estável para a mesma combinação de Região + Ilha;
+- o nome temporário nunca substitui um nome canônico já existente;
+- placeholders devem ser identificáveis no conteúdo como temporários;
+- alterar o nome temporário para um nome definitivo não altera o ID da Ilha nem o save;
+- placeholders existem para desenvolvimento e preenchimento de interface, não constituem aprovação narrativa definitiva.
+
 ### Composição visual de cada Região
 
 Cada Região exibe:
