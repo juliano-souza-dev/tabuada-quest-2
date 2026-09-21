@@ -671,3 +671,41 @@ TQ.content.getPet(petId)
 ```
 
 Baú Final: 5.000 Rubis-base.
+
+
+## Missões Especiais
+
+Domínio:
+
+```text
+web/js/domain/special-mission.js
+```
+
+Tela:
+
+```text
+web/js/screens/special-mission-screen.js
+```
+
+Estado/economia:
+
+```text
+web/js/domain/player-state.js
+campaign.specialMaps[mapId].mission
+campaign.specialMaps[mapId].lastMissionResult
+```
+
+Entradas:
+
+```text
+web/js/screens/result-screen.js
+web/js/screens/regions-screen.js
+```
+
+Feedback compartilhado:
+
+```text
+web/css/screens/vertical-slice.css
+.feedback-card.is-correct
+.feedback-card.is-wrong
+```
