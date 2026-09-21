@@ -328,31 +328,267 @@ Criar um background premium e funcional para composição em código, em que Ilh
 
 Antes de gerar, adaptar esse prompt à Região específica, produzir o `PROMPT_PROPOSTO` final e submetê-lo ao líder conforme o gate obrigatório de aprovação.
 
-## Padrão obrigatório de cada Ilha
+## Direção de Arte — criação de Ilhas
 
-Toda Ilha usa:
+### Objetivo
+
+Gerar assets de Ilha para o mapa seguindo uma linguagem visual consistente, premium, lúdica e altamente legível, no formato de **diorama 3D estilizado**.
+
+Cada Ilha deve funcionar como **asset isolado de interface/mapa**, nunca como ilustração ampla de cenário ou wallpaper.
+
+### Linguagem visual
+
+Toda Ilha deve seguir:
+
+- diorama 3D premium;
+- estilo cartunesco polido;
+- rica em detalhes, mas com leitura clara;
+- composição compacta e centralizada;
+- fundo branco limpo;
+- aparência de asset de jogo casual/adventure;
+- forte sensação de peça colecionável/selecionável do mapa.
+
+A Ilha deve parecer um bloco visual autônomo, pronto para ser exibido no mapa do jogo.
+
+### Estrutura canônica da composição
+
+Elementos obrigatórios:
+
+- massa insular compacta;
+- água contornando a base;
+- elemento central dominante;
+- estruturas secundárias integradas;
+- passarelas, escadas, plataformas ou píeres;
+- props temáticos coerentes;
+- placa principal de madeira com o nome canônico da Ilha;
+- medalhão(ões) de recompensa acoplados à placa principal.
+
+Comportamento visual esperado:
+
+- silhueta forte;
+- tema compreensível rapidamente;
+- composição verticalmente bem resolvida;
+- foco principal sempre na Ilha como asset;
+- tema da Região expresso por terreno, cor, matéria, clima e props;
+- recompensa exibida somente nos medalhões.
+
+### Hierarquia visual
+
+A leitura deve seguir esta ordem:
+
+1. elemento central dominante da Ilha;
+2. placa principal com o nome;
+3. medalhão(ões) de recompensa;
+4. estruturas laterais e props secundários;
+5. água/base e acabamento do entorno.
+
+### Regras fixas
+
+Obrigatórias em todas as Ilhas:
+
+- composição quadrada;
+- Ilha centralizada;
+- fundo branco limpo;
+- asset isolado;
+- estética diorama 3D premium;
+- sem personagens humanos;
+- sem interface adicional;
+- sem HUD;
+- sem placa inferior vazia;
+- sem slots vazios de recompensa;
+- não inventar ícones temáticos no lugar de recompensa real.
+
+A placa inferior vazia está **descontinuada** e não deve retornar.
+
+### Medalhões de recompensa
+
+Os medalhões são acoplados à placa principal e seguem o mesmo acabamento visual do asset.
+
+Regra de quantidade:
 
 ```text
-diorama 3D isolado
-+
-placa principal com nome canônico
-+
-medalhão(ões) somente das recompensas reais
+1 recompensa real → 1 medalhão
+2 recompensas reais → 2 medalhões
+3 recompensas reais → 3 medalhões
 ```
 
-Representação:
+Nunca criar medalhão apenas por decoração ou afinidade temática.
+
+Dicionário visual:
 
 ```text
-PET            → patinha
-FRAGMENTO MAPA → pergaminho/mapa rasgado
-BAÚ            → baú
+PET                → patinha
+FRAGMENTO DE MAPA  → pergaminho / mapa rasgado
+BAÚ                → baú de tesouro
+MOEDA              → moeda
+CHAVE              → chave
+GEMA / CRISTAL     → gema lapidada
 ```
 
-Não criar slot vazio.
+Mostrar **somente recompensas reais** da Ilha.
 
-Se houver uma recompensa, mostrar uma. Se houver duas, mostrar duas.
+### Estado desbloqueado
 
-### Nomenclatura
+A versão desbloqueada é a composição canônica da Ilha:
+
+- totalmente legível;
+- iluminada de forma coerente;
+- sem obstruções;
+- com todos os elementos visuais normais;
+- nome e medalhões integralmente visíveis.
+
+### Estado bloqueado
+
+A versão bloqueada deve ser **a mesma Ilha**, preservando:
+
+- composição;
+- enquadramento;
+- estrutura;
+- proporção;
+- nome;
+- medalhões de recompensa;
+- identidade visual base.
+
+Adicionar somente:
+
+- correntes grandes envolvendo a Ilha;
+- cadeado grande em destaque no primeiro plano;
+- leve escurecimento geral;
+- sensação visual clara de acesso bloqueado.
+
+As correntes e o cadeado devem se integrar ao asset sem destruir sua leitura.
+
+Não podem mudar entre unlocked e locked:
+
+- câmera;
+- enquadramento;
+- escala;
+- geometria;
+- elemento central;
+- cenário;
+- vegetação;
+- props;
+- medalhões;
+- placa principal;
+- textos;
+- posição dos elementos.
+
+A variante locked **não é uma nova interpretação da Ilha**. Ela reaproveita a mesma base composicional da versão desbloqueada e recebe apenas a camada visual de bloqueio.
+
+### O que evitar
+
+Não gerar:
+
+- cenários amplos cinematográficos;
+- céu ocupando a maior parte da arte;
+- composição com aparência de wallpaper;
+- ícones temáticos inventados como recompensa;
+- excesso de elementos que prejudiquem a leitura;
+- arte com foco maior no ambiente do que na Ilha;
+- estruturas gigantescas que descaracterizem o padrão de asset de mapa;
+- placa inferior vazia;
+- slots falsos de recompensa.
+
+### Campos variáveis obrigatórios antes da geração
+
+Antes de montar o prompt, preencher:
+
+```text
+REGIÃO
+NOME_DA_ILHA
+TEMA_VISUAL
+ELEMENTO_CENTRAL
+PALETA_PRINCIPAL
+DETALHES_SECUNDÁRIOS
+RECOMPENSAS_REAIS
+```
+
+Depois gerar, nesta ordem:
+
+```text
+1. versão desbloqueada
+2. versão bloqueada usando a mesma base composicional
+```
+
+### Prompt-mestre dinâmico — Ilha desbloqueada
+
+Sempre que `TIPO_DE_ARTE = ILHA` e o estado for desbloqueado, partir deste prompt e preencher todos os campos variáveis antes de submetê-lo ao líder:
+
+```text
+Crie um asset de ilha para jogo no estilo diorama 3D premium, altamente detalhado, polido, colorido, com composição quadrada, centralizada, fundo branco limpo e visual isolado. A ilha deve parecer um asset de mapa de game casual/adventure, compacto, legível e colecionável.
+
+A composição deve seguir a estrutura canônica: massa insular compacta cercada por água, grande elemento central dominante, estruturas secundárias integradas, passarelas/plataformas/escadas ou píeres, props temáticos, e uma grande placa principal de madeira com o nome da ilha.
+
+Região: [REGIÃO].
+Nome da ilha: “[NOME_DA_ILHA]”.
+Tema visual: [TEMA_VISUAL].
+Elemento central dominante: [ELEMENTO_CENTRAL].
+Paleta principal: [PALETA_PRINCIPAL].
+Detalhes secundários / props: [DETALHES_SECUNDÁRIOS].
+
+Na frente da ilha, incluir uma placa principal de madeira com o texto “[NOME_DA_ILHA]”, com tipografia grande, legível, estilizada e com acabamento premium de game.
+
+Acoplados à placa principal, incluir medalhões circulares apenas das recompensas reais da ilha:
+- recompensa 1: [RECOMPENSA_1]
+- recompensa 2: [RECOMPENSA_2]
+- recompensa 3: [RECOMPENSA_3]
+
+Mostrar somente a quantidade real de recompensas. Não incluir slots vazios. Não inventar símbolo temático no lugar de recompensa real.
+
+A ilha deve ter leitura clara, silhueta forte, riqueza de detalhes, coerência visual com a região e aparência de asset premium. Sem personagens humanos. Sem interface extra. Sem placa inferior vazia.
+```
+
+Campos de recompensa inexistentes devem ser **removidos do prompt**, nunca preenchidos com `nenhuma`, `vazio` ou ícone decorativo.
+
+### Prompt-mestre dinâmico — Ilha bloqueada
+
+A versão bloqueada deve partir visualmente da versão desbloqueada já aprovada:
+
+```text
+Crie a versão bloqueada do mesmo asset de ilha, mantendo exatamente a mesma composição, enquadramento, estrutura, proporção, nome, medalhões de recompensa e identidade visual da versão desbloqueada.
+
+A ilha base é:
+- Região: [REGIÃO]
+- Nome da ilha: “[NOME_DA_ILHA]”
+- Tema visual: [TEMA_VISUAL]
+- Elemento central dominante: [ELEMENTO_CENTRAL]
+- Recompensas reais: [RECOMPENSA_1], [RECOMPENSA_2], [RECOMPENSA_3]
+
+Manter a mesma placa principal com o nome “[NOME_DA_ILHA]” e os mesmos medalhões de recompensa.
+
+Adicionar somente os elementos de bloqueio:
+- correntes grandes envolvendo a ilha
+- um cadeado grande em destaque no primeiro plano
+- leve escurecimento geral
+- sensação visual de ilha bloqueada
+
+As correntes e o cadeado devem se integrar ao asset sem destruir sua leitura. Manter composição quadrada, centralizada, fundo branco limpo e asset isolado. Não alterar o tema base, não mudar recompensas e não adicionar placa inferior vazia.
+```
+
+Remover do prompt qualquer recompensa inexistente.
+
+### Gate específico de Ilha
+
+Além do gate visual global, antes de gerar uma Ilha deve existir:
+
+```text
+TIPO_DE_ARTE        = ILHA
+REGIÃO              = ...
+NOME_DA_ILHA        = ...
+TEMA_VISUAL         = ...
+ELEMENTO_CENTRAL    = ...
+PALETA_PRINCIPAL    = ...
+DETALHES_SECUNDÁRIOS= ...
+RECOMPENSAS_REAIS   = ...
+REFERENCIA_APROVADA = ...
+ALTERACAO_PEDIDA    = ...
+ASSET_DECISION      = ...
+PROMPT_PROPOSTO     = ...
+```
+
+O prompt final deve ser mostrado ao líder e receber aprovação explícita antes da geração, conforme o gate global desta persona.
+
+### Nomenclatura técnica
 
 ```text
 island-01-unlocked.png
@@ -361,34 +597,6 @@ island-01-locked.png
 ```
 
 Somente o número técnico varia. O filename não altera o nome narrativo.
-
-## Locked x unlocked
-
-Regra absoluta:
-
-```text
-unlocked = composição canônica
-locked   = edição da MESMA imagem
-         + corrente
-         + cadeado
-         + leve sombra/escurecimento
-```
-
-Não podem mudar:
-
-- câmera;
-- enquadramento;
-- escala;
-- geometria;
-- cenário;
-- vegetação;
-- props;
-- medalhões;
-- placas;
-- textos;
-- posição dos elementos.
-
-A variante locked nunca deve ser gerada do zero.
 
 ## Fixo x dinâmico nas Ilhas
 
