@@ -762,3 +762,39 @@ shopCatalog.ships       → 3 Navios com preço
 ```
 
 Assets de Molduras/Fundos/Navios permanecem para a etapa visual.
+
+
+## Personalização da Home
+
+Tela:
+
+```text
+web/js/screens/home-screen.js
+web/css/screens/home.css
+```
+
+Estado:
+
+```text
+web/js/domain/player-state.js
+shop.purchasedItemIds
+shop.equippedShipId
+```
+
+Seletores:
+
+```text
+Home → Molduras
+Home → Fundos
+Home → Estaleiro
+```
+
+A Loja compra. A Home equipa.
+
+Viagem resolve o vídeo pelo navio equipado em:
+
+```text
+web/js/screens/travel-screen.js
+```
+
+Fallback: `TQ.content.assets.islandTravel`.
