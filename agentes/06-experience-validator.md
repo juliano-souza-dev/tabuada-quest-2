@@ -150,3 +150,15 @@ Quando uma regra de experiência se tornar padrão global:
 1. atualizar esta persona;
 2. atualizar o MAPA se a implementação/caminho mudar;
 3. manter a issue enxuta.
+
+
+## Validação de experiência — Colecionáveis
+
+Na versão textual inicial:
+
+- a criança deve distinguir rapidamente **Coletado** de **Não coletado**;
+- o sombreamento não pode tornar nome, status ou bônus ilegíveis;
+- a lista deve continuar rolável e utilizável em tela pequena;
+- não mostrar porcentagem individual de bônus enquanto essa regra não estiver definida;
+- a ausência temporária de arte não pode parecer erro de carregamento;
+- o botão Voltar deve ser imediato e previsível.
