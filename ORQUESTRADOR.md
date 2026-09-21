@@ -173,9 +173,7 @@ Não associar issue a milestone sem necessidade explícita de planejamento.
 
 ## Fila operacional atual
 
-O Orquestrador mantém o encadeamento atual fora das issues.
-
-Nova regra estrutural já fechada pelas personas:
+Contrato estrutural executável:
 
 ```text
 22 Regiões
@@ -186,30 +184,27 @@ Nova regra estrutural já fechada pelas personas:
 sem sub-regiões
 ```
 
-A arquitetura histórica de 11 Regiões × 10 Ilhas e a solução de segunda página/sub-região estão descontinuadas.
+A implementação estrutural usa índice global de Ilha, `world-structure.js`, save schema v9 e scheduler contínuo.
 
-Sequência operacional recomendada:
+Após a consolidação da migração estrutural, a sequência recomendada é:
 
 ```text
-1. concluir/validar a composição limpa atual da CORSÁRIO na issue vigente
-2. preparar uma tarefa executável para migrar a macroestrutura 11×10 → 22×5
-3. preservar progressão e carga pedagógica durante a migração
-4. remover dependência arquitetural de REGION_VISUAL_CONFIG.pages como subdivisão de Região
-5. somente depois retomar expansão visual das novas Regiões
+1. validar/fechar a migração 22×5
+2. recalcular e cadastrar a distribuição definitiva de recompensas nas 110 Ilhas
+3. continuar a expansão visual das Regiões usando uma composição de 5 Ilhas por Região
+4. remover assets históricos não referenciados somente quando a limpeza física for segura
 ```
 
-A migração estrutural só vira issue quando o Orquestrador tiver a tarefa concreta fechada pelas personas. A definição conceitual já está nas personas e não deve ser repetida dentro da issue.
+Nenhuma nova tarefa pode recriar sub-regiões, segunda página de Região ou dependência funcional 11×10.
 
 Para expansões futuras:
 
 ```text
 Produto + Game Design fecham regras nas personas
-→ Orquestrador decide se já existe tarefa executável
-→ issue concreta de implementação/correção
+→ Orquestrador transforma somente trabalho executável em issue
+→ Desenvolvimento
 → gates aplicáveis
 ```
-
-A etapa de definição entre personas **não gera issue**.
 
 ## Estado após reset de issues
 
