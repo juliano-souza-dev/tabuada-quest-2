@@ -109,6 +109,20 @@ MAREMÍSTICA
 Nenhum nome fora da lista definitiva ou da reserva aprovada deve ser tratado como canônico sem nova validação do líder.
 
 
+### Ilhas canônicas da OBSIDIANA
+
+A Região 13 usa exatamente esta sequência:
+
+```text
+01 Rocha Negra
+02 Cinzas
+03 Fogo Obsidiano
+04 Cratera
+05 Coração de Obsidiana
+```
+
+Esses nomes pertencem às **Ilhas jogáveis da Região** e são independentes do catálogo de mapas textuais temáticos.
+
 ### Nomes temporários de Ilha
 
 Enquanto uma Ilha da macroestrutura canônica de 22 Regiões × 5 Ilhas ainda não possuir nome definitivo aprovado, ela recebe um **nome temporário textual**.
