@@ -166,7 +166,7 @@
     function renderProgress(session, questionNumber) {
         return `
             <div class="challenge-art-progress"
-                style="--challenge-progress:${progressPercent(session)}%">
+                style="--challenge-progress-ratio:${progressPercent(session) / 100}">
                 <span>Questão ${Math.max(1, Math.min(questionNumber, 20))} de 20</span>
             </div>
         `;
