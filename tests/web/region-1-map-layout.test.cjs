@@ -10,20 +10,24 @@ require("../../web/js/screens/islands-screen.js");
 const content=globalThis.TabuadaQuest.content;
 const islands=globalThis.TabuadaQuest.screens.islands;
 
-test("CORSÁRIO ativo possui somente cinco assets de Ilha",()=>{
+test("CORSÁRIO mantém uma única composição de cinco slots",()=>{
     assert.match(content.assets.region1Modular.background,/mapa_marítimo_do_corsário\.png/);
     assert.deepEqual(Object.keys(content.assets.region1Modular.islands),["1","2","3","4","5"]);
     assert.equal(content.assets.region1Modular.backgrounds[2],undefined);
 });
 
-test("CORSÁRIO possui uma única composição, sem pages ou CORSÁRIO 2",()=>{
+test("CORSÁRIO publica somente a Ilha 1 aprovada nesta etapa",()=>{
     const visual=islands.getRegionVisualConfig(1);
     const page=islands.getRegionVisualPage({campaign:{regionProgress:{}}},1);
     assert.ok(visual);
     assert.equal(visual.id,"corsario");
     assert.equal("pages" in visual,false);
-    assert.deepEqual(page.islandIds,[1,2,3,4,5]);
-    assert.equal(page.hideIslands,true);
+    assert.deepEqual(page.islandIds,[1]);
+    assert.equal(page.hideIslands,false);
+    assert.match(islands.getRegionIslandAsset(1,1,"locked"),/island-01-locked\.png/);
+    assert.match(islands.getRegionIslandAsset(1,1,"available"),/island-01-unlocked\.png/);
+    assert.equal(content.getIslandIdentity(1,1).label,"Enseada da Bandeira");
+    assert.equal(content.getIslandPrimaryReward(1,1).type,"pet");
 
     const source=fs.readFileSync(path.join(__dirname,"../../web/js/screens/islands-screen.js"),"utf8");
     assert.doesNotMatch(source,/corsario-2/i);
@@ -44,13 +48,6 @@ test("layout compartilhado continua com cinco slots e Mapa Mundo global",()=>{
     assert.deepEqual(layout.visibleIslandIds,[1,2,3,4,5]);
     assert.equal(Object.keys(layout.islands).length,5);
     assert.deepEqual(layout.worldMap,{x:98,y:1405,width:200,height:200});
-});
-
-test("seleção de asset troca locked/unlocked nos cinco slots ativos",()=>{
-    for(let islandId=1;islandId<=5;islandId++){
-        assert.match(islands.getRegionIslandAsset(1,islandId,"locked"),new RegExp(`island-0${islandId}-locked\\.png`));
-        assert.match(islands.getRegionIslandAsset(1,islandId,"available"),new RegExp(`island-0${islandId}-unlocked\\.png`));
-    }
 });
 
 test("Mapa Mundo permanece conectado ao controlador global",()=>{

@@ -202,15 +202,12 @@ Regra técnica de compartilhamento: `agentes/04-desenvolvimento.md`.
 
 ### CORSÁRIO / Região 1
 
-Assets ativos:
+Assets ativos nesta etapa:
 
 ```text
 web/assets/regions/region-1/mapa_marítimo_do_corsário.png
 web/assets/regions/region-1/island-01-unlocked.png
 web/assets/regions/region-1/island-01-locked.png
-...
-web/assets/regions/region-1/island-05-unlocked.png
-web/assets/regions/region-1/island-05-locked.png
 ```
 
 Configuração ativa:
@@ -220,9 +217,9 @@ web/js/screens/islands-screen.js
 REGION_VISUAL_CONFIG[1]
 ```
 
-CORSÁRIO possui uma única composição de 5 Ilhas. Não existe segunda página/sub-região ativa.
+CORSÁRIO possui uma única composição de 5 Ilhas, mas somente a Ilha 1 aprovada é renderizada nesta etapa. Ilhas 2–5 aguardam suas artes novas. Não existe segunda página/sub-região ativa.
 
-Arquivos históricos das antigas Ilhas 06–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas não pertencem ao catálogo executável.
+Arquivos históricos das antigas Ilhas 02–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas somente os assets publicados pelo catálogo executável pertencem à composição ativa.
 
 ### Macroestrutura canônica do mundo
 
@@ -281,6 +278,36 @@ A composição usa `REGION_VISUAL_CONFIG[13]` em `web/js/screens/islands-screen.
 
 As Ilhas permanecem assets dinâmicos sobre o background. O background não deve receber as Ilhas incorporadas. Cada Ilha possui versões normal e bloqueada próprias.
 
+
+### ZONA RUBI / Região 14
+
+Assets canônicos de produção:
+
+```text
+web/assets/regions/region-14/background.webp
+web/assets/regions/region-14/carmesim_unlocked.webp
+web/assets/regions/region-14/carmesim_locked.webp
+web/assets/regions/region-14/coroa_rubi_unlocked.webp
+web/assets/regions/region-14/coroa_rubi_locked.webp
+web/assets/regions/region-14/pedras_rosada_unlocked.webp
+web/assets/regions/region-14/pedras_rosada_locked.webp
+web/assets/regions/region-14/pedras_rubras_unlocked.webp
+web/assets/regions/region-14/pedras_rubras_locked.webp
+web/assets/regions/region-14/rubi_do_rei_unlocked.webp
+web/assets/regions/region-14/rubi_do_rei_locked.webp
+```
+
+Ordem canônica:
+
+```text
+1 Carmesim
+2 Coroa Rubi
+3 Pedras Rosada
+4 Pedras Rubras
+5 Rubi do Rei
+```
+
+A composição usa `REGION_VISUAL_CONFIG[14]`. O background permanece separado das Ilhas, e a pasta de produção da Região 14 não mantém duplicatas PNG.
 
 ## Nomes temporários de Ilha
 

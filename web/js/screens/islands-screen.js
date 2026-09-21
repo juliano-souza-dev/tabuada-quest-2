@@ -40,8 +40,7 @@
             assetKey: "region1Modular",
             id: "corsario",
             backgroundId: 1,
-            islandIds: Object.freeze([1, 2, 3, 4, 5]),
-            hideIslands: true
+            islandIds: Object.freeze([1])
         }),
         13: Object.freeze({
             assetKey: "region13Modular",
@@ -70,6 +69,12 @@
                     hitbox: Object.freeze({ x: 537, y: 1145, width: 310, height: 310 })
                 })
             })
+        }),
+        14: Object.freeze({
+            assetKey: "region14Modular",
+            id: "zona-rubi",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5])
         })
     });
 
