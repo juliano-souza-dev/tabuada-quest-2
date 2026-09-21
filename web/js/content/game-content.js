@@ -15,9 +15,14 @@
 
     const gameplayRewards = Object.freeze({
         xpPerCompletedMatch: 20,
+        coinsPerCorrectAnswer: 10,
+        coinsPenaltyPerWrongAnswer: 2,
+        finalChestRubies: 5000,
         collectibles: Object.freeze({
             twoItemMaxErrorPercent: 20,
-            pendingPerNormalChest: 1
+            pendingPerNormalChest: 1,
+            bonusAtHalfCollectionPercent: 10,
+            bonusAtFullCollectionPercent: 25
         })
     });
 
@@ -464,6 +469,25 @@
         return getIslandRewards(regionId, islandId)[0] || null;
     }
 
+    const petRewards = Object.freeze(
+        Object.values(regionRewards)
+            .flatMap((region) => Object.values(region))
+            .flat()
+            .filter((reward) => reward?.type === "pet" && typeof reward.petId === "string")
+    );
+
+    const pets = Object.freeze(
+        petRewards.map((reward, index) => Object.freeze({
+            id: reward.petId,
+            label: `Pet ${String(index + 1).padStart(2, "0")}`,
+            asset: null
+        }))
+    );
+
+    function getPet(petId) {
+        return pets.find((pet) => pet.id === String(petId)) || null;
+    }
+
     const chestRewards = Object.freeze(
         Object.values(regionRewards)
             .flatMap((region) => Object.values(region))
@@ -527,6 +551,8 @@
         profileFrames,
         gameplayRewards,
         crewMembers,
+        pets,
+        getPet,
         collectibles,
         getCollectible,
         chestKits,
