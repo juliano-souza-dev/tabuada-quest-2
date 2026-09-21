@@ -5,14 +5,24 @@
         return TQ.content.assets.avatars[avatarId] ? avatarId : "luna";
     }
 
+    function normalizeShopBackground(item) {
+        return item ? { id: item.id, label: item.label, src: item.asset, isShopItem: true } : null;
+    }
+
+    function normalizeShopFrame(item) {
+        return item ? { id: item.id, label: item.label, src: item.asset, isShopItem: true } : null;
+    }
+
     function resolveHomeBackground(backgroundId) {
         return TQ.content.homeBackgrounds.find((item) => item.id === backgroundId)
+            || normalizeShopBackground(TQ.content.shopCatalog.backgrounds.find((item) => item.id === backgroundId))
             || TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)
             || TQ.content.homeBackgrounds[0];
     }
 
     function resolveProfileFrame(frameId) {
         return TQ.content.profileFrames.find((item) => item.id === frameId)
+            || normalizeShopFrame(TQ.content.shopCatalog.frames.find((item) => item.id === frameId))
             || TQ.content.profileFrames.find((item) => item.id === TQ.content.defaultProfileFrameId)
             || TQ.content.profileFrames[0];
     }
@@ -27,6 +37,24 @@
         const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
         const profileFrame = resolveProfileFrame(state.player.profileFrameId);
+        const purchasedIds = new Set(state.shop.purchasedItemIds);
+        const ownedBackgrounds = [
+            ...TQ.content.homeBackgrounds,
+            ...TQ.content.shopCatalog.backgrounds
+                .filter((item) => purchasedIds.has(item.id))
+                .map(normalizeShopBackground)
+        ];
+        const ownedFrames = [
+            ...TQ.content.profileFrames,
+            ...TQ.content.shopCatalog.frames
+                .filter((item) => purchasedIds.has(item.id))
+                .map(normalizeShopFrame)
+        ];
+        const ownedShips = TQ.content.shopCatalog.ships.filter((item) => purchasedIds.has(item.id));
+        const equippedShip = ownedShips.find((item) => item.id === state.shop.equippedShipId) || null;
+        const defaultBackground = TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)
+            || TQ.content.homeBackgrounds[0];
+        const displayedBackgroundSrc = background.src || defaultBackground?.src || "";
         const totals = TQ.content.campaignTotals;
 
         const xpPercent = clampPercent((state.progression.xpCurrent / state.progression.xpRequired) * 100);
@@ -42,8 +70,8 @@
             <div class="home-design-stage">
                 <div class="home-world" aria-hidden="true">
                     <img class="home-background-image"
-                         src="${background.src}"
-                         data-default-src="${TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)?.src || background.src}"
+                         src="${displayedBackgroundSrc}"
+                         data-default-src="${defaultBackground?.src || displayedBackgroundSrc}"
                          alt="">
                 </div>
 
@@ -81,6 +109,9 @@
                 <button class="crew-menu-button" type="button" data-action="crew" aria-label="Abrir Tripulação">
                     <span>⚓</span><strong>TRIPULAÇÃO</strong>
                 </button>
+                <button class="shipyard-menu-button" type="button" data-action="shipyard" aria-label="Abrir Estaleiro">
+                    <span>⛵</span><strong>ESTALEIRO</strong>
+                </button>
 
                 <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
                     <span style="width:${chestPercent}%"></span>
@@ -109,11 +140,13 @@
                         <button type="button" data-action="close-sheet">×</button>
                     </header>
                     <div class="choice-grid">
-                        ${TQ.content.homeBackgrounds.map((item) => `
+                        ${ownedBackgrounds.map((item) => `
                             <button type="button"
                                     class="choice-card ${item.id === background.id ? "is-selected" : ""}"
                                     data-background-id="${item.id}">
-                                <span class="background-thumb" style="background-image:url('${item.src}')"></span>
+                                <span class="background-thumb ${item.src ? "" : "is-pending"}" ${item.src ? `style="background-image:url('${item.src}')"` : ""}>
+                                    ${item.src ? "" : "<small>Arte em breve</small>"}
+                                </span>
                                 <strong>${item.label}</strong>
                             </button>
                         `).join("")}
@@ -129,18 +162,46 @@
                         <button type="button" data-action="close-sheet">×</button>
                     </header>
                     <div class="choice-grid">
-                        ${TQ.content.profileFrames.map((item) => `
+                        ${ownedFrames.map((item) => `
                             <button type="button"
                                     class="choice-card ${item.id === profileFrame.id ? "is-selected" : ""}"
                                     data-frame-id="${item.id}">
                                 <span class="frame-thumb">
                                     <img class="frame-thumb-avatar" src="${avatarSrc}" alt="">
-                                    ${item.src ? `<img class="frame-thumb-art" src="${item.src}" alt="">` : `<span class="frame-thumb-simple" aria-hidden="true"></span>`}
+                                    ${item.src
+    ? `<img class="frame-thumb-art" src="${item.src}" alt="">`
+    : (item.id === TQ.content.defaultProfileFrameId
+        ? `<span class="frame-thumb-simple" aria-hidden="true"></span>`
+        : `<span class="asset-pending-label">Arte em breve</span>`)}
                                 </span>
                                 <strong>${item.label}</strong>
                             </button>
                         `).join("")}
                     </div>
+                </section>
+            </div>
+
+            <div class="personalization-sheet" data-sheet="shipyard" hidden>
+                <button class="sheet-backdrop" type="button" data-action="close-sheet" aria-label="Fechar"></button>
+                <section class="sheet-panel" aria-label="Escolha o navio">
+                    <header>
+                        <strong>Estaleiro</strong>
+                        <button type="button" data-action="close-sheet">×</button>
+                    </header>
+                    ${ownedShips.length ? `
+                        <div class="choice-grid">
+                            ${ownedShips.map((item) => `
+                                <button type="button"
+                                        class="choice-card ${item.id === equippedShip?.id ? "is-selected" : ""}"
+                                        data-ship-id="${item.id}">
+                                    <span class="asset-pending-card">⛵</span>
+                                    <strong>${item.label}</strong>
+                                </button>
+                            `).join("")}
+                        </div>
+                    ` : `
+                        <p class="personalization-empty">Nenhum navio comprado ainda. Visite a Loja para adquirir um.</p>
+                    `}
                 </section>
             </div>
         `;
@@ -179,7 +240,7 @@
         screen.addEventListener("click", (event) => {
             const backgroundChoice = event.target.closest("[data-background-id]");
             if (backgroundChoice) {
-                const allowed = TQ.content.homeBackgrounds.map((item) => item.id);
+                const allowed = ownedBackgrounds.map((item) => item.id);
                 onStateChange(
                     TQ.domain.playerState.withHomeBackground(
                         state,
@@ -192,11 +253,24 @@
 
             const frameChoice = event.target.closest("[data-frame-id]");
             if (frameChoice) {
-                const allowed = TQ.content.profileFrames.map((item) => item.id);
+                const allowed = ownedFrames.map((item) => item.id);
                 onStateChange(
                     TQ.domain.playerState.withProfileFrame(
                         state,
                         frameChoice.dataset.frameId,
+                        allowed
+                    )
+                );
+                return;
+            }
+
+            const shipChoice = event.target.closest("[data-ship-id]");
+            if (shipChoice) {
+                const allowed = ownedShips.map((item) => item.id);
+                onStateChange(
+                    TQ.domain.playerState.withEquippedShip(
+                        state,
+                        shipChoice.dataset.shipId,
                         allowed
                     )
                 );
@@ -215,6 +289,11 @@
 
             if (action === "frames") {
                 openSheet("frames");
+                return;
+            }
+
+            if (action === "shipyard") {
+                openSheet("shipyard");
                 return;
             }
 
