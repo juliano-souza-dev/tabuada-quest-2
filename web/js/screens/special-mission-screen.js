@@ -23,20 +23,33 @@
         `;
     }
 
-    function renderFeedback(mission) {
+    function renderFeedback(state, mission) {
         const feedback = mission.lastFeedback;
         if (!feedback) return "";
-        const message = feedback.isCorrect
-            ? "Acertou! +2 Rubis-base ✓"
-            : `Errou. A resposta era ${feedback.expected}.`;
+        const type = feedback.isCorrect ? "correct" : "wrong";
+        const effect = TQ.effects.resolveEquippedEffect(state, type);
+        const detail = feedback.isCorrect
+            ? ""
+            : `${feedback.table} × ${feedback.multiplier} = ${feedback.expected}`;
+        const reward = feedback.isCorrect ? "+2 Rubis-base" : "";
 
         return `
             <div class="challenge-card feedback-card ${feedback.isCorrect ? "is-correct" : "is-wrong"}">
-                <h2>${message}</h2>
-                <p>${feedback.table} × ${feedback.multiplier} = ${feedback.expected}</p>
-                <button type="button" data-action="continue-feedback">Próxima</button>
+                ${TQ.core.challengeEffectRenderer.render(effect, { detail, reward })}
+                ${feedback.isCorrect ? "" : `
+                    <button type="button" data-action="continue-feedback">Continuar</button>
+                `}
             </div>
         `;
+    }
+
+    function advanceAfterFeedback(state, mapId, mission, onStateChange) {
+        const next = TQ.domain.specialMission.continueAfterFeedback(mission);
+        onStateChange(TQ.domain.playerState.updateSpecialMapMission(
+            state,
+            mapId,
+            next
+        ));
     }
 
     function renderMissionResult(mapState) {
@@ -97,7 +110,7 @@
                 </header>
                 <main class="slice-content challenge-content">
                     ${mission.phase === "question" ? renderQuestion(mission) : ""}
-                    ${mission.phase === "feedback" ? renderFeedback(mission) : ""}
+                    ${mission.phase === "feedback" ? renderFeedback(state, mission) : ""}
                     ${mission.phase === "complete" ? `
                         <div class="challenge-card">
                             <h2>20 questões concluídas!</h2>
@@ -131,20 +144,7 @@
             }
 
             if (action === "continue-feedback") {
-                const next = TQ.domain.specialMission.continueAfterFeedback(mission);
-                if (next.phase === "complete") {
-                    onStateChange(TQ.domain.playerState.updateSpecialMapMission(
-                        state,
-                        mapId,
-                        next
-                    ));
-                } else {
-                    onStateChange(TQ.domain.playerState.updateSpecialMapMission(
-                        state,
-                        mapId,
-                        next
-                    ));
-                }
+                advanceAfterFeedback(state, mapId, mission, onStateChange);
                 return;
             }
 
@@ -160,11 +160,22 @@
             }
         });
 
+        if (mission?.phase === "feedback" && mission.lastFeedback?.isCorrect) {
+            const effect = TQ.effects.resolveEquippedEffect(state, "correct");
+            TQ.core.challengeEffectRenderer.scheduleAutoAdvance(
+                screen,
+                effect,
+                () => advanceAfterFeedback(state, mapId, mission, onStateChange)
+            );
+        }
+
         return screen;
     }
 
     TQ.screens = TQ.screens || {};
     TQ.screens.specialMission = Object.freeze({
-        renderSpecialMissionScreen
+        renderSpecialMissionScreen,
+        renderFeedback,
+        advanceAfterFeedback
     });
 })(globalThis);
