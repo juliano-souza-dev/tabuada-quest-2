@@ -467,6 +467,19 @@ global 110 → badge Baú
 
 A Ilha global 110 representa o Baú Final da campanha. Não usar badge de Rubi como recompensa principal nessa Ilha.
 
+### Formato publicado da ZONA RUBI
+
+A Região 14 usa **WebP** como formato canônico de produção para o background e para as variantes `unlocked`/`locked` das cinco Ilhas.
+
+Regra específica desta Região nesta etapa:
+
+- não manter cópias PNG dentro de `web/assets/regions/region-14/`;
+- preservar transparência nas Ilhas isoladas;
+- manter o background separado dos assets de Ilha;
+- qualquer nova substituição de arte da Região 14 deve atualizar diretamente o WebP correspondente.
+
+Essa regra é limitada à ZONA RUBI até que uma migração global de formatos seja aprovada.
+
 ### Estado desbloqueado
 
 A versão desbloqueada é a composição canônica da Ilha:
