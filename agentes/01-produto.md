@@ -441,3 +441,20 @@ coletado     → apresentação ativa
 A versão artística dos dois estados pertence à Direção Visual e não deve ser improvisada pelo código.
 
 O catálogo inicial possui 90 Colecionáveis temáticos, coerente com 30 Baús × 3 itens-base. Cada entrada informa que contribui para bônus de XP, Ouro e Rubi. O percentual individual não deve ser exibido enquanto a curva econômica da coleção não estiver fechada.
+
+
+## Economia por partida
+
+Toda partida concluída concede Ouro conforme desempenho:
+
+```text
+Ouro-base = max(0, 10 × acertos - 2 × erros)
+```
+
+A regra vale também para replay.
+
+Tripulação e Colecionáveis aplicam bônus sobre a recompensa-base de XP, Ouro e Rubi, sempre em paralelo, sem composição de bônus sobre bônus.
+
+O Baú Final contém **5.000 Rubis-base**.
+
+Enquanto a lista definitiva de PETs não for entregue, o catálogo usa nomes provisórios `Pet 01` até `Pet 30`, preservando os IDs persistidos.
