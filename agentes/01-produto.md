@@ -706,3 +706,32 @@ pedido local   → criação de pedido na API
 sem alterar o fluxo principal da tela.
 
 O backend futuro será responsável por persistência remota, catálogo/preço vigente, notificação do pedido e fluxo operacional de entrega. Dados pessoais e confirmação por responsável exigem desenho específico antes da ativação real.
+
+
+## Sistema de Efeitos de feedback
+
+O feedback após responder uma questão é tratado como um **Efeito** independente da tela e do asset da Ilha.
+
+Contrato de Produto:
+
+```text
+acerto
+→ executar Efeito de acerto
+→ não mostrar botão
+→ ao fim do Efeito, avançar automaticamente
+
+erro
+→ executar Efeito de erro
+→ mostrar a resposta correta
+→ exigir ação manual para continuar
+```
+
+Regras:
+
+- Efeito não pertence ao bitmap da Ilha;
+- a primeira versão usa renderer textual animado;
+- Efeitos possuem identidade própria e podem futuramente usar assets animados;
+- o desafio resolve o Efeito equipado e usa um fallback padrão quando não houver personalização válida;
+- propriedade e compra de Efeitos pertencem à Loja;
+- equipar/trocar Efeitos pertence ao Baú de Itens;
+- a lógica pedagógica da resposta não depende do renderer visual do Efeito.
