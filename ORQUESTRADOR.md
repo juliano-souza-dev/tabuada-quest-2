@@ -240,3 +240,22 @@ MAPA         = acesso/localização
 ISSUE        = implementação/correção
 ORQUESTRADOR = coordenação, dependências e ordem
 ```
+
+
+## Regra de esvaziamento da fila
+
+A partir de 21/09/2026, a fila operacional segue esta disciplina:
+
+```text
+existem issues abertas
+→ concluir as issues abertas
+→ somente depois abrir nova issue
+```
+
+Regras:
+
+- não criar nova issue enquanto houver issue aberta, salvo ordem explícita do líder;
+- a issue ativa deve ser concluída e validada antes de avançar para a próxima;
+- ao encerrar uma issue, o Orquestrador identifica a próxima issue aberta compatível com as dependências vigentes;
+- issues independentes antigas não são ignoradas: precisam ser concluídas ou explicitamente descartadas pelo líder antes da abertura de nova tarefa;
+- dependências entre issues abertas continuam sendo respeitadas pelo Orquestrador.
