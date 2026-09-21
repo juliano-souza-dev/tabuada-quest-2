@@ -329,6 +329,13 @@ web/js/screens/world-map-screen.js
 web/css/screens/world-map.css
 ```
 
+Testes:
+
+```text
+tests/web/world-map.test.cjs
+tests/web/world-regions.test.cjs
+```
+
 Preview de desenvolvimento:
 
 ```text
