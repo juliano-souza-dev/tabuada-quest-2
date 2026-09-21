@@ -676,7 +676,7 @@
             itemChest: "./assets/ui/chest-items.webp",
             global: Object.freeze({
                 worldMap: "./assets/global/mapa-mundo.png?v=20260920-1808",
-                rubyShopMerchantShip: "./assets/global/ships/ruby-shop-merchant.webp?v=20260921-1632"
+                rubyShopMerchantShip: "./assets/global/comercial_ship.webp?v=20260921-1720"
             }),
             islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",

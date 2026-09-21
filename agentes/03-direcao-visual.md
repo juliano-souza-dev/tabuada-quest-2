@@ -261,13 +261,16 @@ A embarcação da Loja Rubi é um **asset global**, não pertence à pasta de ne
 Asset canônico:
 
 ```text
-web/assets/global/ships/ruby-shop-merchant.webp
+web/assets/global/comercial_ship.webp
 ```
+
+O arquivo canônico é o **master universal**, sem água, espuma, sombra de cenário ou outro efeito preso a uma Região.
 
 Regras de composição:
 
 - manter transparência real;
 - não fundir a embarcação ao background;
+- efeitos de contato com água/clima pertencem à camada visual da Região, nunca ao master global;
 - não posicionar manualmente sobre uma Ilha;
 - o renderer deve calcular uma área livre usando os retângulos ocupados da Região;
 - considerar como áreas ocupadas as artes das 5 Ilhas, Mapa Mundo e botão voltar;
