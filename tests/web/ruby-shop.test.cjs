@@ -11,11 +11,15 @@ require("../../web/js/domain/player-state.js");
 const TQ=globalThis.TabuadaQuest;
 const d=TQ.domain.playerState;
 
-test("catálogo local da Loja Rubi começa na Região 14",()=>{
+test("Loja Rubi aparece na Região 1 e depois a cada 4 Regiões",()=>{
     assert.equal(TQ.content.rubyShopCatalog.mode,"local");
-    assert.deepEqual(TQ.content.rubyShopCatalog.enabledRegionIds,[14]);
-    assert.equal(TQ.content.regionHasRubyShop(14),true);
-    assert.equal(TQ.content.regionHasRubyShop(13),false);
+    assert.deepEqual(TQ.content.rubyShopCatalog.enabledRegionIds,[1,5,9,13,17,21]);
+    for(const regionId of [1,5,9,13,17,21]) {
+        assert.equal(TQ.content.regionHasRubyShop(regionId),true);
+    }
+    for(const regionId of [2,4,6,10,14,18,22]) {
+        assert.equal(TQ.content.regionHasRubyShop(regionId),false);
+    }
     assert.equal(TQ.content.rubyShopCatalog.items.length,3);
     assert.ok(TQ.content.rubyShopCatalog.items.every(item=>item.isDevelopmentItem===true));
 });
@@ -37,4 +41,19 @@ test("rota ruby-shop e gatilho regional estão conectados",()=>{
     assert.match(app,/"ruby-shop": TQ\.screens\.rubyShop\.renderRubyShopScreen/);
     assert.match(islands,/data-action="open-ruby-shop"/);
     assert.match(index,/ruby-shop-screen\.js/);
+});
+
+
+test("clique da Loja Rubi só libera após 5 Ilhas concluídas da própria Região",()=>{
+    const enabled=TQ.content.rubyShopCatalog.enabledRegionIds;
+    let s=d.createInitialState();
+
+    assert.equal(d.isRubyShopUnlocked(s,1,enabled),false);
+    for(let islandId=1;islandId<=4;islandId++) s=d.completeIsland(s,1,islandId);
+    assert.equal(d.isRubyShopUnlocked(s,1,enabled),false);
+
+    s=d.completeIsland(s,1,5);
+    assert.equal(d.isRubyShopUnlocked(s,1,enabled),true);
+    assert.equal(d.isRubyShopUnlocked(s,5,enabled),false);
+    assert.equal(d.isRubyShopUnlocked(s,14,enabled),false);
 });
