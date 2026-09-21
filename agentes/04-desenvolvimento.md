@@ -514,3 +514,40 @@ TQ.domain.playerState.completeGameplaySession(...)
 O bônus de Tripulação da categoria `gems` é aplicado depois sobre esse valor-base.
 
 Replay não recalcula nem concede Rubi novamente.
+
+
+## Colecionáveis — catálogo, estado e tela
+
+Catálogo:
+
+```text
+web/js/content/game-content.js
+TQ.content.collectibles
+TQ.content.getCollectible(id)
+```
+
+Estado persistente:
+
+```text
+campaign.collectibles.collectedIds
+campaign.collectibles.pendingIds
+```
+
+Schema vigente após esta implementação:
+
+```text
+schemaVersion = 10
+```
+
+A migração v9 → v10 cria o estado de Colecionáveis sem alterar progresso anterior.
+
+Tela:
+
+```text
+web/js/screens/collectibles-screen.js
+web/css/screens/collectibles.css
+```
+
+A Home navega para `collectibles` pelo hotspot já existente de coleção.
+
+Nesta etapa, a UI não calcula nem exibe percentuais individuais. Cada item apenas declara as categorias beneficiadas: XP, Ouro e Rubi. A curva econômica será ligada depois, sem alterar a identidade do catálogo.

@@ -414,3 +414,27 @@ Quando uma decisão permanente mudar:
 - Desenvolvimento: implementação;
 - Experience Validator: clareza infantil;
 - Qualidade e Build: validação técnica.
+
+
+## Tela de Colecionáveis
+
+A Home possui acesso funcional para **Colecionáveis**.
+
+A tela inicial de Colecionáveis lista o catálogo completo e, nesta etapa, exibe somente:
+
+```text
+nome
+status
+bônus
+```
+
+Estados:
+
+```text
+não coletado → apresentação sombreada
+coletado     → apresentação ativa
+```
+
+A versão artística dos dois estados pertence à Direção Visual e não deve ser improvisada pelo código.
+
+O catálogo inicial possui 90 Colecionáveis temáticos, coerente com 30 Baús × 3 itens-base. Cada entrada informa que contribui para bônus de XP, Ouro e Rubi. O percentual individual não deve ser exibido enquanto a curva econômica da coleção não estiver fechada.

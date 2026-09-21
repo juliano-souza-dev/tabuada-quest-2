@@ -726,3 +726,25 @@ Quando uma regra visual mudar:
 3. issue fica apenas com objetivo, dependências e aceite do trabalho.
 
 Documentos históricos em `docs/arte/` podem ser consultados como referência, mas em caso de divergência esta persona e a decisão mais recente do líder prevalecem.
+
+
+## Direção Visual — Colecionáveis
+
+A tela funcional pode existir antes dos assets finais.
+
+Estado provisório permitido:
+
+```text
+NÃO COLETADO → card/texto sombreado
+COLETADO     → card/texto em leitura normal
+```
+
+Nesta fase não criar ícone genérico, silhueta falsa ou arte improvisada para substituir o Colecionável.
+
+Contrato futuro de asset:
+
+- cada Colecionável terá representação própria;
+- o estado não coletado deve ter versão visual sombreada/oculta sem comprometer identificação futura;
+- o estado coletado deve mostrar a versão aprovada do item;
+- a Direção Visual define os pares de assets e sua linguagem final;
+- Desenvolvimento apenas seleciona o estado correspondente ao dado persistido.

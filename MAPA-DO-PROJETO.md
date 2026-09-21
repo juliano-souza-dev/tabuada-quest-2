@@ -600,3 +600,35 @@ Se um trabalho criar/mover:
 atualizar este MAPA no mesmo trabalho.
 
 Nunca adivinhar caminhos.
+
+
+## Colecionáveis
+
+Catálogo:
+
+```text
+web/js/content/game-content.js
+TQ.content.collectibles
+TQ.content.getCollectible(id)
+```
+
+Tela:
+
+```text
+web/js/screens/collectibles-screen.js
+web/css/screens/collectibles.css
+```
+
+Estado:
+
+```text
+web/js/domain/player-state.js
+campaign.collectibles
+```
+
+Acesso: Home → Colecionáveis.
+
+Contrato de Produto: `agentes/01-produto.md`.
+Estados/arte futura: `agentes/03-direcao-visual.md`.
+Implementação: `agentes/04-desenvolvimento.md`.
+Validação: `agentes/05-qualidade-build.md` e `agentes/06-experience-validator.md`.
