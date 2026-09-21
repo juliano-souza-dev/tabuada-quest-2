@@ -4,6 +4,7 @@
     if (!TQ || !appRoot) return;
 
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
+    let worldMapPreviewRegionId = null;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function save(nextState) {
@@ -11,7 +12,18 @@
         render();
     }
 
+    function setWorldMapPreviewRegion(regionId) {
+        const normalized = Number(regionId);
+        worldMapPreviewRegionId = Number.isInteger(normalized) && normalized >= 1 && normalized <= 22
+            ? normalized
+            : null;
+    }
+
     function navigate(screenId) {
+        if (!["world-map", "islands"].includes(screenId)) {
+            worldMapPreviewRegionId = null;
+        }
+
         state = TQ.persistence.localStorage.saveState(
             root.localStorage,
             TQ.domain.playerState.withLastScreen(state, screenId)
@@ -23,6 +35,7 @@
         const renderers = {
             home: TQ.screens.home.renderHomeScreen,
             crew: TQ.screens.crew.renderCrewScreen,
+            "world-map": TQ.screens.worldMap.renderWorldMapScreen,
             regions: TQ.screens.regions.renderRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,
             travel: TQ.screens.travel.renderIslandTravelScreen,
@@ -34,7 +47,9 @@
         screens.render(renderer, {
             state,
             onStateChange: save,
-            onNavigate: navigate
+            onNavigate: navigate,
+            previewRegionId: worldMapPreviewRegionId,
+            onPreviewRegionChange: setWorldMapPreviewRegion
         });
     }
 
