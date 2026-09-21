@@ -138,6 +138,22 @@
         });
     }
 
+    function getImplementedRegionIds() {
+        return Object.freeze(
+            Object.keys(REGION_VISUAL_CONFIG)
+                .map(Number)
+                .filter((regionId) => Boolean(getRegionVisualConfig(regionId)))
+                .sort((a, b) => a - b)
+        );
+    }
+
+    function getDevelopmentRegionStatus(regionId) {
+        const normalizedRegionId = Number(regionId);
+        return getImplementedRegionIds().includes(normalizedRegionId)
+            ? "completed"
+            : "preview";
+    }
+
     function getRegionVisualPage(state, regionId) {
         const visual = getRegionVisualConfig(regionId);
         if (!visual) return null;
@@ -283,7 +299,9 @@
         const islandsMarkup = visualPage.hideIslands ? "" : visualPage.islandIds.map((islandId, slotIndex) => {
             const slotId = REGION_LAYOUT.visibleIslandIds[slotIndex];
             const layout = visualPage.slotLayout?.[slotId] || REGION_LAYOUT.islands[slotId];
-            const status = previewMode ? "available" : TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
+            const status = previewMode
+                ? (getDevelopmentRegionStatus(regionId) === "completed" ? "completed" : "available")
+                : TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             const identity = TQ.content.getIslandIdentity(regionId, islandId);
             const rewards = TQ.content.getIslandRewards(regionId, islandId);
             const isResume = !previewMode && Boolean(
@@ -527,6 +545,8 @@
         formatRegionStatus,
         rewardLabel,
         getRegionVisualConfig,
+        getImplementedRegionIds,
+        getDevelopmentRegionStatus,
         getRegionVisualPage,
         getRegionIslandAsset,
         getDisplayedRegionId,
