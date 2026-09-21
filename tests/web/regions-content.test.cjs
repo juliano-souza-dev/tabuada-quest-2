@@ -1,39 +1,25 @@
-const test = require("node:test");
-const assert = require("node:assert/strict");
+const test=require("node:test");
+const assert=require("node:assert/strict");
 
 delete globalThis.TabuadaQuest;
 require("../../web/js/content/game-content.js");
+const regions=globalThis.TabuadaQuest.content.regions;
 
-const regionNames = globalThis.TabuadaQuest.content.regions.map((region) => region.label);
-
-test("region names match the approved product copy", () => {
-    assert.deepEqual(regionNames, [
-        "CORSÁRIO",
-        "NEBLINAS",
-        "CAVEIRAS",
-        "NÁUFRAGO",
-        "VULCÂNIA",
-        "RELÍQUIA",
-        "CORALINA",
-        "VENTANIA",
-        "MURALHAS",
-        "ZONA RUBI",
-        "FORTALEZA"
+test("catálogo funcional usa exatamente as 22 Regiões canônicas",()=>{
+    assert.deepEqual(regions.map(r=>r.label),[
+        "CORSÁRIO","BIRADES","ZONA OURO","VALE ESMERALDA","ZONA SAFIRA","TERRAS GÉLIDAS",
+        "FANTASMAS","MARÉ SOMBRIA","TEMPESTÁRIA","MAR DE FERRO","ZONA KRAKEN","TERRAS DE CINZA",
+        "OBSIDIANA","ZONA RUBI","ESCARLATE","ZONA DO DRAGÃO","TERRAS DO TITÃ","CRISTÁLIA",
+        "ILHAS CELESTES","COROA DO MAR","ZONA FÊNIX","REINO DAS MARÉS"
     ]);
+    assert.equal(regions.length,22);
+    assert.ok(regions.every(r=>r.islandsTotal===5));
+    assert.equal(regions[21].isFinalRegion,true);
 });
 
-test("regions 1 through 9 keep exactly eight characters", () => {
-    regionNames.slice(0, 9).forEach((name) => {
-        assert.equal(Array.from(name).length, 8, name);
-    });
-});
-
-test("regions 10 and 11 keep exactly nine characters", () => {
-    regionNames.slice(9).forEach((name) => {
-        assert.equal(Array.from(name).length, 9, name);
-    });
-});
-
-test("region 10 is exactly ZONA RUBI", () => {
-    assert.equal(regionNames[9], "ZONA RUBI");
+test("campaignTotals representa 22x5 sem alterar as 110 Ilhas",()=>{
+    const totals=globalThis.TabuadaQuest.content.campaignTotals;
+    assert.equal(totals.regions,22);
+    assert.equal(totals.islandsPerRegion,5);
+    assert.equal(totals.islands,110);
 });
