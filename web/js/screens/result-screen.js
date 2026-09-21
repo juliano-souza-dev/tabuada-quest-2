@@ -4,11 +4,11 @@
     function renderIslandRewards(rewards) {
         const configured = Array.isArray(rewards) ? rewards : [];
         const visible = configured.map((reward) => {
-            if (reward.type === "map_fragment") return `<span class="result-art-reward-chip">🧩 Peça ${reward.fragment}/4 do Mapa ${reward.mapId}</span>`;
-            if (reward.type === "chest") return '<span class="result-art-reward-chip">🎁 Baú conquistado</span>';
+            if (reward.type === "map_fragment") return `<span class="result-art-reward-chip">🧩 Mapa ${reward.mapId} • ${reward.fragment}/4</span>`;
+            if (reward.type === "chest") return '<span class="result-art-reward-chip">🎁 Baú</span>';
             if (reward.type === "pet") {
                 const pet = TQ.content.getPet?.(reward.petId);
-                return `<span class="result-art-reward-chip">🐾 ${pet?.label || "PET"} resgatado</span>`;
+                return `<span class="result-art-reward-chip">🐾 ${pet?.label || "PET"}</span>`;
             }
             return "";
         }).filter(Boolean);
@@ -45,7 +45,6 @@
         return `
             <main class="slice-content result-card">
                 <small>${region ? region.label : `Região ${result.regionId}`}</small>
-                <h1>Ilha ${result.islandId} concluída ✓</h1>
                 <dl class="result-stats">
                     <div><dt>Questões planejadas</dt><dd>${result.plannedAnswered}/20</dd></div>
                     <div><dt>Acertos</dt><dd>${result.correctAnswers}</dd></div>
@@ -103,7 +102,6 @@
                         <div class="result-art-dynamic-layer">
                             <header class="result-art-title">
                                 <small>${region ? region.label : `Região ${result.regionId}`}</small>
-                                <h1>Ilha ${result.islandId} concluída!</h1>
                             </header>
 
                             <dl class="result-art-stats" aria-label="Resumo da partida">
