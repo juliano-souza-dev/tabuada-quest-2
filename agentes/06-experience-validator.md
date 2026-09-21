@@ -176,3 +176,21 @@ Nesta etapa:
 - a criança deve ver a resposta correta após erro;
 - a animação não pode bloquear o botão para avançar;
 - o mesmo padrão deve ser reutilizável em desafios normais e Missões Especiais.
+
+
+## Loja Rubi
+
+A Loja Rubi representa recompensas físicas e exige clareza adicional.
+
+Na versão local:
+
+- mostrar saldo de Rubis e preço juntos;
+- exigir confirmação explícita antes do débito;
+- deixar claro que a compra atual é um pedido de teste e não dispara entrega real;
+- mostrar feedback de pedido registrado;
+- impedir compra quando o saldo for insuficiente;
+- não pedir dados pessoais da criança;
+- permitir voltar à Região de forma imediata;
+- o gatilho temporário pode usar texto/ícone enquanto a embarcação final não possui asset aprovado.
+
+Quando o fulfillment real for ativado, o fluxo de responsável e dados de entrega deve ser validado novamente antes de release.
