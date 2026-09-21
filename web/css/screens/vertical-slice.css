@@ -96,7 +96,7 @@
 }
 
 .feedback-card h2 {
-    font-size: 30px;
+    font-size: 5.5cqw;
 }
 
 .result-stats {
@@ -449,19 +449,19 @@
 
 .challenge-art-stage {
     position: absolute;
-    width: 540px;
-    height: 960px;
+    width: min(100%, 56.25vh, 540px);
+    aspect-ratio: 9 / 16;
     left: 50%;
     top: 50%;
-    transform-origin: center center;
-    transform: translate(-50%, -50%) scale(min(calc(100vw / 540), calc(100vh / 960)));
+    transform: translate(-50%, -50%);
+    container-type: inline-size;
 }
 
 .challenge-art-background {
     position: absolute;
     inset: 0;
-    width: 540px;
-    height: 960px;
+    width: 100%;
+    height: 100%;
     object-fit: fill;
     user-select: none;
     pointer-events: none;
@@ -491,17 +491,40 @@
 
 .challenge-art-progress {
     position: absolute;
-    left: 24%;
-    top: 39.2%;
-    width: 52%;
-    height: 4.3%;
+    left: 20%;
+    top: 37.2%;
+    width: 60%;
+    height: 6.6%;
+    overflow: hidden;
     display: grid;
     place-items: center;
+    border: 3px solid rgba(185, 117, 48, .9);
+    border-radius: 999px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(20, 18, 16, .98), rgba(7, 7, 7, .98));
     color: #fff4d0;
-    font-size: 18px;
+    font-size: 3.35cqw;
     line-height: 1;
     font-weight: 900;
     text-shadow: 0 2px 3px rgba(0,0,0,.85);
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.45);
+}
+
+.challenge-art-progress::before {
+    content: "";
+    position: absolute;
+    left: 1.5%;
+    bottom: 8%;
+    width: calc(var(--challenge-progress, 0%) * .97);
+    height: 22%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #21c65a, #75f080);
+    box-shadow: 0 0 8px rgba(71, 235, 109, .45);
+}
+
+.challenge-art-progress > span {
+    position: relative;
+    z-index: 1;
 }
 
 .challenge-art-question {
@@ -515,7 +538,7 @@
     padding: 2%;
     box-sizing: border-box;
     color: #2b1608;
-    font-size: 48px;
+    font-size: 8.9cqw;
     line-height: 1;
     font-weight: 950;
     text-align: center;
@@ -544,7 +567,7 @@
     border: 0 !important;
     background: transparent !important;
     color: #fff5d2;
-    font-size: 28px !important;
+    font-size: 5.2cqw !important;
     line-height: 1;
     font-weight: 950 !important;
     text-shadow: 0 3px 3px rgba(0,0,0,.82);
@@ -585,7 +608,7 @@
 }
 
 .challenge-complete-layer .challenge-art-question {
-    font-size: 34px;
+    font-size: 6.3cqw;
 }
 
 @media (prefers-reduced-motion: reduce) {
