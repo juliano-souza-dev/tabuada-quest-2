@@ -980,6 +980,33 @@
         };
     }
 
+    function getPlayRegionId(state) {
+        const s = normalizeState(state);
+        const activeRegionId = Number(s.learning.activeSession?.regionId);
+        if (
+            Number.isInteger(activeRegionId)
+            && s.campaign.unlockedRegionIds.includes(activeRegionId)
+            && getRegionStatus(s, activeRegionId) !== "completed"
+        ) {
+            return activeRegionId;
+        }
+
+        const currentRegionId = Number(s.campaign.currentRegionId);
+        if (
+            Number.isInteger(currentRegionId)
+            && s.campaign.unlockedRegionIds.includes(currentRegionId)
+            && getRegionStatus(s, currentRegionId) !== "completed"
+        ) {
+            return currentRegionId;
+        }
+
+        const nextPlayable = [...s.campaign.unlockedRegionIds]
+            .filter((regionId) => getRegionStatus(s, regionId) !== "completed")
+            .sort((a, b) => a - b)[0];
+
+        return Number.isInteger(nextPlayable) ? nextPlayable : null;
+    }
+
     function addUnique(list, value) {
         return list.includes(value) ? list : [...list, value];
     }
@@ -1577,6 +1604,7 @@
         getIslandStatus,
         getRegionStatus,
         selectRegion,
+        getPlayRegionId,
         completeIsland,
         unlockNextRegionIfEligible,
         applyIslandRewards,
