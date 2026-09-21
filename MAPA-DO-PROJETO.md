@@ -409,6 +409,8 @@ Catálogo e kits:
 web/js/content/game-content.js
 TQ.content.gameplayRewards
 TQ.content.regionRewards
+TQ.content.getIslandRewards(regionId, islandId)
+TQ.content.getIslandPrimaryReward(regionId, islandId)
 TQ.content.chestKits
 TQ.content.getChestKit(chestId)
 ```
@@ -437,7 +439,17 @@ tests/web/crew.test.cjs
 tests/web/region-1-rewards.test.cjs
 ```
 
-Produto: `agentes/01-produto.md`. Balanceamento: `agentes/02-game-design-aprendizagem.md`. Implementação: `agentes/04-desenvolvimento.md`.
+Produto: `agentes/01-produto.md`. Distribuição e cálculo de Rubis: `agentes/02-game-design-aprendizagem.md`. Implementação: `agentes/04-desenvolvimento.md`.
+
+A Direção Visual deve consultar a mesma distribuição antes de gerar qualquer Ilha, para definir o badge/medalhão correto. Regra visual: `agentes/03-direcao-visual.md`.
+
+Contrato de Rubi:
+
+```text
+primeira conclusão de Ilha ruby
+→ Rubis-base = max(0, correctAnswers - wrongAnswers)
+→ aplicar bônus de gemas da Tripulação
+```
 
 ## Estado e persistência
 
