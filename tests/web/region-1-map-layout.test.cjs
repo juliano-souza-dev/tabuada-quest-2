@@ -64,7 +64,7 @@ test("navio comercial da Loja Rubi é posicionado sem colidir com Ilhas ou Mapa 
     const page=islands.getRegionVisualPage({campaign:{regionProgress:{}}},1);
     const ship=islands.resolveRubyShopShipRect(page);
     assert.ok(ship);
-    assert.deepEqual(ship,{x:736,y:1008,width:180,height:180});
+    assert.deepEqual(ship,{x:688,y:832,width:220,height:220});
 
     const occupied=islands.getRegionOccupiedRects(page);
     for(const rect of occupied){
@@ -74,7 +74,11 @@ test("navio comercial da Loja Rubi é posicionado sem colidir com Ilhas ou Mapa 
         );
     }
 
-    assert.match(content.assets.global.rubyShopMerchantShip,/assets\/global\/ships\/ruby-shop-merchant\.webp/);
+    assert.match(content.assets.global.rubyShopMerchantShip,/assets\/global\/comercial_ship\.webp/);
+    assert.equal(
+        fs.existsSync(path.join(__dirname,"../../web/assets/global/comercial_ship.webp")),
+        true
+    );
 });
 
 test("Mapa Mundo permanece conectado ao controlador global",()=>{
