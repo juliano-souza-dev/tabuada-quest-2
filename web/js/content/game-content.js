@@ -431,7 +431,7 @@
                         locked: "./assets/regions/region-13/island-05-locked.png?v=20260921-0102"
                     })
                 })
-            }))
+            })
         })
     });
 })(globalThis);
