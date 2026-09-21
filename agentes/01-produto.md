@@ -367,11 +367,14 @@ Colecionáveis são itens de coleção com temática pirata/marítima, como bús
 
 Contrato aprovado:
 
-- Baús podem entregar de 1 a 3 Colecionáveis conforme o desempenho da partida;
-- uma partida sem erros concede os 3 Colecionáveis disponíveis naquele Baú;
-- as faixas intermediária e mínima de erro ainda precisam de percentual definitivo de Game Design;
+- cada Baú normal nasce com 3 Colecionáveis-base exclusivos;
+- um Baú pode conter mais de 3 itens quando recebe Colecionáveis redistribuídos;
+- uma partida sem erros concede todos os Colecionáveis disponíveis naquele Baú;
+- a faixa operacional inicial para 2 itens é erro maior que 0% e menor ou igual a 20%;
+- acima de 20% de erros, o Baú concede 1 item;
+- o corte de 20% é parâmetro de balanceamento centralizado e pode ser ajustado sem mudar a mecânica;
 - Colecionáveis que não forem conquistados não desaparecem;
-- itens não conquistados são redistribuídos para Baús seguintes;
+- itens não conquistados são redistribuídos para Baús seguintes, um pendente por Baú normal;
 - um item redistribuído continua sujeito ao critério de desempenho do novo Baú, portanto não é entregue automaticamente;
 - se continuar não sendo conquistado, volta para a fila de redistribuição;
 - o último Baú da campanha é a única exceção: ele entrega todos os Colecionáveis ainda pendentes;
