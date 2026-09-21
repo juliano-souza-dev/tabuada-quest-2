@@ -551,3 +551,39 @@ web/css/screens/collectibles.css
 A Home navega para `collectibles` pelo hotspot já existente de coleção.
 
 Nesta etapa, a UI não calcula nem exibe percentuais individuais. Cada item apenas declara as categorias beneficiadas: XP, Ouro e Rubi. A curva econômica será ligada depois, sem alterar a identidade do catálogo.
+
+
+## Baús ligados aos Colecionáveis
+
+Cada um dos 30 Baús recebe exatamente 3 Colecionáveis-base únicos no catálogo:
+
+```text
+30 Baús × 3 itens-base = 90 Colecionáveis
+```
+
+A associação é estável e determinística em `TQ.content.chestKits`.
+
+Parâmetros de balanceamento:
+
+```text
+gameplayRewards.collectibles.twoItemMaxErrorPercent = 20
+gameplayRewards.collectibles.pendingPerNormalChest = 1
+```
+
+Fluxo de fechamento de Baú:
+
+```text
+resultado da partida
+→ resolve kit do Baú
+→ acrescenta até 1 pendência
+→ calcula quantidade conquistada
+→ persiste collectedIds/pendingIds
+→ grava outcome em learning.lastResult.reward.collectibles
+→ abre chest-screen
+```
+
+O resultado fica persistido antes da tela para impedir rerrolagem por navegação.
+
+Ordem de seleção: itens-base do Baú aparecem antes do item redistribuído. Assim uma pendência não vira prêmio garantido nas faixas de 1 ou 2 itens.
+
+O Baú Final recebe todos os itens pendentes além de seus 3 itens-base e entrega todos.
