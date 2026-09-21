@@ -13,6 +13,14 @@
         screen.className = "slice-screen regions-text-screen";
         screen.setAttribute("aria-label", "Regiões");
 
+        const pendingMapId = TQ.domain.playerState.getPendingSpecialMapId(state);
+        const activeMapId = TQ.domain.playerState.getActiveSpecialMapId(state);
+        const missionMapId = pendingMapId || (
+            activeMapId && state.campaign.specialMaps[String(activeMapId)]?.missionStatus === "mission_in_progress"
+                ? activeMapId
+                : null
+        );
+
         screen.innerHTML = `
             <header class="slice-header">
                 <button type="button" data-action="back" aria-label="Voltar">←</button>
@@ -23,6 +31,12 @@
             </header>
             <main class="slice-content">
                 <p class="slice-intro">Escolha a próxima Região da aventura.</p>
+                ${missionMapId ? `
+                    <button type="button" class="slice-choice special-mission-entry" data-special-map-id="${missionMapId}">
+                        <span><small>MAPA ${missionMapId}</small><strong>Missão Especial</strong></span>
+                        <strong>${pendingMapId ? "INICIAR" : "CONTINUAR"}</strong>
+                    </button>
+                ` : ""}
                 <div class="region-text-list">
                     ${TQ.content.regions.map((region) => {
                         const progress = state.campaign.regionProgress[String(region.id)];
@@ -50,6 +64,19 @@
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="back"]')) {
                 onNavigate("home");
+                return;
+            }
+
+            const missionButton = event.target.closest("[data-special-map-id]");
+            if (missionButton) {
+                const mapId = Number(missionButton.dataset.specialMapId);
+                const mapState = state.campaign.specialMaps[String(mapId)];
+                if (mapState?.missionStatus === "map_complete_mission_pending") {
+                    const mission = TQ.domain.specialMission.createMission(mapId, `special-map-${mapId}`);
+                    onStateChange(TQ.domain.playerState.startSpecialMapMission(state, mapId, mission));
+                } else if (mapState?.missionStatus === "mission_in_progress") {
+                    onStateChange(TQ.domain.playerState.withLastScreen(state, "special-mission"));
+                }
                 return;
             }
 
