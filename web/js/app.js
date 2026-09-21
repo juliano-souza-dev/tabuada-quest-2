@@ -25,7 +25,7 @@
             worldMapPreviewRegionId = null;
         }
 
-        if (screenId === "pet" || screenId === "chest") {
+        if (screenId === "pet" || screenId === "chest" || screenId === "map-reward") {
             rewardReturnScreen = options.afterReward === "regions" ? "regions" : "islands";
         } else if (screenId !== "result") {
             rewardReturnScreen = null;
@@ -53,6 +53,7 @@
             "special-mission": TQ.screens.specialMission.renderSpecialMissionScreen,
             chest: TQ.screens.chest.renderChestScreen,
             pet: TQ.screens.pet.renderPetScreen,
+            "map-reward": TQ.screens.mapReward.renderMapRewardScreen,
             result: TQ.screens.result.renderResultScreen
         };
         const renderer = renderers[state.ui.lastScreen] || renderers.home;
