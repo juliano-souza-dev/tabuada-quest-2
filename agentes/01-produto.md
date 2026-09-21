@@ -359,6 +359,29 @@ Regras:
 
 Produto determina se novos tipos de recompensa pertencem ao escopo. Game Design define distribuição e balanceamento. Desenvolvimento mantém o catálogo extensível e a persistência idempotente.
 
+### Colecionáveis
+
+Existe uma nova categoria permanente chamada **Colecionáveis**.
+
+Colecionáveis são itens de coleção com temática pirata/marítima, como bússolas, pedras, relíquias e artigos de exploração. Eles são obtidos dentro de Baús e não são consumíveis.
+
+Contrato aprovado:
+
+- Baús podem entregar de 1 a 3 Colecionáveis conforme o desempenho da partida;
+- uma partida sem erros concede os 3 Colecionáveis disponíveis naquele Baú;
+- as faixas intermediária e mínima de erro ainda precisam de percentual definitivo de Game Design;
+- Colecionáveis que não forem conquistados não desaparecem;
+- itens não conquistados são redistribuídos para Baús seguintes;
+- um item redistribuído continua sujeito ao critério de desempenho do novo Baú, portanto não é entregue automaticamente;
+- se continuar não sendo conquistado, volta para a fila de redistribuição;
+- o último Baú da campanha é a única exceção: ele entrega todos os Colecionáveis ainda pendentes;
+- Colecionáveis concedem bônus permanentes sobre XP, ouro e Rubi;
+- com 50% da coleção, o bônus total chega a 10%;
+- com 100% da coleção, o bônus total chega a 25%;
+- a curva exata entre esses marcos ainda precisa ser fechada por Game Design.
+
+O último Baú da campanha fica na Ilha global 110 e é o **Baú Final**. Além de encerrar a redistribuição dos Colecionáveis pendentes, ele contém uma quantidade generosa de Rubis. O valor numérico desses Rubis permanece pendente de balanceamento e não deve ser inventado pela implementação.
+
 Não reutilizar distribuições antigas de 10 Ilhas por tela como regra vigente.
 
 ## Regra global x local
