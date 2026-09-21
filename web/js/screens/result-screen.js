@@ -12,9 +12,7 @@
                     if (reward.type === "map_fragment") return `<p>🧩 Peça ${reward.fragment}/4 do Mapa ${reward.mapId}</p>`;
                     if (reward.type === "chest") return "<p>🎁 Baú conquistado</p>";
                     if (reward.type === "pet") return "<p>🐾 PET resgatado</p>";
-                    if (reward.type === "ruby" && Number.isInteger(reward.amount) && reward.amount > 0) {
-                        return `<p>💎 +${reward.amount} Rubis</p>`;
-                    }
+                    if (reward.type === "ruby") return "";
                     return "";
                 }).join("")}
             </section>
