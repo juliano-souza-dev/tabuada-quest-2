@@ -366,3 +366,25 @@ Quando uma regra pedagógica mudar:
 - Qualidade testa invariantes;
 - Experience Validator valida clareza/frustração;
 - Direção Visual recebe somente os sinais visuais necessários.
+
+
+## Economia fechada de partidas
+
+```text
+XP-base por partida = 20
+Ouro-base = max(0, 10 × acertos - 2 × erros)
+Rubi de Ilha ruby = max(0, acertos - erros), somente na primeira conclusão
+Baú Final = 5.000 Rubis-base
+```
+
+O bônus de Colecionáveis usa interpolação linear entre os marcos aprovados:
+
+```text
+0% da coleção   → 0%
+50% da coleção  → 10%
+100% da coleção → 25%
+```
+
+Entre 0–50% e 50–100%, o percentual cresce linearmente.
+
+Tripulação e Colecionáveis são calculados separadamente sobre a mesma base e depois somados.
