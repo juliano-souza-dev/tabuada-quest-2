@@ -587,3 +587,21 @@ O resultado fica persistido antes da tela para impedir rerrolagem por navegaçã
 Ordem de seleção: itens-base do Baú aparecem antes do item redistribuído. Assim uma pendência não vira prêmio garantido nas faixas de 1 ou 2 itens.
 
 O Baú Final recebe todos os itens pendentes além de seus 3 itens-base e entrega todos.
+
+
+## Economia de partida
+
+Implementação:
+
+```text
+calculateGoldBaseAmount(...)
+getCollectibleBonusPercent(...)
+calculateRewardBonuses(...)
+completeGameplaySession(...)
+```
+
+Ouro é recorrente e também existe em replay. Recompensas estruturais continuam idempotentes.
+
+O Baú Final injeta 5.000 Rubis na recompensa-base antes dos bônus aplicáveis.
+
+PETs provisórios são derivados dos IDs reais de `regionRewards`, evitando quebrar saves quando os nomes finais forem substituídos.

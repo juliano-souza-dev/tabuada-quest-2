@@ -11,7 +11,10 @@
                 ${configured.map((reward) => {
                     if (reward.type === "map_fragment") return `<p>🧩 Peça ${reward.fragment}/4 do Mapa ${reward.mapId}</p>`;
                     if (reward.type === "chest") return "<p>🎁 Baú conquistado</p>";
-                    if (reward.type === "pet") return "<p>🐾 PET resgatado</p>";
+                    if (reward.type === "pet") {
+                        const pet = TQ.content.getPet?.(reward.petId);
+                        return `<p>🐾 ${pet?.label || "PET"} resgatado</p>`;
+                    }
                     if (reward.type === "ruby") return "";
                     return "";
                 }).join("")}
@@ -27,13 +30,14 @@
         const xpBonus = Number.isInteger(reward.bonus?.xp) ? reward.bonus.xp : 0;
         const gemBonus = Number.isInteger(reward.bonus?.gems) ? reward.bonus.gems : 0;
         const coinBonus = Number.isInteger(reward.bonus?.coins) ? reward.bonus.coins : 0;
+        const bonusLabel = (value) => value > 0 ? ` <small>(+${value} em bônus)</small>` : "";
 
         return `
             <section class="result-rewards" aria-label="Recompensas recebidas">
                 <h2>Você recebeu</h2>
-                <p>⭐ +${xp} XP${xpBonus > 0 ? ` <small>(+${xpBonus} da Tripulação)</small>` : ""}</p>
-                ${coins > 0 ? `<p>🪙 +${coins} Ouro${coinBonus > 0 ? ` <small>(+${coinBonus} da Tripulação)</small>` : ""}</p>` : ""}
-                ${gems > 0 ? `<p>💎 +${gems} Rubis${gemBonus > 0 ? ` <small>(+${gemBonus} da Tripulação)</small>` : ""}</p>` : ""}
+                <p>⭐ +${xp} XP${bonusLabel(xpBonus)}</p>
+                ${coins > 0 ? `<p>🪙 +${coins} Ouro${bonusLabel(coinBonus)}</p>` : ""}
+                ${gems > 0 ? `<p>💎 +${gems} Rubis${bonusLabel(gemBonus)}</p>` : ""}
             </section>
         `;
     }

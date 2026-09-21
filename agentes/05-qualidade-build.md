@@ -282,3 +282,18 @@ Validar:
 - Baú Final zera a fila e entrega todos os itens disponíveis;
 - replay não concede nem redistribui novamente;
 - outcome do Baú é persistido no resultado antes da renderização.
+
+
+## Gate econômico
+
+Validar:
+
+- 20 acertos/0 erros → 200 Ouro-base;
+- 16 acertos/4 erros → 152 Ouro-base;
+- Ouro nunca fica negativo;
+- replay concede Ouro novamente;
+- 50% da coleção → 10% de bônus;
+- 100% → 25%;
+- bônus de Tripulação e Colecionáveis somam sobre a base;
+- Baú Final contém 5.000 Rubis-base;
+- existem 30 PETs provisórios com IDs únicos e labels Pet 01–30.
