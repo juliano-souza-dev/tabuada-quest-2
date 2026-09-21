@@ -49,9 +49,21 @@
         ].find((item) => item.id === id) || null;
     }
 
+    const rubyShopDefaultUnlockRule = Object.freeze({
+        type: "after_island",
+        islandId: 1
+    });
+
+    const rubyShopUnlockRulesByRegion = Object.freeze({
+        // Adicionar somente exceções aprovadas por Produto.
+        // Ex.: "5": Object.freeze({ type: "after_island", islandId: 3 })
+    });
+
     const rubyShopCatalog = Object.freeze({
         mode: "local",
         enabledRegionIds: Object.freeze([1, 5, 9, 13, 17, 21]),
+        defaultUnlockRule: rubyShopDefaultUnlockRule,
+        unlockRulesByRegion: rubyShopUnlockRulesByRegion,
         items: Object.freeze([
             Object.freeze({
                 id: "ruby-physical-stickers-dev",
@@ -90,6 +102,27 @@
 
     function regionHasRubyShop(regionId) {
         return rubyShopCatalog.enabledRegionIds.includes(Number(regionId));
+    }
+
+    function getRubyShopUnlockRule(regionId) {
+        const normalizedRegionId = Number(regionId);
+        if (!Number.isInteger(normalizedRegionId)) return rubyShopCatalog.defaultUnlockRule;
+        return rubyShopCatalog.unlockRulesByRegion[String(normalizedRegionId)]
+            || rubyShopCatalog.defaultUnlockRule;
+    }
+
+    function describeRubyShopUnlockRule(rule) {
+        if (!rule || typeof rule !== "object") return "Conclua a Ilha 1 desta Região.";
+        if (rule.type === "after_island" && Number.isInteger(rule.islandId)) {
+            return `Conclua a Ilha ${rule.islandId} desta Região.`;
+        }
+        if (rule.type === "after_completed_islands" && Number.isInteger(rule.count)) {
+            return `Conclua ${rule.count} Ilha${rule.count === 1 ? "" : "s"} desta Região.`;
+        }
+        if (rule.type === "after_region_complete") {
+            return "Conclua todas as Ilhas desta Região.";
+        }
+        return "Conclua a Ilha 1 desta Região.";
     }
 
     const gameplayRewards = Object.freeze({
@@ -648,6 +681,8 @@
         rubyShopCatalog,
         getRubyShopItem,
         regionHasRubyShop,
+        getRubyShopUnlockRule,
+        describeRubyShopUnlockRule,
         gameplayRewards,
         crewMembers,
         pets,

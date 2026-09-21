@@ -311,9 +311,14 @@
             : TQ.content.regions.find((item) => item.id === regionId);
         const active = state.learning.activeSession;
         const rubyShopVisible = !previewMode && Boolean(TQ.content.regionHasRubyShop?.(regionId));
+        const rubyShopUnlockRule = TQ.content.getRubyShopUnlockRule?.(regionId)
+            || TQ.content.rubyShopCatalog.defaultUnlockRule;
+        const rubyShopUnlockHint = TQ.content.describeRubyShopUnlockRule?.(rubyShopUnlockRule)
+            || "Conclua a Ilha 1 desta Região.";
         const rubyShopUnlocked = rubyShopVisible && TQ.domain.playerState.isRubyShopUnlocked(
             state,
             regionId,
+            rubyShopUnlockRule,
             TQ.content.rubyShopCatalog.enabledRegionIds
         );
         const rubyShopShipRect = rubyShopVisible
@@ -390,7 +395,7 @@
                         style="${rectStyle(rubyShopShipRect)}"
                         data-action="open-ruby-shop"
                         ${rubyShopUnlocked ? "" : "disabled"}
-                        aria-label="${rubyShopUnlocked ? "Abrir Loja Rubi" : "Loja Rubi bloqueada. Conclua as 5 Ilhas desta Região."}">
+                        aria-label="${rubyShopUnlocked ? "Abrir Loja Rubi" : `Loja Rubi bloqueada. ${rubyShopUnlockHint}`}">
                         <img class="region-ruby-shop-asset"
                             src="${TQ.content.assets.global.rubyShopMerchantShip}"
                             alt=""

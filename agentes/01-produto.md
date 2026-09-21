@@ -656,10 +656,21 @@ Regiões habilitadas:
 Regra de disponibilidade:
 
 - a embarcação fica visível assim que a criança entra em uma Região habilitada;
-- o clique permanece bloqueado enquanto a Região não estiver concluída;
-- concluir as 5 Ilhas da própria Região libera o clique da Loja Rubi;
-- a periodicidade é Região 1 e, depois dela, a cada 4 Regiões;
+- por padrão, o clique é liberado após concluir a **Ilha 1** da própria Região;
+- essa condição **não é fixa globalmente**: cada Região com Loja Rubi pode sobrescrever sua própria regra de desbloqueio;
+- exceções podem exigir outra Ilha específica, uma quantidade mínima de Ilhas concluídas ou a Região completa;
+- quando não houver exceção cadastrada, vale sempre o padrão "após Ilha 1";
+- a periodicidade de presença continua sendo Região 1 e, depois dela, a cada 4 Regiões;
 - a presença da embarcação não cria uma sexta Ilha e não participa da progressão pedagógica.
+
+Configuração de Produto:
+
+```text
+rubyShopCatalog.defaultUnlockRule
+rubyShopCatalog.unlockRulesByRegion
+```
+
+`unlockRulesByRegion` deve conter somente exceções explicitamente aprovadas para uma Região. Não inventar exceções por conveniência técnica.
 
 ### Etapa local inicial
 

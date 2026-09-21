@@ -14,6 +14,8 @@ const d=TQ.domain.playerState;
 test("Loja Rubi aparece na Região 1 e depois a cada 4 Regiões",()=>{
     assert.equal(TQ.content.rubyShopCatalog.mode,"local");
     assert.deepEqual(TQ.content.rubyShopCatalog.enabledRegionIds,[1,5,9,13,17,21]);
+    assert.deepEqual(TQ.content.rubyShopCatalog.defaultUnlockRule,{type:"after_island",islandId:1});
+    assert.deepEqual(TQ.content.getRubyShopUnlockRule(1),{type:"after_island",islandId:1});
     for(const regionId of [1,5,9,13,17,21]) {
         assert.equal(TQ.content.regionHasRubyShop(regionId),true);
     }
@@ -44,16 +46,32 @@ test("rota ruby-shop e gatilho regional estão conectados",()=>{
 });
 
 
-test("clique da Loja Rubi só libera após 5 Ilhas concluídas da própria Região",()=>{
+test("clique da Loja Rubi libera por padrão após concluir a Ilha 1",()=>{
     const enabled=TQ.content.rubyShopCatalog.enabledRegionIds;
+    const rule=TQ.content.getRubyShopUnlockRule(1);
     let s=d.createInitialState();
 
-    assert.equal(d.isRubyShopUnlocked(s,1,enabled),false);
-    for(let islandId=1;islandId<=4;islandId++) s=d.completeIsland(s,1,islandId);
-    assert.equal(d.isRubyShopUnlocked(s,1,enabled),false);
+    assert.equal(d.isRubyShopUnlocked(s,1,rule,enabled),false);
+    s=d.completeIsland(s,1,1);
+    assert.equal(d.isRubyShopUnlocked(s,1,rule,enabled),true);
+    assert.equal(d.isRubyShopUnlocked(s,5,TQ.content.getRubyShopUnlockRule(5),enabled),false);
+    assert.equal(d.isRubyShopUnlocked(s,14,TQ.content.getRubyShopUnlockRule(14),enabled),false);
+});
 
-    s=d.completeIsland(s,1,5);
-    assert.equal(d.isRubyShopUnlocked(s,1,enabled),true);
-    assert.equal(d.isRubyShopUnlocked(s,5,enabled),false);
-    assert.equal(d.isRubyShopUnlocked(s,14,enabled),false);
+test("regra de desbloqueio da Loja Rubi aceita exceção por Região",()=>{
+    const enabled=TQ.content.rubyShopCatalog.enabledRegionIds;
+    const customRule={type:"after_island",islandId:3};
+    let s=d.createInitialState();
+
+    s=d.completeIsland(s,1,1);
+    assert.equal(d.isRubyShopUnlocked(s,1,customRule,enabled),false);
+
+    s=d.completeIsland(s,1,3);
+    assert.equal(d.isRubyShopUnlocked(s,1,customRule,enabled),true);
+
+    const countRule={type:"after_completed_islands",count:2};
+    assert.equal(d.isRubyShopUnlocked(s,1,countRule,enabled),true);
+
+    const fullRule={type:"after_region_complete"};
+    assert.equal(d.isRubyShopUnlocked(s,1,fullRule,enabled),false);
 });
