@@ -1,10 +1,15 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STATE_VERSION = 8;
+    const world = TQ.domain?.worldStructure;
+    if (!world) throw new Error("world-structure module must be loaded before player-state");
+
+    const STATE_VERSION = 9;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
-    const TOTAL_REGIONS = 11;
-    const ISLANDS_PER_REGION = 10;
+    const TOTAL_REGIONS = world.TOTAL_REGIONS;
+    const ISLANDS_PER_REGION = world.ISLANDS_PER_REGION;
+    const LEGACY_TOTAL_REGIONS = 11;
+    const LEGACY_ISLANDS_PER_REGION = 10;
 
     function createSpecialMaps() {
         return Object.fromEntries(Array.from({ length: 5 }, (_, i) => [
@@ -20,7 +25,25 @@
         ]));
     }
 
+    function createLegacyRegionProgress() {
+        return Object.fromEntries(Array.from({ length: LEGACY_TOTAL_REGIONS }, (_, i) => [
+            String(i + 1),
+            { islandsCompleted: 0, islandsTotal: LEGACY_ISLANDS_PER_REGION }
+        ]));
+    }
+
     function createFinalJourney() {
+        return {
+            finalMapFragments: 0,
+            finalMapCompleted: false,
+            finalIslandUnlocked: false,
+            finalIslandCompleted: false,
+            finalGrandChestUnlocked: false,
+            finalGrandChestClaimed: false
+        };
+    }
+
+    function createLegacyFinalJourney() {
         return {
             finalMapFragments: 0,
             finalMapCompleted: false,
@@ -32,6 +55,14 @@
     }
 
     function createLearningState() {
+        return {
+            activeSession: null,
+            schedulerState: null,
+            lastResult: null
+        };
+    }
+
+    function createLegacyLearningState() {
         return {
             activeSession: null,
             regionStates: {},
@@ -74,12 +105,177 @@
         return value !== null && typeof value === "object" && !Array.isArray(value);
     }
 
-    function uniqueRegionIds(value) {
+    function uniqueRegionIds(value, maxRegionId = TOTAL_REGIONS) {
         return Array.from(new Set(
             Array.isArray(value)
-                ? value.filter((id) => Number.isInteger(id) && id >= 1 && id <= TOTAL_REGIONS)
+                ? value.filter((id) => Number.isInteger(id) && id >= 1 && id <= maxRegionId)
                 : []
         ));
+    }
+
+    function parseIslandKey(value) {
+        const match = /^region-(\d+)-island-(\d+)$/.exec(String(value));
+        if (!match) return null;
+        return { regionId: Number(match[1]), islandId: Number(match[2]) };
+    }
+
+    function newIslandKey(regionId, islandId) {
+        return `region-${regionId}-island-${islandId}`;
+    }
+
+    function migrateLegacyLocation(regionId, islandId) {
+        try {
+            return world.fromLegacyLocation(regionId, islandId);
+        } catch {
+            return world.fromGlobalIslandIndex(1);
+        }
+    }
+
+    function migrateLegacyIslandKey(value) {
+        const parsed = parseIslandKey(value);
+        if (!parsed
+            || parsed.regionId < 1
+            || parsed.regionId > LEGACY_TOTAL_REGIONS
+            || parsed.islandId < 1
+            || parsed.islandId > LEGACY_ISLANDS_PER_REGION) {
+            return null;
+        }
+        const migrated = migrateLegacyLocation(parsed.regionId, parsed.islandId);
+        return newIslandKey(migrated.regionId, migrated.islandId);
+    }
+
+    function buildMigratedCompletedIslandIds(campaign) {
+        const migrated = new Set();
+        for (const value of Array.isArray(campaign.completedIslandIds) ? campaign.completedIslandIds : []) {
+            const key = migrateLegacyIslandKey(value);
+            if (key) migrated.add(key);
+        }
+
+        const legacyProgress = isObject(campaign.regionProgress) ? campaign.regionProgress : {};
+        for (let regionId = 1; regionId <= LEGACY_TOTAL_REGIONS; regionId += 1) {
+            const progress = legacyProgress[String(regionId)];
+            const byProgress = isObject(progress) && Number.isInteger(progress.islandsCompleted)
+                ? Math.max(0, Math.min(LEGACY_ISLANDS_PER_REGION, progress.islandsCompleted))
+                : 0;
+            const byRegion = Array.isArray(campaign.completedRegionIds) && campaign.completedRegionIds.includes(regionId)
+                ? LEGACY_ISLANDS_PER_REGION
+                : 0;
+            for (let islandId = 1; islandId <= Math.max(byProgress, byRegion); islandId += 1) {
+                const loc = migrateLegacyLocation(regionId, islandId);
+                migrated.add(newIslandKey(loc.regionId, loc.islandId));
+            }
+        }
+
+        const legacyFinal = isObject(campaign.finalJourney) ? campaign.finalJourney : {};
+        const fragments = Number.isInteger(legacyFinal.finalMapFragments)
+            ? Math.max(0, Math.min(9, legacyFinal.finalMapFragments))
+            : 0;
+        for (let islandId = 1; islandId <= fragments; islandId += 1) {
+            const loc = migrateLegacyLocation(11, islandId);
+            migrated.add(newIslandKey(loc.regionId, loc.islandId));
+        }
+        if (legacyFinal.island10Completed) {
+            const loc = migrateLegacyLocation(11, 10);
+            migrated.add(newIslandKey(loc.regionId, loc.islandId));
+        }
+
+        return Array.from(migrated).sort((a, b) => {
+            const pa = parseIslandKey(a);
+            const pb = parseIslandKey(b);
+            return world.toGlobalIslandIndex(pa.regionId, pa.islandId)
+                - world.toGlobalIslandIndex(pb.regionId, pb.islandId);
+        });
+    }
+
+    function buildRegionProgressFromCompleted(completedIslandIds) {
+        const progress = createRegionProgress();
+        for (const key of completedIslandIds) {
+            const parsed = parseIslandKey(key);
+            if (parsed && progress[String(parsed.regionId)]) {
+                progress[String(parsed.regionId)].islandsCompleted += 1;
+            }
+        }
+        return progress;
+    }
+
+    function migrateLegacyTravelIds(values) {
+        return Array.from(new Set(
+            (Array.isArray(values) ? values : [])
+                .map(migrateLegacyIslandKey)
+                .filter(Boolean)
+        ));
+    }
+
+    function migrateLegacySession(session) {
+        if (!isObject(session)) return null;
+        const loc = migrateLegacyLocation(session.regionId, session.islandId);
+        return {
+            ...session,
+            regionId: loc.regionId,
+            islandId: loc.islandId,
+            currentChallenge: isObject(session.currentChallenge)
+                ? { ...session.currentChallenge, regionId: loc.regionId, islandId: loc.islandId }
+                : session.currentChallenge
+        };
+    }
+
+    function migrateLegacyResult(result) {
+        if (!isObject(result) || !Number.isInteger(result.regionId) || !Number.isInteger(result.islandId)) {
+            return result ?? null;
+        }
+        const loc = migrateLegacyLocation(result.regionId, result.islandId);
+        return { ...result, regionId: loc.regionId, islandId: loc.islandId };
+    }
+
+    function migrateLegacyLearning(learning, fallbackRegionId) {
+        const source = isObject(learning) ? learning : createLegacyLearningState();
+        const oldStates = isObject(source.regionStates) ? Object.values(source.regionStates) : [];
+        const mastery = {};
+        const recoveryByKey = new Map();
+        let plannedExposureCount = 0;
+        let recoveryAttemptCount = 0;
+
+        for (const state of oldStates) {
+            if (!isObject(state)) continue;
+            plannedExposureCount += Number.isInteger(state.plannedExposureCount) ? state.plannedExposureCount : 0;
+            recoveryAttemptCount += Number.isInteger(state.recoveryAttemptCount) ? state.recoveryAttemptCount : 0;
+            if (isObject(state.mastery)) {
+                for (const [key, value] of Object.entries(state.mastery)) {
+                    const streak = Number.isInteger(value?.correctStreak) ? Math.max(0, Math.min(2, value.correctStreak)) : 0;
+                    mastery[key] = { correctStreak: Math.max(mastery[key]?.correctStreak || 0, streak) };
+                }
+            }
+            if (Array.isArray(state.recoveryQueue)) {
+                for (const item of state.recoveryQueue) {
+                    if (!isObject(item) || typeof item.key !== "string") continue;
+                    const remainingGap = Number.isInteger(item.remainingGap) ? Math.max(0, item.remainingGap) : 0;
+                    const current = recoveryByKey.get(item.key);
+                    if (!current || remainingGap < current.remainingGap) {
+                        recoveryByKey.set(item.key, { ...item, remainingGap });
+                    }
+                }
+            }
+        }
+
+        const migratedSession = migrateLegacySession(source.activeSession);
+        const preferredLegacyRegionId = Number(source.activeSession?.regionId) || null;
+        const preferred = preferredLegacyRegionId ? source.regionStates?.[String(preferredLegacyRegionId)] : null;
+        const recoveryGap = Number.isInteger(preferred?.recoveryGap)
+            ? preferred.recoveryGap
+            : (Number.isInteger(oldStates[oldStates.length - 1]?.recoveryGap) ? oldStates[oldStates.length - 1].recoveryGap : 2);
+
+        return {
+            activeSession: migratedSession,
+            schedulerState: oldStates.length ? {
+                regionId: migratedSession?.regionId || fallbackRegionId,
+                recoveryGap,
+                mastery,
+                recoveryQueue: Array.from(recoveryByKey.values()),
+                plannedExposureCount,
+                recoveryAttemptCount
+            } : null,
+            lastResult: migrateLegacyResult(source.lastResult)
+        };
     }
 
     function migrateState(value) {
@@ -88,90 +284,92 @@
 
         if (migrated.schemaVersion === 1) {
             const ui = isObject(migrated.ui) ? migrated.ui : {};
-            migrated = {
-                ...migrated,
-                schemaVersion: 2,
-                ui: {
-                    ...ui,
-                    lastScreen: typeof ui.lastScreen === "string" ? ui.lastScreen : "home",
-                    homeBackgroundId: DEFAULT_HOME_BACKGROUND_ID
-                }
-            };
+            migrated = { ...migrated, schemaVersion: 2, ui: { ...ui, lastScreen: typeof ui.lastScreen === "string" ? ui.lastScreen : "home", homeBackgroundId: DEFAULT_HOME_BACKGROUND_ID } };
         }
 
         if (migrated.schemaVersion === 2) {
             const player = isObject(migrated.player) ? migrated.player : {};
-            migrated = {
-                ...migrated,
-                schemaVersion: 3,
-                player: { ...player, profileFrameId: "pirate-treasure" },
-                progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
-                wallet: { coins: 0, gems: 0 }
-            };
+            migrated = { ...migrated, schemaVersion: 3, player: { ...player, profileFrameId: "pirate-treasure" }, progression: { level: 1, xpCurrent: 0, xpRequired: 100 }, wallet: { coins: 0, gems: 0 } };
         }
 
         if (migrated.schemaVersion === 3) {
             const player = isObject(migrated.player) ? migrated.player : {};
-            migrated = {
-                ...migrated,
-                schemaVersion: 4,
-                player: {
-                    ...player,
-                    profileFrameId: player.profileFrameId === "tide-wheel"
-                        ? "tide-wheel"
-                        : DEFAULT_PROFILE_FRAME_ID
-                }
-            };
+            migrated = { ...migrated, schemaVersion: 4, player: { ...player, profileFrameId: player.profileFrameId === "tide-wheel" ? "tide-wheel" : DEFAULT_PROFILE_FRAME_ID } };
         }
 
         if (migrated.schemaVersion === 4) {
             const campaign = isObject(migrated.campaign) ? migrated.campaign : {};
-            const unlocked = uniqueRegionIds(campaign.unlockedRegionIds);
-            migrated = {
-                ...migrated,
-                schemaVersion: 5,
-                campaign: {
-                    ...campaign,
-                    unlockedRegionIds: unlocked.length ? unlocked : [1],
-                    completedRegionIds: [],
-                    regionProgress: createRegionProgress(),
-                    finalJourney: createFinalJourney()
-                }
-            };
+            const unlocked = uniqueRegionIds(campaign.unlockedRegionIds, LEGACY_TOTAL_REGIONS);
+            migrated = { ...migrated, schemaVersion: 5, campaign: { ...campaign, unlockedRegionIds: unlocked.length ? unlocked : [1], completedRegionIds: [], regionProgress: createLegacyRegionProgress(), finalJourney: createLegacyFinalJourney() } };
         }
 
         if (migrated.schemaVersion === 5) {
-            migrated = {
-                ...migrated,
-                schemaVersion: 6,
-                learning: createLearningState()
-            };
+            migrated = { ...migrated, schemaVersion: 6, learning: createLegacyLearningState() };
         }
 
         if (migrated.schemaVersion === 6) {
             const campaign = isObject(migrated.campaign) ? migrated.campaign : {};
-            const completed = Array.isArray(campaign.completedIslandIds)
-                ? campaign.completedIslandIds.filter((id) => /^region-\d+-island-\d+$/.test(String(id)))
-                : [];
-            const active = isObject(migrated.learning?.activeSession)
-                ? `region-${migrated.learning.activeSession.regionId}-island-${migrated.learning.activeSession.islandId}`
-                : null;
-
-            migrated = {
-                ...migrated,
-                schemaVersion: 7,
-                campaign: {
-                    ...campaign,
-                    travelPlayedIslandIds: active ? addUnique(completed, active) : completed
-                }
-            };
+            const completed = Array.isArray(campaign.completedIslandIds) ? campaign.completedIslandIds.filter((id) => /^region-\d+-island-\d+$/.test(String(id))) : [];
+            const active = isObject(migrated.learning?.activeSession) ? `region-${migrated.learning.activeSession.regionId}-island-${migrated.learning.activeSession.islandId}` : null;
+            migrated = { ...migrated, schemaVersion: 7, campaign: { ...campaign, travelPlayedIslandIds: active && !completed.includes(active) ? [...completed, active] : completed } };
         }
 
         if (migrated.schemaVersion === 7) {
+            migrated = { ...migrated, schemaVersion: 8, crew: { hiredIds: [] } };
+        }
+
+        if (migrated.schemaVersion === 8) {
+            const campaign = isObject(migrated.campaign) ? migrated.campaign : {};
+            const completedIslandIds = buildMigratedCompletedIslandIds(campaign);
+            const regionProgress = buildRegionProgressFromCompleted(completedIslandIds);
+            const completedRegionIds = Object.entries(regionProgress)
+                .filter(([, progress]) => progress.islandsCompleted === ISLANDS_PER_REGION)
+                .map(([regionId]) => Number(regionId));
+            const unlocked = new Set([1]);
+
+            for (const oldRegionId of uniqueRegionIds(campaign.unlockedRegionIds, LEGACY_TOTAL_REGIONS)) {
+                const firstNewRegionId = ((oldRegionId - 1) * 2) + 1;
+                unlocked.add(firstNewRegionId);
+                const oldProgress = campaign.regionProgress?.[String(oldRegionId)];
+                const oldCompleted = Array.isArray(campaign.completedRegionIds) && campaign.completedRegionIds.includes(oldRegionId);
+                if (oldCompleted || (Number.isInteger(oldProgress?.islandsCompleted) && oldProgress.islandsCompleted >= 5)) unlocked.add(firstNewRegionId + 1);
+            }
+            for (const regionId of completedRegionIds) {
+                if (regionId % 2 === 1 && regionId < TOTAL_REGIONS) unlocked.add(regionId + 1);
+            }
+
+            const oldRegionId = Number.isInteger(campaign.currentRegionId) && campaign.currentRegionId >= 1 && campaign.currentRegionId <= LEGACY_TOTAL_REGIONS ? campaign.currentRegionId : 1;
+            const oldIslandId = Number.isInteger(campaign.currentIslandId) && campaign.currentIslandId >= 1 && campaign.currentIslandId <= LEGACY_ISLANDS_PER_REGION ? campaign.currentIslandId : 1;
+            const current = migrateLegacyLocation(oldRegionId, oldIslandId);
+            const finalGlobals = completedIslandIds.map(parseIslandKey).filter(Boolean).map((item) => world.toGlobalIslandIndex(item.regionId, item.islandId));
+            const legacyFinal = isObject(campaign.finalJourney) ? campaign.finalJourney : {};
+            const countedFragments = finalGlobals.filter((index) => index >= 101 && index <= 109).length;
+            const finalMapFragments = Math.max(countedFragments, Number.isInteger(legacyFinal.finalMapFragments) ? Math.min(9, legacyFinal.finalMapFragments) : 0);
+            const finalIslandCompleted = finalGlobals.includes(110) || Boolean(legacyFinal.island10Completed);
+            const finalMapCompleted = finalMapFragments === 9 || Boolean(legacyFinal.finalMapCompleted);
+
             migrated = {
                 ...migrated,
                 schemaVersion: STATE_VERSION,
-                crew: { hiredIds: [] }
+                campaign: {
+                    ...campaign,
+                    currentRegionId: current.regionId,
+                    currentIslandId: current.islandId,
+                    unlockedRegionIds: Array.from(unlocked).sort((a, b) => a - b),
+                    completedRegionIds,
+                    completedIslandIds,
+                    travelPlayedIslandIds: migrateLegacyTravelIds(campaign.travelPlayedIslandIds),
+                    regionProgress,
+                    finalJourney: {
+                        finalMapFragments,
+                        finalMapCompleted,
+                        finalIslandUnlocked: finalMapCompleted || Boolean(legacyFinal.island10Unlocked),
+                        finalIslandCompleted,
+                        finalGrandChestUnlocked: finalIslandCompleted || Boolean(legacyFinal.finalGrandChestUnlocked),
+                        finalGrandChestClaimed: Boolean(legacyFinal.finalGrandChestClaimed)
+                    }
+                },
+                learning: migrateLegacyLearning(migrated.learning, current.regionId)
             };
         }
 
@@ -196,13 +394,12 @@
             && Number.isInteger(value.finalMapFragments)
             && value.finalMapFragments >= 0
             && value.finalMapFragments <= 9
-            && ["finalMapCompleted", "island10Unlocked", "island10Completed", "finalGrandChestUnlocked", "finalGrandChestClaimed"]
-                .every((key) => typeof value[key] === "boolean")
+            && ["finalMapCompleted", "finalIslandUnlocked", "finalIslandCompleted", "finalGrandChestUnlocked", "finalGrandChestClaimed"].every((key) => typeof value[key] === "boolean")
         );
     }
 
-    function validRegionLearningState(value) {
-        return Boolean(
+    function validSchedulerLearningState(value) {
+        return value === null || Boolean(
             isObject(value)
             && Number.isInteger(value.regionId)
             && value.regionId >= 1
@@ -229,28 +426,28 @@
             && value.islandId >= 1
             && value.islandId <= ISLANDS_PER_REGION
             && typeof value.seed === "string"
-            && Number.isInteger(value.plannedCursor)
-            && value.plannedCursor >= 0
-            && value.plannedCursor <= 20
-            && Number.isInteger(value.plannedAnswered)
-            && value.plannedAnswered >= 0
-            && value.plannedAnswered <= 20
-            && Number.isInteger(value.correctAnswers)
-            && value.correctAnswers >= 0
-            && Number.isInteger(value.wrongAnswers)
-            && value.wrongAnswers >= 0
-            && Number.isInteger(value.recoveryAnswers)
-            && value.recoveryAnswers >= 0
-            && Number.isInteger(value.totalAttempts)
-            && value.totalAttempts >= 0
+            && Number.isInteger(value.plannedCursor) && value.plannedCursor >= 0 && value.plannedCursor <= 20
+            && Number.isInteger(value.plannedAnswered) && value.plannedAnswered >= 0 && value.plannedAnswered <= 20
+            && Number.isInteger(value.correctAnswers) && value.correctAnswers >= 0
+            && Number.isInteger(value.wrongAnswers) && value.wrongAnswers >= 0
+            && Number.isInteger(value.recoveryAnswers) && value.recoveryAnswers >= 0
+            && Number.isInteger(value.totalAttempts) && value.totalAttempts >= 0
             && ["question", "feedback", "complete"].includes(value.phase)
         );
     }
 
     function validLearning(value) {
-        if (!isObject(value) || !validActiveSession(value.activeSession) || !isObject(value.regionStates)) return false;
-        if (!Object.values(value.regionStates).every(validRegionLearningState)) return false;
-        return value.lastResult === null || isObject(value.lastResult);
+        return Boolean(
+            isObject(value)
+            && validActiveSession(value.activeSession)
+            && validSchedulerLearningState(value.schedulerState)
+            && (value.lastResult === null || isObject(value.lastResult))
+        );
+    }
+
+    function validIslandKey(value) {
+        const parsed = parseIslandKey(value);
+        return Boolean(parsed && parsed.regionId >= 1 && parsed.regionId <= TOTAL_REGIONS && parsed.islandId >= 1 && parsed.islandId <= ISLANDS_PER_REGION);
     }
 
     function isValidState(value) {
@@ -262,39 +459,31 @@
             && typeof value.player.avatarId === "string"
             && typeof value.player.profileFrameId === "string"
             && isObject(value.progression)
-            && Number.isInteger(value.progression.level)
-            && value.progression.level >= 1
-            && Number.isInteger(value.progression.xpCurrent)
-            && value.progression.xpCurrent >= 0
-            && Number.isInteger(value.progression.xpRequired)
-            && value.progression.xpRequired > 0
+            && Number.isInteger(value.progression.level) && value.progression.level >= 1
+            && Number.isInteger(value.progression.xpCurrent) && value.progression.xpCurrent >= 0
+            && Number.isInteger(value.progression.xpRequired) && value.progression.xpRequired > 0
             && isObject(value.wallet)
-            && Number.isInteger(value.wallet.coins)
-            && value.wallet.coins >= 0
-            && Number.isInteger(value.wallet.gems)
-            && value.wallet.gems >= 0
+            && Number.isInteger(value.wallet.coins) && value.wallet.coins >= 0
+            && Number.isInteger(value.wallet.gems) && value.wallet.gems >= 0
             && isObject(value.crew)
             && Array.isArray(value.crew.hiredIds)
             && value.crew.hiredIds.every((id) => typeof id === "string")
             && new Set(value.crew.hiredIds).size === value.crew.hiredIds.length
             && isObject(value.campaign)
-            && Number.isInteger(value.campaign.currentRegionId)
-            && value.campaign.currentRegionId >= 1
-            && value.campaign.currentRegionId <= TOTAL_REGIONS
-            && Number.isInteger(value.campaign.currentIslandId)
-            && Array.isArray(value.campaign.unlockedRegionIds)
-            && value.campaign.unlockedRegionIds.includes(1)
+            && Number.isInteger(value.campaign.currentRegionId) && value.campaign.currentRegionId >= 1 && value.campaign.currentRegionId <= TOTAL_REGIONS
+            && Number.isInteger(value.campaign.currentIslandId) && value.campaign.currentIslandId >= 1 && value.campaign.currentIslandId <= ISLANDS_PER_REGION
+            && Array.isArray(value.campaign.unlockedRegionIds) && value.campaign.unlockedRegionIds.includes(1)
+            && value.campaign.unlockedRegionIds.every((id) => Number.isInteger(id) && id >= 1 && id <= TOTAL_REGIONS)
             && Array.isArray(value.campaign.completedRegionIds)
-            && Array.isArray(value.campaign.completedIslandIds)
-            && Array.isArray(value.campaign.travelPlayedIslandIds)
-            && value.campaign.travelPlayedIslandIds.every((id) => /^region-\d+-island-\d+$/.test(String(id)))
+            && value.campaign.completedRegionIds.every((id) => Number.isInteger(id) && id >= 1 && id <= TOTAL_REGIONS)
+            && Array.isArray(value.campaign.completedIslandIds) && value.campaign.completedIslandIds.every(validIslandKey)
+            && Array.isArray(value.campaign.travelPlayedIslandIds) && value.campaign.travelPlayedIslandIds.every(validIslandKey)
             && validRegionProgress(value.campaign.regionProgress)
             && validFinalJourney(value.campaign.finalJourney)
             && Array.isArray(value.campaign.petsRescuedIds)
             && Array.isArray(value.campaign.claimedChestIds)
             && isObject(value.campaign.specialMaps)
-            && Number.isInteger(value.campaign.diamonds)
-            && value.campaign.diamonds >= 0
+            && Number.isInteger(value.campaign.diamonds) && value.campaign.diamonds >= 0
             && validLearning(value.learning)
             && isObject(value.ui)
             && typeof value.ui.lastScreen === "string"
@@ -440,7 +629,7 @@
         const key = `region-${regionId}-island-${islandId}`;
         if (s.campaign.completedIslandIds.includes(key)) return "completed";
 
-        if (regionId === 11 && islandId === 10 && !s.campaign.finalJourney.island10Unlocked) {
+        if (regionId === 22 && islandId === 5 && !s.campaign.finalJourney.finalIslandUnlocked) {
             return "locked";
         }
 
@@ -473,7 +662,7 @@
     }
 
     function specialMapGateForRegion(regionId) {
-        return ({ 1: "1", 3: "2", 5: "3", 7: "4", 10: "5" })[regionId] || null;
+        return ({ 2: "1", 6: "2", 10: "3", 14: "4", 20: "5" })[regionId] || null;
     }
 
     function specialMapBlocksProgress(campaign, regionId) {
@@ -501,30 +690,29 @@
         if (!Number.isInteger(regionId) || !Number.isInteger(islandId)) return s;
         if (regionId < 1 || regionId > TOTAL_REGIONS || islandId < 1 || islandId > ISLANDS_PER_REGION) return s;
         if (!s.campaign.unlockedRegionIds.includes(regionId)) return s;
-        if (regionId === 11 && islandId === 10 && !s.campaign.finalJourney.island10Unlocked) return s;
+        if (regionId === 22 && islandId === 5 && !s.campaign.finalJourney.finalIslandUnlocked) return s;
 
-        const key = `region-${regionId}-island-${islandId}`;
+        const key = newIslandKey(regionId, islandId);
         if (s.campaign.completedIslandIds.includes(key)) return s;
-
         const completedIslandIds = [...s.campaign.completedIslandIds, key];
         const previous = s.campaign.regionProgress[String(regionId)];
         const regionProgress = {
             ...s.campaign.regionProgress,
-            [String(regionId)]: {
-                ...previous,
-                islandsCompleted: Math.min(ISLANDS_PER_REGION, previous.islandsCompleted + 1)
-            }
+            [String(regionId)]: { ...previous, islandsCompleted: Math.min(ISLANDS_PER_REGION, previous.islandsCompleted + 1) }
         };
 
         const finalJourney = { ...s.campaign.finalJourney };
-        if (regionId === 11 && islandId <= 9) {
+        const globalIslandIndex = world.toGlobalIslandIndex(regionId, islandId);
+        if (globalIslandIndex >= 101 && globalIslandIndex <= 109) {
             finalJourney.finalMapFragments = completedIslandIds
-                .filter((id) => /^region-11-island-[1-9]$/.test(id)).length;
+                .map(parseIslandKey).filter(Boolean)
+                .map((item) => world.toGlobalIslandIndex(item.regionId, item.islandId))
+                .filter((index) => index >= 101 && index <= 109).length;
             finalJourney.finalMapCompleted = finalJourney.finalMapFragments === 9;
-            finalJourney.island10Unlocked = finalJourney.finalMapCompleted;
+            finalJourney.finalIslandUnlocked = finalJourney.finalMapCompleted;
         }
-        if (regionId === 11 && islandId === 10) {
-            finalJourney.island10Completed = true;
+        if (globalIslandIndex === 110) {
+            finalJourney.finalIslandCompleted = true;
             finalJourney.finalGrandChestUnlocked = true;
         }
 
@@ -532,7 +720,7 @@
             ? addUnique(s.campaign.completedRegionIds, regionId)
             : s.campaign.completedRegionIds;
 
-        let next = {
+        const next = {
             ...s,
             campaign: {
                 ...s.campaign,
@@ -544,9 +732,7 @@
                 finalJourney
             }
         };
-        return completedRegionIds.includes(regionId)
-            ? unlockNextRegionIfEligible(next, regionId)
-            : next;
+        return completedRegionIds.includes(regionId) ? unlockNextRegionIfEligible(next, regionId) : next;
     }
 
     function applyIslandRewards(state, rewards) {
@@ -602,7 +788,10 @@
 
     function getRegionLearningState(state, regionId) {
         const s = normalizeState(state);
-        return s.learning.regionStates[String(regionId)] || null;
+        if (!s.learning.schedulerState) return null;
+        return TQ.domain.scheduler?.retargetRecoveryState
+            ? TQ.domain.scheduler.retargetRecoveryState(s.learning.schedulerState, regionId)
+            : { ...s.learning.schedulerState, regionId };
     }
 
     function islandTravelKey(regionId, islandId) {
@@ -619,23 +808,12 @@
 
     function withGameplaySessionTarget(state, session, regionState, screenId) {
         const s = normalizeState(state);
-        if (!validActiveSession(session) || !validRegionLearningState(regionState)) return s;
+        if (!validActiveSession(session) || !validSchedulerLearningState(regionState) || regionState === null) return s;
         if (!["travel", "challenge"].includes(screenId)) return s;
         return {
             ...s,
-            campaign: {
-                ...s.campaign,
-                currentRegionId: session.regionId,
-                currentIslandId: session.islandId
-            },
-            learning: {
-                ...s.learning,
-                activeSession: session,
-                regionStates: {
-                    ...s.learning.regionStates,
-                    [String(session.regionId)]: regionState
-                }
-            },
+            campaign: { ...s.campaign, currentRegionId: session.regionId, currentIslandId: session.islandId },
+            learning: { ...s.learning, activeSession: session, schedulerState: regionState },
             ui: { ...s.ui, lastScreen: screenId }
         };
     }
@@ -670,7 +848,7 @@
 
     function completeGameplaySession(state, result, regionState, rewards, crewMembers, rewardConfig) {
         let s = normalizeState(state);
-        if (!isObject(result) || !validRegionLearningState(regionState)) return s;
+        if (!isObject(result) || !validSchedulerLearningState(regionState) || regionState === null) return s;
 
         const islandKey = `region-${result.regionId}-island-${result.islandId}`;
         const alreadyCompleted = s.campaign.completedIslandIds.includes(islandKey);
@@ -717,10 +895,7 @@
                 ...s.learning,
                 activeSession: null,
                 lastResult: storedResult,
-                regionStates: {
-                    ...s.learning.regionStates,
-                    [String(result.regionId)]: regionState
-                }
+                schedulerState: regionState
             },
             ui: { ...s.ui, lastScreen: earnedChest ? "chest" : "result" }
         };

@@ -192,3 +192,39 @@ Issues não devem acumular logs históricos ou manuais extensos. Devem apenas de
 - evidência;
 - decisão técnica;
 - artefato validado quando houver.
+
+
+## Invariantes da migração 22×5
+
+Qualidade deve bloquear regressões que reintroduzam a macroestrutura antiga fora do migrador de compatibilidade.
+
+Validar automaticamente:
+
+```text
+22 Regiões
+5 Ilhas por Região
+110 Ilhas
+global 1 → R1/I1
+global 6 → R2/I1
+global 110 → R22/I5
+```
+
+Persistência:
+
+- estado novo usa `schemaVersion = 9`;
+- save v8 migra sem perder posição global;
+- `completedIslandIds` e `travelPlayedIslandIds` são remapeados;
+- sessão ativa e último resultado preservam a posição equivalente;
+- XP, carteira, Tripulação, PETs, Baús e mapas não são zerados;
+- arco final ocupa globais 101–110, com R22/I5 como Ilha final.
+
+Scheduler:
+
+- 20 planned por Ilha;
+- 100 planned por Região;
+- 2.200 planned na campanha;
+- cobertura total de 220 por tabuada e 22 por operação;
+- mastery/recovery continuam entre Regiões;
+- mudança de Região não cria reset pedagógico silencioso.
+
+Código ativo não pode usar 11 Regiões, 10 Ilhas por Região, `REGION_VISUAL_CONFIG.pages`, `regionStates` ou `island10*` como contrato atual. Esses termos são aceitos somente em migração histórica e testes de compatibilidade.

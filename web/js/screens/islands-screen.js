@@ -38,82 +38,38 @@
     const REGION_VISUAL_CONFIG = Object.freeze({
         1: Object.freeze({
             assetKey: "region1Modular",
-            pages: Object.freeze([
-                Object.freeze({
-                    id: "corsario-1",
-                    backgroundId: 1,
-                    islandIds: Object.freeze([1, 2, 3, 4, 5]),
-                    hideIslands: true,
-                    unlockAfterCompleted: 0
-                }),
-                Object.freeze({
-                    id: "corsario-2",
-                    backgroundId: 2,
-                    islandIds: Object.freeze([6, 7, 8, 9, 10]),
-                    slotLayout: Object.freeze({
-                        1: Object.freeze({
-                            art: Object.freeze({ x: 72, y: 348, width: 340, height: 340 }),
-                            status: Object.freeze({ x: 122, y: 620, width: 240, height: 48, fontSize: 27 }),
-                            hitbox: Object.freeze({ x: 88, y: 364, width: 308, height: 308 })
-                        }),
-                        2: Object.freeze({
-                            art: Object.freeze({ x: 641, y: 361, width: 300, height: 300 }),
-                            status: Object.freeze({ x: 689, y: 603, width: 204, height: 42, fontSize: 28 }),
-                            hitbox: Object.freeze({ x: 653, y: 373, width: 276, height: 276 })
-                        }),
-                        3: Object.freeze({
-                            art: Object.freeze({ x: 267, y: 618, width: 400, height: 400 }),
-                            status: Object.freeze({ x: 359, y: 940, width: 216, height: 44, fontSize: 29 }),
-                            hitbox: Object.freeze({ x: 282, y: 633, width: 370, height: 370 })
-                        }),
-                        4: Object.freeze({
-                            art: Object.freeze({ x: 0, y: 974, width: 386, height: 386 }),
-                            status: Object.freeze({ x: 87, y: 1288, width: 213, height: 44, fontSize: 29 }),
-                            hitbox: Object.freeze({ x: 10, y: 987, width: 366, height: 366 })
-                        }),
-                        5: Object.freeze({
-                            art: Object.freeze({ x: 575, y: 1091, width: 400, height: 400 }),
-                            status: Object.freeze({ x: 667, y: 1413, width: 216, height: 44, fontSize: 29 }),
-                            hitbox: Object.freeze({ x: 590, y: 1106, width: 370, height: 370 })
-                        })
-                    }),
-                    hideIslands: true,
-                    unlockAfterCompleted: 5
-                })
-            ])
+            id: "corsario",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            hideIslands: true
         }),
         13: Object.freeze({
             assetKey: "region13Modular",
-            pages: Object.freeze([
-                Object.freeze({
-                    id: "obsidiana",
-                    backgroundId: 1,
-                    islandIds: Object.freeze([1, 2, 3, 4, 5]),
-                    slotLayout: Object.freeze({
-                        1: Object.freeze({
-                            art: Object.freeze({ x: 80, y: 539, width: 330, height: 330 }),
-                            hitbox: Object.freeze({ x: 95, y: 554, width: 300, height: 300 })
-                        }),
-                        2: Object.freeze({
-                            art: Object.freeze({ x: 566, y: 541, width: 330, height: 330 }),
-                            hitbox: Object.freeze({ x: 581, y: 556, width: 300, height: 300 })
-                        }),
-                        3: Object.freeze({
-                            art: Object.freeze({ x: 286, y: 803, width: 360, height: 360 }),
-                            hitbox: Object.freeze({ x: 301, y: 818, width: 330, height: 330 })
-                        }),
-                        4: Object.freeze({
-                            art: Object.freeze({ x: 50, y: 1092, width: 340, height: 340 }),
-                            hitbox: Object.freeze({ x: 65, y: 1107, width: 310, height: 310 })
-                        }),
-                        5: Object.freeze({
-                            art: Object.freeze({ x: 522, y: 1130, width: 340, height: 340 }),
-                            hitbox: Object.freeze({ x: 537, y: 1145, width: 310, height: 310 })
-                        })
-                    }),
-                    unlockAfterCompleted: 0
+            id: "obsidiana",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            slotLayout: Object.freeze({
+                1: Object.freeze({
+                    art: Object.freeze({ x: 80, y: 539, width: 330, height: 330 }),
+                    hitbox: Object.freeze({ x: 95, y: 554, width: 300, height: 300 })
+                }),
+                2: Object.freeze({
+                    art: Object.freeze({ x: 566, y: 541, width: 330, height: 330 }),
+                    hitbox: Object.freeze({ x: 581, y: 556, width: 300, height: 300 })
+                }),
+                3: Object.freeze({
+                    art: Object.freeze({ x: 286, y: 803, width: 360, height: 360 }),
+                    hitbox: Object.freeze({ x: 301, y: 818, width: 330, height: 330 })
+                }),
+                4: Object.freeze({
+                    art: Object.freeze({ x: 50, y: 1092, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 65, y: 1107, width: 310, height: 310 })
+                }),
+                5: Object.freeze({
+                    art: Object.freeze({ x: 522, y: 1130, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 537, y: 1145, width: 310, height: 310 })
                 })
-            ])
+            })
         })
     });
 
@@ -125,16 +81,8 @@
 
         return Object.freeze({
             regionId: normalizedRegionId,
-            assetKey: config.assetKey,
-            assets,
-            pages: config.pages || Object.freeze([
-                Object.freeze({
-                    id: `region-${normalizedRegionId}`,
-                    backgroundId: 1,
-                    islandIds: REGION_LAYOUT.visibleIslandIds,
-                    unlockAfterCompleted: 0
-                })
-            ])
+            ...config,
+            assets
         });
     }
 
@@ -157,20 +105,13 @@
     function getRegionVisualPage(state, regionId) {
         const visual = getRegionVisualConfig(regionId);
         if (!visual) return null;
-
-        const completed = Number(
-            state?.campaign?.regionProgress?.[String(regionId)]?.islandsCompleted
-        ) || 0;
-
-        const page = visual.pages.reduce((selected, candidate) =>
-            completed >= candidate.unlockAfterCompleted ? candidate : selected
-        , visual.pages[0]);
-
-        const background = visual.assets.backgrounds?.[page.backgroundId]
-            || visual.assets.background;
-
+        const background = visual.assets.backgrounds?.[visual.backgroundId] || visual.assets.background;
         return Object.freeze({
-            ...page,
+            id: visual.id || `region-${regionId}`,
+            backgroundId: visual.backgroundId || 1,
+            islandIds: visual.islandIds || REGION_LAYOUT.visibleIslandIds,
+            slotLayout: visual.slotLayout,
+            hideIslands: Boolean(visual.hideIslands),
             background,
             assets: visual.assets
         });
@@ -464,7 +405,7 @@
                     ${previewMode ? "Prévia de desenvolvimento • 5 Ilhas" : (regionIdentity ? regionIdentity.tagline : "Escolha uma Ilha para começar.")}
                 </p>
                 <div class="island-text-list">
-                    ${Array.from({ length: previewMode ? 5 : 10 }, (_, index) => {
+                    ${Array.from({ length: 5 }, (_, index) => {
                         const islandId = index + 1;
                         const status = previewMode
                             ? "preview"

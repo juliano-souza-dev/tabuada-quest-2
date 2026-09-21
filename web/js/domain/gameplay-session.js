@@ -10,7 +10,7 @@
     function createIslandSession(regionId, islandId, seed) {
         TQ.domain.scheduler.getRegionConfig(regionId);
         if (!Number.isInteger(islandId) || islandId < 1 || islandId > TQ.domain.scheduler.ISLANDS_PER_REGION) {
-            throw new RangeError("islandId must be between 1 and 10");
+            throw new RangeError(`islandId must be between 1 and ${TQ.domain.scheduler.ISLANDS_PER_REGION}`);
         }
 
         return Object.freeze({

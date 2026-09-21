@@ -137,6 +137,7 @@ Suítes atuais:
 
 ```text
 gameplay-session.test.cjs
+development-preview.test.cjs
 local-storage.test.cjs
 player-state.test.cjs
 region-1-map-layout.test.cjs
@@ -199,66 +200,54 @@ Padrão visual e coordenadas: `agentes/03-direcao-visual.md`.
 
 Regra técnica de compartilhamento: `agentes/04-desenvolvimento.md`.
 
-### CORSÁRIO / legado de transição
+### CORSÁRIO / Região 1
 
-Assets físicos atuais:
-
-```text
-web/assets/regions/region-1/
-```
-
-Backgrounds atuais:
+Assets ativos:
 
 ```text
 web/assets/regions/region-1/mapa_marítimo_do_corsário.png
-web/assets/regions/region-1/corsario-2-background.jpg
+web/assets/regions/region-1/island-01-unlocked.png
+web/assets/regions/region-1/island-01-locked.png
+...
+web/assets/regions/region-1/island-05-unlocked.png
+web/assets/regions/region-1/island-05-locked.png
 ```
 
-A implementação corrente ainda contém duas composições históricas sob a mesma Região:
+Configuração ativa:
 
 ```text
-corsario-1
-corsario-2
+web/js/screens/islands-screen.js
+REGION_VISUAL_CONFIG[1]
 ```
 
-Isso é **legado pendente de migração**.
+CORSÁRIO possui uma única composição de 5 Ilhas. Não existe segunda página/sub-região ativa.
 
-Contrato canônico atual:
+Arquivos históricos das antigas Ilhas 06–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas não pertencem ao catálogo executável.
+
+### Macroestrutura canônica do mundo
+
+Fonte estrutural:
+
+```text
+web/js/domain/world-structure.js
+```
+
+Contrato:
 
 ```text
 22 Regiões
 5 Ilhas por Região
-sem sub-regiões
-uma composição de Região por Região real
+110 Ilhas
 ```
 
-Enquanto os novos assets das Ilhas são refeitos, as duas composições históricas da CORSÁRIO permanecem limpas, sem arte/hitbox de Ilha e sem status textual.
-
-Implementação física do legado:
+APIs:
 
 ```text
-web/js/screens/islands-screen.js
-web/js/content/game-content.js
-web/css/screens/vertical-slice.css
+TQ.domain.worldStructure.toGlobalIslandIndex(regionId, islandId)
+TQ.domain.worldStructure.fromGlobalIslandIndex(globalIslandIndex)
 ```
 
-Migração estrutural futura deve atuar principalmente em:
-
-```text
-web/js/content/game-content.js
-web/js/domain/scheduler.js
-web/js/domain/player-state.js
-web/js/screens/islands-screen.js
-tests/web/
-```
-
-Regras de Produto: `agentes/01-produto.md`.
-
-Regras pedagógicas: `agentes/02-game-design-aprendizagem.md`.
-
-Contrato técnico-alvo: `agentes/04-desenvolvimento.md`.
-
-Não usar os paths/nomes históricos `corsario-1/corsario-2` como modelo para novas Regiões.
+`fromLegacyLocation(...)` existe exclusivamente para migração de saves anteriores.
 
 ### OBSIDIANA / Região 13
 
@@ -395,8 +384,19 @@ Regra técnica: `agentes/04-desenvolvimento.md`.
 Implementação:
 
 ```text
+web/js/domain/world-structure.js
 web/js/domain/scheduler.js
 web/js/domain/gameplay-session.js
+web/js/domain/player-state.js → learning.schedulerState
+```
+
+Invariantes:
+
+```text
+20 planned / Ilha
+100 planned / Região
+2200 planned / campanha
+recovery contínuo entre fronteiras de Região
 ```
 
 Contrato pedagógico: `agentes/02-game-design-aprendizagem.md`.
@@ -443,12 +443,20 @@ Produto: `agentes/01-produto.md`. Balanceamento: `agentes/02-game-design-aprendi
 
 ```text
 web/js/domain/player-state.js
-web/js/persistence/
+web/js/persistence/local-storage.js
 ```
 
-Contrato técnico: `agentes/04-desenvolvimento.md`.
+Schema vigente:
 
-O schema vigente deve ser lido do código. Não usar números copiados de documentação histórica sem verificar.
+```text
+schemaVersion = 9
+```
+
+O migrador v8 → v9 converte coordenadas 11×10 pela posição global, reconstrói `regionProgress` 22×5 e preserva sessão, viagens, recompensas e progresso econômico.
+
+Referências a estruturas 11×10 dentro do migrador são compatibilidade histórica, não arquitetura ativa.
+
+Contrato técnico: `agentes/04-desenvolvimento.md`.
 
 ## Viagem entre Ilhas
 
