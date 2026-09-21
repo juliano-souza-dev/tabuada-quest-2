@@ -149,8 +149,8 @@
                     result,
                     regionState,
                     TQ.content.getIslandRewards(result.regionId, result.islandId),
-                        TQ.content.crewMembers,
-                        TQ.content.gameplayRewards
+                    TQ.content.crewMembers,
+                    TQ.content.gameplayRewards
                 ));
             }
         });
