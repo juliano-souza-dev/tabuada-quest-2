@@ -121,6 +121,60 @@ Mapa mundo global
 
 Nenhuma Região exibe status textual sobre as Ilhas. Os estados de domínio continuam existindo para comportamento e progressão, mas não fazem parte da composição visual.
 
+## Mapas textuais por Região
+
+Algumas Regiões possuem um catálogo de **5 mapas temáticos próprios**. Nesta etapa, esses mapas existem somente como conteúdo textual: não possuem arte, thumbnail ou asset visual.
+
+Mapas canônicos já definidos:
+
+### CORSÁRIO
+
+```text
+Mapa da Bandeira Corsária
+Mapa do Saque Perdido
+Mapa da Rota dos Corsários
+Mapa do Tesouro do Capitão
+Mapa da Âncora Dourada
+```
+
+### OBSIDIANA
+
+```text
+Mapa da Rocha Negra
+Mapa das Cinzas Eternas
+Mapa do Fogo Obsidiano
+Mapa da Cratera Sombria
+Mapa do Coração de Obsidiana
+```
+
+### ZONA RUBI
+
+```text
+Mapa do Rubi Sangrento
+Mapa da Gruta Carmesim
+Mapa das Pedras Rubras
+Mapa do Coração Rubi
+Mapa da Coroa Escarlate
+```
+
+### ESCARLATE
+
+```text
+Mapa do Mar Escarlate
+Mapa das Falésias Vermelhas
+Mapa da Lua Carmesim
+Mapa da Maré Rubra
+Mapa do Horizonte Escarlate
+```
+
+Regras atuais:
+
+- cada catálogo acima possui exatamente 5 mapas;
+- representação atual é exclusivamente textual;
+- nenhum asset deve ser inventado ou gerado para esses mapas sem passar pelo fluxo da Direção Visual;
+- estes catálogos não substituem nem alteram automaticamente o sistema legado de mapas especiais/fragmentos;
+- integração futura com coleta, fragmentos, missões e recompensas exige tarefa própria de implementação.
+
 ## Estados de Ilha
 
 Estados de domínio válidos:
