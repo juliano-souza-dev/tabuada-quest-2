@@ -36,6 +36,9 @@ test("resultado mantém dados da partida como overlays dinâmicos",()=>{
     assert.match(source,/data-action="islands"/);
     assert.match(source,/data-action="regions"/);
     assert.match(source,/data-action="special-mission"/);
+    assert.doesNotMatch(source,/Ilha \${result\.islandId} concluída/);
+    assert.doesNotMatch(source,/resgatado/);
+    assert.doesNotMatch(source,/conquistado/);
 });
 
 test("CSS mantém stage proporcional e hitboxes alinhadas ao asset",()=>{
@@ -49,6 +52,9 @@ test("CSS mantém stage proporcional e hitboxes alinhadas ao asset",()=>{
     assert.match(css,/\.result-art-title/);
     assert.match(css,/\.result-art-stats/);
     assert.match(css,/\.result-art-reward-zone/);
+    assert.match(css,/\.result-art-structural-rewards/);
+    assert.match(css,/\.result-art-numeric-rewards/);
+    assert.match(css,/flex-direction:\s*column/);
     assert.match(css,/\.result-art-action-primary/);
     assert.match(css,/\.result-art-action-secondary/);
 });
