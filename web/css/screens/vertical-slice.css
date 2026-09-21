@@ -400,26 +400,99 @@
 }
 
 
-/* Feedback reutilizável para atividades matemáticas. */
-.feedback-card.is-correct {
-    animation: tq-feedback-correct 420ms ease-out;
+/* Efeitos de feedback desacoplados da tela de desafio. */
+.challenge-effect {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    text-align: center;
+    pointer-events: none;
 }
 
-.feedback-card.is-wrong {
-    animation: tq-feedback-wrong 420ms ease-out;
+.challenge-effect-text {
+    font-weight: 950;
+    line-height: 1;
 }
 
-@keyframes tq-feedback-correct {
-    0% { transform: scale(.94); }
-    55% { transform: scale(1.04); }
-    100% { transform: scale(1); }
+.challenge-effect-detail {
+    font-weight: 900;
+    line-height: 1.1;
 }
 
-@keyframes tq-feedback-wrong {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    50% { transform: translateX(8px); }
-    75% { transform: translateX(-4px); }
+.challenge-effect-reward {
+    font-size: .82em;
+    font-weight: 900;
+    opacity: .92;
+}
+
+.challenge-effect[data-effect-id="effect-correct-default"] {
+    animation: tq-effect-correct-default var(--challenge-effect-duration, 680ms) ease-out both;
+}
+
+.challenge-effect[data-effect-id="effect-wrong-default"] {
+    animation: tq-effect-wrong-default var(--challenge-effect-duration, 520ms) ease-out both;
+}
+
+@keyframes tq-effect-correct-default {
+    0% {
+        opacity: 0;
+        transform: scale(.72) translateY(8%);
+    }
+    38% {
+        opacity: 1;
+        transform: scale(1.12) translateY(-2%);
+    }
+    68% {
+        transform: scale(.97) translateY(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes tq-effect-wrong-default {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    16% {
+        opacity: 1;
+        transform: translateX(-3%);
+    }
+    34% {
+        transform: translateX(3%);
+    }
+    52% {
+        transform: translateX(-2%);
+    }
+    70% {
+        transform: translateX(1%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.feedback-card .challenge-effect {
+    position: relative;
+    min-height: 132px;
+    color: #fff4d0;
+}
+
+.feedback-card .challenge-effect-text {
+    font-size: clamp(2rem, 9vw, 3.5rem);
+}
+
+.feedback-card .challenge-effect-detail {
+    font-size: 1.25rem;
+}
+
+.feedback-card .challenge-effect-reward {
+    color: #ffe18a;
 }
 
 .special-mission-callout {
@@ -499,6 +572,7 @@
     display: grid;
     place-items: center;
     box-sizing: border-box;
+    padding: 0 4% 11%;
     border: 0;
     border-radius: 999px;
     background: transparent;
@@ -605,6 +679,33 @@
     line-height: 1.15;
 }
 
+.challenge-feedback-layer .challenge-effect {
+    position: absolute;
+    left: var(--challenge-question-x, 14.5%);
+    top: var(--challenge-question-y, 44.6%);
+    width: var(--challenge-question-w, 71%);
+    height: var(--challenge-question-h, 16.5%);
+    padding: 2% 5%;
+    color: #2b1608;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+.challenge-feedback-layer .challenge-effect-text {
+    font-size: var(--challenge-feedback-font, 5.1cqw);
+}
+
+.challenge-feedback-layer.is-correct .challenge-effect-text {
+    font-size: calc(var(--challenge-feedback-font, 5.1cqw) * 1.18);
+}
+
+.challenge-feedback-layer .challenge-effect-detail {
+    font-size: calc(var(--challenge-feedback-font, 5.1cqw) * .78);
+}
+
+.challenge-feedback-layer .challenge-effect-reward {
+    font-size: calc(var(--challenge-feedback-font, 5.1cqw) * .68);
+}
+
 .challenge-feedback-continue,
 .challenge-prepare-layer > button {
     position: absolute;
@@ -628,6 +729,11 @@
 @media (prefers-reduced-motion: reduce) {
     .challenge-art-answer {
         transition: none;
+    }
+
+    .challenge-effect[data-effect-id] {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
 
