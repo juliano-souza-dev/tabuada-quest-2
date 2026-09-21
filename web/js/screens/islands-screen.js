@@ -35,12 +35,84 @@
         })
     });
 
+    const RUBY_SHOP_SHIP_LAYOUT = Object.freeze({
+        width: 180,
+        height: 180,
+        clearance: 18,
+        edgeInset: 24,
+        headerInset: 280,
+        gridStep: 8,
+        preferredCenter: Object.freeze({ x: 830, y: 1100 })
+    });
+
+    function rectanglesOverlap(a, b, clearance = 0) {
+        if (!a || !b) return false;
+        return !(
+            a.x + a.width + clearance <= b.x
+            || b.x + b.width + clearance <= a.x
+            || a.y + a.height + clearance <= b.y
+            || b.y + b.height + clearance <= a.y
+        );
+    }
+
+    function getRegionOccupiedRects(visualPage) {
+        if (!visualPage) return Object.freeze([]);
+
+        const islandRects = (visualPage.islandIds || REGION_LAYOUT.visibleIslandIds)
+            .map((islandId, slotIndex) => {
+                const slotId = REGION_LAYOUT.visibleIslandIds[slotIndex] || islandId;
+                const layout = visualPage.slotLayout?.[slotId] || REGION_LAYOUT.islands[slotId];
+                return layout?.art || layout?.hitbox || null;
+            })
+            .filter(Boolean);
+
+        return Object.freeze([
+            REGION_LAYOUT.back,
+            REGION_LAYOUT.worldMap,
+            ...islandRects
+        ]);
+    }
+
+    function resolveRubyShopShipRect(visualPage) {
+        const layout = RUBY_SHOP_SHIP_LAYOUT;
+        const occupied = getRegionOccupiedRects(visualPage);
+        const maxX = REGION_LAYOUT.viewport.width - layout.edgeInset - layout.width;
+        const maxY = REGION_LAYOUT.viewport.height - layout.edgeInset - layout.height;
+        let bestRect = null;
+        let bestScore = Number.POSITIVE_INFINITY;
+
+        for (let y = layout.headerInset; y <= maxY; y += layout.gridStep) {
+            for (let x = layout.edgeInset; x <= maxX; x += layout.gridStep) {
+                const candidate = { x, y, width: layout.width, height: layout.height };
+                const collides = occupied.some((rect) => rectanglesOverlap(
+                    candidate,
+                    rect,
+                    layout.clearance
+                ));
+                if (collides) continue;
+
+                const centerX = x + (layout.width / 2);
+                const centerY = y + (layout.height / 2);
+                const dx = centerX - layout.preferredCenter.x;
+                const dy = centerY - layout.preferredCenter.y;
+                const score = (dx * dx) + (dy * dy);
+
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestRect = candidate;
+                }
+            }
+        }
+
+        return bestRect ? Object.freeze(bestRect) : null;
+    }
+
     const REGION_VISUAL_CONFIG = Object.freeze({
         1: Object.freeze({
             assetKey: "region1Modular",
             id: "corsario",
             backgroundId: 1,
-            islandIds: Object.freeze([1])
+            islandIds: Object.freeze([1, 2, 3, 4, 5])
         }),
         13: Object.freeze({
             assetKey: "region13Modular",
@@ -244,6 +316,9 @@
             regionId,
             TQ.content.rubyShopCatalog.enabledRegionIds
         );
+        const rubyShopShipRect = rubyShopVisible
+            ? resolveRubyShopShipRect(visualPage)
+            : null;
         const screen = document.createElement("section");
         screen.className = "region-islands-map-screen";
         screen.dataset.regionId = String(regionId);
@@ -309,14 +384,17 @@
 
                 ${islandsMarkup}
 
-                ${rubyShopVisible ? `
+                ${rubyShopVisible && rubyShopShipRect ? `
                     <button class="region-ruby-shop-button${rubyShopUnlocked ? "" : " is-locked"}"
                         type="button"
+                        style="${rectStyle(rubyShopShipRect)}"
                         data-action="open-ruby-shop"
                         ${rubyShopUnlocked ? "" : "disabled"}
                         aria-label="${rubyShopUnlocked ? "Abrir Loja Rubi" : "Loja Rubi bloqueada. Conclua as 5 Ilhas desta Região."}">
-                        <span aria-hidden="true">🚢</span>
-                        <strong>LOJA RUBI</strong>
+                        <img class="region-ruby-shop-asset"
+                            src="${TQ.content.assets.global.rubyShopMerchantShip}"
+                            alt=""
+                            aria-hidden="true">
                     </button>
                 ` : ""}
 
@@ -550,6 +628,10 @@
         createIslandEntryState,
         REGION_LAYOUT,
         REGION_VISUAL_CONFIG,
+        RUBY_SHOP_SHIP_LAYOUT,
+        rectanglesOverlap,
+        getRegionOccupiedRects,
+        resolveRubyShopShipRect,
         computeRegionStageGeometry
     });
 })(globalThis);

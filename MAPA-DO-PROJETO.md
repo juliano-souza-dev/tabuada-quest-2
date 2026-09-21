@@ -202,12 +202,20 @@ Regra técnica de compartilhamento: `agentes/04-desenvolvimento.md`.
 
 ### CORSÁRIO / Região 1
 
-Assets ativos nesta etapa:
+Assets ativos:
 
 ```text
 web/assets/regions/region-1/mapa_marítimo_do_corsário.png
 web/assets/regions/region-1/island-01-unlocked.png
 web/assets/regions/region-1/island-01-locked.png
+web/assets/regions/region-1/island-02-unlocked.png
+web/assets/regions/region-1/island-02-locked.png
+web/assets/regions/region-1/island-03-unlocked.png
+web/assets/regions/region-1/island-03-locked.png
+web/assets/regions/region-1/island-04-unlocked.png
+web/assets/regions/region-1/island-04-locked.png
+web/assets/regions/region-1/island-05-unlocked.png
+web/assets/regions/region-1/island-05-locked.png
 ```
 
 Configuração ativa:
@@ -217,9 +225,9 @@ web/js/screens/islands-screen.js
 REGION_VISUAL_CONFIG[1]
 ```
 
-CORSÁRIO possui uma única composição de 5 Ilhas, mas somente a Ilha 1 aprovada é renderizada nesta etapa. Ilhas 2–5 aguardam suas artes novas. Não existe segunda página/sub-região ativa.
+CORSÁRIO possui uma única composição com as 5 Ilhas renderizadas. Não existe segunda página/sub-região ativa.
 
-Arquivos históricos das antigas Ilhas 02–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas somente os assets publicados pelo catálogo executável pertencem à composição ativa.
+Arquivos históricos das antigas Ilhas 06–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas não pertencem ao catálogo executável.
 
 ### Macroestrutura canônica do mundo
 
@@ -845,6 +853,14 @@ web/css/screens/ruby-shop.css
 web/js/screens/islands-screen.js
 ```
 
-Primeira Região configurada: `14 / ZONA RUBI`.
+Regiões configuradas: `01, 05, 09, 13, 17 e 21`.
+
+A embarcação mercante usa o asset global:
+
+```text
+web/assets/global/ships/ruby-shop-merchant.webp
+```
+
+Nas telas visuais de Região, a posição da embarcação é resolvida em tempo de execução por `resolveRubyShopShipRect(...)`, evitando colisão com Ilhas, Mapa Mundo e botão de voltar.
 
 A versão atual é local e não possui backend, e-mail ou dados de entrega.

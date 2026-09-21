@@ -254,6 +254,28 @@ Permanece global:
 - botão voltar;
 - linguagem visual do projeto.
 
+## Embarcação mercante da Loja Rubi
+
+A embarcação da Loja Rubi é um **asset global**, não pertence à pasta de nenhuma Região.
+
+Asset canônico:
+
+```text
+web/assets/global/ships/ruby-shop-merchant.webp
+```
+
+Regras de composição:
+
+- manter transparência real;
+- não fundir a embarcação ao background;
+- não posicionar manualmente sobre uma Ilha;
+- o renderer deve calcular uma área livre usando os retângulos ocupados da Região;
+- considerar como áreas ocupadas as artes das 5 Ilhas, Mapa Mundo e botão voltar;
+- preservar margem visual mínima entre a embarcação e qualquer área ocupada;
+- a embarcação pode estar visível bloqueada, mas o clique só é liberado quando as 5 Ilhas da Região habilitada estiverem concluídas.
+
+A embarcação não é uma sexta Ilha e não usa slot de progressão.
+
 ## Regra para backgrounds de Região
 
 Background:
