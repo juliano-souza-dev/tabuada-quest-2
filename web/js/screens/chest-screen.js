@@ -25,7 +25,7 @@
         `;
     }
 
-    function renderChestScreen({ state, onNavigate }) {
+    function renderChestScreen({ state, onNavigate, rewardReturnScreen }) {
         const result = state.learning.lastResult;
         const chestReward = result?.reward?.structural?.find((reward) => reward.type === "chest") || null;
         const kit = chestReward ? TQ.content.getChestKit(chestReward.chestId) : null;
@@ -37,7 +37,7 @@
             screen.innerHTML = `
                 <main class="slice-content result-card">
                     <h1>Nenhum Baú pendente</h1>
-                    <button type="button" data-action="result">Ver resultado</button>
+                    <button type="button" data-action="continue">Continuar</button>
                 </main>
             `;
         } else {
@@ -47,13 +47,15 @@
                     <h1>Baú conquistado! 🎁</h1>
                     <p>Você encontrou um Baú nesta jornada.</p>
                     ${renderChestItems(kit, result.reward?.collectibles)}
-                    <button type="button" data-action="result">Continuar</button>
+                    <button type="button" data-action="continue">Continuar</button>
                 </main>
             `;
         }
 
         screen.addEventListener("click", (event) => {
-            if (event.target.closest('[data-action="result"]')) onNavigate("result");
+            if (event.target.closest('[data-action="continue"]')) {
+                onNavigate(rewardReturnScreen === "regions" ? "regions" : "islands");
+            }
         });
 
         return screen;
