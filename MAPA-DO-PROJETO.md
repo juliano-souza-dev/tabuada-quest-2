@@ -260,6 +260,31 @@ Contrato técnico-alvo: `agentes/04-desenvolvimento.md`.
 
 Não usar os paths/nomes históricos `corsario-1/corsario-2` como modelo para novas Regiões.
 
+## Mapas textuais por Região
+
+Catálogo:
+
+```text
+web/js/content/game-content.js
+TQ.content.regionTextMaps
+TQ.content.getRegionTextMaps(regionId)
+```
+
+Regiões atualmente definidas:
+
+```text
+1  CORSÁRIO
+13 OBSIDIANA
+14 ZONA RUBI
+15 ESCARLATE
+```
+
+A representação vigente é somente textual. Não existem assets desses mapas nesta etapa.
+
+Fonte de Produto: `agentes/01-produto.md`.
+
+Este catálogo é independente do legado `campaign.specialMaps` até que uma tarefa de migração/integração seja executada.
+
 ## Mapa mundo
 
 Asset:

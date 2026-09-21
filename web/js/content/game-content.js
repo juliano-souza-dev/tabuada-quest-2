@@ -136,6 +136,57 @@
         return islandIdentities[String(regionId)]?.[Number(islandId) - 1] || null;
     }
 
+    const regionTextMaps = Object.freeze({
+        "1": Object.freeze({
+            regionId: 1,
+            regionLabel: "CORSÁRIO",
+            maps: Object.freeze([
+                Object.freeze({ id: "r1-map-1", label: "Mapa da Bandeira Corsária", representation: "text", asset: null }),
+                Object.freeze({ id: "r1-map-2", label: "Mapa do Saque Perdido", representation: "text", asset: null }),
+                Object.freeze({ id: "r1-map-3", label: "Mapa da Rota dos Corsários", representation: "text", asset: null }),
+                Object.freeze({ id: "r1-map-4", label: "Mapa do Tesouro do Capitão", representation: "text", asset: null }),
+                Object.freeze({ id: "r1-map-5", label: "Mapa da Âncora Dourada", representation: "text", asset: null })
+            ])
+        }),
+        "13": Object.freeze({
+            regionId: 13,
+            regionLabel: "OBSIDIANA",
+            maps: Object.freeze([
+                Object.freeze({ id: "r13-map-1", label: "Mapa da Rocha Negra", representation: "text", asset: null }),
+                Object.freeze({ id: "r13-map-2", label: "Mapa das Cinzas Eternas", representation: "text", asset: null }),
+                Object.freeze({ id: "r13-map-3", label: "Mapa do Fogo Obsidiano", representation: "text", asset: null }),
+                Object.freeze({ id: "r13-map-4", label: "Mapa da Cratera Sombria", representation: "text", asset: null }),
+                Object.freeze({ id: "r13-map-5", label: "Mapa do Coração de Obsidiana", representation: "text", asset: null })
+            ])
+        }),
+        "14": Object.freeze({
+            regionId: 14,
+            regionLabel: "ZONA RUBI",
+            maps: Object.freeze([
+                Object.freeze({ id: "r14-map-1", label: "Mapa do Rubi Sangrento", representation: "text", asset: null }),
+                Object.freeze({ id: "r14-map-2", label: "Mapa da Gruta Carmesim", representation: "text", asset: null }),
+                Object.freeze({ id: "r14-map-3", label: "Mapa das Pedras Rubras", representation: "text", asset: null }),
+                Object.freeze({ id: "r14-map-4", label: "Mapa do Coração Rubi", representation: "text", asset: null }),
+                Object.freeze({ id: "r14-map-5", label: "Mapa da Coroa Escarlate", representation: "text", asset: null })
+            ])
+        }),
+        "15": Object.freeze({
+            regionId: 15,
+            regionLabel: "ESCARLATE",
+            maps: Object.freeze([
+                Object.freeze({ id: "r15-map-1", label: "Mapa do Mar Escarlate", representation: "text", asset: null }),
+                Object.freeze({ id: "r15-map-2", label: "Mapa das Falésias Vermelhas", representation: "text", asset: null }),
+                Object.freeze({ id: "r15-map-3", label: "Mapa da Lua Carmesim", representation: "text", asset: null }),
+                Object.freeze({ id: "r15-map-4", label: "Mapa da Maré Rubra", representation: "text", asset: null }),
+                Object.freeze({ id: "r15-map-5", label: "Mapa do Horizonte Escarlate", representation: "text", asset: null })
+            ])
+        })
+    });
+
+    function getRegionTextMaps(regionId) {
+        return regionTextMaps[String(Number(regionId))]?.maps || Object.freeze([]);
+    }
+
     const regionRewards = Object.freeze({
         "1": Object.freeze({
             "1": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r1-i1" })]),
@@ -172,6 +223,8 @@
         islandIdentities,
         getRegionIdentity,
         getIslandIdentity,
+        regionTextMaps,
+        getRegionTextMaps,
         regionRewards,
         getIslandRewards,
         homeBackgrounds,
