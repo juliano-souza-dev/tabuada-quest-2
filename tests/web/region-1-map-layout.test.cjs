@@ -22,8 +22,8 @@ test("CORSÁRIO possui uma única composição, sem pages ou CORSÁRIO 2",()=>{
     assert.ok(visual);
     assert.equal(visual.id,"corsario");
     assert.equal("pages" in visual,false);
-    assert.deepEqual(page.islandIds,[1,2,3,4,5]);
-    assert.equal(page.hideIslands,true);
+    assert.deepEqual(page.islandIds,[1]);
+    assert.equal(page.hideIslands,false);
 
     const source=fs.readFileSync(path.join(__dirname,"../../web/js/screens/islands-screen.js"),"utf8");
     assert.doesNotMatch(source,/corsario-2/i);
@@ -46,11 +46,11 @@ test("layout compartilhado continua com cinco slots e Mapa Mundo global",()=>{
     assert.deepEqual(layout.worldMap,{x:98,y:1405,width:200,height:200});
 });
 
-test("seleção de asset troca locked/unlocked nos cinco slots ativos",()=>{
-    for(let islandId=1;islandId<=5;islandId++){
-        assert.match(islands.getRegionIslandAsset(1,islandId,"locked"),new RegExp(`island-0${islandId}-locked\\.png`));
-        assert.match(islands.getRegionIslandAsset(1,islandId,"available"),new RegExp(`island-0${islandId}-unlocked\\.png`));
-    }
+test("CORSÁRIO publica somente a Ilha 1 aprovada nesta etapa",()=>{
+    assert.match(islands.getRegionIslandAsset(1,1,"locked"),/island-01-locked\.webp/);
+    assert.match(islands.getRegionIslandAsset(1,1,"available"),/island-01-unlocked\.webp/);
+    assert.equal(content.getIslandIdentity(1,1).label,"Enseada da Bandeira");
+    assert.equal(content.getIslandPrimaryReward(1,1).type,"pet");
 });
 
 test("Mapa Mundo permanece conectado ao controlador global",()=>{
