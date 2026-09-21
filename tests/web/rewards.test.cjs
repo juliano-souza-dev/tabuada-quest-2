@@ -255,3 +255,64 @@ test("Baú Final entrega próprios e todos os pendentes mesmo com erros",()=>{
     assert.equal(processed.outcome.collectedIds.length,6);
     assert.deepEqual(processed.state.campaign.collectibles.pendingIds,[]);
 });
+
+
+test("Ouro-base é 10 por acerto menos 2 por erro, com mínimo zero",()=>{
+    assert.equal(d.calculateGoldBaseAmount({correctAnswers:20,wrongAnswers:0},config),200);
+    assert.equal(d.calculateGoldBaseAmount({correctAnswers:16,wrongAnswers:4},config),152);
+    assert.equal(d.calculateGoldBaseAmount({correctAnswers:0,wrongAnswers:20},config),0);
+});
+
+test("toda partida, inclusive replay, concede Ouro por desempenho",()=>{
+    let s=d.createInitialState();
+    s=d.completeGameplaySession(s,result(1),regionState(),[],crew,config,TQ.content);
+    assert.equal(s.wallet.coins,200);
+    s=d.completeGameplaySession(s,result(1),regionState(),[],crew,config,TQ.content);
+    assert.equal(s.wallet.coins,400);
+});
+
+test("curva de Colecionáveis respeita 50%=10% e 100%=25%",()=>{
+    let s=d.createInitialState();
+    const all=TQ.content.collectibles.map((item)=>item.id);
+    s={...s,campaign:{...s.campaign,collectibles:{...s.campaign.collectibles,collectedIds:all.slice(0,45)}}};
+    assert.equal(d.getCollectibleBonusPercent(s,90,config),10);
+    s={...s,campaign:{...s.campaign,collectibles:{...s.campaign.collectibles,collectedIds:all}}};
+    assert.equal(d.getCollectibleBonusPercent(s,90,config),25);
+});
+
+test("bônus de Colecionáveis soma com Tripulação sem composição",()=>{
+    let s=d.createInitialState();
+    const all=TQ.content.collectibles.map((item)=>item.id);
+    s={...s,wallet:{...s.wallet,coins:10000},campaign:{...s.campaign,collectibles:{...s.campaign.collectibles,collectedIds:all.slice(0,45)}}};
+    s=d.hireCrewMember(s,crew.find((member)=>member.id==="atirador"));
+    const calc=d.calculateRewardBonuses(s,crew,{xp:100,coins:100,gems:100},90,config);
+    assert.equal(calc.crewPercent.xp,3);
+    assert.equal(calc.collectiblePercent.xp,10);
+    assert.equal(calc.total.xp,113);
+    assert.equal(calc.total.coins,110);
+    assert.equal(calc.total.gems,110);
+});
+
+test("Baú Final concede 5000 Rubis-base antes dos bônus",()=>{
+    let s=d.createInitialState();
+    const finalResult={regionId:22,islandId:5,plannedAnswered:20,correctAnswers:20,wrongAnswers:0,recoveryAnswers:0,totalAttempts:20};
+    const region={...regionState(),regionId:22};
+    s=d.completeGameplaySession(
+        s,
+        finalResult,
+        region,
+        [{type:"chest",chestId:"final-grand-chest",isFinalChest:true}],
+        crew,
+        config,
+        TQ.content
+    );
+    assert.equal(s.learning.lastResult.reward.base.gems,5000);
+    assert.equal(s.wallet.gems,5000);
+});
+
+test("catálogo provisório possui Pet 01 a Pet 30 preservando IDs de recompensa",()=>{
+    assert.equal(TQ.content.pets.length,30);
+    assert.equal(TQ.content.pets[0].label,"Pet 01");
+    assert.equal(TQ.content.pets[29].label,"Pet 30");
+    assert.equal(new Set(TQ.content.pets.map((pet)=>pet.id)).size,30);
+});
