@@ -254,12 +254,26 @@
     const regionIdentities = Object.freeze([]);
 
     const canonicalIslandNameOverrides = Object.freeze({
+        "1": Object.freeze([
+            "Enseada da Bandeira",
+            "Baía do Saque Perdido",
+            "Farol da Rota Corsária",
+            "Porto do Capitão",
+            "Rochedo da Âncora Dourada"
+        ]),
         "13": Object.freeze([
             "Rocha Negra",
             "Cinzas",
             "Fogo Obsidiano",
             "Cratera",
             "Coração de Obsidiana"
+        ]),
+        "14": Object.freeze([
+            "Carmesim",
+            "Coroa Rubi",
+            "Pedras Rosada",
+            "Pedras Rubras",
+            "Rubi do Rei"
         ])
     });
 
@@ -677,8 +691,8 @@
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260920-1628",
-                        locked: "./assets/regions/region-1/island-01-locked.png?v=20260920-1628"
+                        unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260921-issue88",
+                        locked: "./assets/regions/region-1/island-01-locked.png?v=20260921-issue88"
                     }),
                     2: Object.freeze({
                         unlocked: "./assets/regions/region-1/island-02-unlocked.png?v=20260920-1628",
@@ -723,6 +737,34 @@
                     5: Object.freeze({
                         unlocked: "./assets/regions/region-13/island-05-unlocked.png?v=20260921-0102",
                         locked: "./assets/regions/region-13/island-05-locked.png?v=20260921-0102"
+                    })
+                })
+            }),
+            region14Modular: Object.freeze({
+                background: "./assets/regions/region-14/background.webp?v=20260921-issue88",
+                backgrounds: Object.freeze({
+                    1: "./assets/regions/region-14/background.webp?v=20260921-issue88"
+                }),
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-14/carmesim_unlocked.webp?v=20260921-issue88",
+                        locked: "./assets/regions/region-14/carmesim_locked.webp?v=20260921-issue88"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-14/coroa_rubi_unlocked.webp?v=20260921-issue88",
+                        locked: "./assets/regions/region-14/coroa_rubi_locked.webp?v=20260921-issue88"
+                    }),
+                    3: Object.freeze({
+                        unlocked: "./assets/regions/region-14/pedras_rosada_unlocked.webp?v=20260921-issue88",
+                        locked: "./assets/regions/region-14/pedras_rosada_locked.webp?v=20260921-issue88"
+                    }),
+                    4: Object.freeze({
+                        unlocked: "./assets/regions/region-14/pedras_rubras_unlocked.webp?v=20260921-issue88",
+                        locked: "./assets/regions/region-14/pedras_rubras_locked.webp?v=20260921-issue88"
+                    }),
+                    5: Object.freeze({
+                        unlocked: "./assets/regions/region-14/rubi_do_rei_unlocked.webp?v=20260921-issue88",
+                        locked: "./assets/regions/region-14/rubi_do_rei_locked.webp?v=20260921-issue88"
                     })
                 })
             })
