@@ -178,7 +178,7 @@ A progressão deve:
 
 - reagir ao desempenho;
 - preservar cobertura mínima;
-- evitar farming;
+- evitar farming abusivo sem remover o XP garantido pela conclusão de cada partida;
 - registrar histórico suficiente para revisão;
 - permitir recuperação sem destruir o planejamento original;
 - produzir invariantes testáveis.
