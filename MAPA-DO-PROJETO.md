@@ -262,14 +262,20 @@ Não usar os paths/nomes históricos `corsario-1/corsario-2` como modelo para no
 
 ### OBSIDIANA / Região 13
 
-Assets de composição:
+Assets de composição canônicos:
 
 ```text
-web/assets/regions/region-13/background.webp
-web/assets/regions/region-13/island-01-unlocked.webp
-web/assets/regions/region-13/island-02-unlocked.webp
-web/assets/regions/region-13/island-03-unlocked.webp
-web/assets/regions/region-13/island-04-unlocked.webp
+web/assets/regions/region-13/background.jpg
+web/assets/regions/region-13/island-01-unlocked.png
+web/assets/regions/region-13/island-01-locked.png
+web/assets/regions/region-13/island-02-unlocked.png
+web/assets/regions/region-13/island-02-locked.png
+web/assets/regions/region-13/island-03-unlocked.png
+web/assets/regions/region-13/island-03-locked.png
+web/assets/regions/region-13/island-04-unlocked.png
+web/assets/regions/region-13/island-04-locked.png
+web/assets/regions/region-13/island-05-unlocked.png
+web/assets/regions/region-13/island-05-locked.png
 ```
 
 Ordem canônica:
@@ -282,9 +288,10 @@ Ordem canônica:
 5 Coração de Obsidiana
 ```
 
-A composição usa REGION_VISUAL_CONFIG[13] em web/js/screens/islands-screen.js.
+A composição usa `REGION_VISUAL_CONFIG[13]` em `web/js/screens/islands-screen.js`.
 
-Enquanto o asset físico de Coração de Obsidiana não estiver promovido ao repositório, o quinto slot permanece propositalmente vazio, preservando a marcação de água do background e sem criar imagem quebrada ou hitbox falsa.
+As Ilhas permanecem assets dinâmicos sobre o background. O background não deve receber as Ilhas incorporadas. Cada Ilha possui versões normal e bloqueada próprias.
+
 
 ## Nomes temporários de Ilha
 
