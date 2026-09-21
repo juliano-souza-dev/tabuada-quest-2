@@ -269,15 +269,18 @@ A posição global 109 concede Rubi como recompensa principal. A posição globa
 
 Os Baús são o canal de obtenção de Colecionáveis.
 
-Regras fechadas:
+Regra operacional implantada:
 
 ```text
-sem erros → 3 Colecionáveis
-faixa intermediária → 2 Colecionáveis
-faixa mínima → 1 Colecionável
+0% de erros       → todos os Colecionáveis disponíveis no Baú
+>0% até 20%       → 2 Colecionáveis
+>20% de erros     → 1 Colecionável
+Baú Final         → todos os Colecionáveis disponíveis, independentemente do desempenho
 ```
 
-Os percentuais exatos das duas faixas com erro permanecem pendentes e não devem ser inferidos.
+O corte de 20% é um parâmetro inicial de balanceamento armazenado em catálogo e pode ser alterado sem reescrever o domínio.
+
+Cada Baú normal possui 3 itens-base. Quando há fila de redistribuição, no máximo 1 item pendente é acrescentado ao próximo Baú normal. Por isso, um Baú perfeito pode entregar 4 itens quando estiver carregando uma pendência.
 
 Quando Colecionáveis disponíveis em um Baú não são conquistados:
 

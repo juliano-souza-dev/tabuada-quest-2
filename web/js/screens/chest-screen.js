@@ -1,22 +1,27 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
-    function renderChestItems(kit) {
-        const items = Array.isArray(kit?.items) ? kit.items : [];
-        if (!items.length) return "<p>Baú guardado com sucesso.</p>";
+    function renderChestItems(kit, outcome) {
+        const receivedIds = Array.isArray(outcome?.collectedIds) ? outcome.collectedIds : [];
+        if (!outcome) return "<p>Baú guardado com sucesso.</p>";
+
+        const received = receivedIds
+            .map((id) => TQ.content.getCollectible(id))
+            .filter(Boolean);
+        const pendingCount = Number.isInteger(outcome.pendingCount) ? outcome.pendingCount : 0;
 
         return `
-            <ul class="result-rewards" aria-label="Itens do Baú">
-                ${items.map((item) => {
-                    const label = typeof item?.label === "string"
-                        ? item.label
-                        : (typeof item?.id === "string" ? item.id : "Item especial");
-                    const quantity = Number.isInteger(item?.quantity) && item.quantity > 1
-                        ? ` ×${item.quantity}`
-                        : "";
-                    return `<li>${label}${quantity}</li>`;
-                }).join("")}
-            </ul>
+            <section aria-label="Colecionáveis do Baú">
+                <h2>Colecionáveis encontrados</h2>
+                ${received.length ? `
+                    <ul class="result-rewards">
+                        ${received.map((item) => `<li>🧭 ${item.label}</li>`).join("")}
+                    </ul>
+                ` : "<p>Nenhum Colecionável recebido.</p>"}
+                ${outcome.isFinalChest
+                    ? "<p>O Baú Final entregou todos os Colecionáveis restantes.</p>"
+                    : (pendingCount > 0 ? `<p>${pendingCount} Colecionável(is) seguem escondidos nos próximos Baús.</p>` : "")}
+            </section>
         `;
     }
 
@@ -41,7 +46,7 @@
                     <small>Recompensa especial</small>
                     <h1>Baú conquistado! 🎁</h1>
                     <p>Você encontrou um Baú nesta jornada.</p>
-                    ${renderChestItems(kit)}
+                    ${renderChestItems(kit, result.reward?.collectibles)}
                     <button type="button" data-action="result">Continuar</button>
                 </main>
             `;

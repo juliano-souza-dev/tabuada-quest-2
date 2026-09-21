@@ -907,7 +907,134 @@
         return withGameplaySession(state, session, regionState);
     }
 
-    function completeGameplaySession(state, result, regionState, rewards, crewMembers, rewardConfig) {
+    function collectibleErrorPercent(result) {
+        const wrongAnswers = Number.isInteger(result?.wrongAnswers) ? Math.max(0, result.wrongAnswers) : 0;
+        const attempts = Number.isInteger(result?.totalAttempts) && result.totalAttempts > 0
+            ? result.totalAttempts
+            : Math.max(0, (Number(result?.correctAnswers) || 0) + wrongAnswers);
+        if (attempts <= 0) return wrongAnswers > 0 ? 100 : 0;
+        return (wrongAnswers / attempts) * 100;
+    }
+
+    function calculateChestCollectibleOutcome(result, availableCount, isFinalChest, rewardConfig) {
+        const count = Number.isInteger(availableCount) ? Math.max(0, availableCount) : 0;
+        const errorPercent = collectibleErrorPercent(result);
+        const threshold = Number(rewardConfig?.collectibles?.twoItemMaxErrorPercent);
+        const twoItemMaxErrorPercent = Number.isFinite(threshold) && threshold >= 0
+            ? threshold
+            : 20;
+
+        if (isFinalChest) {
+            return {
+                tier: "final",
+                errorPercent,
+                awardedCount: count
+            };
+        }
+
+        if ((Number(result?.wrongAnswers) || 0) === 0) {
+            return {
+                tier: "perfect",
+                errorPercent: 0,
+                awardedCount: count
+            };
+        }
+
+        if (errorPercent <= twoItemMaxErrorPercent) {
+            return {
+                tier: "two",
+                errorPercent,
+                awardedCount: Math.min(2, count)
+            };
+        }
+
+        return {
+            tier: "one",
+            errorPercent,
+            awardedCount: Math.min(1, count)
+        };
+    }
+
+    function processChestCollectibles(state, result, chestReward, contentApi, rewardConfig) {
+        const s = normalizeState(state);
+        if (!isObject(chestReward) || chestReward.type !== "chest" || typeof chestReward.chestId !== "string") {
+            return { state: s, outcome: null };
+        }
+
+        const kit = typeof contentApi?.getChestKit === "function"
+            ? contentApi.getChestKit(chestReward.chestId)
+            : null;
+        const baseIds = (Array.isArray(kit?.items) ? kit.items : [])
+            .map((item) => item?.collectibleId)
+            .filter((id) => typeof id === "string");
+        if (!baseIds.length && !chestReward.isFinalChest) {
+            return { state: s, outcome: null };
+        }
+
+        const collectedSet = new Set(s.campaign.collectibles.collectedIds);
+        const pending = s.campaign.collectibles.pendingIds.filter((id) => !collectedSet.has(id));
+        const isFinalChest = Boolean(chestReward.isFinalChest || kit?.isFinalChest);
+        const pendingPerNormalChest = Number.isInteger(rewardConfig?.collectibles?.pendingPerNormalChest)
+            ? Math.max(0, rewardConfig.collectibles.pendingPerNormalChest)
+            : 1;
+
+        const carriedIds = isFinalChest
+            ? [...pending]
+            : pending.slice(0, pendingPerNormalChest);
+        const untouchedPendingIds = isFinalChest
+            ? []
+            : pending.slice(carriedIds.length);
+
+        const ownIds = baseIds.filter((id) => !collectedSet.has(id));
+        const availableIds = Array.from(new Set([
+            ...ownIds,
+            ...carriedIds.filter((id) => !collectedSet.has(id))
+        ]));
+
+        const performance = calculateChestCollectibleOutcome(
+            result,
+            availableIds.length,
+            isFinalChest,
+            rewardConfig
+        );
+        const collectedIds = availableIds.slice(0, performance.awardedCount);
+        const deferredIds = availableIds.slice(performance.awardedCount);
+
+        const nextCollected = new Set(s.campaign.collectibles.collectedIds);
+        collectedIds.forEach((id) => nextCollected.add(id));
+
+        const nextPending = isFinalChest
+            ? []
+            : Array.from(new Set([
+                ...untouchedPendingIds,
+                ...deferredIds
+            ].filter((id) => !nextCollected.has(id))));
+
+        return {
+            state: {
+                ...s,
+                campaign: {
+                    ...s.campaign,
+                    collectibles: {
+                        collectedIds: Array.from(nextCollected),
+                        pendingIds: nextPending
+                    }
+                }
+            },
+            outcome: {
+                chestId: chestReward.chestId,
+                isFinalChest,
+                tier: performance.tier,
+                errorPercent: performance.errorPercent,
+                availableIds,
+                collectedIds,
+                deferredIds,
+                pendingCount: nextPending.length
+            }
+        };
+    }
+
+    function completeGameplaySession(state, result, regionState, rewards, crewMembers, rewardConfig, contentApi) {
         let s = normalizeState(state);
         if (!isObject(result) || !validSchedulerLearningState(regionState) || regionState === null) return s;
 
@@ -931,6 +1058,21 @@
 
         s = applyNumericReward(s, rewardBreakdown.total);
 
+        const earnedChestReward = structuralRewards.find((reward) => reward.type === "chest") || null;
+        let chestCollectibles = null;
+
+        if (!alreadyCompleted && earnedChestReward) {
+            const processed = processChestCollectibles(
+                s,
+                result,
+                earnedChestReward,
+                contentApi,
+                rewardConfig
+            );
+            s = processed.state;
+            chestCollectibles = processed.outcome;
+        }
+
         if (!alreadyCompleted) {
             s = applyIslandRewards(s, structuralRewards);
         }
@@ -945,10 +1087,11 @@
                 bonus: rewardBreakdown.bonus,
                 total: rewardBreakdown.total,
                 structural: structuralRewards.map((reward) => ({ ...reward })),
+                collectibles: chestCollectibles,
                 firstCompletion: !alreadyCompleted
             }
         };
-        const earnedChest = structuralRewards.some((reward) => reward.type === "chest");
+        const earnedChest = Boolean(earnedChestReward);
 
         return {
             ...s,
@@ -997,6 +1140,8 @@
         getCrewBonusSummary,
         calculateCrewReward,
         calculateRubyBaseAmount,
+        calculateChestCollectibleOutcome,
+        processChestCollectibles,
         grantXp,
         applyNumericReward,
         getIslandStatus,

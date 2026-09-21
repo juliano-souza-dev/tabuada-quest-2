@@ -130,7 +130,8 @@
                         next.regionState,
                         TQ.content.getIslandRewards(result.regionId, result.islandId),
                         TQ.content.crewMembers,
-                        TQ.content.gameplayRewards
+                        TQ.content.gameplayRewards,
+                        TQ.content
                     ));
                 } else {
                     onStateChange(TQ.domain.playerState.updateGameplaySession(
@@ -150,7 +151,8 @@
                     regionState,
                     TQ.content.getIslandRewards(result.regionId, result.islandId),
                     TQ.content.crewMembers,
-                    TQ.content.gameplayRewards
+                    TQ.content.gameplayRewards,
+                    TQ.content
                 ));
             }
         });
