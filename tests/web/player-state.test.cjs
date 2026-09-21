@@ -116,6 +116,27 @@ test("Ilhas são liberadas sequencialmente em grupos de cinco",()=>{
     assert.equal(d.getRegionStatus(s,2),"available");
 });
 
+test("Jogar resolve a Região desbloqueada de acordo com a progressão",()=>{
+    let s=d.createInitialState();
+    assert.equal(d.getPlayRegionId(s),1);
+
+    s=d.completeIsland(s,1,1);
+    assert.equal(d.getPlayRegionId(s),1);
+
+    for(let islandId=2;islandId<=5;islandId++) s=d.completeIsland(s,1,islandId);
+    assert.equal(d.getRegionStatus(s,1),"completed");
+    assert.equal(d.getRegionStatus(s,2),"available");
+    assert.equal(d.getPlayRegionId(s),2);
+});
+
+test("Jogar não volta para Região concluída quando a próxima está desbloqueada",()=>{
+    let s=d.createInitialState();
+    for(let islandId=1;islandId<=5;islandId++) s=d.completeIsland(s,1,islandId);
+
+    s={...s,campaign:{...s.campaign,currentRegionId:1}};
+    assert.equal(d.getPlayRegionId(s),2);
+});
+
 test("gate do Mapa 1 acontece após a nova Região 2, no mesmo ponto global 10",()=>{
     let s=d.createInitialState();
     for(let islandId=1;islandId<=5;islandId++) s=d.completeIsland(s,1,islandId);
