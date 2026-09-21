@@ -245,3 +245,21 @@ Validar:
 - bônus de gemas da Tripulação incide sobre Rubis-base;
 - replay não duplica Rubi;
 - IDs históricos dos primeiros PETs/Baús permanecem compatíveis com saves existentes.
+
+
+## Gate de Colecionáveis
+
+Validar permanentemente:
+
+- catálogo contém 90 IDs únicos;
+- todos possuem nome não vazio;
+- todos declaram bônus em XP, Ouro e Rubi;
+- assets podem permanecer `null` enquanto a Direção Visual não entregar arte;
+- estado inicial possui `collectedIds=[]` e `pendingIds=[]`;
+- migração v9 → v10 preserva progresso;
+- coleta do mesmo ID é idempotente;
+- Home abre a tela Colecionáveis;
+- voltar retorna à Home;
+- item não coletado aparece sombreado;
+- item coletado aparece ativo;
+- a tela exibe nome, status e bônus sem inventar percentual individual.
