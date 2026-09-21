@@ -37,9 +37,9 @@ function legacyV8(){
     };
 }
 
-test("estado inicial v12 usa 22 Regiões de 5 Ilhas",()=>{
+test("estado inicial v13 usa 22 Regiões de 5 Ilhas",()=>{
     const s=d.createInitialState();
-    assert.equal(s.schemaVersion,12);
+    assert.equal(s.schemaVersion,13);
     assert.deepEqual(s.campaign.unlockedRegionIds,[1]);
     assert.equal(Object.keys(s.campaign.regionProgress).length,22);
     assert.equal(s.campaign.regionProgress["22"].islandsTotal,5);
@@ -56,7 +56,7 @@ test("migração v8 traduz R1/I6 para R2/I1 sem perder progresso",()=>{
     old.campaign.travelPlayedIslandIds=["region-1-island-6"];
 
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,12);
+    assert.equal(m.schemaVersion,13);
     assert.equal(m.campaign.currentRegionId,2);
     assert.equal(m.campaign.currentIslandId,1);
     assert.equal(m.campaign.regionProgress["1"].islandsCompleted,5);
@@ -95,13 +95,13 @@ test("migração v8 converte sessão ativa e une histórico pedagógico",()=>{
     assert.equal(m.learning.schedulerState.recoveryQueue[0].remainingGap,1);
 });
 
-test("migração v7 ainda cria Tripulação e termina em v12",()=>{
+test("migração v7 ainda cria Tripulação e termina em v13",()=>{
     const old=legacyV8();
     old.schemaVersion=7;
     delete old.crew;
     old.wallet.coins=321;
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,12);
+    assert.equal(m.schemaVersion,13);
     assert.equal(m.wallet.coins,321);
     assert.deepEqual(m.crew.hiredIds,[]);
 });
@@ -157,9 +157,9 @@ test("recuperação pedagógica atravessa fronteira visual",()=>{
     assert.equal(d.getIslandStatus(s,2,1),"available");
 });
 
-test("estado inválido volta ao inicial v12",()=>{
+test("estado inválido volta ao inicial v13",()=>{
     const s=d.normalizeState({schemaVersion:999,wallet:{coins:999}});
-    assert.equal(s.schemaVersion,12);
+    assert.equal(s.schemaVersion,13);
     assert.equal(s.wallet.coins,0);
 });
 
@@ -170,7 +170,7 @@ test("migração v9 adiciona estado persistente de Colecionáveis sem perder pro
     delete old.campaign.collectibles;
     old.wallet.coins=432;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,12);
+    assert.equal(migrated.schemaVersion,13);
     assert.deepEqual(migrated.campaign.collectibles,{collectedIds:[],pendingIds:[]});
     assert.equal(migrated.wallet.coins,432);
 });
@@ -191,7 +191,7 @@ test("migração v10 cria estado da Loja v12 sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,12);
+    assert.equal(migrated.schemaVersion,13);
     assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
@@ -203,7 +203,7 @@ test("migração v10 cria estado da Loja sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,12);
+    assert.equal(migrated.schemaVersion,13);
     assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
@@ -217,7 +217,7 @@ test("migração v11 preserva compras e adiciona navio equipado nulo",()=>{
         shop:{purchasedItemIds:["ship-colombo"]}
     };
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,12);
+    assert.equal(migrated.schemaVersion,13);
     assert.deepEqual(migrated.shop,{
         purchasedItemIds:["ship-colombo"],
         equippedShipId:null
@@ -242,4 +242,49 @@ test("navio só pode ser equipado depois de comprado",()=>{
 
     const invalid=d.withEquippedShip(s,"ship-rosa-intenso",allowed);
     assert.equal(invalid.shop.equippedShipId,"ship-colombo");
+});
+
+
+test("migração v12 adiciona pedidos da Loja Rubi sem perder carteira",()=>{
+    const current=d.createInitialState();
+    const old={...current,schemaVersion:12};
+    delete old.rubyShop;
+    old.wallet={coins:321,gems:87};
+    const migrated=d.normalizeState(old);
+    assert.equal(migrated.schemaVersion,13);
+    assert.equal(migrated.wallet.coins,321);
+    assert.equal(migrated.wallet.gems,87);
+    assert.deepEqual(migrated.rubyShop,{orders:[]});
+});
+
+test("Loja Rubi debita Rubis e grava pedido local atomicamente",()=>{
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,gems:100}};
+    const item={id:"test-physical",label:"Item físico",priceRubies:40,available:true};
+    s=d.purchaseRubyShopItem(s,item,{id:"order-1",createdAt:"2026-09-21T15:00:00.000Z"});
+    assert.equal(s.wallet.gems,60);
+    assert.equal(s.rubyShop.orders.length,1);
+    assert.deepEqual(s.rubyShop.orders[0],{
+        id:"order-1",
+        itemId:"test-physical",
+        label:"Item físico",
+        priceRubies:40,
+        status:"local_pending",
+        createdAt:"2026-09-21T15:00:00.000Z"
+    });
+});
+
+test("Loja Rubi não compra sem saldo e não cobra pedido duplicado",()=>{
+    const item={id:"test-physical",label:"Item físico",priceRubies:40,available:true};
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,gems:30}};
+    const unchanged=d.purchaseRubyShopItem(s,item,{id:"order-1",createdAt:"2026-09-21T15:00:00.000Z"});
+    assert.equal(unchanged.wallet.gems,30);
+    assert.equal(unchanged.rubyShop.orders.length,0);
+
+    s={...s,wallet:{...s.wallet,gems:100}};
+    s=d.purchaseRubyShopItem(s,item,{id:"order-1",createdAt:"2026-09-21T15:00:00.000Z"});
+    const duplicate=d.purchaseRubyShopItem(s,item,{id:"order-1",createdAt:"2026-09-21T15:01:00.000Z"});
+    assert.equal(duplicate.wallet.gems,60);
+    assert.equal(duplicate.rubyShop.orders.length,1);
 });
