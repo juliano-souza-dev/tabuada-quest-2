@@ -75,7 +75,21 @@ Consequências pedagógicas:
 
 Não criar uma camada pedagógica de sub-região para reproduzir a estrutura antiga.
 
-A implementação atual ainda pode conter constantes históricas de 11 Regiões / 10 Ilhas por Região. Elas devem ser tratadas como dívida técnica até a migração correspondente, não como regra de Game Design.
+A implementação canônica usa o **índice global da Ilha** para preservar a curva pedagógica através da nova divisão:
+
+```text
+globalIslandIndex = (regionId - 1) × 5 + islandId
+```
+
+Invariantes implantadas:
+
+- cada Ilha mantém 20 exposições planejadas;
+- cada Região possui 100 exposições planejadas;
+- a campanha completa preserva 2.200 exposições;
+- a cobertura total permanece 220 exposições por tabuada e 22 por operação;
+- a rotação pedagógica usa a posição global, portanto a antiga posição 6 continua pedagogicamente equivalente na nova Região 2 / Ilha 1;
+- faixas de dificuldade: globais 1–20 usam K=2; 21–40 K=3; 41–60 K=4; 61–80 K=5; 81–110 K=10;
+- recovery e mastery usam um estado contínuo de scheduler e não são zerados apenas porque a fronteira visual de Região mudou.
 
 ## Estado visual x estado pedagógico
 
@@ -202,17 +216,17 @@ Não deve acessar:
 - componentes de UI;
 - assets.
 
-## Regras para mudanças futuras
+## Invariantes da macroestrutura vigente
 
-Na migração para a macroestrutura vigente:
+A implementação deve proteger permanentemente:
 
-1. preservar as 110 Ilhas;
-2. migrar 11×10 para 22×5;
-3. preservar carga total e histórico;
-4. recalcular distribuição e marcos por Região;
-5. recalcular recompensas dependentes de fronteira de Região;
-6. definir invariantes para 5 Ilhas por Região;
-7. entregar ao Desenvolvimento sem recriar sub-regiões.
+1. 22 Regiões × 5 Ilhas = 110 Ilhas;
+2. nenhuma sub-região;
+3. posição global estável de 1 a 110;
+4. 20 exposições planejadas por Ilha e 2.200 na campanha;
+5. recovery separado de planned exposure e contínuo entre Regiões;
+6. recompensas/marcos associados à posição global correta quando vierem do legado;
+7. nenhuma regra pedagógica deve depender da antiga fronteira de 10 Ilhas.
 
 ## Regra de documentação
 
