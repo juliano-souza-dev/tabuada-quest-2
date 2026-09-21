@@ -263,3 +263,22 @@ Validar permanentemente:
 - item não coletado aparece sombreado;
 - item coletado aparece ativo;
 - a tela exibe nome, status e bônus sem inventar percentual individual.
+
+
+## Gate Baú → Colecionáveis
+
+Validar:
+
+- 30 kits de Baú;
+- exatamente 3 itens-base por kit;
+- cobertura dos 90 IDs sem repetição;
+- 0 erros entrega todos os itens disponíveis;
+- até 20% de erros, com pelo menos um erro, entrega 2;
+- acima de 20% entrega 1;
+- Baú normal recebe no máximo 1 pendência da fila;
+- itens não recebidos voltam para o fim da fila;
+- pendência não é garantida nas faixas de 1/2 itens;
+- Baú perfeito com 1 pendência pode entregar 4 itens;
+- Baú Final zera a fila e entrega todos os itens disponíveis;
+- replay não concede nem redistribui novamente;
+- outcome do Baú é persistido no resultado antes da renderização.
