@@ -25,6 +25,35 @@
         Object.freeze({ id: "navegador", label: "Navegador", asset: "./assets/crew/navegador.webp", cost: 1600, bonusType: "gems", bonusPercent: 8 })
     ]);
 
+    const worldRegions = Object.freeze([
+        Object.freeze({ id: 1, label: "CORSÁRIO" }),
+        Object.freeze({ id: 2, label: "BIRADES" }),
+        Object.freeze({ id: 3, label: "ZONA OURO" }),
+        Object.freeze({ id: 4, label: "VALE ESMERALDA" }),
+        Object.freeze({ id: 5, label: "ZONA SAFIRA" }),
+        Object.freeze({ id: 6, label: "TERRAS GÉLIDAS" }),
+        Object.freeze({ id: 7, label: "FANTASMAS" }),
+        Object.freeze({ id: 8, label: "MARÉ SOMBRIA" }),
+        Object.freeze({ id: 9, label: "TEMPESTÁRIA" }),
+        Object.freeze({ id: 10, label: "MAR DE FERRO" }),
+        Object.freeze({ id: 11, label: "ZONA KRAKEN" }),
+        Object.freeze({ id: 12, label: "TERRAS DE CINZA" }),
+        Object.freeze({ id: 13, label: "OBSIDIANA" }),
+        Object.freeze({ id: 14, label: "ZONA RUBI" }),
+        Object.freeze({ id: 15, label: "ESCARLATE" }),
+        Object.freeze({ id: 16, label: "ZONA DO DRAGÃO" }),
+        Object.freeze({ id: 17, label: "TERRAS DO TITÃ" }),
+        Object.freeze({ id: 18, label: "CRISTÁLIA" }),
+        Object.freeze({ id: 19, label: "ILHAS CELESTES" }),
+        Object.freeze({ id: 20, label: "COROA DO MAR" }),
+        Object.freeze({ id: 21, label: "ZONA FÊNIX" }),
+        Object.freeze({ id: 22, label: "REINO DAS MARÉS" })
+    ]);
+
+    function getWorldRegion(regionId) {
+        return worldRegions.find((region) => region.id === Number(regionId)) || null;
+    }
+
     const regionNames = Object.freeze([
         "CORSÁRIO",
         "NEBLINAS",
@@ -265,6 +294,8 @@
             finalMapFragments: 9,
             diamondsPerMapMission: 1000
         }),
+        worldRegions,
+        getWorldRegion,
         regions,
         regionIdentities,
         islandIdentities,
