@@ -390,6 +390,7 @@
             islandsPerRegion: 5,
             pets: 30,
             chests: 30,
+            rubies: 30,
             specialMaps: 5,
             fragmentsPerMap: 4,
             finalMapFragments: 9,
