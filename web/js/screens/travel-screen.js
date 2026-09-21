@@ -15,10 +15,15 @@
 
         const identity = TQ.content.getIslandIdentity(active.regionId, active.islandId);
         const label = identity ? identity.label : `Ilha ${active.islandId}`;
+        const equippedShip = TQ.content.shopCatalog.ships.find(
+            (item) => item.id === state.shop.equippedShipId
+                && state.shop.purchasedItemIds.includes(item.id)
+        ) || null;
+        const travelVideo = equippedShip?.travelVideo || TQ.content.assets.islandTravel;
 
         screen.innerHTML = `
             <video class="island-travel-video"
-                src="${TQ.content.assets.islandTravel}"
+                src="${travelVideo}"
                 autoplay
                 muted
                 playsinline

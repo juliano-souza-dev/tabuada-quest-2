@@ -716,3 +716,42 @@ Preço nulo é estado válido de catálogo e significa item visível, porém ain
 `shopCatalog.frames` e `shopCatalog.backgrounds` agora possuem preços inteiros em Ouro e usam a mesma função `purchaseShopItem(...)`.
 
 Nenhuma compra altera `homeBackgroundId`, `profileFrameId` ou qualquer futuro campo de navio equipado.
+
+
+## Home + itens comprados
+
+Schema vigente:
+
+```text
+schemaVersion = 12
+```
+
+Estado:
+
+```text
+shop.purchasedItemIds
+shop.equippedShipId
+```
+
+Migração v11 → v12 preserva todas as compras e inicia `equippedShipId = null`.
+
+Regra de equipamento do navio:
+
+```text
+withEquippedShip(state, shipId, allowedIds)
+```
+
+A função exige:
+
+- ID permitido;
+- navio previamente comprado.
+
+A Home monta os seletores de Molduras e Fundos combinando os itens-base com os itens comerciais efetivamente comprados.
+
+Viagem:
+
+```text
+equippedShip.travelVideo ?? assets.islandTravel
+```
+
+Assim o código já está ligado aos futuros vídeos sem depender deles nesta etapa.

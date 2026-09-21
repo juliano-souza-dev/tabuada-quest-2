@@ -27,6 +27,7 @@ test("compra de navio desconta Ouro uma única vez e não equipa nada",()=>{
     s=d.purchaseShopItem(s,ship);
     assert.equal(s.wallet.coins,4000);
     assert.deepEqual(s.shop.purchasedItemIds,[ship.id]);
+    assert.equal(s.shop.equippedShipId,null);
     assert.equal(Object.prototype.hasOwnProperty.call(s.shop,"equippedItemIds"),false);
     const again=d.purchaseShopItem(s,ship);
     assert.equal(again.wallet.coins,4000);
@@ -82,4 +83,28 @@ test("compras de Moldura e Fundo usam a mesma carteira e continuam sem equipar",
     assert.equal(s.wallet.coins,1350);
     assert.deepEqual(s.shop.purchasedItemIds,[frame.id,background.id]);
     assert.equal(Object.prototype.hasOwnProperty.call(s.shop,"equippedItemIds"),false);
+});
+
+
+test("comprar navio não equipa automaticamente, mas Home pode equipar depois",()=>{
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,coins:5000}};
+    const ship=TQ.content.shopCatalog.ships[0];
+
+    s=d.purchaseShopItem(s,ship);
+    assert.equal(s.shop.equippedShipId,null);
+
+    s=d.withEquippedShip(
+        s,
+        ship.id,
+        TQ.content.shopCatalog.ships.map((item)=>item.id)
+    );
+    assert.equal(s.shop.equippedShipId,ship.id);
+});
+
+test("navio não comprado nunca pode virar navio equipado",()=>{
+    let s=d.createInitialState();
+    const ids=TQ.content.shopCatalog.ships.map((item)=>item.id);
+    s=d.withEquippedShip(s,ids[2],ids);
+    assert.equal(s.shop.equippedShipId,null);
 });

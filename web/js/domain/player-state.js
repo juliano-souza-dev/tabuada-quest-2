@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 11;
+    const STATE_VERSION = 12;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -89,7 +89,7 @@
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
             crew: { hiredIds: [] },
-            shop: { purchasedItemIds: [] },
+            shop: { purchasedItemIds: [], equippedShipId: null },
             campaign: {
                 currentRegionId: 1,
                 currentIslandId: 1,
@@ -406,11 +406,30 @@
             const existingShop = isObject(migrated.shop) ? migrated.shop : {};
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 11,
                 shop: {
                     purchasedItemIds: Array.isArray(existingShop.purchasedItemIds)
                         ? Array.from(new Set(existingShop.purchasedItemIds.filter((id) => typeof id === "string")))
                         : []
+                }
+            };
+        }
+
+        if (migrated.schemaVersion === 11) {
+            const existingShop = isObject(migrated.shop) ? migrated.shop : {};
+            const purchasedItemIds = Array.isArray(existingShop.purchasedItemIds)
+                ? Array.from(new Set(existingShop.purchasedItemIds.filter((id) => typeof id === "string")))
+                : [];
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                shop: {
+                    ...existingShop,
+                    purchasedItemIds,
+                    equippedShipId: typeof existingShop.equippedShipId === "string"
+                        && purchasedItemIds.includes(existingShop.equippedShipId)
+                            ? existingShop.equippedShipId
+                            : null
                 }
             };
         }
@@ -526,6 +545,10 @@
             && Array.isArray(value.shop.purchasedItemIds)
             && value.shop.purchasedItemIds.every((id) => typeof id === "string")
             && new Set(value.shop.purchasedItemIds).size === value.shop.purchasedItemIds.length
+            && (value.shop.equippedShipId === null || (
+                typeof value.shop.equippedShipId === "string"
+                && value.shop.purchasedItemIds.includes(value.shop.equippedShipId)
+            ))
             && isObject(value.campaign)
             && Number.isInteger(value.campaign.currentRegionId) && value.campaign.currentRegionId >= 1 && value.campaign.currentRegionId <= TOTAL_REGIONS
             && Number.isInteger(value.campaign.currentIslandId) && value.campaign.currentIslandId >= 1 && value.campaign.currentIslandId <= ISLANDS_PER_REGION
@@ -605,6 +628,20 @@
             shop: {
                 ...s.shop,
                 purchasedItemIds: [...s.shop.purchasedItemIds, item.id]
+            }
+        };
+    }
+
+    function withEquippedShip(state, shipId, allowedIds) {
+        const s = normalizeState(state);
+        if (typeof shipId !== "string") return s;
+        if (!Array.isArray(allowedIds) || !allowedIds.includes(shipId)) return s;
+        if (!s.shop.purchasedItemIds.includes(shipId)) return s;
+        return {
+            ...s,
+            shop: {
+                ...s.shop,
+                equippedShipId: shipId
             }
         };
     }
@@ -1418,6 +1455,7 @@
         withLastScreen,
         hireCrewMember,
         purchaseShopItem,
+        withEquippedShip,
         collectCollectible,
         getCrewBonusSummary,
         calculateCrewReward,

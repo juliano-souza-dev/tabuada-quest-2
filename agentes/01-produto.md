@@ -574,3 +574,28 @@ Horizonte Celeste 1.800 Ouro
 ```
 
 Todos continuam sem asset até a etapa visual.
+
+
+## Personalização na Home
+
+A Home é o ponto de equipamento/personalização dos itens cosméticos comprados na Loja.
+
+Fluxo:
+
+```text
+Loja → compra
+Home → equipa/personaliza
+```
+
+Na Home:
+
+- Molduras compradas aparecem no seletor de Molduras existente;
+- Fundos comprados aparecem no seletor de Fundos existente;
+- Estaleiro é um novo menu de personalização;
+- somente navios comprados aparecem no Estaleiro;
+- selecionar um navio no Estaleiro o torna o navio equipado;
+- comprar um navio na Loja nunca o equipa automaticamente.
+
+Enquanto assets comerciais estiverem `null`, a seleção persiste, mas a Home mantém fallback visual seguro.
+
+O navio equipado define a animação/vídeo de viagem quando `travelVideo` existir. Enquanto for `null`, usa-se o vídeo de viagem padrão.
