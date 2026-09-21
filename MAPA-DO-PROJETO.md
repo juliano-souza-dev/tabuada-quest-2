@@ -900,3 +900,23 @@ O master não contém água, espuma ou outro efeito ambiental. Nas telas visuais
 No CORSÁRIO, o renderer prioriza a área livre à direita da Ilha 3 e aplica um efeito de contato com água somente pela camada visual da Região.
 
 A versão atual é local e não possui backend, e-mail ou dados de entrega.
+
+
+## Tela de conclusão de Ilha
+
+Asset global aprovado:
+
+```text
+web/assets/global/gb_win.webp
+```
+
+Renderer:
+
+```text
+web/js/screens/result-screen.js
+```
+
+O asset fornece a composição visual de celebração. Região, Ilha, estatísticas, XP, Ouro, recompensas e ações permanecem dinâmicos na aplicação.
+
+Regra visual: `agentes/03-direcao-visual.md`.
+Implementação: `agentes/04-desenvolvimento.md`.
