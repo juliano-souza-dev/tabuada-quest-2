@@ -971,3 +971,15 @@ tests/web/challenge-effects.test.cjs
 tests/web/challenge-art.test.cjs
 tests/web/gameplay-session.test.cjs
 ```
+
+
+## Continuidade da campanha na Home
+
+```text
+web/js/screens/home-screen.js
+web/js/domain/player-state.js → getPlayRegionId(state)
+tests/web/home-play-progression.test.cjs
+tests/web/player-state.test.cjs
+```
+
+O botão Jogar abre diretamente a Região jogável resolvida pela progressão. O botão Regiões permanece como acesso ao seletor completo.
