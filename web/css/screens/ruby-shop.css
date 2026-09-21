@@ -235,3 +235,19 @@
     margin-top: 2px;
     font-size: 1rem;
 }
+
+
+.region-ruby-shop-button.is-locked,
+.ruby-shop-text-entry.is-locked {
+    opacity: .58;
+    cursor: not-allowed;
+    filter: saturate(.55) brightness(.78);
+}
+
+.region-ruby-shop-button.is-locked::after {
+    content: "🔒";
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    font-size: 1.1rem;
+}
