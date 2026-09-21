@@ -949,6 +949,18 @@ CHALLENGE_ART_LAYOUTS[1]
 ```
 
 
+### Efeitos de feedback dinâmicos
+
+Acerto e erro são camadas dinâmicas sobre a arte da Ilha.
+
+- a arte de desafio não incorpora texto ou animação de feedback;
+- a versão inicial usa texto animado em HTML/CSS;
+- futuros assets animados de Efeito devem ser independentes do background da Ilha;
+- Efeitos não podem deslocar, recortar ou deformar a composição aprovada;
+- a resposta correta em caso de erro permanece dado dinâmico;
+- a área de progresso continua obedecendo à caixa específica de cada Ilha.
+
+
 
 ## Tela de conclusão de Ilha — asset global
 
