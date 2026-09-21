@@ -614,11 +614,24 @@ Loja Rubi  → Rubis → recompensas físicas
 
 A Loja Rubi aparece somente em Regiões explicitamente configuradas e seu acesso visual final será uma embarcação mercante integrada ao mapa da Região.
 
-Primeira Região habilitada:
+Regiões habilitadas:
 
 ```text
-Região 14 — ZONA RUBI
+01 CORSÁRIO
+05 ZONA SAFIRA
+09 TEMPESTÁRIA
+13 OBSIDIANA
+17 TERRAS DO TITÃ
+21 ZONA FÊNIX
 ```
+
+Regra de disponibilidade:
+
+- a embarcação fica visível assim que a criança entra em uma Região habilitada;
+- o clique permanece bloqueado enquanto a Região não estiver concluída;
+- concluir as 5 Ilhas da própria Região libera o clique da Loja Rubi;
+- a periodicidade é Região 1 e, depois dela, a cada 4 Regiões;
+- a presença da embarcação não cria uma sexta Ilha e não participa da progressão pedagógica.
 
 ### Etapa local inicial
 

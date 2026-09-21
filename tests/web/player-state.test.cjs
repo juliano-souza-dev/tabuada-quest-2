@@ -288,3 +288,16 @@ test("Loja Rubi não compra sem saldo e não cobra pedido duplicado",()=>{
     assert.equal(duplicate.wallet.gems,60);
     assert.equal(duplicate.rubyShop.orders.length,1);
 });
+
+
+test("desbloqueio da Loja Rubi exige Região elegível e progresso 5/5",()=>{
+    const enabled=[1,5,9,13,17,21];
+    let s=d.createInitialState();
+    assert.equal(d.isRubyShopUnlocked(s,1,enabled),false);
+
+    for(let islandId=1;islandId<=5;islandId++) {
+        s=d.completeIsland(s,1,islandId);
+    }
+    assert.equal(d.isRubyShopUnlocked(s,1,enabled),true);
+    assert.equal(d.isRubyShopUnlocked(s,2,enabled),false);
+});

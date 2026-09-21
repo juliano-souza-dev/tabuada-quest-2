@@ -663,6 +663,18 @@
         };
     }
 
+    function isRubyShopUnlocked(state, regionId, enabledRegionIds) {
+        const s = normalizeState(state);
+        const normalizedRegionId = Number(regionId);
+        if (!Number.isInteger(normalizedRegionId)
+            || normalizedRegionId < 1
+            || normalizedRegionId > TOTAL_REGIONS) return false;
+        if (!Array.isArray(enabledRegionIds) || !enabledRegionIds.includes(normalizedRegionId)) return false;
+
+        const progress = s.campaign.regionProgress[String(normalizedRegionId)];
+        return Boolean(progress && progress.islandsCompleted === ISLANDS_PER_REGION);
+    }
+
     function purchaseRubyShopItem(state, item, orderMeta) {
         const s = normalizeState(state);
         if (!isObject(item)
@@ -1524,6 +1536,7 @@
         withLastScreen,
         hireCrewMember,
         purchaseShopItem,
+        isRubyShopUnlocked,
         purchaseRubyShopItem,
         withEquippedShip,
         collectCollectible,

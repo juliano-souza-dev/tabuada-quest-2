@@ -798,3 +798,20 @@ O domínio não usa DOM, rede, e-mail ou PHP.
 A entrada regional consulta uma configuração compartilhada de Regiões habilitadas. Não duplicar renderer por Região.
 
 A futura API PHP deve entrar atrás de uma camada de serviço/adapter. A tela não deve depender de formato HTTP específico.
+
+
+### Periodicidade e desbloqueio da Loja Rubi
+
+Configuração canônica:
+
+```text
+enabledRegionIds = [1, 5, 9, 13, 17, 21]
+```
+
+A embarcação pode ser renderizada durante toda a permanência na Região elegível, porém a navegação para `ruby-shop` só é permitida quando:
+
+```text
+campaign.regionProgress[regionId].islandsCompleted === 5
+```
+
+A regra de desbloqueio pertence ao domínio em `player-state.js` e deve ser reutilizada pela UI. Não implementar a autorização apenas por CSS, `disabled` ou coordenada de hitbox.
