@@ -211,6 +211,13 @@
     const regionIdentities = Object.freeze([]);
 
     const canonicalIslandNameOverrides = Object.freeze({
+        "1": Object.freeze([
+            "Enseada da Bandeira",
+            "Baía do Saque Perdido",
+            "Farol da Rota Corsária",
+            "Porto do Capitão",
+            "Rochedo da Âncora Dourada"
+        ]),
         "13": Object.freeze([
             "Rocha Negra",
             "Cinzas",
@@ -631,8 +638,8 @@
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260920-1628",
-                        locked: "./assets/regions/region-1/island-01-locked.png?v=20260920-1628"
+                        unlocked: "./assets/regions/region-1/island-01-unlocked.webp?v=20260921-1345",
+                        locked: "./assets/regions/region-1/island-01-locked.webp?v=20260921-1345"
                     }),
                     2: Object.freeze({
                         unlocked: "./assets/regions/region-1/island-02-unlocked.png?v=20260920-1628",
