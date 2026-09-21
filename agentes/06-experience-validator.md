@@ -162,3 +162,17 @@ Na versão textual inicial:
 - não mostrar porcentagem individual de bônus enquanto essa regra não estiver definida;
 - a ausência temporária de arte não pode parecer erro de carregamento;
 - o botão Voltar deve ser imediato e previsível.
+
+
+## Feedback de acerto e erro
+
+O feedback de atividades matemáticas deve usar comportamento visual compartilhado.
+
+Nesta etapa:
+
+- acerto usa pulso/escala curta;
+- erro usa tremor lateral curto;
+- a animação nunca substitui a mensagem textual;
+- a criança deve ver a resposta correta após erro;
+- a animação não pode bloquear o botão para avançar;
+- o mesmo padrão deve ser reutilizável em desafios normais e Missões Especiais.
