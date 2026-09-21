@@ -815,3 +815,29 @@ campaign.regionProgress[regionId].islandsCompleted === 5
 ```
 
 A regra de desbloqueio pertence ao domínio em `player-state.js` e deve ser reutilizada pela UI. Não implementar a autorização apenas por CSS, `disabled` ou coordenada de hitbox.
+
+
+## Tela de conclusão visual
+
+Implementação:
+
+```text
+web/js/screens/result-screen.js
+web/css/screens/vertical-slice.css
+web/js/content/game-content.js → assets.global.victoryScreen
+```
+
+Asset canônico:
+
+```text
+web/assets/global/gb_win.webp
+```
+
+Contrato técnico:
+
+- o asset é somente a composição visual;
+- região, Ilha, estatísticas, XP, Ouro, Rubis, recompensas estruturais e ações continuam dinâmicos;
+- overlays e hitboxes usam o mesmo stage proporcional do asset;
+- a tela mantém fallback textual se o asset não estiver disponível;
+- Missão Especial continua funcional como ação dinâmica e não é incorporada ao bitmap;
+- alterações de coordenadas do overlay devem preservar alinhamento responsivo e ser cobertas por teste automatizado.
