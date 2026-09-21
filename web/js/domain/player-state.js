@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 9;
+    const STATE_VERSION = 10;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -16,6 +16,13 @@
             String(i + 1),
             { fragments: 0, missionStatus: "collecting", rewardClaimed: false }
         ]));
+    }
+
+    function createCollectiblesState() {
+        return {
+            collectedIds: [],
+            pendingIds: []
+        };
     }
 
     function createRegionProgress() {
@@ -93,6 +100,7 @@
                 finalJourney: createFinalJourney(),
                 petsRescuedIds: [],
                 claimedChestIds: [],
+                collectibles: createCollectiblesState(),
                 specialMaps: createSpecialMaps(),
                 diamonds: 0
             },
@@ -350,7 +358,7 @@
 
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 9,
                 campaign: {
                     ...campaign,
                     currentRegionId: current.regionId,
@@ -370,6 +378,26 @@
                     }
                 },
                 learning: migrateLegacyLearning(migrated.learning, current.regionId)
+            };
+        }
+
+        if (migrated.schemaVersion === 9) {
+            const campaign = isObject(migrated.campaign) ? migrated.campaign : {};
+            const existing = isObject(campaign.collectibles) ? campaign.collectibles : {};
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                campaign: {
+                    ...campaign,
+                    collectibles: {
+                        collectedIds: Array.isArray(existing.collectedIds)
+                            ? Array.from(new Set(existing.collectedIds.filter((id) => typeof id === "string")))
+                            : [],
+                        pendingIds: Array.isArray(existing.pendingIds)
+                            ? existing.pendingIds.filter((id) => typeof id === "string")
+                            : []
+                    }
+                }
             };
         }
 
@@ -395,6 +423,17 @@
             && value.finalMapFragments >= 0
             && value.finalMapFragments <= 9
             && ["finalMapCompleted", "finalIslandUnlocked", "finalIslandCompleted", "finalGrandChestUnlocked", "finalGrandChestClaimed"].every((key) => typeof value[key] === "boolean")
+        );
+    }
+
+    function validCollectiblesState(value) {
+        return Boolean(
+            isObject(value)
+            && Array.isArray(value.collectedIds)
+            && value.collectedIds.every((id) => typeof id === "string")
+            && new Set(value.collectedIds).size === value.collectedIds.length
+            && Array.isArray(value.pendingIds)
+            && value.pendingIds.every((id) => typeof id === "string")
         );
     }
 
@@ -482,6 +521,7 @@
             && validFinalJourney(value.campaign.finalJourney)
             && Array.isArray(value.campaign.petsRescuedIds)
             && Array.isArray(value.campaign.claimedChestIds)
+            && validCollectiblesState(value.campaign.collectibles)
             && isObject(value.campaign.specialMaps)
             && Number.isInteger(value.campaign.diamonds) && value.campaign.diamonds >= 0
             && validLearning(value.learning)
@@ -512,7 +552,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "crew", "world-map", "regions", "islands", "travel", "challenge", "chest", "result"].includes(screenId)
+        return ["home", "crew", "collectibles", "world-map", "regions", "islands", "travel", "challenge", "chest", "result"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }
@@ -528,6 +568,24 @@
             ...s,
             wallet: { ...s.wallet, coins: s.wallet.coins - crewMember.cost },
             crew: { ...s.crew, hiredIds: [...s.crew.hiredIds, crewMember.id] }
+        };
+    }
+
+    function collectCollectible(state, collectibleId, allowedIds) {
+        const s = normalizeState(state);
+        if (typeof collectibleId !== "string") return s;
+        if (!Array.isArray(allowedIds) || !allowedIds.includes(collectibleId)) return s;
+        if (s.campaign.collectibles.collectedIds.includes(collectibleId)) return s;
+
+        return {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                collectibles: {
+                    ...s.campaign.collectibles,
+                    collectedIds: [...s.campaign.collectibles.collectedIds, collectibleId]
+                }
+            }
         };
     }
 
@@ -935,6 +993,7 @@
         withProfileFrame,
         withLastScreen,
         hireCrewMember,
+        collectCollectible,
         getCrewBonusSummary,
         calculateCrewReward,
         calculateRubyBaseAmount,
