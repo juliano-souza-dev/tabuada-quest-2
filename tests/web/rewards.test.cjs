@@ -164,3 +164,18 @@ test("fragmentos dos cinco Mapas Especiais ocupam as posições globais aprovada
         assert.deepEqual(found,globals);
     }
 });
+
+
+test("últimas recompensas colocam Rubi na global 109 e Baú Final na 110",()=>{
+    const world=TQ.domain.worldStructure;
+    const g109=world.fromGlobalIslandIndex(109);
+    const g110=world.fromGlobalIslandIndex(110);
+    const reward109=TQ.content.getIslandPrimaryReward(g109.regionId,g109.islandId);
+    const reward110=TQ.content.getIslandPrimaryReward(g110.regionId,g110.islandId);
+
+    assert.equal(reward109.type,"ruby");
+    assert.equal(reward110.type,"chest");
+    assert.equal(reward110.chestId,"final-grand-chest");
+    assert.equal(reward110.isFinalChest,true);
+    assert.ok(TQ.content.getChestKit("final-grand-chest"));
+});
