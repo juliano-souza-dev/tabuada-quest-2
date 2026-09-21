@@ -185,14 +185,14 @@ test("Colecionável coletado persiste de forma idempotente",()=>{
 });
 
 
-test("migração v12 cria carteira de compras da Loja sem perder Ouro",()=>{
+test("migração v10 cria estado da Loja v12 sem perder Ouro",()=>{
     const current=d.createInitialState();
     const old={...current,schemaVersion:10};
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
     assert.equal(migrated.schemaVersion,12);
-    assert.deepEqual(migrated.shop,{purchasedItemIds:[]});
+    assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
 
@@ -204,7 +204,7 @@ test("migração v10 cria estado da Loja sem perder Ouro",()=>{
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
     assert.equal(migrated.schemaVersion,12);
-    assert.deepEqual(migrated.shop,{purchasedItemIds:[]});
+    assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
 
