@@ -229,7 +229,18 @@ Mapa mundo
 → exibir todas as Regiões
 ```
 
-Enquanto a tela real não existe, o clique apresenta aviso de funcionalidade em produção.
+Estado temporário para validação de desenvolvimento:
+
+```text
+Mapa mundo
+→ listar as 22 Regiões canônicas
+→ clicar em qualquer Região
+→ abrir a Região em modo preview
+```
+
+O preview ignora bloqueios exclusivamente para navegação entre telas e não altera desbloqueios, conclusão, progresso ou save da campanha.
+
+Quando a fase de validação terminar, o Mapa mundo deve passar para **modo somente visualização**. A lista das 22 Regiões permanece, mas o clique deixa de abrir Regiões.
 
 O comportamento é global e não deve ser redefinido Região por Região.
 
