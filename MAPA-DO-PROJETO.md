@@ -632,3 +632,21 @@ Contrato de Produto: `agentes/01-produto.md`.
 Estados/arte futura: `agentes/03-direcao-visual.md`.
 Implementação: `agentes/04-desenvolvimento.md`.
 Validação: `agentes/05-qualidade-build.md` e `agentes/06-experience-validator.md`.
+
+
+### Integração Baú → Colecionáveis
+
+```text
+web/js/content/game-content.js
+→ chestKits
+→ gameplayRewards.collectibles
+
+web/js/domain/player-state.js
+→ calculateChestCollectibleOutcome(...)
+→ processChestCollectibles(...)
+
+web/js/screens/chest-screen.js
+→ apresenta os Colecionáveis efetivamente recebidos
+```
+
+Regra de fila: 1 pendência por Baú normal; Baú Final absorve todas.
