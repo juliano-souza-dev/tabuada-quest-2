@@ -14,7 +14,11 @@
     ]);
 
     const gameplayRewards = Object.freeze({
-        xpPerCompletedMatch: 20
+        xpPerCompletedMatch: 20,
+        collectibles: Object.freeze({
+            twoItemMaxErrorPercent: 20,
+            pendingPerNormalChest: 1
+        })
     });
 
     const crewMembers = Object.freeze([
@@ -460,19 +464,31 @@
         return getIslandRewards(regionId, islandId)[0] || null;
     }
 
+    const chestRewards = Object.freeze(
+        Object.values(regionRewards)
+            .flatMap((region) => Object.values(region))
+            .flat()
+            .filter((reward) => reward?.type === "chest" && typeof reward.chestId === "string")
+    );
+
     const chestKits = Object.freeze(
         Object.fromEntries(
-            Object.values(regionRewards)
-                .flatMap((region) => Object.values(region))
-                .flat()
-                .filter((reward) => reward?.type === "chest" && typeof reward.chestId === "string")
-                .map((reward) => [
-                    reward.chestId,
-                    Object.freeze({
-                        id: reward.chestId,
-                        items: Object.freeze([])
-                    })
-                ])
+            chestRewards.map((reward, index) => [
+                reward.chestId,
+                Object.freeze({
+                    id: reward.chestId,
+                    isFinalChest: Boolean(reward.isFinalChest),
+                    items: Object.freeze(
+                        collectibles
+                            .slice(index * 3, (index * 3) + 3)
+                            .map((item) => Object.freeze({
+                                type: "collectible",
+                                collectibleId: item.id,
+                                label: item.label
+                            }))
+                    )
+                })
+            ])
         )
     );
 
