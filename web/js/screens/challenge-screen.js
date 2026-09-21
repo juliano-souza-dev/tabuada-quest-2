@@ -1,12 +1,16 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
+    function getChallengeArt(session) {
+        if (!session || Number(session.regionId) !== 1) return null;
+        return TQ.content.assets.region1ChallengeArt?.[Number(session.islandId)] || null;
+    }
+
     function renderQuestion(session) {
         const challenge = session.currentChallenge;
         if (!challenge) {
             return `
-                <div class="challenge-card">
-                    <p>Preparando a próxima conta...</p>
+                <div class="challenge-dynamic-layer challenge-prepare-layer">
                     <button type="button" data-action="prepare-next">Continuar</button>
                 </div>
             `;
@@ -14,15 +18,17 @@
 
         const options = TQ.domain.gameplay.createAnswerOptions(session);
         return `
-            <div class="challenge-card">
-                <p class="challenge-progress">Questões da Ilha: ${session.plannedAnswered}/20</p>
-                <div class="math-question" aria-label="${challenge.table} vezes ${challenge.multiplier}">
+            <div class="challenge-dynamic-layer" aria-live="polite">
+                <div class="challenge-art-progress">
+                    Questão ${Math.min(session.plannedAnswered + 1, 20)} de 20
+                </div>
+                <div class="challenge-art-question" aria-label="${challenge.table} vezes ${challenge.multiplier}">
                     ${challenge.table} × ${challenge.multiplier} = ?
                 </div>
-                <div class="answer-grid">
+                <div class="challenge-art-answers">
                     ${options.map((answer) => `
                         <button type="button"
-                            class="answer-button"
+                            class="challenge-art-answer"
                             data-answer="${answer}">
                             ${answer}
                         </button>
@@ -37,13 +43,12 @@
         if (!feedback) return "";
         const message = feedback.isCorrect
             ? "Acertou! ✓"
-            : `Quase! A resposta é ${feedback.expected}.`;
-
+            : `Quase! ${feedback.table} × ${feedback.multiplier} = ${feedback.expected}`;
         return `
-            <div class="challenge-card feedback-card ${feedback.isCorrect ? "is-correct" : "is-wrong"}">
-                <h2>${message}</h2>
-                <p>${feedback.table} × ${feedback.multiplier} = ${feedback.expected}</p>
-                <button type="button" data-action="continue-feedback">Continuar</button>
+            <div class="challenge-dynamic-layer challenge-feedback-layer ${feedback.isCorrect ? "is-correct" : "is-wrong"}">
+                <div class="challenge-art-progress">Questão ${Math.min(session.plannedAnswered, 20)} de 20</div>
+                <div class="challenge-art-question challenge-art-feedback">${message}</div>
+                <button type="button" class="challenge-feedback-continue" data-action="continue-feedback">Continuar</button>
             </div>
         `;
     }
@@ -63,25 +68,55 @@
             `;
         } else {
             const region = TQ.content.regions.find((item) => item.id === session.regionId);
-            screen.innerHTML = `
-                <header class="slice-header">
-                    <button type="button" data-action="back-islands">← Ilhas</button>
-                    <div>
-                        <small>${region ? region.label : `Região ${session.regionId}`}</small>
-                        <h1>Ilha ${session.islandId}</h1>
-                    </div>
-                </header>
-                <main class="slice-content challenge-content">
-                    ${session.phase === "feedback" ? renderFeedback(session) : ""}
-                    ${session.phase === "question" ? renderQuestion(session) : ""}
-                    ${session.phase === "complete" ? `
-                        <div class="challenge-card">
-                            <h2>Ilha concluída!</h2>
-                            <button type="button" data-action="finish-session">Ver resultado</button>
+            const island = TQ.content.getIslandIdentity?.(session.regionId, session.islandId);
+            const art = getChallengeArt(session);
+
+            if (art) {
+                screen.classList.add("challenge-art-screen");
+                screen.dataset.regionId = String(session.regionId);
+                screen.dataset.islandId = String(session.islandId);
+                screen.innerHTML = `
+                    <main class="challenge-art-stage">
+                        <img class="challenge-art-background"
+                            src="${art}"
+                            alt=""
+                            aria-hidden="true">
+                        <button type="button"
+                            class="challenge-art-back-hitbox"
+                            data-action="back-islands"
+                            aria-label="Voltar às Ilhas"></button>
+                        <span class="visually-hidden">${region?.label || ""} — ${island?.label || ""}</span>
+                        ${session.phase === "feedback" ? renderFeedback(session) : ""}
+                        ${session.phase === "question" ? renderQuestion(session) : ""}
+                        ${session.phase === "complete" ? `
+                            <div class="challenge-dynamic-layer challenge-complete-layer">
+                                <div class="challenge-art-question challenge-art-feedback">Desafio concluído!</div>
+                                <button type="button" class="challenge-feedback-continue" data-action="finish-session">Ver resultado</button>
+                            </div>
+                        ` : ""}
+                    </main>
+                `;
+            } else {
+                screen.innerHTML = `
+                    <header class="slice-header">
+                        <button type="button" data-action="back-islands">← Ilhas</button>
+                        <div>
+                            <small>${region ? region.label : `Região ${session.regionId}`}</small>
+                            <h1>${island?.label || `Ilha ${session.islandId}`}</h1>
                         </div>
-                    ` : ""}
-                </main>
-            `;
+                    </header>
+                    <main class="slice-content challenge-content">
+                        ${session.phase === "feedback" ? renderFeedback(session) : ""}
+                        ${session.phase === "question" ? renderQuestion(session) : ""}
+                        ${session.phase === "complete" ? `
+                            <div class="challenge-card">
+                                <h2>Ilha concluída!</h2>
+                                <button type="button" data-action="finish-session">Ver resultado</button>
+                            </div>
+                        ` : ""}
+                    </main>
+                `;
+            }
         }
 
         screen.addEventListener("click", (event) => {
