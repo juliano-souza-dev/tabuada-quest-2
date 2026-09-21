@@ -2,6 +2,7 @@
 @import url("./base.css");
 @import url("./screens/home.css?v=20260920-2304");
 @import url("./screens/crew.css?v=20260920-2304");
+@import url("./screens/world-map.css?v=20260921-0015");
 @import url("./screens/regions.css?v=20260920-0318");
 
-@import url("./screens/vertical-slice.css?v=20260920-1829");
+@import url("./screens/vertical-slice.css?v=20260921-0015");

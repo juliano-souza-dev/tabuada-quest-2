@@ -216,15 +216,30 @@
             );
     }
 
-    function renderRegionMap({ state, onStateChange, onNavigate }) {
-        const regionId = state.campaign.currentRegionId;
+    function getDisplayedRegionId(state, previewRegionId) {
+        const preview = Number(previewRegionId);
+        return Number.isInteger(preview) && preview >= 1 && preview <= 22
+            ? preview
+            : state.campaign.currentRegionId;
+    }
+
+    function isWorldMapPreview(previewRegionId) {
+        const preview = Number(previewRegionId);
+        return Number.isInteger(preview) && preview >= 1 && preview <= 22;
+    }
+
+    function renderRegionMap({ state, onStateChange, onNavigate, previewRegionId }) {
+        const regionId = getDisplayedRegionId(state, previewRegionId);
+        const previewMode = isWorldMapPreview(previewRegionId);
         const visual = getRegionVisualConfig(regionId);
         const visualPage = getRegionVisualPage(state, regionId);
         if (!visual || !visualPage) {
-            return renderTextIslandsScreen({ state, onStateChange, onNavigate });
+            return renderTextIslandsScreen({ state, onStateChange, onNavigate, previewRegionId });
         }
 
-        const region = TQ.content.regions.find((item) => item.id === regionId);
+        const region = previewMode
+            ? TQ.content.getWorldRegion(regionId)
+            : TQ.content.regions.find((item) => item.id === regionId);
         const active = state.learning.activeSession;
         const screen = document.createElement("section");
         screen.className = "region-islands-map-screen";
@@ -235,10 +250,10 @@
         const islandsMarkup = visualPage.hideIslands ? "" : visualPage.islandIds.map((islandId, slotIndex) => {
             const slotId = REGION_LAYOUT.visibleIslandIds[slotIndex];
             const layout = visualPage.slotLayout?.[slotId] || REGION_LAYOUT.islands[slotId];
-            const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
+            const status = previewMode ? "available" : TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             const identity = TQ.content.getIslandIdentity(regionId, islandId);
             const rewards = TQ.content.getIslandRewards(regionId, islandId);
-            const isResume = Boolean(
+            const isResume = !previewMode && Boolean(
                 active
                 && active.regionId === regionId
                 && active.islandId === islandId
@@ -320,7 +335,7 @@
 
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="back-regions"]')) {
-                onNavigate("regions");
+                onNavigate(previewMode ? "world-map" : "regions");
                 return;
             }
 
@@ -335,6 +350,7 @@
             if (!islandButton) return;
 
             const islandId = Number(islandButton.dataset.islandId);
+            if (previewMode) return;
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
@@ -366,11 +382,15 @@
         return screen;
     }
 
-    function renderTextIslandsScreen({ state, onStateChange, onNavigate }) {
-        const regionId = state.campaign.currentRegionId;
-        const region = TQ.content.regions.find((item) => item.id === regionId);
+    function renderTextIslandsScreen({ state, onStateChange, onNavigate, previewRegionId }) {
+        const regionId = getDisplayedRegionId(state, previewRegionId);
+        const previewMode = isWorldMapPreview(previewRegionId);
+        const region = previewMode
+            ? TQ.content.getWorldRegion(regionId)
+            : TQ.content.regions.find((item) => item.id === regionId);
         const active = state.learning.activeSession;
-        const regionIdentity = TQ.content.getRegionIdentity(regionId);
+        const regionIdentity = previewMode ? null : TQ.content.getRegionIdentity(regionId);
+        const textMaps = TQ.content.getRegionTextMaps(regionId);
 
         const screen = document.createElement("section");
         screen.className = "slice-screen islands-text-screen";
@@ -378,7 +398,7 @@
 
         screen.innerHTML = `
             <header class="slice-header">
-                <button type="button" data-action="back-regions">← Regiões</button>
+                <button type="button" data-action="back-regions">${previewMode ? "← Mapa Mundo" : "← Regiões"}</button>
                 <div>
                     <small>REGIÃO ${regionId}</small>
                     <h1>${region ? region.label : "REGIÃO"}</h1>
@@ -387,39 +407,51 @@
 
             <main class="slice-content">
                 <p class="slice-intro">
-                    ${regionIdentity ? regionIdentity.tagline : "Escolha uma Ilha para começar."}
+                    ${previewMode ? "Prévia de desenvolvimento • 5 Ilhas" : (regionIdentity ? regionIdentity.tagline : "Escolha uma Ilha para começar.")}
                 </p>
                 <div class="island-text-list">
-                    ${Array.from({ length: 10 }, (_, index) => {
+                    ${Array.from({ length: previewMode ? 5 : 10 }, (_, index) => {
                         const islandId = index + 1;
-                        const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
-                        const isResume = active
+                        const status = previewMode
+                            ? "preview"
+                            : TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
+                        const isResume = !previewMode && active
                             && active.regionId === regionId
                             && active.islandId === islandId;
-                        const actionText = isResume ? "CONTINUAR" : islandLabel(state, regionId, islandId);
+                        const actionText = previewMode
+                            ? "PRÉVIA"
+                            : (isResume ? "CONTINUAR" : islandLabel(state, regionId, islandId));
                         const identity = TQ.content.getIslandIdentity(regionId, islandId);
                         return `
                             <button type="button"
                                 class="slice-choice island-text-button is-${status}"
                                 data-island-id="${islandId}"
-                                ${status === "locked" ? "disabled" : ""}>
+                                ${!previewMode && status === "locked" ? "disabled" : ""}>
                                 <span class="island-copy">
                                     <span class="island-number">Ilha ${islandId}</span>
                                     <span class="island-name">${identity ? identity.label : `Ilha ${islandId}`}</span>
-                                    <span class="island-challenge-type">Desafio misto</span>
-                                    ${renderRewardLabels(regionId, islandId)}
+                                    <span class="island-challenge-type">${previewMode ? "Prévia visual" : "Desafio misto"}</span>
+                                    ${previewMode ? "" : renderRewardLabels(regionId, islandId)}
                                 </span>
                                 <strong>${actionText}</strong>
                             </button>
                         `;
                     }).join("")}
                 </div>
+                ${previewMode && textMaps.length ? `
+                    <section class="region-text-map-preview" aria-label="Mapas textuais da Região">
+                        <h2>Mapas desta Região</h2>
+                        <div class="region-text-map-list">
+                            ${textMaps.map((map) => `<span>${map.label}</span>`).join("")}
+                        </div>
+                    </section>
+                ` : ""}
             </main>
         `;
 
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="back-regions"]')) {
-                onNavigate("regions");
+                onNavigate(previewMode ? "world-map" : "regions");
                 return;
             }
 
@@ -427,6 +459,7 @@
             if (!islandButton) return;
 
             const islandId = Number(islandButton.dataset.islandId);
+            if (previewMode) return;
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
@@ -442,7 +475,8 @@
     }
 
     function renderIslandsScreen(context) {
-        return getRegionVisualConfig(context.state.campaign.currentRegionId)
+        const regionId = getDisplayedRegionId(context.state, context.previewRegionId);
+        return getRegionVisualConfig(regionId)
             ? renderRegionMap(context)
             : renderTextIslandsScreen(context);
     }
@@ -459,6 +493,8 @@
         getRegionVisualConfig,
         getRegionVisualPage,
         getRegionIslandAsset,
+        getDisplayedRegionId,
+        isWorldMapPreview,
         createIslandEntryState,
         REGION_LAYOUT,
         REGION_VISUAL_CONFIG,

@@ -323,7 +323,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "crew", "regions", "islands", "travel", "challenge", "result"].includes(screenId)
+        return ["home", "crew", "world-map", "regions", "islands", "travel", "challenge", "result"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }

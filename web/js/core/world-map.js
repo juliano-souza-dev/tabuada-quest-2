@@ -1,27 +1,21 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
-    const PLACEHOLDER_MESSAGE = "Mapa mundo ainda está em produção.";
-
     function open({ onNavigate } = {}) {
-        // Ponto único de entrada do Mapa mundo.
-        // Quando a tela real existir, a troca para onNavigate("world-map")
-        // deve acontecer somente aqui.
-        if (typeof root.alert === "function") {
-            root.alert(PLACEHOLDER_MESSAGE);
-        }
+        const canNavigate = typeof onNavigate === "function";
+        if (canNavigate) onNavigate("world-map");
 
         return Object.freeze({
             handled: true,
-            implemented: false,
+            implemented: true,
+            mode: "development-navigation",
             nextScreen: "world-map",
-            canNavigate: typeof onNavigate === "function"
+            canNavigate
         });
     }
 
     TQ.core = TQ.core || {};
     TQ.core.worldMap = Object.freeze({
-        open,
-        PLACEHOLDER_MESSAGE
+        open
     });
 })(globalThis);
