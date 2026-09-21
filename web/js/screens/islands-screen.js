@@ -233,6 +233,7 @@
             ? TQ.content.getWorldRegion(regionId)
             : TQ.content.regions.find((item) => item.id === regionId);
         const active = state.learning.activeSession;
+        const rubyShopEnabled = !previewMode && Boolean(TQ.content.regionHasRubyShop?.(regionId));
         const screen = document.createElement("section");
         screen.className = "region-islands-map-screen";
         screen.dataset.regionId = String(regionId);
@@ -298,6 +299,16 @@
 
                 ${islandsMarkup}
 
+                ${rubyShopEnabled ? `
+                    <button class="region-ruby-shop-button"
+                        type="button"
+                        data-action="open-ruby-shop"
+                        aria-label="Abrir Loja Rubi">
+                        <span aria-hidden="true">🚢</span>
+                        <strong>LOJA RUBI</strong>
+                    </button>
+                ` : ""}
+
                 <button class="global-world-map-button"
                     type="button"
                     style="${rectStyle(REGION_LAYOUT.worldMap)}"
@@ -338,6 +349,11 @@
 
             if (event.target.closest('[data-action="open-world-map"]')) {
                 TQ.core.worldMap.open({ onNavigate });
+                return;
+            }
+
+            if (event.target.closest('[data-action="open-ruby-shop"]')) {
+                onNavigate("ruby-shop");
                 return;
             }
 
@@ -388,6 +404,7 @@
         const active = state.learning.activeSession;
         const regionIdentity = previewMode ? null : TQ.content.getRegionIdentity(regionId);
         const textMaps = TQ.content.getRegionTextMaps(regionId);
+        const rubyShopEnabled = !previewMode && Boolean(TQ.content.regionHasRubyShop?.(regionId));
 
         const screen = document.createElement("section");
         screen.className = "slice-screen islands-text-screen";
@@ -406,6 +423,16 @@
                 <p class="slice-intro">
                     ${previewMode ? "Prévia de desenvolvimento • 5 Ilhas" : (regionIdentity ? regionIdentity.tagline : "Escolha uma Ilha para começar.")}
                 </p>
+                ${rubyShopEnabled ? `
+                    <button type="button" class="ruby-shop-text-entry" data-action="open-ruby-shop">
+                        <span aria-hidden="true">🚢</span>
+                        <span>
+                            <small>EMBARCAÇÃO MERCANTE</small>
+                            <strong>Loja Rubi</strong>
+                        </span>
+                        <b>ABRIR</b>
+                    </button>
+                ` : ""}
                 <div class="island-text-list">
                     ${Array.from({ length: 5 }, (_, index) => {
                         const islandId = index + 1;
@@ -449,6 +476,11 @@
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="back-regions"]')) {
                 onNavigate(previewMode ? "world-map" : "regions");
+                return;
+            }
+
+            if (event.target.closest('[data-action="open-ruby-shop"]')) {
+                onNavigate("ruby-shop");
                 return;
             }
 
