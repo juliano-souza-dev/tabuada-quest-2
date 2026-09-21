@@ -202,20 +202,52 @@
         `;
     }
 
-    function renderFeedback(session) {
+    function renderFeedback(state, session) {
         const feedback = session.lastFeedback;
         if (!feedback) return "";
-        const message = feedback.isCorrect
-            ? "Acertou! ✓"
-            : `Quase! ${feedback.table} × ${feedback.multiplier} = ${feedback.expected}`;
+        const type = feedback.isCorrect ? "correct" : "wrong";
+        const effect = TQ.effects.resolveEquippedEffect(state, type);
+        const detail = feedback.isCorrect
+            ? ""
+            : `${feedback.table} × ${feedback.multiplier} = ${feedback.expected}`;
 
         return `
             <div class="challenge-dynamic-layer challenge-feedback-layer ${feedback.isCorrect ? "is-correct" : "is-wrong"}">
                 ${renderProgress(session, session.plannedAnswered)}
-                <div class="challenge-art-question challenge-art-feedback">${message}</div>
-                <button type="button" class="challenge-feedback-continue" data-action="continue-feedback">Continuar</button>
+                ${TQ.core.challengeEffectRenderer.render(effect, { detail })}
+                ${feedback.isCorrect ? "" : `
+                    <button type="button" class="challenge-feedback-continue" data-action="continue-feedback">
+                        Continuar
+                    </button>
+                `}
             </div>
         `;
+    }
+
+    function advanceAfterFeedback(state, session, onStateChange) {
+        const regionState = TQ.domain.playerState.getRegionLearningState(state, session.regionId)
+            || TQ.domain.gameplay.createRegionState(session.regionId);
+        const next = TQ.domain.gameplay.continueAfterFeedback(session, regionState);
+
+        if (next.session.phase === "complete") {
+            const result = TQ.domain.gameplay.buildResult(next.session);
+            onStateChange(TQ.domain.playerState.completeGameplaySession(
+                state,
+                result,
+                next.regionState,
+                TQ.content.getIslandRewards(result.regionId, result.islandId),
+                TQ.content.crewMembers,
+                TQ.content.gameplayRewards,
+                TQ.content
+            ));
+            return;
+        }
+
+        onStateChange(TQ.domain.playerState.updateGameplaySession(
+            state,
+            next.session,
+            next.regionState
+        ));
     }
 
     function renderChallengeScreen({ state, onStateChange, onNavigate }) {
@@ -254,7 +286,7 @@
                             data-action="back-islands"
                             aria-label="Voltar às Ilhas"></button>
                         <span class="visually-hidden">${region?.label || ""} — ${island?.label || ""}</span>
-                        ${session.phase === "feedback" ? renderFeedback(session) : ""}
+                        ${session.phase === "feedback" ? renderFeedback(state, session) : ""}
                         ${session.phase === "question" ? renderQuestion(session) : ""}
                         ${session.phase === "complete" ? `
                             <div class="challenge-dynamic-layer challenge-complete-layer">
@@ -274,7 +306,7 @@
                         </div>
                     </header>
                     <main class="slice-content challenge-content">
-                        ${session.phase === "feedback" ? renderFeedback(session) : ""}
+                        ${session.phase === "feedback" ? renderFeedback(state, session) : ""}
                         ${session.phase === "question" ? renderQuestion(session) : ""}
                         ${session.phase === "complete" ? `
                             <div class="challenge-card">
@@ -324,25 +356,7 @@
             }
 
             if (event.target.closest('[data-action="continue-feedback"]')) {
-                const next = TQ.domain.gameplay.continueAfterFeedback(session, regionState);
-                if (next.session.phase === "complete") {
-                    const result = TQ.domain.gameplay.buildResult(next.session);
-                    onStateChange(TQ.domain.playerState.completeGameplaySession(
-                        state,
-                        result,
-                        next.regionState,
-                        TQ.content.getIslandRewards(result.regionId, result.islandId),
-                        TQ.content.crewMembers,
-                        TQ.content.gameplayRewards,
-                        TQ.content
-                    ));
-                } else {
-                    onStateChange(TQ.domain.playerState.updateGameplaySession(
-                        state,
-                        next.session,
-                        next.regionState
-                    ));
-                }
+                advanceAfterFeedback(state, session, onStateChange);
                 return;
             }
 
@@ -360,6 +374,15 @@
             }
         });
 
+        if (session?.phase === "feedback" && session.lastFeedback?.isCorrect) {
+            const effect = TQ.effects.resolveEquippedEffect(state, "correct");
+            TQ.core.challengeEffectRenderer.scheduleAutoAdvance(
+                screen,
+                effect,
+                () => advanceAfterFeedback(state, session, onStateChange)
+            );
+        }
+
         return screen;
     }
 
@@ -368,6 +391,8 @@
         CHALLENGE_ART_LAYOUTS,
         DEFAULT_CHALLENGE_ART_LAYOUT,
         getChallengeArtLayout,
-        renderChallengeScreen
+        renderChallengeScreen,
+        renderFeedback,
+        advanceAfterFeedback
     });
 })(globalThis);
