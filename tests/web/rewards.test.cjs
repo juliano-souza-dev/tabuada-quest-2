@@ -216,7 +216,7 @@ test("próximo Baú recebe um pendente e perfeito pode entregar quatro",()=>{
     const second=d.processChestCollectibles(
         first.state,
         perfect,
-        {type:"chest",chestId:"chest-r2-i1"},
+        {type:"chest",chestId:"chest-r1-i6"},
         TQ.content,
         config
     );
