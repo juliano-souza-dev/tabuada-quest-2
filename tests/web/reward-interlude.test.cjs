@@ -19,8 +19,8 @@ test("PET e Baú são recompensas adiadas na saída do resultado",()=>{
         "chest"
     );
     assert.equal(
-        TQ.screens.result.getDeferredReward({reward:{structural:[{type:"map_fragment",mapId:1,fragment:1}]}}),
-        null
+        TQ.screens.result.getDeferredReward({reward:{structural:[{type:"map_fragment",mapId:1,fragment:1}]}}).type,
+        "map_fragment"
     );
 });
 
@@ -31,7 +31,7 @@ test("PET e Baú não são listados no painel da tela de resultado",()=>{
 
     assert.equal(petHtml,"");
     assert.equal(chestHtml,"");
-    assert.match(fragmentHtml,/Mapa 1/);
+    assert.equal(fragmentHtml,"");
 });
 
 test("aplicação registra tela de PET e destino pós-recompensa",()=>{
@@ -39,10 +39,15 @@ test("aplicação registra tela de PET e destino pós-recompensa",()=>{
     const index=fs.readFileSync(path.join(__dirname,"../../web/index.html"),"utf8");
     const chest=fs.readFileSync(path.join(__dirname,"../../web/js/screens/chest-screen.js"),"utf8");
     const pet=fs.readFileSync(path.join(__dirname,"../../web/js/screens/pet-screen.js"),"utf8");
+    const mapReward=fs.readFileSync(path.join(__dirname,"../../web/js/screens/map-reward-screen.js"),"utf8");
 
     assert.match(app,/rewardReturnScreen/);
     assert.match(app,/pet:\s*TQ\.screens\.pet\.renderPetScreen/);
+    assert.match(app,/"map-reward":\s*TQ\.screens\.mapReward\.renderMapRewardScreen/);
     assert.match(index,/screens\/pet-screen\.js/);
+    assert.match(index,/screens\/map-reward-screen\.js/);
     assert.match(chest,/rewardReturnScreen === "regions"/);
     assert.match(pet,/rewardReturnScreen === "regions"/);
+    assert.match(mapReward,/rewardReturnScreen === "regions"/);
+    assert.match(mapReward,/fragmentos coletados/);
 });
