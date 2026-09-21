@@ -19,8 +19,9 @@
         const options = TQ.domain.gameplay.createAnswerOptions(session);
         return `
             <div class="challenge-dynamic-layer" aria-live="polite">
-                <div class="challenge-art-progress">
-                    Questão ${Math.min(session.plannedAnswered + 1, 20)} de 20
+                <div class="challenge-art-progress"
+                    style="--challenge-progress: ${Math.max(0, Math.min(100, (session.plannedAnswered / 20) * 100))}%">
+                    <span>Questão ${Math.min(session.plannedAnswered + 1, 20)} de 20</span>
                 </div>
                 <div class="challenge-art-question" aria-label="${challenge.table} vezes ${challenge.multiplier}">
                     ${challenge.table} × ${challenge.multiplier} = ?
@@ -46,7 +47,10 @@
             : `Quase! ${feedback.table} × ${feedback.multiplier} = ${feedback.expected}`;
         return `
             <div class="challenge-dynamic-layer challenge-feedback-layer ${feedback.isCorrect ? "is-correct" : "is-wrong"}">
-                <div class="challenge-art-progress">Questão ${Math.min(session.plannedAnswered, 20)} de 20</div>
+                <div class="challenge-art-progress"
+                    style="--challenge-progress: ${Math.max(0, Math.min(100, (session.plannedAnswered / 20) * 100))}%">
+                    <span>Questão ${Math.min(session.plannedAnswered, 20)} de 20</span>
+                </div>
                 <div class="challenge-art-question challenge-art-feedback">${message}</div>
                 <button type="button" class="challenge-feedback-continue" data-action="continue-feedback">Continuar</button>
             </div>
