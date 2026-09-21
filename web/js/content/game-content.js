@@ -405,9 +405,9 @@
                 })
             }),
             region13Modular: Object.freeze({
-                background: "./assets/regions/region-13/background.jpg?v=20260921-0102",
+                background: "./assets/regions/region-13/background.png?v=20260921-0118",
                 backgrounds: Object.freeze({
-                    1: "./assets/regions/region-13/background.jpg?v=20260921-0102"
+                    1: "./assets/regions/region-13/background.png?v=20260921-0118"
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
