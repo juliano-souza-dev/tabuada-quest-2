@@ -405,29 +405,33 @@
                 })
             }),
             region13Modular: Object.freeze({
-                background: "./assets/regions/region-13/background.webp?v=20260921-0042",
+                background: "./assets/regions/region-13/background.jpg?v=20260921-0102",
                 backgrounds: Object.freeze({
-                    1: "./assets/regions/region-13/background.webp?v=20260921-0042"
+                    1: "./assets/regions/region-13/background.jpg?v=20260921-0102"
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-01-unlocked.webp?v=20260921-0042",
-                        locked: "./assets/regions/region-13/island-01-unlocked.webp?v=20260921-0042"
+                        unlocked: "./assets/regions/region-13/island-01-unlocked.png?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-01-locked.png?v=20260921-0102"
                     }),
                     2: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-02-unlocked.webp?v=20260921-0042",
-                        locked: "./assets/regions/region-13/island-02-unlocked.webp?v=20260921-0042"
+                        unlocked: "./assets/regions/region-13/island-02-unlocked.png?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-02-locked.png?v=20260921-0102"
                     }),
                     3: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-03-unlocked.webp?v=20260921-0042",
-                        locked: "./assets/regions/region-13/island-03-unlocked.webp?v=20260921-0042"
+                        unlocked: "./assets/regions/region-13/island-03-unlocked.png?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-03-locked.png?v=20260921-0102"
                     }),
                     4: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-04-unlocked.webp?v=20260921-0042",
-                        locked: "./assets/regions/region-13/island-04-unlocked.webp?v=20260921-0042"
+                        unlocked: "./assets/regions/region-13/island-04-unlocked.png?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-04-locked.png?v=20260921-0102"
+                    }),
+                    5: Object.freeze({
+                        unlocked: "./assets/regions/region-13/island-05-unlocked.png?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-05-locked.png?v=20260921-0102"
                     })
                 })
-            })
+            }))
         })
     });
 })(globalThis);
