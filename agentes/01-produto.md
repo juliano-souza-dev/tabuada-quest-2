@@ -481,3 +481,39 @@ Fluxo:
 ```
 
 A Missão Especial usa o mesmo sistema visual de feedback de acerto/erro das demais atividades.
+
+
+## Loja
+
+A Loja é exclusivamente um ponto de **compra**.
+
+Ela possui três abas:
+
+```text
+Molduras
+Fundos
+Estaleiro
+```
+
+A Loja nunca equipa itens. Cada categoria terá seu próprio local de personalização/equipamento definido separadamente.
+
+Estados comerciais:
+
+```text
+não comprado → mostra preço + ação Comprar
+comprado     → mostra apenas “Comprado”
+```
+
+Não existe botão Equipar na Loja.
+
+### Estaleiro inicial
+
+```text
+Colombo        → 1.000 Ouro
+Rosa Intenso   → 3.000 Ouro
+Cristal Queen  → 9.000 Ouro
+```
+
+Nesta etapa, os navios possuem apenas nome e preço. Arte e vídeo próprio entram depois.
+
+Molduras e Fundos já possuem abas na Loja, porém o catálogo comercial e os preços ainda não foram definidos.
