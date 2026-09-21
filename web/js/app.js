@@ -36,6 +36,7 @@
             home: TQ.screens.home.renderHomeScreen,
             crew: TQ.screens.crew.renderCrewScreen,
             collectibles: TQ.screens.collectibles.renderCollectiblesScreen,
+            shop: TQ.screens.shop.renderShopScreen,
             "world-map": TQ.screens.worldMap.renderWorldMapScreen,
             regions: TQ.screens.regions.renderRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,
