@@ -663,7 +663,7 @@
         };
     }
 
-    function isRubyShopUnlocked(state, regionId, enabledRegionIds) {
+    function isRubyShopUnlocked(state, regionId, unlockRule, enabledRegionIds) {
         const s = normalizeState(state);
         const normalizedRegionId = Number(regionId);
         if (!Number.isInteger(normalizedRegionId)
@@ -671,8 +671,29 @@
             || normalizedRegionId > TOTAL_REGIONS) return false;
         if (!Array.isArray(enabledRegionIds) || !enabledRegionIds.includes(normalizedRegionId)) return false;
 
-        const progress = s.campaign.regionProgress[String(normalizedRegionId)];
-        return Boolean(progress && progress.islandsCompleted === ISLANDS_PER_REGION);
+        const rule = isObject(unlockRule)
+            ? unlockRule
+            : { type: "after_island", islandId: 1 };
+
+        if (rule.type === "after_island") {
+            const islandId = Number(rule.islandId);
+            if (!Number.isInteger(islandId) || islandId < 1 || islandId > ISLANDS_PER_REGION) return false;
+            return s.campaign.completedIslandIds.includes(newIslandKey(normalizedRegionId, islandId));
+        }
+
+        if (rule.type === "after_completed_islands") {
+            const requiredCount = Number(rule.count);
+            if (!Number.isInteger(requiredCount) || requiredCount < 1 || requiredCount > ISLANDS_PER_REGION) return false;
+            const progress = s.campaign.regionProgress[String(normalizedRegionId)];
+            return Boolean(progress && progress.islandsCompleted >= requiredCount);
+        }
+
+        if (rule.type === "after_region_complete") {
+            const progress = s.campaign.regionProgress[String(normalizedRegionId)];
+            return Boolean(progress && progress.islandsCompleted === ISLANDS_PER_REGION);
+        }
+
+        return false;
     }
 
     function purchaseRubyShopItem(state, item, orderMeta) {
