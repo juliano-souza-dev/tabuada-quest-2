@@ -323,7 +323,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "crew", "world-map", "regions", "islands", "travel", "challenge", "result"].includes(screenId)
+        return ["home", "crew", "world-map", "regions", "islands", "travel", "challenge", "chest", "result"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }
@@ -377,6 +377,58 @@
                 gems: base.gems + bonus.gems
             }
         };
+    }
+
+    function grantXp(state, amount) {
+        const s = normalizeState(state);
+        if (!Number.isInteger(amount) || amount <= 0) return s;
+
+        let level = s.progression.level;
+        let xpCurrent = s.progression.xpCurrent + amount;
+        const xpRequired = s.progression.xpRequired;
+
+        while (xpCurrent >= xpRequired) {
+            xpCurrent -= xpRequired;
+            level += 1;
+        }
+
+        return {
+            ...s,
+            progression: {
+                ...s.progression,
+                level,
+                xpCurrent
+            }
+        };
+    }
+
+    function applyNumericReward(state, reward) {
+        let s = normalizeState(state);
+        const xp = Number.isInteger(reward?.xp) && reward.xp > 0 ? reward.xp : 0;
+        const coins = Number.isInteger(reward?.coins) && reward.coins > 0 ? reward.coins : 0;
+        const gems = Number.isInteger(reward?.gems) && reward.gems > 0 ? reward.gems : 0;
+
+        s = grantXp(s, xp);
+        return {
+            ...s,
+            wallet: {
+                ...s.wallet,
+                coins: s.wallet.coins + coins,
+                gems: s.wallet.gems + gems
+            }
+        };
+    }
+
+    function configuredRubyAmount(rewards) {
+        if (!Array.isArray(rewards)) return 0;
+        return rewards.reduce((total, reward) => (
+            isObject(reward)
+            && reward.type === "ruby"
+            && Number.isInteger(reward.amount)
+            && reward.amount > 0
+                ? total + reward.amount
+                : total
+        ), 0);
     }
 
     function getIslandStatus(state, regionId, islandId) {
@@ -616,31 +668,61 @@
         return withGameplaySession(state, session, regionState);
     }
 
-    function completeGameplaySession(state, result, regionState, rewards) {
+    function completeGameplaySession(state, result, regionState, rewards, crewMembers, rewardConfig) {
         let s = normalizeState(state);
         if (!isObject(result) || !validRegionLearningState(regionState)) return s;
 
         const islandKey = `region-${result.regionId}-island-${result.islandId}`;
         const alreadyCompleted = s.campaign.completedIslandIds.includes(islandKey);
+        const configuredRewards = Array.isArray(rewards)
+            ? rewards.filter((reward) => isObject(reward) && typeof reward.type === "string")
+            : [];
+        const structuralRewards = alreadyCompleted ? [] : configuredRewards;
+        const xpPerCompletedMatch = Number.isInteger(rewardConfig?.xpPerCompletedMatch)
+            && rewardConfig.xpPerCompletedMatch > 0
+            ? rewardConfig.xpPerCompletedMatch
+            : 20;
+
+        const baseReward = {
+            xp: xpPerCompletedMatch,
+            coins: 0,
+            gems: alreadyCompleted ? 0 : configuredRubyAmount(structuralRewards)
+        };
+        const rewardBreakdown = calculateCrewReward(s, crewMembers, baseReward);
+
+        s = applyNumericReward(s, rewardBreakdown.total);
 
         if (!alreadyCompleted) {
-            s = applyIslandRewards(s, rewards);
+            s = applyIslandRewards(s, structuralRewards);
         }
 
         s = completeIsland(s, result.regionId, result.islandId);
+
+        const storedResult = {
+            ...result,
+            reward: {
+                base: rewardBreakdown.base,
+                percent: rewardBreakdown.percent,
+                bonus: rewardBreakdown.bonus,
+                total: rewardBreakdown.total,
+                structural: structuralRewards.map((reward) => ({ ...reward })),
+                firstCompletion: !alreadyCompleted
+            }
+        };
+        const earnedChest = structuralRewards.some((reward) => reward.type === "chest");
 
         return {
             ...s,
             learning: {
                 ...s.learning,
                 activeSession: null,
-                lastResult: result,
+                lastResult: storedResult,
                 regionStates: {
                     ...s.learning.regionStates,
                     [String(result.regionId)]: regionState
                 }
             },
-            ui: { ...s.ui, lastScreen: "result" }
+            ui: { ...s.ui, lastScreen: earnedChest ? "chest" : "result" }
         };
     }
 
@@ -677,6 +759,8 @@
         hireCrewMember,
         getCrewBonusSummary,
         calculateCrewReward,
+        grantXp,
+        applyNumericReward,
         getIslandStatus,
         getRegionStatus,
         selectRegion,

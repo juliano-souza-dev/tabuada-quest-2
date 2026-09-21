@@ -358,6 +358,30 @@ Paths e workflows vigentes devem ser obtidos em `MAPA-DO-PROJETO.md`.
 
 Toda alteração web relevante deve ser validada no preview e no Android quando aplicável.
 
+## Pipeline de recompensas
+
+A conclusão de uma partida passa por um único pipeline de domínio:
+
+```text
+resultado da partida
+→ recompensa-base de partida
+→ bônus acumulado da Tripulação
+→ crédito numérico (XP/ouro/gemas)
+→ marcos únicos da Ilha
+→ persistência
+→ decisão de tela (Baú ou Resultado)
+```
+
+Contrato técnico:
+
+- `web/js/content/game-content.js` mantém valores rebalanceáveis, recompensas configuradas e kits de Baú;
+- `web/js/domain/player-state.js` calcula/aplica recompensa e garante idempotência dos marcos únicos;
+- XP de partida é repetível; recompensa estrutural da Ilha é first-completion;
+- `ruby` é convertido para `wallet.gems` enquanto Produto não separar moedas;
+- kits de Baú são estruturas extensíveis com `items`, mesmo quando vazias;
+- `web/js/screens/chest-screen.js` é a apresentação intermediária quando um Baú foi efetivamente recebido;
+- UI não recalcula bônus nem decide persistência.
+
 ## Regra de documentação
 
 Conhecimento técnico permanente vive neste arquivo.

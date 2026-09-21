@@ -13,6 +13,10 @@
         Object.freeze({ id: "tide-wheel", label: "Timão das marés", src: "./assets/frames/profile-frame-tide-wheel.webp" })
     ]);
 
+    const gameplayRewards = Object.freeze({
+        xpPerCompletedMatch: 20
+    });
+
     const crewMembers = Object.freeze([
         Object.freeze({ id: "atirador", label: "Atirador", asset: "./assets/crew/atirador.webp", cost: 250, bonusType: "xp", bonusPercent: 3 }),
         Object.freeze({ id: "carpinteiro", label: "Carpinteiro", asset: "./assets/crew/carpinteiro.webp", cost: 300, bonusType: "coins", bonusPercent: 3 }),
@@ -300,6 +304,26 @@
         return regionRewards[String(regionId)]?.[String(islandId)] || Object.freeze([]);
     }
 
+    const chestKits = Object.freeze(
+        Object.fromEntries(
+            Object.values(regionRewards)
+                .flatMap((region) => Object.values(region))
+                .flat()
+                .filter((reward) => reward?.type === "chest" && typeof reward.chestId === "string")
+                .map((reward) => [
+                    reward.chestId,
+                    Object.freeze({
+                        id: reward.chestId,
+                        items: Object.freeze([])
+                    })
+                ])
+        )
+    );
+
+    function getChestKit(chestId) {
+        return typeof chestId === "string" ? chestKits[chestId] || null : null;
+    }
+
     TQ.content = Object.freeze({
         campaignTotals: Object.freeze({
             regions: 11,
@@ -326,7 +350,10 @@
         getIslandRewards,
         homeBackgrounds,
         profileFrames,
+        gameplayRewards,
         crewMembers,
+        chestKits,
+        getChestKit,
         defaultHomeBackgroundId: "pirate-main",
         defaultProfileFrameId: "simple",
         assets: Object.freeze({

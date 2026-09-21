@@ -40,6 +40,7 @@
             islands: TQ.screens.islands.renderIslandsScreen,
             travel: TQ.screens.travel.renderIslandTravelScreen,
             challenge: TQ.screens.challenge.renderChallengeScreen,
+            chest: TQ.screens.chest.renderChestScreen,
             result: TQ.screens.result.renderResultScreen
         };
         const renderer = renderers[state.ui.lastScreen] || renderers.home;
