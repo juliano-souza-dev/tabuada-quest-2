@@ -654,3 +654,51 @@ Rubi-base = acertos × 2
 ```
 
 O mesmo `calculateRewardBonuses(...)` aplica Tripulação e Colecionáveis às três categorias.
+
+
+## Loja
+
+Catálogo:
+
+```text
+TQ.content.shopCatalog
+TQ.content.getShopItem(id)
+```
+
+Estado persistente:
+
+```text
+shop.purchasedItemIds
+```
+
+Schema vigente:
+
+```text
+schemaVersion = 11
+```
+
+Migração v10 → v11 cria o estado da Loja preservando Ouro e progresso.
+
+Compra:
+
+```text
+purchaseShopItem(state, item)
+```
+
+A compra:
+
+1. valida ID e preço;
+2. impede recompra;
+3. exige Ouro suficiente;
+4. desconta Ouro;
+5. persiste o ID comprado;
+6. não altera nenhum estado de equipamento.
+
+Tela:
+
+```text
+web/js/screens/shop-screen.js
+web/css/screens/shop.css
+```
+
+A Home reutiliza o hotspot já existente de Loja.

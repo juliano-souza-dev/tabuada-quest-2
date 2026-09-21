@@ -748,3 +748,16 @@ Contrato futuro de asset:
 - o estado coletado deve mostrar a versão aprovada do item;
 - a Direção Visual define os pares de assets e sua linguagem final;
 - Desenvolvimento apenas seleciona o estado correspondente ao dado persistido.
+
+
+## Loja e Estaleiro
+
+A Loja pode funcionar sem assets comerciais finais.
+
+Nesta etapa do Estaleiro:
+
+- mostrar somente nome, preço e estado de compra;
+- não criar thumbnails, silhuetas ou navios genéricos;
+- `asset = null` e `travelVideo = null` são estados válidos;
+- as artes dos navios e seus vídeos de viagem serão definidos em etapa visual posterior;
+- item comprado deve comunicar apenas “Comprado”, sem affordance visual de Equipar.

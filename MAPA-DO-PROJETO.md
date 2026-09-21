@@ -718,3 +718,27 @@ XP 20
 Ouro = max(0, 10×acertos - 2×erros)
 Rubi = acertos×2
 ```
+
+
+## Loja
+
+```text
+web/js/screens/shop-screen.js
+web/css/screens/shop.css
+web/js/content/game-content.js → shopCatalog
+web/js/domain/player-state.js → shop.purchasedItemIds / purchaseShopItem(...)
+```
+
+Acesso: Home → Loja.
+
+Abas: Molduras | Fundos | Estaleiro.
+
+Estaleiro atual:
+
+```text
+Colombo 1.000
+Rosa Intenso 3.000
+Cristal Queen 9.000
+```
+
+A Loja compra, mas não equipa.

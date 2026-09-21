@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 10;
+    const STATE_VERSION = 11;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -89,6 +89,7 @@
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
             crew: { hiredIds: [] },
+            shop: { purchasedItemIds: [] },
             campaign: {
                 currentRegionId: 1,
                 currentIslandId: 1,
@@ -386,7 +387,7 @@
             const existing = isObject(campaign.collectibles) ? campaign.collectibles : {};
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 10,
                 campaign: {
                     ...campaign,
                     collectibles: {
@@ -397,6 +398,19 @@
                             ? existing.pendingIds.filter((id) => typeof id === "string")
                             : []
                     }
+                }
+            };
+        }
+
+        if (migrated.schemaVersion === 10) {
+            const existingShop = isObject(migrated.shop) ? migrated.shop : {};
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                shop: {
+                    purchasedItemIds: Array.isArray(existingShop.purchasedItemIds)
+                        ? Array.from(new Set(existingShop.purchasedItemIds.filter((id) => typeof id === "string")))
+                        : []
                 }
             };
         }
@@ -508,6 +522,10 @@
             && Array.isArray(value.crew.hiredIds)
             && value.crew.hiredIds.every((id) => typeof id === "string")
             && new Set(value.crew.hiredIds).size === value.crew.hiredIds.length
+            && isObject(value.shop)
+            && Array.isArray(value.shop.purchasedItemIds)
+            && value.shop.purchasedItemIds.every((id) => typeof id === "string")
+            && new Set(value.shop.purchasedItemIds).size === value.shop.purchasedItemIds.length
             && isObject(value.campaign)
             && Number.isInteger(value.campaign.currentRegionId) && value.campaign.currentRegionId >= 1 && value.campaign.currentRegionId <= TOTAL_REGIONS
             && Number.isInteger(value.campaign.currentIslandId) && value.campaign.currentIslandId >= 1 && value.campaign.currentIslandId <= ISLANDS_PER_REGION
@@ -552,7 +570,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "crew", "collectibles", "world-map", "regions", "islands", "travel", "challenge", "chest", "result", "special-mission"].includes(screenId)
+        return ["home", "crew", "collectibles", "shop", "world-map", "regions", "islands", "travel", "challenge", "chest", "result", "special-mission"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }
@@ -568,6 +586,26 @@
             ...s,
             wallet: { ...s.wallet, coins: s.wallet.coins - crewMember.cost },
             crew: { ...s.crew, hiredIds: [...s.crew.hiredIds, crewMember.id] }
+        };
+    }
+
+    function purchaseShopItem(state, item) {
+        const s = normalizeState(state);
+        if (!isObject(item) || typeof item.id !== "string") return s;
+        if (!Number.isInteger(item.price) || item.price < 0) return s;
+        if (s.shop.purchasedItemIds.includes(item.id)) return s;
+        if (s.wallet.coins < item.price) return s;
+
+        return {
+            ...s,
+            wallet: {
+                ...s.wallet,
+                coins: s.wallet.coins - item.price
+            },
+            shop: {
+                ...s.shop,
+                purchasedItemIds: [...s.shop.purchasedItemIds, item.id]
+            }
         };
     }
 
@@ -1379,6 +1417,7 @@
         withProfileFrame,
         withLastScreen,
         hireCrewMember,
+        purchaseShopItem,
         collectCollectible,
         getCrewBonusSummary,
         calculateCrewReward,
