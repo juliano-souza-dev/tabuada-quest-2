@@ -855,12 +855,14 @@ web/js/screens/islands-screen.js
 
 Regiões configuradas: `01, 05, 09, 13, 17 e 21`.
 
-A embarcação mercante usa o asset global:
+A embarcação mercante usa o master global otimizado:
 
 ```text
-web/assets/global/ships/ruby-shop-merchant.webp
+web/assets/global/comercial_ship.webp
 ```
 
-Nas telas visuais de Região, a posição da embarcação é resolvida em tempo de execução por `resolveRubyShopShipRect(...)`, evitando colisão com Ilhas, Mapa Mundo e botão de voltar.
+O master não contém água, espuma ou outro efeito ambiental. Nas telas visuais de Região, a posição da embarcação é resolvida em tempo de execução por `resolveRubyShopShipRect(...)`, evitando colisão com Ilhas, Mapa Mundo e botão de voltar.
+
+No CORSÁRIO, o renderer prioriza a área livre à direita da Ilha 3 e aplica um efeito de contato com água somente pela camada visual da Região.
 
 A versão atual é local e não possui backend, e-mail ou dados de entrega.
