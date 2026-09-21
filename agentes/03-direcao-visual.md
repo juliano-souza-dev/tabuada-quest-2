@@ -948,3 +948,20 @@ web/js/screens/challenge-screen.js
 CHALLENGE_ART_LAYOUTS[1]
 ```
 
+
+
+## Tela de conclusão de Ilha — asset global
+
+Asset visual aprovado para a tela de conclusão de Ilha:
+
+```text
+web/assets/global/gb_win.webp
+```
+
+Regras permanentes:
+
+- o asset funciona como palco visual global da celebração de conclusão;
+- região, Ilha, estatísticas, XP, Ouro, demais recompensas e textos de ação permanecem dados dinâmicos;
+- nenhum valor variável deve ser incorporado à imagem;
+- a composição visual deve preservar áreas legíveis para os overlays da aplicação;
+- qualquer substituição futura desse asset passa novamente pelo fluxo obrigatório de Direção Visual e aprovação do líder.
