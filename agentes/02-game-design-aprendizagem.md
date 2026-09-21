@@ -178,13 +178,92 @@ Regras:
 
 PET, Baú, Rubi e outros marcos configurados na Ilha são concedidos uma única vez na primeira conclusão.
 
-`ruby` usa, por enquanto, a categoria econômica de gemas já existente. Quando houver Rubi-base, o bônus de Tripulação da categoria gemas é aplicado sobre esse valor e arredondado para baixo.
+### Regra de quantidade de Rubis
+
+Quando a recompensa principal da Ilha for `ruby`, o valor-base é calculado pelo desempenho da partida:
+
+```text
+Rubis-base = max(0, acertos - erros)
+```
+
+O multiplicador-base é 1 Rubi por ponto líquido de desempenho.
+
+Os contadores usados são `correctAnswers` e `wrongAnswers` do resultado final da partida. Como esses contadores registram todas as tentativas, tentativas de recovery também participam da conta.
+
+Exemplos:
+
+```text
+18 acertos - 2 erros = 16 Rubis
+14 acertos - 6 erros = 8 Rubis
+4 acertos - 9 erros = 0 Rubis
+```
+
+Rubis são concedidos apenas na primeira conclusão da Ilha. Replay continua concedendo XP, mas não repete Rubis.
+
+`ruby` usa, por enquanto, a categoria econômica de gemas já existente. O bônus de Tripulação da categoria gemas é aplicado sobre os Rubis-base e arredondado para baixo.
 
 Baús não são valores numéricos multiplicáveis. Cada Baú referencia um kit de itens próprio. Os kits podem permanecer vazios até a definição do inventário.
 
-A distribuição futura deve ser recalculada quando a nova hierarquia de Regiões for definida.
+### Distribuição canônica das 110 recompensas principais
 
-Não tratar a antiga distribuição de 10 Ilhas da CORSÁRIO como contrato pedagógico permanente.
+A distribuição abaixo é obrigatória e também deve ser consultada pela Direção Visual ao gerar o badge/medalhão de cada Ilha.
+
+Totais:
+
+```text
+20 fragmentos de Mapas Especiais
+30 PETs
+30 Baús
+30 Rubis
+= 110 recompensas principais
+```
+
+Legenda:
+
+```text
+P = PET | B = Baú | R = Rubi | Mn-x/4 = fragmento x do Mapa Especial n
+```
+
+```text
+R01 CORSÁRIO        → P | M1-1/4 | B | P | M1-2/4
+R02 BIRADES         → B | P      | M1-3/4 | B | M1-4/4
+R03 ZONA OURO       → R | P | B | R | P
+R04 VALE ESMERALDA  → R | B | R | P | R
+R05 ZONA SAFIRA     → P | M2-1/4 | B | P | M2-2/4
+R06 TERRAS GÉLIDAS  → B | P      | M2-3/4 | B | M2-4/4
+R07 FANTASMAS       → R | B | P | R | B
+R08 MARÉ SOMBRIA    → R | P | R | B | R
+R09 TEMPESTÁRIA     → P | M3-1/4 | B | P | M3-2/4
+R10 MAR DE FERRO    → B | P      | M3-3/4 | B | M3-4/4
+R11 ZONA KRAKEN     → R | P | B | R | P
+R12 TERRAS DE CINZA → R | B | R | P | R
+R13 OBSIDIANA       → P | M4-1/4 | B | P | M4-2/4
+R14 ZONA RUBI       → B | P      | M4-3/4 | B | M4-4/4
+R15 ESCARLATE       → R | B | P | R | B
+R16 ZONA DO DRAGÃO  → R | P | R | B | R
+R17 TERRAS DO TITÃ  → R | P | B | R | P
+R18 CRISTÁLIA       → R | B | R | P | R
+R19 ILHAS CELESTES  → P | M5-1/4 | B | P | M5-2/4
+R20 COROA DO MAR    → B | P      | M5-3/4 | B | M5-4/4
+R21 ZONA FÊNIX      → R | B | P | R | B
+R22 REINO DAS MARÉS → R | P | R | B | R
+```
+
+Fragmentos dos Mapas Especiais por índice global:
+
+```text
+Mapa 1 → 002, 005, 008, 010
+Mapa 2 → 022, 025, 028, 030
+Mapa 3 → 042, 045, 048, 050
+Mapa 4 → 062, 065, 068, 070
+Mapa 5 → 092, 095, 098, 100
+```
+
+Os gates permanecem após as Regiões 2, 6, 10, 14 e 20. A missão especial continua reservada e não deve ser implementada até nova decisão.
+
+As posições globais 101–109 também avançam os 9 fragmentos do mapa final por `finalJourney`. Esse avanço é adicional à recompensa principal da Ilha e não cria um segundo medalhão na arte, salvo decisão visual/produto futura.
+
+Não tratar a antiga distribuição de 10 Ilhas da CORSÁRIO como contrato vigente.
 
 ## Domínio e revisão
 
