@@ -496,8 +496,21 @@ TQ.domain.playerState.grantXp(...)
 Apresentação:
 
 ```text
-web/js/screens/chest-screen.js
 web/js/screens/result-screen.js
+web/js/screens/chest-screen.js
+web/js/screens/pet-screen.js
+```
+
+Fluxo vigente:
+
+```text
+fim da partida
+→ Resultado
+→ ao escolher Ilhas/Regiões:
+   PET → pet-screen
+   Baú → chest-screen
+   demais → destino direto
+→ destino originalmente escolhido
 ```
 
 Testes:
