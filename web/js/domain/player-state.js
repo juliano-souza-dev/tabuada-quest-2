@@ -626,6 +626,91 @@
         };
     }
 
+    function calculateGoldBaseAmount(result, rewardConfig) {
+        const correctAnswers = Number.isInteger(result?.correctAnswers)
+            ? Math.max(0, result.correctAnswers)
+            : 0;
+        const wrongAnswers = Number.isInteger(result?.wrongAnswers)
+            ? Math.max(0, result.wrongAnswers)
+            : 0;
+        const perCorrect = Number.isInteger(rewardConfig?.coinsPerCorrectAnswer)
+            ? Math.max(0, rewardConfig.coinsPerCorrectAnswer)
+            : 10;
+        const perWrong = Number.isInteger(rewardConfig?.coinsPenaltyPerWrongAnswer)
+            ? Math.max(0, rewardConfig.coinsPenaltyPerWrongAnswer)
+            : 2;
+
+        return Math.max(0, (correctAnswers * perCorrect) - (wrongAnswers * perWrong));
+    }
+
+    function getCollectibleBonusPercent(state, totalCollectibles, rewardConfig) {
+        const s = normalizeState(state);
+        const total = Number.isInteger(totalCollectibles) && totalCollectibles > 0
+            ? totalCollectibles
+            : 0;
+        if (total <= 0) return 0;
+
+        const collected = Math.min(total, s.campaign.collectibles.collectedIds.length);
+        const progress = collected / total;
+        const half = Number(rewardConfig?.collectibles?.bonusAtHalfCollectionPercent);
+        const full = Number(rewardConfig?.collectibles?.bonusAtFullCollectionPercent);
+        const halfPercent = Number.isFinite(half) ? Math.max(0, half) : 10;
+        const fullPercent = Number.isFinite(full) ? Math.max(halfPercent, full) : 25;
+
+        if (progress <= 0.5) {
+            return (progress / 0.5) * halfPercent;
+        }
+        return halfPercent + (((progress - 0.5) / 0.5) * (fullPercent - halfPercent));
+    }
+
+    function calculateRewardBonuses(state, crewMembers, reward, totalCollectibles, rewardConfig) {
+        const base = {
+            xp: Number.isInteger(reward?.xp) && reward.xp > 0 ? reward.xp : 0,
+            coins: Number.isInteger(reward?.coins) && reward.coins > 0 ? reward.coins : 0,
+            gems: Number.isInteger(reward?.gems) && reward.gems > 0 ? reward.gems : 0
+        };
+        const crewPercent = getCrewBonusSummary(state, crewMembers);
+        const collectiblePercent = getCollectibleBonusPercent(state, totalCollectibles, rewardConfig);
+        const collectiblePercentByType = {
+            xp: collectiblePercent,
+            coins: collectiblePercent,
+            gems: collectiblePercent
+        };
+        const crewBonus = {
+            xp: Math.floor(base.xp * crewPercent.xp / 100),
+            coins: Math.floor(base.coins * crewPercent.coins / 100),
+            gems: Math.floor(base.gems * crewPercent.gems / 100)
+        };
+        const collectibleBonus = {
+            xp: Math.floor(base.xp * collectiblePercent / 100),
+            coins: Math.floor(base.coins * collectiblePercent / 100),
+            gems: Math.floor(base.gems * collectiblePercent / 100)
+        };
+        const bonus = {
+            xp: crewBonus.xp + collectibleBonus.xp,
+            coins: crewBonus.coins + collectibleBonus.coins,
+            gems: crewBonus.gems + collectibleBonus.gems
+        };
+        return {
+            base,
+            percent: {
+                xp: crewPercent.xp + collectiblePercent,
+                coins: crewPercent.coins + collectiblePercent,
+                gems: crewPercent.gems + collectiblePercent
+            },
+            crewPercent,
+            collectiblePercent: collectiblePercentByType,
+            crewBonus,
+            collectibleBonus,
+            bonus,
+            total: {
+                xp: base.xp + bonus.xp,
+                coins: base.coins + bonus.coins,
+                gems: base.gems + bonus.gems
+            }
+        };
+    }
+
     function grantXp(state, amount) {
         const s = normalizeState(state);
         if (!Number.isInteger(amount) || amount <= 0) return s;
@@ -1049,16 +1134,30 @@
             ? rewardConfig.xpPerCompletedMatch
             : 20;
 
+        const earnedChestReward = structuralRewards.find((reward) => reward.type === "chest") || null;
+        const isFinalChest = Boolean(earnedChestReward?.isFinalChest);
+        const finalChestRubies = isFinalChest
+            && Number.isInteger(rewardConfig?.finalChestRubies)
+            && rewardConfig.finalChestRubies > 0
+                ? rewardConfig.finalChestRubies
+                : 0;
         const baseReward = {
             xp: xpPerCompletedMatch,
-            coins: 0,
-            gems: alreadyCompleted ? 0 : calculateRubyBaseAmount(result, structuralRewards)
+            coins: calculateGoldBaseAmount(result, rewardConfig),
+            gems: (alreadyCompleted ? 0 : calculateRubyBaseAmount(result, structuralRewards)) + finalChestRubies
         };
-        const rewardBreakdown = calculateCrewReward(s, crewMembers, baseReward);
+        const totalCollectibles = Array.isArray(contentApi?.collectibles)
+            ? contentApi.collectibles.length
+            : 0;
+        const rewardBreakdown = calculateRewardBonuses(
+            s,
+            crewMembers,
+            baseReward,
+            totalCollectibles,
+            rewardConfig
+        );
 
         s = applyNumericReward(s, rewardBreakdown.total);
-
-        const earnedChestReward = structuralRewards.find((reward) => reward.type === "chest") || null;
         let chestCollectibles = null;
 
         if (!alreadyCompleted && earnedChestReward) {
@@ -1084,6 +1183,10 @@
             reward: {
                 base: rewardBreakdown.base,
                 percent: rewardBreakdown.percent,
+                crewPercent: rewardBreakdown.crewPercent,
+                collectiblePercent: rewardBreakdown.collectiblePercent,
+                crewBonus: rewardBreakdown.crewBonus,
+                collectibleBonus: rewardBreakdown.collectibleBonus,
                 bonus: rewardBreakdown.bonus,
                 total: rewardBreakdown.total,
                 structural: structuralRewards.map((reward) => ({ ...reward })),
@@ -1139,6 +1242,9 @@
         collectCollectible,
         getCrewBonusSummary,
         calculateCrewReward,
+        calculateGoldBaseAmount,
+        getCollectibleBonusPercent,
+        calculateRewardBonuses,
         calculateRubyBaseAmount,
         calculateChestCollectibleOutcome,
         processChestCollectibles,
