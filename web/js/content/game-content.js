@@ -144,14 +144,32 @@
         })
     ]);
 
-    const islandIdentities = Object.freeze(
-        Object.fromEntries(regionIdentities.map((region) => [
+    const canonicalIslandNameOverrides = Object.freeze({
+        "13": Object.freeze([
+            "Rocha Negra",
+            "Cinzas",
+            "Fogo Obsidiano",
+            "Cratera",
+            "Coração de Obsidiana"
+        ])
+    });
+
+    const islandIdentitySources = Object.freeze({
+        ...Object.fromEntries(regionIdentities.map((region) => [
             String(region.regionId),
-            Object.freeze(region.islandNames.map((label, index) => Object.freeze({
+            region.islandNames
+        ])),
+        ...canonicalIslandNameOverrides
+    });
+
+    const islandIdentities = Object.freeze(
+        Object.fromEntries(Object.entries(islandIdentitySources).map(([regionId, names]) => [
+            regionId,
+            Object.freeze(names.map((label, index) => Object.freeze({
                 id: index + 1,
-                regionId: region.regionId,
+                regionId: Number(regionId),
                 label,
-                sceneKey: `r${region.regionId}-i${index + 1}`,
+                sceneKey: `r${regionId}-i${index + 1}`,
                 challengeIdentity: "mixed"
             })))
         ]))
@@ -384,8 +402,31 @@
                         unlocked: "./assets/regions/region-1/island-10-unlocked.png?v=20260920-1628",
                         locked: "./assets/regions/region-1/island-10-locked.png?v=20260920-1628"
                     })
+                })            }),
+            region13Modular: Object.freeze({
+                background: "./assets/regions/region-13/background.webp?v=20260921-0042",
+                backgrounds: Object.freeze({
+                    1: "./assets/regions/region-13/background.webp?v=20260921-0042"
+                }),
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-13/island-01-unlocked.webp?v=20260921-0042",
+                        locked: "./assets/regions/region-13/island-01-unlocked.webp?v=20260921-0042"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-13/island-02-unlocked.webp?v=20260921-0042",
+                        locked: "./assets/regions/region-13/island-02-unlocked.webp?v=20260921-0042"
+                    }),
+                    3: Object.freeze({
+                        unlocked: "./assets/regions/region-13/island-03-unlocked.webp?v=20260921-0042",
+                        locked: "./assets/regions/region-13/island-03-unlocked.webp?v=20260921-0042"
+                    }),
+                    4: Object.freeze({
+                        unlocked: "./assets/regions/region-13/island-04-unlocked.webp?v=20260921-0042",
+                        locked: "./assets/regions/region-13/island-04-unlocked.webp?v=20260921-0042"
+                    })
                 })
-            })
+)
         })
     });
 })(globalThis);
