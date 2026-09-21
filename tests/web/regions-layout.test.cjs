@@ -1,24 +1,3 @@
-const test=require("node:test");
-const assert=require("node:assert/strict");
-const fs=require("node:fs");
-const path=require("node:path");
-
-delete globalThis.TabuadaQuest;
-require("../../web/js/screens/regions-screen.js");
-const regions=globalThis.TabuadaQuest.screens.regions;
-
-test("ações de Região são derivadas deterministicamente",()=>{
-    assert.equal(regions.formatRegionAction("locked"),"BLOQUEADA 🔒");
-    assert.equal(regions.formatRegionAction("available"),"EXPLORAR");
-    assert.equal(regions.formatRegionAction("in_progress"),"CONTINUAR");
-    assert.equal(regions.formatRegionAction("completed"),"CONCLUÍDA ✓");
-});
-
-test("tela de Regiões não depende mais do mapa estático de 11 slots",()=>{
-    const source=fs.readFileSync(path.join(__dirname,"../../web/js/screens/regions-screen.js"),"utf8");
-    assert.match(source,/TQ\.content\.regions\.map/);
-    assert.match(source,/\$\{completed\}\/5 Ilhas/);
-    assert.doesNotMatch(source,/REGIONS_LAYOUT/);
-    assert.doesNotMatch(source,/renderFinalRegion/);
-    assert.doesNotMatch(source,/island10/);
-});
+const test=require("node:test");const assert=require("node:assert/strict");const fs=require("node:fs");const path=require("node:path");delete globalThis.TabuadaQuest;require("../../web/js/screens/regions-screen.js");const regions=globalThis.TabuadaQuest.screens.regions;
+test("ações de Região são determinísticas",()=>{assert.equal(regions.formatRegionAction("locked"),"BLOQUEADA 🔒");assert.equal(regions.formatRegionAction("available"),"EXPLORAR");assert.equal(regions.formatRegionAction("in_progress"),"CONTINUAR");assert.equal(regions.formatRegionAction("completed"),"CONCLUÍDA ✓")});
+test("tela de Regiões não depende mais do mapa estático de 11 slots",()=>{const source=fs.readFileSync(path.join(__dirname,"../../web/js/screens/regions-screen.js"),"utf8");assert.match(source,/TQ\.content\.regions\.map/);assert.match(source,/\$\{completed\}\/5 Ilhas/);assert.doesNotMatch(source,/REGIONS_LAYOUT/);assert.doesNotMatch(source,/renderFinalRegion/);assert.doesNotMatch(source,/island10/)});
