@@ -35,6 +35,7 @@
         const renderers = {
             home: TQ.screens.home.renderHomeScreen,
             crew: TQ.screens.crew.renderCrewScreen,
+            collectibles: TQ.screens.collectibles.renderCollectiblesScreen,
             "world-map": TQ.screens.worldMap.renderWorldMapScreen,
             regions: TQ.screens.regions.renderRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,
