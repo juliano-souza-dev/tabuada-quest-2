@@ -676,15 +676,13 @@
 .result-art-title {
     position: absolute;
     left: 17%;
-    top: 25.1%;
+    top: 26.1%;
     width: 66%;
-    height: 7.8%;
+    height: 5.6%;
     display: grid;
-    align-content: center;
-    justify-items: center;
-    gap: .45cqw;
+    place-items: center;
     box-sizing: border-box;
-    padding: 1.4% 3%;
+    padding: 1% 3%;
     color: #3a1d08;
     text-align: center;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
@@ -692,18 +690,11 @@
 
 .result-art-title small {
     margin: 0;
-    font-size: 2.65cqw;
+    font-size: 3.7cqw;
     line-height: 1;
-    font-weight: 900;
-    letter-spacing: .11em;
-    text-transform: uppercase;
-}
-
-.result-art-title h1 {
-    margin: 0;
-    font-size: 5.15cqw;
-    line-height: 1.04;
     font-weight: 950;
+    letter-spacing: .12em;
+    text-transform: uppercase;
 }
 
 .result-art-stats {
@@ -762,50 +753,57 @@
 .result-art-reward-zone h2 {
     position: absolute;
     left: 0;
-    top: 1.5%;
+    top: 6%;
     width: 100%;
     margin: 0;
-    font-size: 3.7cqw;
+    font-size: 3.15cqw;
     line-height: 1;
     font-weight: 950;
     text-shadow: 0 2px 3px rgba(35, 12, 2, .95);
 }
 
-.result-art-numeric-rewards,
 .result-art-structural-rewards {
     position: absolute;
-    left: 4%;
-    width: 92%;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: .9cqw;
+    left: 3%;
+    top: 27%;
+    width: 30%;
+    height: 61%;
+    display: grid;
+    align-content: center;
+    gap: .8cqw;
 }
 
 .result-art-numeric-rewards {
-    bottom: 3%;
-}
-
-.result-art-structural-rewards {
+    position: absolute;
+    right: 3%;
     top: 23%;
+    width: 31%;
+    height: 66%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: .75cqw;
 }
 
 .result-art-reward-chip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 4.4cqw;
+    width: 100%;
+    min-height: 4.15cqw;
     max-width: 100%;
     box-sizing: border-box;
-    padding: .7cqw 1.35cqw;
+    padding: .65cqw 1cqw;
     border: .28cqw solid rgba(248, 202, 86, .92);
     border-radius: 999px;
     background: rgba(58, 27, 7, .84);
     box-shadow: 0 .45cqw 1.1cqw rgba(0, 0, 0, .3);
     color: #fff4ca;
-    font-size: 2.65cqw;
-    line-height: 1;
+    font-size: 2.35cqw;
+    line-height: 1.05;
     font-weight: 900;
+    text-align: center;
     text-shadow: 0 .35cqw .45cqw rgba(0, 0, 0, .85);
 }
 
