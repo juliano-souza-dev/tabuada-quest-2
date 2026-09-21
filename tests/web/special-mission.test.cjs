@@ -5,6 +5,8 @@ delete global.TabuadaQuest;
 require("../../web/js/domain/world-structure.js");
 require("../../web/js/domain/scheduler.js");
 require("../../web/js/domain/special-mission.js");
+require("../../web/js/content/game-content.js");
+require("../../web/js/domain/player-state.js");
 
 const TQ=global.TabuadaQuest;
 const d=TQ.domain.specialMission;
@@ -47,4 +49,51 @@ test("20 respostas encerram a missão sem recovery",()=>{
     assert.equal(result.totalQuestions,20);
     assert.equal(result.correctAnswers,20);
     assert.equal(result.wrongAnswers,0);
+});
+
+
+test("concluir missão paga 2 Rubis-base por acerto e libera próximo gate",()=>{
+    const ps=TQ.domain.playerState;
+    let state=ps.createInitialState();
+    state={
+        ...state,
+        campaign:{
+            ...state.campaign,
+            unlockedRegionIds:[1,2],
+            completedRegionIds:[1,2],
+            specialMaps:{
+                ...state.campaign.specialMaps,
+                "1":{
+                    ...state.campaign.specialMaps["1"],
+                    fragments:4,
+                    missionStatus:"map_complete_mission_pending"
+                }
+            }
+        }
+    };
+    let mission=d.createMission(1,"reward");
+    state=ps.startSpecialMapMission(state,1,mission);
+    while(mission.phase!=="complete"){
+        if(mission.phase==="question"){
+            const q=d.currentQuestion(mission);
+            const answer=mission.correctAnswers<15 ? q.table*q.multiplier : -1;
+            mission=d.answer(mission,answer);
+        }else{
+            mission=d.continueAfterFeedback(mission);
+        }
+    }
+    state=ps.updateSpecialMapMission(state,1,mission);
+    const result=d.buildResult(mission);
+    state=ps.completeSpecialMapMission(
+        state,
+        result,
+        TQ.content.crewMembers,
+        TQ.content.gameplayRewards,
+        TQ.content
+    );
+    assert.equal(result.correctAnswers,15);
+    assert.equal(state.campaign.specialMaps["1"].missionStatus,"mission_completed");
+    assert.equal(state.campaign.specialMaps["1"].lastMissionResult.reward.base.gems,30);
+    assert.equal(state.wallet.gems,30);
+    assert.ok(state.campaign.unlockedRegionIds.includes(3));
 });
