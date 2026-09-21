@@ -900,3 +900,48 @@
         transition: none;
     }
 }
+
+
+/* Interlúdio de fragmento de mapa após a tela de resultado. */
+.map-reward-card {
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+}
+
+.map-reward-card h1,
+.map-reward-card p {
+    margin: 0;
+}
+
+.map-reward-icon {
+    font-size: 64px;
+    line-height: 1;
+}
+
+.map-fragment-progress {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    width: min(100%, 300px);
+    margin: 6px auto 4px;
+}
+
+.map-fragment-slot {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border: 2px solid rgba(255, 229, 149, .5);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .08);
+    font-size: 30px;
+}
+
+.map-fragment-slot.is-collected {
+    border-color: #f3ca63;
+    background: rgba(243, 202, 99, .2);
+}
+
+.map-reward-card > button {
+    width: 100%;
+}
