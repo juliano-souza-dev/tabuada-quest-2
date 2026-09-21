@@ -301,16 +301,18 @@ Este catálogo é independente do legado `campaign.specialMaps` até que uma tar
 
 ## Mapa mundo
 
-Asset:
+Asset de acesso:
 
 ```text
 web/assets/global/mapa-mundo.png
 ```
 
-Catálogo:
+Catálogo canônico das 22 Regiões:
 
 ```text
-TQ.content.assets.global.worldMap
+web/js/content/game-content.js
+TQ.content.worldRegions
+TQ.content.getWorldRegion(regionId)
 ```
 
 Controlador:
@@ -320,11 +322,23 @@ web/js/core/world-map.js
 TQ.core.worldMap.open({ onNavigate })
 ```
 
-Destino futuro reservado:
+Tela temporariamente navegável:
 
 ```text
-world-map
+web/js/screens/world-map-screen.js
+web/css/screens/world-map.css
 ```
+
+Preview de desenvolvimento:
+
+```text
+web/js/app.js
+web/js/screens/islands-screen.js
+```
+
+A Região escolhida no Mapa Mundo é mantida somente em memória durante a navegação. Não altera `campaign.currentRegionId`, desbloqueios, conclusão ou progresso persistente.
+
+Destino final: **modo somente visualização**.
 
 Regra funcional: `agentes/01-produto.md`.
 
