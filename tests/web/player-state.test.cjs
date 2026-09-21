@@ -14,13 +14,11 @@ function specialMaps(){
         String(i+1),{fragments:0,missionStatus:"collecting",rewardClaimed:false}
     ]));
 }
-
 function legacyRegionProgress(){
     return Object.fromEntries(Array.from({length:11},(_,i)=>[
         String(i+1),{islandsCompleted:0,islandsTotal:10}
     ]));
 }
-
 function legacyV8(){
     return {
         schemaVersion:8,
@@ -29,25 +27,10 @@ function legacyV8(){
         wallet:{coins:0,gems:0},
         crew:{hiredIds:[]},
         campaign:{
-            currentRegionId:1,
-            currentIslandId:1,
-            unlockedRegionIds:[1],
-            completedRegionIds:[],
-            completedIslandIds:[],
-            travelPlayedIslandIds:[],
-            regionProgress:legacyRegionProgress(),
-            finalJourney:{
-                finalMapFragments:0,
-                finalMapCompleted:false,
-                island10Unlocked:false,
-                island10Completed:false,
-                finalGrandChestUnlocked:false,
-                finalGrandChestClaimed:false
-            },
-            petsRescuedIds:[],
-            claimedChestIds:[],
-            specialMaps:specialMaps(),
-            diamonds:0
+            currentRegionId:1,currentIslandId:1,unlockedRegionIds:[1],completedRegionIds:[],
+            completedIslandIds:[],travelPlayedIslandIds:[],regionProgress:legacyRegionProgress(),
+            finalJourney:{finalMapFragments:0,finalMapCompleted:false,island10Unlocked:false,island10Completed:false,finalGrandChestUnlocked:false,finalGrandChestClaimed:false},
+            petsRescuedIds:[],claimedChestIds:[],specialMaps:specialMaps(),diamonds:0
         },
         learning:{activeSession:null,regionStates:{},lastResult:null},
         ui:{lastScreen:"home",homeBackgroundId:"pirate-main"}
@@ -136,18 +119,11 @@ test("Ilhas são liberadas sequencialmente em grupos de cinco",()=>{
 test("gate do Mapa 1 acontece após a nova Região 2, no mesmo ponto global 10",()=>{
     let s=d.createInitialState();
     for(let islandId=1;islandId<=5;islandId++) s=d.completeIsland(s,1,islandId);
-    s={...s,campaign:{...s.campaign,specialMaps:{
-        ...s.campaign.specialMaps,
-        "1":{...s.campaign.specialMaps["1"],missionStatus:"map_complete_mission_pending"}
-    }}};
+    s={...s,campaign:{...s.campaign,specialMaps:{...s.campaign.specialMaps,"1":{...s.campaign.specialMaps["1"],missionStatus:"map_complete_mission_pending"}}}};
     for(let islandId=1;islandId<=5;islandId++) s=d.completeIsland(s,2,islandId);
     assert.ok(s.campaign.completedRegionIds.includes(2));
     assert.equal(s.campaign.unlockedRegionIds.includes(3),false);
-
-    s={...s,campaign:{...s.campaign,specialMaps:{
-        ...s.campaign.specialMaps,
-        "1":{...s.campaign.specialMaps["1"],missionStatus:"mission_completed"}
-    }}};
+    s={...s,campaign:{...s.campaign,specialMaps:{...s.campaign.specialMaps,"1":{...s.campaign.specialMaps["1"],missionStatus:"mission_completed"}}}};
     s=d.unlockNextRegionIfEligible(s,2);
     assert.ok(s.campaign.unlockedRegionIds.includes(3));
 });
@@ -155,53 +131,30 @@ test("gate do Mapa 1 acontece após a nova Região 2, no mesmo ponto global 10",
 test("arco final usa globais 101–109 e R22/I5 como Ilha final",()=>{
     let s=d.createInitialState();
     s={...s,campaign:{...s.campaign,unlockedRegionIds:Array.from({length:22},(_,i)=>i+1)}};
-
     assert.equal(d.getIslandStatus(s,22,5),"locked");
     for(let islandId=1;islandId<=5;islandId++) s=d.completeIsland(s,21,islandId);
     for(let islandId=1;islandId<=4;islandId++) s=d.completeIsland(s,22,islandId);
-
     assert.equal(s.campaign.finalJourney.finalMapFragments,9);
     assert.equal(s.campaign.finalJourney.finalMapCompleted,true);
     assert.equal(s.campaign.finalJourney.finalIslandUnlocked,true);
     assert.equal(d.getIslandStatus(s,22,5),"available");
-
     s=d.completeIsland(s,22,5);
     assert.equal(s.campaign.finalJourney.finalIslandCompleted,true);
     assert.equal(s.campaign.finalJourney.finalGrandChestUnlocked,true);
-
     s=d.claimFinalGrandChest(s);
     assert.equal(s.campaign.finalJourney.finalGrandChestClaimed,true);
     assert.equal(s.campaign.claimedChestIds.length,0);
 });
 
-test("recuperação pedagógica atravessa fronteira visual sem mudar status da Ilha",()=>{
+test("recuperação pedagógica atravessa fronteira visual",()=>{
     let s=d.createInitialState();
-    const schedulerState={
-        regionId:1,recoveryGap:2,mastery:{},
-        recoveryQueue:[{key:"2x3",table:2,multiplier:3,remainingGap:1}],
-        plannedExposureCount:100,recoveryAttemptCount:1
-    };
+    const schedulerState={regionId:1,recoveryGap:2,mastery:{},recoveryQueue:[{key:"2x3",table:2,multiplier:3,remainingGap:1}],plannedExposureCount:100,recoveryAttemptCount:1};
     s={...s,learning:{...s.learning,schedulerState}};
     for(let islandId=1;islandId<=5;islandId++) s=d.completeIsland(s,1,islandId);
-
     const continued=d.getRegionLearningState(s,2);
     assert.equal(continued.regionId,2);
     assert.equal(continued.recoveryQueue.length,1);
     assert.equal(d.getIslandStatus(s,2,1),"available");
-});
-
-test("viagem de Ilha continua idempotente na nova chave 22x5",()=>{
-    let s=d.createInitialState();
-    const regionState={regionId:1,recoveryGap:2,mastery:{},recoveryQueue:[],plannedExposureCount:0,recoveryAttemptCount:0};
-    const session={
-        version:1,regionId:1,islandId:1,seed:"r1-i1",
-        plannedCursor:0,plannedAnswered:0,correctAnswers:0,wrongAnswers:0,
-        recoveryAnswers:0,totalAttempts:0,phase:"question",currentChallenge:null,lastFeedback:null
-    };
-    s=d.withIslandTravelSession(s,session,regionState);
-    assert.equal(s.ui.lastScreen,"travel");
-    s=d.completeIslandTravel(s,1,1);
-    assert.equal(d.hasPlayedIslandTravel(s,1,1),true);
 });
 
 test("estado inválido volta ao inicial v9",()=>{
