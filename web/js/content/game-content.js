@@ -212,11 +212,155 @@
             "3": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 3 })]),
             "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i9" })]),
             "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 4 })])
+        }),
+        "3": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r3-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r3-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "5": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r3-i5" })])
+        }),
+        "4": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r4-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r4-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "ruby" })])
+        }),
+        "5": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r5-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 2, fragment: 1 })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r5-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r5-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 2, fragment: 2 })])
+        }),
+        "6": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r6-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r6-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 2, fragment: 3 })]),
+            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r6-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 2, fragment: 4 })])
+        }),
+        "7": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r7-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r7-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "5": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r7-i5" })])
+        }),
+        "8": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r8-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r8-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "ruby" })])
+        }),
+        "9": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r9-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 3, fragment: 1 })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r9-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r9-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 3, fragment: 2 })])
+        }),
+        "10": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r10-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r10-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 3, fragment: 3 })]),
+            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r10-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 3, fragment: 4 })])
+        }),
+        "11": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r11-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r11-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "5": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r11-i5" })])
+        }),
+        "12": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r12-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r12-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "ruby" })])
+        }),
+        "13": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r13-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 4, fragment: 1 })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r13-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r13-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 4, fragment: 2 })])
+        }),
+        "14": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r14-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r14-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 4, fragment: 3 })]),
+            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r14-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 4, fragment: 4 })])
+        }),
+        "15": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r15-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r15-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "5": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r15-i5" })])
+        }),
+        "16": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r16-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r16-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "ruby" })])
+        }),
+        "17": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r17-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r17-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "5": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r17-i5" })])
+        }),
+        "18": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r18-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r18-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "ruby" })])
+        }),
+        "19": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r19-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 5, fragment: 1 })]),
+            "3": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r19-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r19-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 5, fragment: 2 })])
+        }),
+        "20": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r20-i1" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r20-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 5, fragment: 3 })]),
+            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r20-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 5, fragment: 4 })])
+        }),
+        "21": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r21-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r21-i3" })]),
+            "4": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "5": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r21-i5" })])
+        }),
+        "22": Object.freeze({
+            "1": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r22-i2" })]),
+            "3": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r22-i4" })]),
+            "5": Object.freeze([Object.freeze({ type: "ruby" })])
         })
     });
 
     function getIslandRewards(regionId, islandId) {
         return regionRewards[String(regionId)]?.[String(islandId)] || Object.freeze([]);
+    }
+
+    function getIslandPrimaryReward(regionId, islandId) {
+        return getIslandRewards(regionId, islandId)[0] || null;
     }
 
     const chestKits = Object.freeze(
@@ -263,6 +407,7 @@
         getRegionTextMaps,
         regionRewards,
         getIslandRewards,
+        getIslandPrimaryReward,
         homeBackgrounds,
         profileFrames,
         gameplayRewards,
