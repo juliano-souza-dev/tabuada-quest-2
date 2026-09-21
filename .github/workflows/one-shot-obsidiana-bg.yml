@@ -1,0 +1,34 @@
+name: One-shot OBSIDIANA background restore
+
+on:
+  push:
+    branches:
+      - fix/obsidiana-real-assets
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    if: ${{ !contains(github.event.head_commit.message, '[obs-bg]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/obsidiana-real-assets
+
+      - name: Restore full-resolution background
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 'https://at.adobe.com/Jt7DCkSIqTX546Ue' \
+            -o web/assets/regions/region-13/background.webp
+          file web/assets/regions/region-13/background.webp
+          test "$(stat -c%s web/assets/regions/region-13/background.webp)" -gt 100000
+
+      - name: Commit restored asset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/assets/regions/region-13/background.webp
+          git commit -m "fix: restore full OBSIDIANA background [obs-bg]"
+          git push origin HEAD:fix/obsidiana-real-assets
