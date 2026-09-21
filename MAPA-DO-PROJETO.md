@@ -260,6 +260,32 @@ Contrato técnico-alvo: `agentes/04-desenvolvimento.md`.
 
 Não usar os paths/nomes históricos `corsario-1/corsario-2` como modelo para novas Regiões.
 
+### OBSIDIANA / Região 13
+
+Assets de composição:
+
+```text
+web/assets/regions/region-13/background.webp
+web/assets/regions/region-13/island-01-unlocked.webp
+web/assets/regions/region-13/island-02-unlocked.webp
+web/assets/regions/region-13/island-03-unlocked.webp
+web/assets/regions/region-13/island-04-unlocked.webp
+```
+
+Ordem canônica:
+
+```text
+1 Rocha Negra
+2 Cinzas
+3 Fogo Obsidiano
+4 Cratera
+5 Coração de Obsidiana
+```
+
+A composição usa REGION_VISUAL_CONFIG[13] em web/js/screens/islands-screen.js.
+
+Enquanto o asset físico de Coração de Obsidiana não estiver promovido ao repositório, o quinto slot permanece propositalmente vazio, preservando a marcação de água do background e sem criar imagem quebrada ou hitbox falsa.
+
 ## Nomes temporários de Ilha
 
 Fallback de conteúdo:
