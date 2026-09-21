@@ -114,7 +114,7 @@
                     unlockAfterCompleted: 0
                 })
             ])
-
+        })
     });
 
     function getRegionVisualConfig(regionId) {
