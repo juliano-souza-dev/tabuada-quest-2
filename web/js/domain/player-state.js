@@ -14,7 +14,7 @@
     function createSpecialMaps() {
         return Object.fromEntries(Array.from({ length: 5 }, (_, i) => [
             String(i + 1),
-            { fragments: 0, missionStatus: "collecting", rewardClaimed: false }
+            { fragments: 0, missionStatus: "collecting", rewardClaimed: false, mission: null, lastMissionResult: null }
         ]));
     }
 
@@ -552,7 +552,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "crew", "collectibles", "world-map", "regions", "islands", "travel", "challenge", "chest", "result"].includes(screenId)
+        return ["home", "crew", "collectibles", "world-map", "regions", "islands", "travel", "challenge", "chest", "result", "special-mission"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }
@@ -932,6 +932,138 @@
         return { ...s, campaign };
     }
 
+    function getPendingSpecialMapId(state) {
+        const s = normalizeState(state);
+        for (let mapId = 1; mapId <= 5; mapId += 1) {
+            const item = s.campaign.specialMaps[String(mapId)];
+            if (item?.missionStatus === "map_complete_mission_pending") return mapId;
+        }
+        return null;
+    }
+
+    function getActiveSpecialMapId(state) {
+        const s = normalizeState(state);
+        for (let mapId = 1; mapId <= 5; mapId += 1) {
+            const item = s.campaign.specialMaps[String(mapId)];
+            if (item?.missionStatus === "mission_in_progress") return mapId;
+        }
+        const pending = getPendingSpecialMapId(s);
+        if (pending) return pending;
+        for (let mapId = 5; mapId >= 1; mapId -= 1) {
+            const item = s.campaign.specialMaps[String(mapId)];
+            if (item?.missionStatus === "mission_completed" && item?.lastMissionResult) return mapId;
+        }
+        return null;
+    }
+
+    function startSpecialMapMission(state, mapId, mission) {
+        const s = normalizeState(state);
+        const id = String(mapId);
+        const current = s.campaign.specialMaps[id];
+        if (!isObject(current) || current.missionStatus !== "map_complete_mission_pending") return s;
+        if (!isObject(mission) || Number(mission.mapId) !== Number(mapId)) return s;
+
+        return {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                specialMaps: {
+                    ...s.campaign.specialMaps,
+                    [id]: {
+                        ...current,
+                        missionStatus: "mission_in_progress",
+                        mission,
+                        lastMissionResult: null
+                    }
+                }
+            },
+            ui: { ...s.ui, lastScreen: "special-mission" }
+        };
+    }
+
+    function updateSpecialMapMission(state, mapId, mission) {
+        const s = normalizeState(state);
+        const id = String(mapId);
+        const current = s.campaign.specialMaps[id];
+        if (!isObject(current) || current.missionStatus !== "mission_in_progress") return s;
+        if (!isObject(mission) || Number(mission.mapId) !== Number(mapId)) return s;
+
+        return {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                specialMaps: {
+                    ...s.campaign.specialMaps,
+                    [id]: { ...current, mission }
+                }
+            },
+            ui: { ...s.ui, lastScreen: "special-mission" }
+        };
+    }
+
+    function specialMapGateRegionForMap(mapId) {
+        return ({ 1: 2, 2: 6, 3: 10, 4: 14, 5: 20 })[Number(mapId)] || null;
+    }
+
+    function completeSpecialMapMission(state, result, crewMembers, rewardConfig, contentApi) {
+        let s = normalizeState(state);
+        const mapId = Number(result?.mapId);
+        const id = String(mapId);
+        const current = s.campaign.specialMaps[id];
+        if (!Number.isInteger(mapId) || mapId < 1 || mapId > 5) return s;
+        if (!isObject(current) || current.missionStatus !== "mission_in_progress") return s;
+        if (!isObject(current.mission) || current.mission.phase !== "complete") return s;
+
+        const correctAnswers = Number.isInteger(result?.correctAnswers)
+            ? Math.max(0, Math.min(20, result.correctAnswers))
+            : 0;
+        const wrongAnswers = Number.isInteger(result?.wrongAnswers)
+            ? Math.max(0, Math.min(20, result.wrongAnswers))
+            : 0;
+        const perCorrect = Number.isInteger(rewardConfig?.specialMissionRubiesPerCorrect)
+            ? Math.max(0, rewardConfig.specialMissionRubiesPerCorrect)
+            : 2;
+        const totalCollectibles = Array.isArray(contentApi?.collectibles)
+            ? contentApi.collectibles.length
+            : 0;
+        const reward = calculateRewardBonuses(
+            s,
+            crewMembers,
+            { xp: 0, coins: 0, gems: correctAnswers * perCorrect },
+            totalCollectibles,
+            rewardConfig
+        );
+
+        s = applyNumericReward(s, reward.total);
+
+        s = {
+            ...s,
+            campaign: {
+                ...s.campaign,
+                specialMaps: {
+                    ...s.campaign.specialMaps,
+                    [id]: {
+                        ...current,
+                        missionStatus: "mission_completed",
+                        rewardClaimed: true,
+                        mission: null,
+                        lastMissionResult: {
+                            mapId,
+                            totalQuestions: 20,
+                            correctAnswers,
+                            wrongAnswers,
+                            reward
+                        }
+                    }
+                }
+            },
+            ui: { ...s.ui, lastScreen: "special-mission" }
+        };
+
+        const gateRegion = specialMapGateRegionForMap(mapId);
+        return gateRegion ? unlockNextRegionIfEligible(s, gateRegion) : s;
+    }
+
     function getRegionLearningState(state, regionId) {
         const s = normalizeState(state);
         if (!s.learning.schedulerState) return null;
@@ -1248,6 +1380,11 @@
         calculateRubyBaseAmount,
         calculateChestCollectibleOutcome,
         processChestCollectibles,
+        getPendingSpecialMapId,
+        getActiveSpecialMapId,
+        startSpecialMapMission,
+        updateSpecialMapMission,
+        completeSpecialMapMission,
         grantXp,
         applyNumericReward,
         getIslandStatus,
