@@ -290,14 +290,20 @@ test("Loja Rubi não compra sem saldo e não cobra pedido duplicado",()=>{
 });
 
 
-test("desbloqueio da Loja Rubi exige Região elegível e progresso 5/5",()=>{
+test("desbloqueio da Loja Rubi respeita Região elegível e regra configurada",()=>{
     const enabled=[1,5,9,13,17,21];
+    const defaultRule={type:"after_island",islandId:1};
     let s=d.createInitialState();
-    assert.equal(d.isRubyShopUnlocked(s,1,enabled),false);
 
-    for(let islandId=1;islandId<=5;islandId++) {
+    assert.equal(d.isRubyShopUnlocked(s,1,defaultRule,enabled),false);
+    s=d.completeIsland(s,1,1);
+    assert.equal(d.isRubyShopUnlocked(s,1,defaultRule,enabled),true);
+    assert.equal(d.isRubyShopUnlocked(s,2,defaultRule,enabled),false);
+
+    const regionCompleteRule={type:"after_region_complete"};
+    assert.equal(d.isRubyShopUnlocked(s,1,regionCompleteRule,enabled),false);
+    for(let islandId=2;islandId<=5;islandId++) {
         s=d.completeIsland(s,1,islandId);
     }
-    assert.equal(d.isRubyShopUnlocked(s,1,enabled),true);
-    assert.equal(d.isRubyShopUnlocked(s,2,enabled),false);
+    assert.equal(d.isRubyShopUnlocked(s,1,regionCompleteRule,enabled),true);
 });
