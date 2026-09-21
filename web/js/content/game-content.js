@@ -720,6 +720,13 @@
             regionsMap: "./assets/regions/regions-map-base.webp?v=20260920-0318",
             regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
             region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130",
+            region1ChallengeArt: Object.freeze({
+                1: "./assets/regions/region-1/challenges/island-01-challenge.webp?v=20260921-challenge-art",
+                2: "./assets/regions/region-1/challenges/island-02-challenge.webp?v=20260921-challenge-art",
+                3: "./assets/regions/region-1/challenges/island-03-challenge.webp?v=20260921-challenge-art",
+                4: "./assets/regions/region-1/challenges/island-04-challenge.webp?v=20260921-challenge-art",
+                5: "./assets/regions/region-1/challenges/island-05-challenge.webp?v=20260921-challenge-art"
+            }),
             region1Modular: Object.freeze({
                 background: "./assets/regions/region-1/mapa_marítimo_do_corsário.png?v=20260920-1727",
                 backgrounds: Object.freeze({

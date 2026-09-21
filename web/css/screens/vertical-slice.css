@@ -96,7 +96,7 @@
 }
 
 .feedback-card h2 {
-    font-size: 30px;
+    font-size: 5.5cqw;
 }
 
 .result-stats {
@@ -433,4 +433,186 @@
 .special-mission-callout button,
 .special-mission-entry {
     width: 100%;
+}
+
+
+/* Tela de desafio imersiva: a arte é fixa; progresso, conta e respostas são dados dinâmicos. */
+.challenge-art-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    padding: 0;
+    background: #061722;
+}
+
+.challenge-art-stage {
+    position: absolute;
+    width: min(100%, 56.25vh, 540px);
+    aspect-ratio: 9 / 16;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    container-type: inline-size;
+}
+
+.challenge-art-background {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.challenge-art-back-hitbox {
+    position: absolute;
+    z-index: 5;
+    left: 4%;
+    top: 2%;
+    width: 28%;
+    height: 8%;
+    border: 0 !important;
+    background: transparent !important;
+    color: transparent;
+    padding: 0 !important;
+}
+
+.challenge-dynamic-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    font-family: Arial, sans-serif;
+}
+
+.challenge-art-progress {
+    position: absolute;
+    left: 20%;
+    top: 37.2%;
+    width: 60%;
+    height: 6.6%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    border: 3px solid rgba(185, 117, 48, .9);
+    border-radius: 999px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(20, 18, 16, .98), rgba(7, 7, 7, .98));
+    color: #fff4d0;
+    font-size: 3.35cqw;
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: 0 2px 3px rgba(0,0,0,.85);
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.45);
+}
+
+.challenge-art-progress::before {
+    content: "";
+    position: absolute;
+    left: 1.5%;
+    bottom: 8%;
+    width: calc(var(--challenge-progress, 0%) * .97);
+    height: 22%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #21c65a, #75f080);
+    box-shadow: 0 0 8px rgba(71, 235, 109, .45);
+}
+
+.challenge-art-progress > span {
+    position: relative;
+    z-index: 1;
+}
+
+.challenge-art-question {
+    position: absolute;
+    left: 16.5%;
+    top: 45.2%;
+    width: 67%;
+    height: 15.8%;
+    display: grid;
+    place-items: center;
+    padding: 2%;
+    box-sizing: border-box;
+    color: #2b1608;
+    font-size: 8.9cqw;
+    line-height: 1;
+    font-weight: 950;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255,255,255,.45);
+}
+
+.challenge-art-answers {
+    position: absolute;
+    left: 20.5%;
+    top: 63.5%;
+    width: 59%;
+    height: 18%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    column-gap: 6%;
+    row-gap: 8%;
+    pointer-events: auto;
+}
+
+.challenge-art-answer {
+    width: 100%;
+    height: 100%;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #fff5d2;
+    font-size: 5.2cqw !important;
+    line-height: 1;
+    font-weight: 950 !important;
+    text-shadow: 0 3px 3px rgba(0,0,0,.82);
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+.challenge-art-answer:hover,
+.challenge-art-answer:focus-visible {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+    outline: 4px solid rgba(255,239,122,.95);
+    outline-offset: -4px;
+}
+
+.challenge-art-answer:active {
+    transform: scale(.96);
+}
+
+.challenge-art-feedback {
+    font-size: 30px;
+    line-height: 1.15;
+}
+
+.challenge-feedback-continue,
+.challenge-prepare-layer > button {
+    position: absolute;
+    left: 31%;
+    top: 67%;
+    width: 38%;
+    min-height: 54px !important;
+    pointer-events: auto;
+    border: 2px solid #f6d17b !important;
+    border-radius: 14px !important;
+    background: rgba(56,28,9,.92) !important;
+    color: #fff2c8;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.challenge-complete-layer .challenge-art-question {
+    font-size: 6.3cqw;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .challenge-art-answer {
+        transition: none;
+    }
 }

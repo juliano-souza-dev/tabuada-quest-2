@@ -813,3 +813,116 @@ Não gerar placeholder, ícone genérico ou moldura provisória. Manter `asset =
 Os cinco Fundos comerciais possuem identidade textual e preço, mas continuam com `asset = null`.
 
 Não criar imagem, thumbnail ou placeholder nesta etapa de código.
+
+
+## Direção Visual — Tela de Desafio da Ilha
+
+A tela de desafio possui direção artística própria e deve transmitir a sensação de que a criança **entrou fisicamente na Ilha**.
+
+### Referência aprovada
+
+A composição aprovada para CORSÁRIO passa a ser a referência estrutural das telas de desafio.
+
+Regras permanentes:
+
+- composição vertical mobile 9:16;
+- cenário imersivo inspirado diretamente no background e na identidade visual da Ilha correspondente;
+- placas, molduras, materiais, vegetação, arquitetura, iluminação, magia e props devem pertencer ao tema daquela Ilha;
+- a estrutura visual pode permanecer consistente entre Ilhas, mas o cenário nunca é genérico;
+- reduzir fortemente caveiras e símbolos macabros; priorizar aventura, magia, descoberta e exploração;
+- o nome narrativo da Ilha é suficiente: **não escrever "Ilha 1", "Ilha 2", etc.**;
+- `CORSÁRIO`, nome da Ilha e `Desafio da Ilha` podem fazer parte da arte;
+- o botão visual `Ilhas` pode fazer parte da arte e recebe hitbox HTML transparente;
+- a área da questão matemática deve ser **uma placa vazia** no asset;
+- a área de progresso deve ser vazia no asset;
+- as quatro placas de resposta devem estar vazias no asset;
+- operação, progresso, respostas, feedback e demais dados de gameplay são sempre renderizados dinamicamente por HTML/CSS/JS;
+- nunca fixar uma conta, resposta, número de questão ou progresso dentro da imagem.
+
+### Campos dinâmicos de geração
+
+```text
+REGIAO_NOME
+ILHA_NOME
+TEMA_DA_ILHA
+BACKGROUND_REFERENCIA
+MATERIAIS_ESTRUTURAS
+ELEMENTOS_CENICOS
+TIPO_DE_MAGIA
+PALETA_PRINCIPAL
+ATMOSFERA
+ILUMINACAO
+```
+
+### Prompt-mestre dinâmico — desafio
+
+```text
+Crie uma arte vertical mobile premium 9:16 para uma tela de desafio matemático infantil, no estilo fantasia-aventura imersiva, como se a criança estivesse fisicamente dentro da ilha.
+
+Use como referência estrutural a tela de desafio aprovada do Tabuada Quest, mas adapte completamente cenário, placas, materiais, magia, props, vegetação, arquitetura, atmosfera e iluminação à identidade da Ilha atual.
+
+Região: [REGIAO_NOME].
+Nome da Ilha: [ILHA_NOME].
+Tema da Ilha: [TEMA_DA_ILHA].
+Background de referência: [BACKGROUND_REFERENCIA].
+Materiais e estruturas: [MATERIAIS_ESTRUTURAS].
+Elementos cênicos: [ELEMENTOS_CENICOS].
+Magia visual: [TIPO_DE_MAGIA].
+Paleta: [PALETA_PRINCIPAL].
+Atmosfera: [ATMOSFERA].
+Iluminação: [ILUMINACAO].
+
+A criança deve sentir que realmente entrou nessa Ilha e está realizando o desafio dentro dela.
+
+Estrutura obrigatória:
+- botão visual “Ilhas” no topo esquerdo;
+- identificação da Região;
+- nome narrativo da Ilha, sem escrever “Ilha 1”, “Ilha 2” ou qualquer numeração técnica;
+- título “Desafio da Ilha”;
+- uma área/placa vazia destinada ao progresso dinâmico;
+- uma grande placa central completamente vazia destinada à operação matemática dinâmica;
+- quatro placas de resposta completamente vazias.
+
+IMPORTANTE:
+- NÃO escrever operação matemática na arte;
+- NÃO escrever “Questão X de Y” na arte;
+- NÃO escrever números nas quatro respostas;
+- NÃO desenhar placeholders textuais nessas áreas;
+- essas áreas devem existir apenas como superfícies visuais vazias para receber conteúdo HTML/CSS/JS;
+- manter excelente contraste para os textos dinâmicos;
+- usar menos caveiras;
+- evitar terror e excesso de símbolos macabros;
+- priorizar magia, aventura, exploração, descoberta e encanto;
+- a interface deve parecer construída com materiais existentes naquela Ilha;
+- cenário rico e cinematográfico sem comprometer legibilidade.
+```
+
+### Prompt negativo
+
+```text
+Evitar:
+- conta matemática fixa;
+- respostas fixas;
+- progresso fixo;
+- “Ilha X” ou numeração técnica no título;
+- excesso de caveiras;
+- horror;
+- fundo genérico;
+- UI de aplicativo comum;
+- botões desconectados do tema;
+- placas com texto placeholder;
+- poluição visual que prejudique leitura;
+- cenário sem relação com a Ilha.
+```
+
+### Contrato técnico
+
+Os assets de desafio são somente a camada artística. Dados variáveis pertencem ao renderer.
+
+```text
+web/assets/regions/region-{regionId}/challenges/island-01-challenge.webp
+...
+web/assets/regions/region-{regionId}/challenges/island-05-challenge.webp
+```
+
+A Direção Visual gera a arte; Desenvolvimento associa o asset pelo par `regionId/islandId` e sobrepõe os dados dinâmicos.
