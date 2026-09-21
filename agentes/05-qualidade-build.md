@@ -355,3 +355,21 @@ Validar:
 - todos os 10 itens permanecem com `asset = null`;
 - compra usa Ouro e persiste;
 - compra não equipa nem troca personalização ativa.
+
+
+## Gate de personalização da Home
+
+Validar:
+
+- Home possui acesso Estaleiro;
+- Estaleiro lista somente navios comprados;
+- comprar na Loja não equipa automaticamente;
+- navio não comprado não pode ser equipado;
+- navio equipado persiste em `shop.equippedShipId`;
+- migração v11 → v12 preserva `purchasedItemIds`;
+- Molduras comerciais só aparecem no seletor após compra;
+- Fundos comerciais só aparecem no seletor após compra;
+- itens-base continuam disponíveis;
+- asset `null` não quebra a Home;
+- travel usa vídeo padrão enquanto `travelVideo = null`;
+- Loja continua sem ação Equipar.
