@@ -641,3 +641,16 @@ web/js/screens/special-mission-screen.js
 ```
 
 Entrada disponível tanto no resultado que completa o mapa quanto na tela de Regiões enquanto a missão estiver pendente/em andamento.
+
+
+### Recompensas gerais na Missão Especial
+
+Missão Especial também é uma partida para fins econômicos:
+
+```text
+XP-base = 20
+Ouro-base = max(0, 10 × acertos - 2 × erros)
+Rubi-base = acertos × 2
+```
+
+O mesmo `calculateRewardBonuses(...)` aplica Tripulação e Colecionáveis às três categorias.
