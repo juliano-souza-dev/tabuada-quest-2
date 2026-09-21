@@ -49,7 +49,7 @@ test("replay concede XP novamente sem repetir recompensa única",()=>{
         {type:"chest",chestId:"chest-test"},
         {type:"ruby"}
     ];
-    s=d.completeGameplaySession(s,result(1),regionState(),rewards,crew,config);
+    s=d.completeGameplaySession(s,result(1),regionState(),rewards,crew,config,TQ.content);
     assert.equal(s.progression.xpCurrent,20);
     assert.equal(s.wallet.gems,20);
     assert.deepEqual(s.campaign.petsRescuedIds,["pet-test"]);
@@ -106,11 +106,13 @@ test("XP faz rollover de nível usando xpRequired vigente",()=>{
     assert.equal(s.progression.xpRequired,100);
 });
 
-test("baús configurados possuem kit extensível inicialmente vazio",()=>{
-    const kit=TQ.content.getChestKit("chest-r1-i3");
-    assert.ok(kit);
-    assert.equal(kit.id,"chest-r1-i3");
-    assert.deepEqual(kit.items,[]);
+test("30 Baús distribuem os 90 Colecionáveis-base sem repetição",()=>{
+    const kits=Object.values(TQ.content.chestKits);
+    assert.equal(kits.length,30);
+    const ids=kits.flatMap((kit)=>kit.items.map((item)=>item.collectibleId));
+    assert.equal(ids.length,90);
+    assert.equal(new Set(ids).size,90);
+    assert.deepEqual(ids,TQ.content.collectibles.map((item)=>item.id));
 });
 
 test("primeira conclusão com baú abre tela de baú e replay vai ao resultado",()=>{
@@ -178,4 +180,78 @@ test("últimas recompensas colocam Rubi na global 109 e Baú Final na 110",()=>{
     assert.equal(reward110.chestId,"final-grand-chest");
     assert.equal(reward110.isFinalChest,true);
     assert.ok(TQ.content.getChestKit("final-grand-chest"));
+});
+
+
+test("Baú perfeito entrega os três itens-base",()=>{
+    let s=d.createInitialState();
+    const reward={type:"chest",chestId:"chest-r1-i3"};
+    const processed=d.processChestCollectibles(s,result(3),reward,TQ.content,config);
+    assert.equal(processed.outcome.tier,"perfect");
+    assert.equal(processed.outcome.collectedIds.length,3);
+    assert.equal(processed.state.campaign.collectibles.pendingIds.length,0);
+});
+
+test("Baú com desempenho baixo entrega um e redistribui dois",()=>{
+    let s=d.createInitialState();
+    const poor={...result(3),correctAnswers:12,wrongAnswers:8,totalAttempts:20};
+    const reward={type:"chest",chestId:"chest-r1-i3"};
+    const processed=d.processChestCollectibles(s,poor,reward,TQ.content,config);
+    assert.equal(processed.outcome.tier,"one");
+    assert.equal(processed.outcome.collectedIds.length,1);
+    assert.equal(processed.state.campaign.collectibles.pendingIds.length,2);
+});
+
+test("próximo Baú recebe um pendente e perfeito pode entregar quatro",()=>{
+    let s=d.createInitialState();
+    const poor={...result(3),correctAnswers:12,wrongAnswers:8,totalAttempts:20};
+    let first=d.processChestCollectibles(
+        s,
+        poor,
+        {type:"chest",chestId:"chest-r1-i3"},
+        TQ.content,
+        config
+    );
+    const perfect={...result(1),correctAnswers:20,wrongAnswers:0,totalAttempts:20};
+    const second=d.processChestCollectibles(
+        first.state,
+        perfect,
+        {type:"chest",chestId:"chest-r2-i1"},
+        TQ.content,
+        config
+    );
+    assert.equal(second.outcome.availableIds.length,4);
+    assert.equal(second.outcome.collectedIds.length,4);
+    assert.equal(second.state.campaign.collectibles.pendingIds.length,1);
+});
+
+test("faixa operacional de até 20% de erros entrega dois itens",()=>{
+    const performance=d.calculateChestCollectibleOutcome(
+        {correctAnswers:16,wrongAnswers:4,totalAttempts:20},
+        4,
+        false,
+        config
+    );
+    assert.equal(performance.tier,"two");
+    assert.equal(performance.awardedCount,2);
+});
+
+test("Baú Final entrega próprios e todos os pendentes mesmo com erros",()=>{
+    let s=d.createInitialState();
+    s={
+        ...s,
+        campaign:{
+            ...s.campaign,
+            collectibles:{
+                collectedIds:["collectible-001"],
+                pendingIds:["collectible-002","collectible-003","collectible-004"]
+            }
+        }
+    };
+    const poor={regionId:22,islandId:5,correctAnswers:1,wrongAnswers:19,totalAttempts:20};
+    const finalReward={type:"chest",chestId:"final-grand-chest",isFinalChest:true};
+    const processed=d.processChestCollectibles(s,poor,finalReward,TQ.content,config);
+    assert.equal(processed.outcome.isFinalChest,true);
+    assert.equal(processed.outcome.collectedIds.length,6);
+    assert.deepEqual(processed.state.campaign.collectibles.pendingIds,[]);
 });
