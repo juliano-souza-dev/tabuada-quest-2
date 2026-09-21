@@ -138,7 +138,35 @@ Representações visuais vigentes:
 PET            → patinha
 FRAGMENTO MAPA → pergaminho/mapa rasgado
 BAÚ            → baú
+RUBI           → rubi/gema
 ```
+
+### XP de partida
+
+Toda partida concluída concede XP.
+
+Valor-base inicial de balanceamento:
+
+```text
+20 XP por partida concluída
+```
+
+O valor fica em catálogo de conteúdo para poder ser rebalanceado sem alterar a regra do domínio.
+
+Regras:
+
+- XP é concedido novamente em replay;
+- o XP não depende de acerto perfeito: concluir a partida é o gatilho;
+- bônus de Tripulação é calculado sobre o XP-base e arredondado para baixo;
+- bônus acumulados de XP continuam somando conforme a regra de Tripulação.
+
+### Recompensa única da Ilha
+
+PET, Baú, Rubi e outros marcos configurados na Ilha são concedidos uma única vez na primeira conclusão.
+
+`ruby` usa, por enquanto, a categoria econômica de gemas já existente. Quando houver Rubi-base, o bônus de Tripulação da categoria gemas é aplicado sobre esse valor e arredondado para baixo.
+
+Baús não são valores numéricos multiplicáveis. Cada Baú referencia um kit de itens próprio. Os kits podem permanecer vazios até a definição do inventário.
 
 A distribuição futura deve ser recalculada quando a nova hierarquia de Regiões for definida.
 
