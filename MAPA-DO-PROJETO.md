@@ -260,6 +260,20 @@ Contrato técnico-alvo: `agentes/04-desenvolvimento.md`.
 
 Não usar os paths/nomes históricos `corsario-1/corsario-2` como modelo para novas Regiões.
 
+## Nomes temporários de Ilha
+
+Fallback de conteúdo:
+
+```text
+web/js/content/game-content.js
+TQ.content.createTemporaryIslandIdentity(regionId, islandId)
+TQ.content.getIslandIdentity(regionId, islandId)
+```
+
+Quando não existe identidade nominal cadastrada para uma Ilha canônica, `getIslandIdentity` fornece um placeholder estável com palavra + número e `isPlaceholder: true`.
+
+Fonte de Produto: `agentes/01-produto.md`.
+
 ## Mapas textuais por Região
 
 Catálogo:
