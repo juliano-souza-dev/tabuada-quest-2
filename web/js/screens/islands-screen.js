@@ -40,8 +40,7 @@
             assetKey: "region1Modular",
             id: "corsario",
             backgroundId: 1,
-            islandIds: Object.freeze([1, 2, 3, 4, 5]),
-            hideIslands: true
+            islandIds: Object.freeze([1])
         }),
         13: Object.freeze({
             assetKey: "region13Modular",
