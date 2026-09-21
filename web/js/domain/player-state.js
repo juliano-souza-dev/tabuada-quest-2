@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 12;
+    const STATE_VERSION = 13;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -90,6 +90,7 @@
             wallet: { coins: 0, gems: 0 },
             crew: { hiredIds: [] },
             shop: { purchasedItemIds: [], equippedShipId: null },
+            rubyShop: { orders: [] },
             campaign: {
                 currentRegionId: 1,
                 currentIslandId: 1,
@@ -422,7 +423,7 @@
                 : [];
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 12,
                 shop: {
                     ...existingShop,
                     purchasedItemIds,
@@ -431,6 +432,14 @@
                             ? existingShop.equippedShipId
                             : null
                 }
+            };
+        }
+
+        if (migrated.schemaVersion === 12) {
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                rubyShop: { orders: [] }
             };
         }
 
@@ -468,6 +477,27 @@
             && Array.isArray(value.pendingIds)
             && value.pendingIds.every((id) => typeof id === "string")
         );
+    }
+
+    function validRubyShopState(value) {
+        if (!isObject(value) || !Array.isArray(value.orders)) return false;
+        const ids = new Set();
+        for (const order of value.orders) {
+            if (!isObject(order)
+                || typeof order.id !== "string"
+                || !order.id
+                || ids.has(order.id)
+                || typeof order.itemId !== "string"
+                || typeof order.label !== "string"
+                || !Number.isInteger(order.priceRubies)
+                || order.priceRubies < 0
+                || order.status !== "local_pending"
+                || typeof order.createdAt !== "string") {
+                return false;
+            }
+            ids.add(order.id);
+        }
+        return true;
     }
 
     function validSchedulerLearningState(value) {
@@ -549,6 +579,7 @@
                 typeof value.shop.equippedShipId === "string"
                 && value.shop.purchasedItemIds.includes(value.shop.equippedShipId)
             ))
+            && validRubyShopState(value.rubyShop)
             && isObject(value.campaign)
             && Number.isInteger(value.campaign.currentRegionId) && value.campaign.currentRegionId >= 1 && value.campaign.currentRegionId <= TOTAL_REGIONS
             && Number.isInteger(value.campaign.currentIslandId) && value.campaign.currentIslandId >= 1 && value.campaign.currentIslandId <= ISLANDS_PER_REGION
@@ -593,7 +624,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "crew", "collectibles", "shop", "world-map", "regions", "islands", "travel", "challenge", "chest", "result", "special-mission"].includes(screenId)
+        return ["home", "crew", "collectibles", "shop", "ruby-shop", "world-map", "regions", "islands", "travel", "challenge", "chest", "result", "special-mission"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }
@@ -628,6 +659,44 @@
             shop: {
                 ...s.shop,
                 purchasedItemIds: [...s.shop.purchasedItemIds, item.id]
+            }
+        };
+    }
+
+    function purchaseRubyShopItem(state, item, orderMeta) {
+        const s = normalizeState(state);
+        if (!isObject(item)
+            || typeof item.id !== "string"
+            || typeof item.label !== "string"
+            || !Number.isInteger(item.priceRubies)
+            || item.priceRubies < 0
+            || item.available === false) return s;
+        if (!isObject(orderMeta)
+            || typeof orderMeta.id !== "string"
+            || !orderMeta.id
+            || typeof orderMeta.createdAt !== "string"
+            || !orderMeta.createdAt) return s;
+        if (s.rubyShop.orders.some((order) => order.id === orderMeta.id)) return s;
+        if (s.wallet.gems < item.priceRubies) return s;
+
+        const order = {
+            id: orderMeta.id,
+            itemId: item.id,
+            label: item.label,
+            priceRubies: item.priceRubies,
+            status: "local_pending",
+            createdAt: orderMeta.createdAt
+        };
+
+        return {
+            ...s,
+            wallet: {
+                ...s.wallet,
+                gems: s.wallet.gems - item.priceRubies
+            },
+            rubyShop: {
+                ...s.rubyShop,
+                orders: [...s.rubyShop.orders, order]
             }
         };
     }
@@ -1455,6 +1524,7 @@
         withLastScreen,
         hireCrewMember,
         purchaseShopItem,
+        purchaseRubyShopItem,
         withEquippedShip,
         collectCollectible,
         getCrewBonusSummary,

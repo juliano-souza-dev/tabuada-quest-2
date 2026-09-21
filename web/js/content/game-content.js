@@ -49,6 +49,49 @@
         ].find((item) => item.id === id) || null;
     }
 
+    const rubyShopCatalog = Object.freeze({
+        mode: "local",
+        enabledRegionIds: Object.freeze([14]),
+        items: Object.freeze([
+            Object.freeze({
+                id: "ruby-physical-stickers-dev",
+                label: "Kit de Adesivos Piratas",
+                priceRubies: 20,
+                fulfillment: "physical",
+                asset: null,
+                isDevelopmentItem: true,
+                available: true
+            }),
+            Object.freeze({
+                id: "ruby-physical-keychain-dev",
+                label: "Chaveiro Rubi",
+                priceRubies: 40,
+                fulfillment: "physical",
+                asset: null,
+                isDevelopmentItem: true,
+                available: true
+            }),
+            Object.freeze({
+                id: "ruby-physical-shirt-dev",
+                label: "Camiseta do Capitão",
+                priceRubies: 80,
+                fulfillment: "physical",
+                asset: null,
+                isDevelopmentItem: true,
+                available: true
+            })
+        ])
+    });
+
+    function getRubyShopItem(itemId) {
+        const id = String(itemId);
+        return rubyShopCatalog.items.find((item) => item.id === id) || null;
+    }
+
+    function regionHasRubyShop(regionId) {
+        return rubyShopCatalog.enabledRegionIds.includes(Number(regionId));
+    }
+
     const gameplayRewards = Object.freeze({
         xpPerCompletedMatch: 20,
         coinsPerCorrectAnswer: 10,
@@ -588,6 +631,9 @@
         profileFrames,
         shopCatalog,
         getShopItem,
+        rubyShopCatalog,
+        getRubyShopItem,
+        regionHasRubyShop,
         gameplayRewards,
         crewMembers,
         pets,

@@ -37,6 +37,7 @@
             crew: TQ.screens.crew.renderCrewScreen,
             collectibles: TQ.screens.collectibles.renderCollectiblesScreen,
             shop: TQ.screens.shop.renderShopScreen,
+            "ruby-shop": TQ.screens.rubyShop.renderRubyShopScreen,
             "world-map": TQ.screens.worldMap.renderWorldMapScreen,
             regions: TQ.screens.regions.renderRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,

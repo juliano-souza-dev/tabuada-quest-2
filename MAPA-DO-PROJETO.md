@@ -798,3 +798,26 @@ web/js/screens/travel-screen.js
 ```
 
 Fallback: `TQ.content.assets.islandTravel`.
+
+
+## Loja Rubi
+
+Fonte de Produto:
+
+```text
+agentes/01-produto.md → Loja Rubi regional
+```
+
+Implementação:
+
+```text
+web/js/content/game-content.js
+web/js/domain/player-state.js
+web/js/screens/ruby-shop-screen.js
+web/css/screens/ruby-shop.css
+web/js/screens/islands-screen.js
+```
+
+Primeira Região configurada: `14 / ZONA RUBI`.
+
+A versão atual é local e não possui backend, e-mail ou dados de entrega.

@@ -23,7 +23,7 @@ test("catálogo inicial possui 90 Colecionáveis únicos",()=>{
 
 test("estado inicial de Colecionáveis começa vazio",()=>{
     const s=d.createInitialState();
-    assert.equal(s.schemaVersion,12);
+    assert.equal(s.schemaVersion,13);
     assert.deepEqual(s.campaign.collectibles,{collectedIds:[],pendingIds:[]});
 });
 
