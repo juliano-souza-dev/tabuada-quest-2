@@ -798,3 +798,22 @@ web/js/screens/travel-screen.js
 ```
 
 Fallback: `TQ.content.assets.islandTravel`.
+
+
+### CORSÁRIO — Ilha 1 publicada
+
+Assets canônicos:
+
+```text
+web/assets/regions/region-1/island-01-unlocked.webp
+web/assets/regions/region-1/island-01-locked.webp
+```
+
+Identidade:
+
+```text
+R1/I1 = Enseada da Bandeira
+recompensa principal = PET
+```
+
+Durante a produção das demais artes, CORSÁRIO renderiza somente a Ilha 1 nova. Ilhas 2–5 permanecem aguardando publicação visual.
