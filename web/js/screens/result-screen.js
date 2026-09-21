@@ -5,11 +5,7 @@
         const configured = Array.isArray(rewards) ? rewards : [];
         const visible = configured.map((reward) => {
             if (reward.type === "map_fragment") return `<span class="result-art-reward-chip">🧩 Mapa ${reward.mapId} • ${reward.fragment}/4</span>`;
-            if (reward.type === "chest") return '<span class="result-art-reward-chip">🎁 Baú</span>';
-            if (reward.type === "pet") {
-                const pet = TQ.content.getPet?.(reward.petId);
-                return `<span class="result-art-reward-chip">🐾 ${pet?.label || "PET"}</span>`;
-            }
+            if (reward.type === "chest" || reward.type === "pet") return "";
             return "";
         }).filter(Boolean);
 
@@ -67,6 +63,13 @@
                 <button type="button" data-action="regions">Ver Regiões</button>
             </main>
         `;
+    }
+
+    function getDeferredReward(result) {
+        const structural = Array.isArray(result?.reward?.structural)
+            ? result.reward.structural
+            : [];
+        return structural.find((reward) => reward?.type === "pet" || reward?.type === "chest") || null;
     }
 
     function renderResultScreen({ state, onStateChange, onNavigate }) {
@@ -151,8 +154,16 @@
         screen.addEventListener("click", (event) => {
             const target = event.target.closest("[data-action]");
             const action = target?.dataset.action;
-            if (action === "islands") onNavigate("islands");
-            if (action === "regions") onNavigate("regions");
+            if (action === "islands" || action === "regions") {
+                const deferredReward = getDeferredReward(state.learning.lastResult);
+                if (deferredReward) {
+                    onNavigate(deferredReward.type === "pet" ? "pet" : "chest", {
+                        afterReward: action
+                    });
+                    return;
+                }
+                onNavigate(action);
+            }
             if (action === "special-mission") {
                 const mapId = Number(target?.dataset.mapId);
                 const mission = TQ.domain.specialMission.createMission(mapId, `special-map-${mapId}`);
@@ -167,6 +178,7 @@
     TQ.screens.result = Object.freeze({
         renderResultScreen,
         renderIslandRewards,
-        renderNumericRewards
+        renderNumericRewards,
+        getDeferredReward
     });
 })(globalThis);
