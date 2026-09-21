@@ -233,7 +233,12 @@
             ? TQ.content.getWorldRegion(regionId)
             : TQ.content.regions.find((item) => item.id === regionId);
         const active = state.learning.activeSession;
-        const rubyShopEnabled = !previewMode && Boolean(TQ.content.regionHasRubyShop?.(regionId));
+        const rubyShopVisible = !previewMode && Boolean(TQ.content.regionHasRubyShop?.(regionId));
+        const rubyShopUnlocked = rubyShopVisible && TQ.domain.playerState.isRubyShopUnlocked(
+            state,
+            regionId,
+            TQ.content.rubyShopCatalog.enabledRegionIds
+        );
         const screen = document.createElement("section");
         screen.className = "region-islands-map-screen";
         screen.dataset.regionId = String(regionId);
@@ -299,11 +304,12 @@
 
                 ${islandsMarkup}
 
-                ${rubyShopEnabled ? `
-                    <button class="region-ruby-shop-button"
+                ${rubyShopVisible ? `
+                    <button class="region-ruby-shop-button${rubyShopUnlocked ? "" : " is-locked"}"
                         type="button"
                         data-action="open-ruby-shop"
-                        aria-label="Abrir Loja Rubi">
+                        ${rubyShopUnlocked ? "" : "disabled"}
+                        aria-label="${rubyShopUnlocked ? "Abrir Loja Rubi" : "Loja Rubi bloqueada. Conclua as 5 Ilhas desta Região."}">
                         <span aria-hidden="true">🚢</span>
                         <strong>LOJA RUBI</strong>
                     </button>
@@ -353,6 +359,7 @@
             }
 
             if (event.target.closest('[data-action="open-ruby-shop"]')) {
+                if (!rubyShopUnlocked) return;
                 onNavigate("ruby-shop");
                 return;
             }
@@ -404,7 +411,12 @@
         const active = state.learning.activeSession;
         const regionIdentity = previewMode ? null : TQ.content.getRegionIdentity(regionId);
         const textMaps = TQ.content.getRegionTextMaps(regionId);
-        const rubyShopEnabled = !previewMode && Boolean(TQ.content.regionHasRubyShop?.(regionId));
+        const rubyShopVisible = !previewMode && Boolean(TQ.content.regionHasRubyShop?.(regionId));
+        const rubyShopUnlocked = rubyShopVisible && TQ.domain.playerState.isRubyShopUnlocked(
+            state,
+            regionId,
+            TQ.content.rubyShopCatalog.enabledRegionIds
+        );
 
         const screen = document.createElement("section");
         screen.className = "slice-screen islands-text-screen";
@@ -423,8 +435,11 @@
                 <p class="slice-intro">
                     ${previewMode ? "Prévia de desenvolvimento • 5 Ilhas" : (regionIdentity ? regionIdentity.tagline : "Escolha uma Ilha para começar.")}
                 </p>
-                ${rubyShopEnabled ? `
-                    <button type="button" class="ruby-shop-text-entry" data-action="open-ruby-shop">
+                ${rubyShopVisible ? `
+                    <button type="button"
+                        class="ruby-shop-text-entry${rubyShopUnlocked ? "" : " is-locked"}"
+                        data-action="open-ruby-shop"
+                        ${rubyShopUnlocked ? "" : "disabled"}>
                         <span aria-hidden="true">🚢</span>
                         <span>
                             <small>EMBARCAÇÃO MERCANTE</small>
@@ -480,6 +495,7 @@
             }
 
             if (event.target.closest('[data-action="open-ruby-shop"]')) {
+                if (!rubyShopUnlocked) return;
                 onNavigate("ruby-shop");
                 return;
             }
