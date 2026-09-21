@@ -499,6 +499,7 @@ Apresentação:
 web/js/screens/result-screen.js
 web/js/screens/chest-screen.js
 web/js/screens/pet-screen.js
+web/js/screens/map-reward-screen.js
 ```
 
 Fluxo vigente:
@@ -509,6 +510,7 @@ fim da partida
 → ao escolher Ilhas/Regiões:
    PET → pet-screen
    Baú → chest-screen
+   fragmento de Mapa → map-reward-screen
    demais → destino direto
 → destino originalmente escolhido
 ```
