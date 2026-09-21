@@ -3,6 +3,7 @@ const assert=require("node:assert/strict");
 
 delete global.TabuadaQuest;
 require("../../web/js/content/game-content.js");
+require("../../web/js/domain/world-structure.js");
 require("../../web/js/domain/player-state.js");
 
 const TQ=global.TabuadaQuest;
