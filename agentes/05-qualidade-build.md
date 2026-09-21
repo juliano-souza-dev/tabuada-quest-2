@@ -313,3 +313,9 @@ Validar:
 - próximo bloco de Regiões só libera após a missão;
 - sessão pode ser retomada se já estiver `mission_in_progress`;
 - feedback visual de acerto/erro não altera estado matemático.
+
+
+- Missão Especial concede também 20 XP-base;
+- Missão Especial usa a fórmula global de Ouro;
+- os Rubis próprios da missão permanecem `acertos × 2`;
+- os três valores recebem bônus normais de Tripulação/Colecionáveis.
