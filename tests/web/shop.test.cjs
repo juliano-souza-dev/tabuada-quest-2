@@ -42,19 +42,44 @@ test("Ouro insuficiente não compra item",()=>{
     assert.deepEqual(next.shop.purchasedItemIds,[]);
 });
 
-test("Loja possui cinco Molduras nomeadas sem arte e sem preço definido",()=>{
+test("Loja possui cinco Molduras com preços balanceados e sem arte",()=>{
     const frames=TQ.content.shopCatalog.frames;
     assert.deepEqual(
-        frames.map((item)=>item.label),
-        ["Âncora Dourada","Coroa Corsária","Maré de Safira","Rubi do Capitão","Lenda do Kraken"]
+        frames.map((item)=>[item.label,item.price]),
+        [
+            ["Âncora Dourada",250],
+            ["Coroa Corsária",450],
+            ["Maré de Safira",700],
+            ["Rubi do Capitão",1000],
+            ["Lenda do Kraken",1400]
+        ]
     );
-    assert.equal(frames.length,5);
-    for(const frame of frames){
-        assert.equal(frame.asset,null);
-        assert.equal(frame.price,null);
-    }
+    for(const frame of frames) assert.equal(frame.asset,null);
 });
 
-test("Fundos permanecem sem catálogo comercial até definição",()=>{
-    assert.deepEqual(TQ.content.shopCatalog.backgrounds,[]);
+test("Loja possui cinco Fundos com preços balanceados e sem arte",()=>{
+    const backgrounds=TQ.content.shopCatalog.backgrounds;
+    assert.deepEqual(
+        backgrounds.map((item)=>[item.label,item.price]),
+        [
+            ["Enseada Dourada",400],
+            ["Porto Esmeralda",650],
+            ["Mar Rubi",900],
+            ["Noite do Kraken",1300],
+            ["Horizonte Celeste",1800]
+        ]
+    );
+    for(const background of backgrounds) assert.equal(background.asset,null);
+});
+
+test("compras de Moldura e Fundo usam a mesma carteira e continuam sem equipar",()=>{
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,coins:2000}};
+    const frame=TQ.content.shopCatalog.frames[0];
+    const background=TQ.content.shopCatalog.backgrounds[0];
+    s=d.purchaseShopItem(s,frame);
+    s=d.purchaseShopItem(s,background);
+    assert.equal(s.wallet.coins,1350);
+    assert.deepEqual(s.shop.purchasedItemIds,[frame.id,background.id]);
+    assert.equal(Object.prototype.hasOwnProperty.call(s.shop,"equippedItemIds"),false);
 });
