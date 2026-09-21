@@ -599,3 +599,53 @@ Na Home:
 Enquanto assets comerciais estiverem `null`, a seleção persiste, mas a Home mantém fallback visual seguro.
 
 O navio equipado define a animação/vídeo de viagem quando `travelVideo` existir. Enquanto for `null`, usa-se o vídeo de viagem padrão.
+
+
+## Loja Rubi regional
+
+A **Loja Rubi** é um sistema separado da Loja comum.
+
+Contrato:
+
+```text
+Loja comum → Ouro → itens digitais do jogo
+Loja Rubi  → Rubis → recompensas físicas
+```
+
+A Loja Rubi aparece somente em Regiões explicitamente configuradas e seu acesso visual final será uma embarcação mercante integrada ao mapa da Região.
+
+Primeira Região habilitada:
+
+```text
+Região 14 — ZONA RUBI
+```
+
+### Etapa local inicial
+
+Nesta etapa:
+
+- catálogo é fixo e local;
+- compra usa a carteira de Rubis já existente;
+- a criança vê preço e saldo antes de confirmar;
+- Rubis são debitados somente após confirmação;
+- cada compra cria um pedido local persistente;
+- pedido local usa status `local_pending`;
+- não existe envio de e-mail;
+- não existe integração PHP;
+- não existe coleta de nome, endereço, telefone, e-mail ou qualquer dado de entrega;
+- nenhuma entrega física é disparada nesta versão.
+
+Os produtos do catálogo inicial são **itens temporários de desenvolvimento**, não mercadoria oficial.
+
+### Evolução futura
+
+A futura integração PHP deve substituir:
+
+```text
+catálogo local → catálogo da API
+pedido local   → criação de pedido na API
+```
+
+sem alterar o fluxo principal da tela.
+
+O backend futuro será responsável por persistência remota, catálogo/preço vigente, notificação do pedido e fluxo operacional de entrega. Dados pessoais e confirmação por responsável exigem desenho específico antes da ativação real.
