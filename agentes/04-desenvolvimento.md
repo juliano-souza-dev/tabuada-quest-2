@@ -755,3 +755,46 @@ equippedShip.travelVideo ?? assets.islandTravel
 ```
 
 Assim o código já está ligado aos futuros vídeos sem depender deles nesta etapa.
+
+
+## Loja Rubi
+
+Implementação inicial:
+
+```text
+web/js/content/game-content.js      → catálogo local e Regiões habilitadas
+web/js/domain/player-state.js       → compra atômica + pedidos persistidos
+web/js/screens/ruby-shop-screen.js  → experiência da Loja Rubi
+web/css/screens/ruby-shop.css       → apresentação
+web/js/screens/islands-screen.js    → gatilho regional reutilizável
+```
+
+Estado persistente:
+
+```text
+rubyShop.orders[]
+```
+
+Cada pedido local armazena snapshot mínimo do item comprado:
+
+```text
+id
+itemId
+label
+priceRubies
+status = local_pending
+createdAt
+```
+
+A compra:
+
+1. valida item e preço;
+2. valida saldo em `wallet.gems`;
+3. rejeita ID de pedido duplicado;
+4. debita Rubis e grava pedido na mesma transição de estado.
+
+O domínio não usa DOM, rede, e-mail ou PHP.
+
+A entrada regional consulta uma configuração compartilhada de Regiões habilitadas. Não duplicar renderer por Região.
+
+A futura API PHP deve entrar atrás de uma camada de serviço/adapter. A tela não deve depender de formato HTTP específico.
