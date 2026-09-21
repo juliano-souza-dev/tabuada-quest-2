@@ -319,3 +319,23 @@ Validar:
 - Missão Especial usa a fórmula global de Ouro;
 - os Rubis próprios da missão permanecem `acertos × 2`;
 - os três valores recebem bônus normais de Tripulação/Colecionáveis.
+
+
+## Gate da Loja
+
+Validar:
+
+- Loja abre pela Home;
+- abas: Molduras, Fundos e Estaleiro;
+- Colombo = 1.000 Ouro;
+- Rosa Intenso = 3.000 Ouro;
+- Cristal Queen = 9.000 Ouro;
+- compra desconta exatamente o preço;
+- compra repetida não desconta novamente;
+- Ouro insuficiente não compra;
+- comprado mostra apenas “Comprado”;
+- Loja não contém ação Equipar;
+- compras persistem no save;
+- migração v10 → v11 preserva Ouro/progresso;
+- navios permanecem sem arte e sem vídeo nesta etapa;
+- Molduras/Fundos não inventam catálogo nem preço.
