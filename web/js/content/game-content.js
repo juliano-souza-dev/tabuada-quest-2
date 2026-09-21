@@ -13,6 +13,30 @@
         Object.freeze({ id: "tide-wheel", label: "Timão das marés", src: "./assets/frames/profile-frame-tide-wheel.webp" })
     ]);
 
+    const shopCatalog = Object.freeze({
+        tabs: Object.freeze([
+            Object.freeze({ id: "frames", label: "Molduras" }),
+            Object.freeze({ id: "backgrounds", label: "Fundos" }),
+            Object.freeze({ id: "shipyard", label: "Estaleiro" })
+        ]),
+        frames: Object.freeze([]),
+        backgrounds: Object.freeze([]),
+        ships: Object.freeze([
+            Object.freeze({ id: "ship-colombo", type: "ship", label: "Colombo", price: 1000, asset: null, travelVideo: null }),
+            Object.freeze({ id: "ship-rosa-intenso", type: "ship", label: "Rosa Intenso", price: 3000, asset: null, travelVideo: null }),
+            Object.freeze({ id: "ship-cristal-queen", type: "ship", label: "Cristal Queen", price: 9000, asset: null, travelVideo: null })
+        ])
+    });
+
+    function getShopItem(itemId) {
+        const id = String(itemId);
+        return [
+            ...shopCatalog.frames,
+            ...shopCatalog.backgrounds,
+            ...shopCatalog.ships
+        ].find((item) => item.id === id) || null;
+    }
+
     const gameplayRewards = Object.freeze({
         xpPerCompletedMatch: 20,
         coinsPerCorrectAnswer: 10,
@@ -550,6 +574,8 @@
         getIslandPrimaryReward,
         homeBackgrounds,
         profileFrames,
+        shopCatalog,
+        getShopItem,
         gameplayRewards,
         crewMembers,
         pets,
