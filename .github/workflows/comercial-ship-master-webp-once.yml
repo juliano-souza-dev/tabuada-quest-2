@@ -1,0 +1,64 @@
+name: Convert Commercial Ship Master To WebP Once
+
+on:
+  push:
+    branches: ["fix/comercial-ship-master-webp"]
+    paths:
+      - "web/assets/global/comercial_ship.png"
+      - ".github/workflows/comercial-ship-master-webp-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Optimize commercial ship master
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          source_file="web/assets/global/comercial_ship.png"
+          output_file="web/assets/global/comercial_ship.webp"
+          temp_file="/tmp/comercial_ship_768.png"
+
+          if [ ! -f "$source_file" ]; then
+            echo "PNG source not present yet."
+            exit 0
+          fi
+
+          sudo apt-get update
+          sudo apt-get install -y imagemagick webp
+
+          convert "$source_file" \
+            -resize "768x768>" \
+            -strip \
+            "$temp_file"
+
+          cwebp -quiet \
+            -q 92 \
+            -alpha_q 100 \
+            -m 6 \
+            -mt \
+            "$temp_file" \
+            -o "$output_file"
+
+          rm -f "$source_file"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/assets/global/comercial_ship.webp web/assets/global/comercial_ship.png
+
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "assets: optimize commercial ship master as WebP"
+          git push origin HEAD:"$GITHUB_REF_NAME"
