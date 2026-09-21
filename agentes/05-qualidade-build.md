@@ -163,6 +163,18 @@ Antes de release candidate:
 - processo de assinatura/documentação de release definido;
 - nenhum segredo no repositório.
 
+## Invariantes de recompensas
+
+Validar automaticamente:
+
+- toda conclusão válida credita XP exatamente uma vez;
+- replay credita XP novamente, mas não duplica PET, Baú, Rubi ou fragmento único;
+- bônus de Tripulação soma por categoria e arredonda para baixo;
+- Rubi configurado é creditado em `wallet.gems` enquanto esse for o contrato vigente;
+- Baú concedido referencia kit válido, inclusive kit vazio;
+- tela de Baú só aparece quando um Baú foi efetivamente recebido;
+- continuidade para Resultado preserva o resumo da recompensa.
+
 ## Regra de documentação
 
 Conhecimento permanente de QA/Build vive nesta persona.
