@@ -317,8 +317,20 @@
                 return;
             }
 
-            if (action === "regions" || action === "play") {
+            if (action === "regions") {
                 onNavigate("regions");
+                return;
+            }
+
+            if (action === "play") {
+                const playRegionId = TQ.domain.playerState.getPlayRegionId(state);
+                if (!playRegionId) {
+                    onNavigate("regions");
+                    return;
+                }
+
+                const selected = TQ.domain.playerState.selectRegion(state, playRegionId);
+                onStateChange(TQ.domain.playerState.withLastScreen(selected, "islands"));
                 return;
             }
 
