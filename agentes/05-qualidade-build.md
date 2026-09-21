@@ -347,3 +347,11 @@ Validar:
 - todas possuem `price = null`;
 - preço nulo nunca vira compra de 0 Ouro;
 - nenhuma ação Equipar aparece.
+
+
+- Molduras: preços 250, 450, 700, 1000 e 1400;
+- Fundos: preços 400, 650, 900, 1300 e 1800;
+- exatamente 5 Molduras e 5 Fundos comerciais;
+- todos os 10 itens permanecem com `asset = null`;
+- compra usa Ouro e persiste;
+- compra não equipa nem troca personalização ativa.

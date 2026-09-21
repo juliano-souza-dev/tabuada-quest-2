@@ -75,7 +75,10 @@
                     </div>
                 </section>
                 <section data-shop-panel="backgrounds" hidden>
-                    ${emptyCategory("Os Fundos da Loja serão cadastrados quando catálogo e preços forem definidos.")}
+                    <p class="shop-intro">As artes entram na etapa visual. Por enquanto, o catálogo mostra nome e preço.</p>
+                    <div class="shop-item-list">
+                        ${catalog.backgrounds.map((item) => renderStoreItem(item, state)).join("")}
+                    </div>
                 </section>
                 <section data-shop-panel="shipyard">
                     <p class="shop-intro">A Loja apenas vende. O local de equipar navios será definido separadamente.</p>

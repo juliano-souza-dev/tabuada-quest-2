@@ -414,3 +414,15 @@ Cada missão:
 - Rubi-base da missão = `acertos × 2`;
 - bônus de Tripulação e Colecionáveis são aplicados normalmente em XP, Ouro e Rubi;
 - a missão concluída marca o mapa como `mission_completed` e libera o próximo bloco de Regiões.
+
+
+## Régua econômica inicial da Loja
+
+Uma criança com desempenho perfeito, sem bônus e sem gastar Ouro, pode acumular até aproximadamente **2.000 Ouro-base** ao concluir as 10 Ilhas das Regiões 1 e 2.
+
+Essa referência orienta os preços iniciais da Loja:
+
+- primeiro cosmético acessível ainda na Região 1;
+- itens médios competem com Tripulação e Colombo;
+- itens premium consomem boa parte do saldo acumulado até a Região 2;
+- nenhum catálogo inteiro pode ser comprado apenas com o Ouro-base dessas 10 Ilhas.

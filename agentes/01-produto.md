@@ -538,3 +538,39 @@ Nesta etapa:
 - itens sem preço não podem ser comprados;
 - a Loja mostra “Preço a definir” / “Em breve”;
 - nenhuma Moldura é equipada pela Loja.
+
+
+### Preços de Molduras e Fundos
+
+Referência de balanceamento inicial:
+
+```text
+10 Ilhas até o fim da Região 2
+× 20 acertos por Ilha
+× 10 Ouro por acerto
+= 2.000 Ouro-base
+```
+
+Sem considerar bônus nem gastos intermediários.
+
+Molduras:
+
+```text
+Âncora Dourada   250 Ouro
+Coroa Corsária   450 Ouro
+Maré de Safira   700 Ouro
+Rubi do Capitão  1.000 Ouro
+Lenda do Kraken  1.400 Ouro
+```
+
+Fundos:
+
+```text
+Enseada Dourada    400 Ouro
+Porto Esmeralda    650 Ouro
+Mar Rubi           900 Ouro
+Noite do Kraken  1.300 Ouro
+Horizonte Celeste 1.800 Ouro
+```
+
+Todos continuam sem asset até a etapa visual.

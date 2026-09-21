@@ -20,13 +20,19 @@
             Object.freeze({ id: "shipyard", label: "Estaleiro" })
         ]),
         frames: Object.freeze([
-            Object.freeze({ id: "frame-ancora-dourada", type: "frame", label: "Âncora Dourada", price: null, asset: null }),
-            Object.freeze({ id: "frame-coroa-corsaria", type: "frame", label: "Coroa Corsária", price: null, asset: null }),
-            Object.freeze({ id: "frame-mare-de-safira", type: "frame", label: "Maré de Safira", price: null, asset: null }),
-            Object.freeze({ id: "frame-rubi-do-capitao", type: "frame", label: "Rubi do Capitão", price: null, asset: null }),
-            Object.freeze({ id: "frame-lenda-do-kraken", type: "frame", label: "Lenda do Kraken", price: null, asset: null })
+            Object.freeze({ id: "frame-ancora-dourada", type: "frame", label: "Âncora Dourada", price: 250, asset: null }),
+            Object.freeze({ id: "frame-coroa-corsaria", type: "frame", label: "Coroa Corsária", price: 450, asset: null }),
+            Object.freeze({ id: "frame-mare-de-safira", type: "frame", label: "Maré de Safira", price: 700, asset: null }),
+            Object.freeze({ id: "frame-rubi-do-capitao", type: "frame", label: "Rubi do Capitão", price: 1000, asset: null }),
+            Object.freeze({ id: "frame-lenda-do-kraken", type: "frame", label: "Lenda do Kraken", price: 1400, asset: null })
         ]),
-        backgrounds: Object.freeze([]),
+        backgrounds: Object.freeze([
+            Object.freeze({ id: "background-enseada-dourada", type: "background", label: "Enseada Dourada", price: 400, asset: null }),
+            Object.freeze({ id: "background-porto-esmeralda", type: "background", label: "Porto Esmeralda", price: 650, asset: null }),
+            Object.freeze({ id: "background-mar-rubi", type: "background", label: "Mar Rubi", price: 900, asset: null }),
+            Object.freeze({ id: "background-noite-do-kraken", type: "background", label: "Noite do Kraken", price: 1300, asset: null }),
+            Object.freeze({ id: "background-horizonte-celeste", type: "background", label: "Horizonte Celeste", price: 1800, asset: null })
+        ]),
         ships: Object.freeze([
             Object.freeze({ id: "ship-colombo", type: "ship", label: "Colombo", price: 1000, asset: null, travelVideo: null }),
             Object.freeze({ id: "ship-rosa-intenso", type: "ship", label: "Rosa Intenso", price: 3000, asset: null, travelVideo: null }),

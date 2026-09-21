@@ -709,3 +709,10 @@ A Home reutiliza o hotspot já existente de Loja.
 `shopCatalog.frames` contém 5 registros estáveis.
 
 Preço nulo é estado válido de catálogo e significa item visível, porém ainda não comprável. A UI deve tratar `price = null` sem converter para zero.
+
+
+### Loja: preços iniciais
+
+`shopCatalog.frames` e `shopCatalog.backgrounds` agora possuem preços inteiros em Ouro e usam a mesma função `purchaseShopItem(...)`.
+
+Nenhuma compra altera `homeBackgroundId`, `profileFrameId` ou qualquer futuro campo de navio equipado.

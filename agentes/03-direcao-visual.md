@@ -768,3 +768,10 @@ Nesta etapa do Estaleiro:
 As cinco Molduras comerciais já existem como identidade de produto, mas ainda não possuem representação visual.
 
 Não gerar placeholder, ícone genérico ou moldura provisória. Manter `asset = null` até a etapa visual aprovada.
+
+
+### Fundos comerciais
+
+Os cinco Fundos comerciais possuem identidade textual e preço, mas continuam com `asset = null`.
+
+Não criar imagem, thumbnail ou placeholder nesta etapa de código.

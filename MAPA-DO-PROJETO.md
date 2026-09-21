@@ -751,3 +751,14 @@ web/js/content/game-content.js → shopCatalog.frames
 ```
 
 5 nomes cadastrados; preço e asset ainda pendentes.
+
+
+Catálogo comercial atual da Loja:
+
+```text
+shopCatalog.frames      → 5 Molduras com preço
+shopCatalog.backgrounds → 5 Fundos com preço
+shopCatalog.ships       → 3 Navios com preço
+```
+
+Assets de Molduras/Fundos/Navios permanecem para a etapa visual.
