@@ -265,7 +265,7 @@ Não usar os paths/nomes históricos `corsario-1/corsario-2` como modelo para no
 Assets de composição canônicos:
 
 ```text
-web/assets/regions/region-13/background.jpg
+web/assets/regions/region-13/background.png
 web/assets/regions/region-13/island-01-unlocked.png
 web/assets/regions/region-13/island-01-locked.png
 web/assets/regions/region-13/island-02-unlocked.png
