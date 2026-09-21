@@ -161,20 +161,28 @@ Todas as telas de Região devem chamar esse controlador.
 
 É proibido criar handlers independentes por Região.
 
-Comportamento atual:
+Comportamento temporário de validação:
 
 ```text
 clique
-→ aviso "Mapa mundo ainda está em produção."
+→ world-map
+→ lista canônica das 22 Regiões
+→ selecionar Região
+→ preview transitório em islands
 ```
 
-Destino futuro reservado:
+Arquivos:
 
 ```text
-world-map
+web/js/screens/world-map-screen.js
+web/css/screens/world-map.css
 ```
 
-Quando a tela real existir, alterar o comportamento em um único ponto.
+O preview selecionado é mantido somente em memória por `web/js/app.js`; não pertence ao estado persistente e não altera `campaign.currentRegionId`, desbloqueios ou progresso.
+
+`web/js/screens/islands-screen.js` resolve a Região exibida a partir do preview quando ele existe e usa a campanha normal quando ele não existe.
+
+Destino final do recurso: **modo somente visualização**. A remoção futura da navegação deve acontecer na tela do Mapa Mundo sem reintroduzir handlers locais por Região.
 
 ## Ilhas
 
