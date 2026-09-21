@@ -184,6 +184,28 @@ O preview selecionado é mantido somente em memória por `web/js/app.js`; não p
 
 Destino final do recurso: **modo somente visualização**. A remoção futura da navegação deve acontecer na tela do Mapa Mundo sem reintroduzir handlers locais por Região.
 
+### Progressão automática no preview de desenvolvimento
+
+O preview não deve exigir avanço manual da campanha para inspecionar Regiões já implementadas.
+
+Fonte técnica:
+
+```text
+web/js/screens/islands-screen.js
+REGION_VISUAL_CONFIG
+getImplementedRegionIds()
+getDevelopmentRegionStatus(regionId)
+```
+
+Regra:
+
+- uma Região com configuração visual válida em `REGION_VISUAL_CONFIG` é considerada automaticamente implementada;
+- no preview do Mapa Mundo, Região implementada é tratada como concluída/liberada para inspeção;
+- as Ilhas dessa Região usam o estado visual desbloqueado no preview;
+- essa progressão é exclusivamente transitória de desenvolvimento;
+- não alterar `campaign`, `localStorage`, desbloqueios reais nem conclusão do jogador;
+- adicionar nova Região visual ao catálogo deve fazê-la entrar automaticamente nesse comportamento, sem lista manual paralela.
+
 ## Ilhas
 
 Estados de domínio:

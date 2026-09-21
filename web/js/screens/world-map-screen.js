@@ -4,6 +4,11 @@
     function renderWorldMapScreen({ previewRegionId, onPreviewRegionChange, onNavigate }) {
         const regions = TQ.content.worldRegions || [];
         const selectedId = Number(previewRegionId) || null;
+        const implementedRegionIds = new Set(
+            typeof TQ.screens?.islands?.getImplementedRegionIds === "function"
+                ? TQ.screens.islands.getImplementedRegionIds()
+                : []
+        );
 
         const screen = document.createElement("section");
         screen.className = "world-map-screen";
@@ -28,15 +33,17 @@
                     ${regions.map((region) => {
                         const textMaps = TQ.content.getRegionTextMaps(region.id);
                         const isSelected = region.id === selectedId;
+                        const isImplemented = implementedRegionIds.has(region.id);
                         return `
                             <button type="button"
-                                    class="world-map-region-item${isSelected ? " is-selected" : ""}"
+                                    class="world-map-region-item${isSelected ? " is-selected" : ""}${isImplemented ? " is-implemented" : ""}"
                                     data-region-id="${region.id}"
-                                    aria-label="Abrir Região ${region.id}, ${region.label}">
+                                    data-development-status="${isImplemented ? "completed" : "preview"}"
+                                    aria-label="Abrir Região ${region.id}, ${region.label}${isImplemented ? ", implementada e liberada para teste" : ""}">
                                 <span class="world-map-region-number">${String(region.id).padStart(2, "0")}</span>
                                 <span class="world-map-region-copy">
                                     <strong>${region.label}</strong>
-                                    <small>5 Ilhas${textMaps.length ? " • " + textMaps.length + " mapas cadastrados" : ""}</small>
+                                    <small>5 Ilhas${isImplemented ? " • IMPLEMENTADA ✓" : (textMaps.length ? " • " + textMaps.length + " mapas cadastrados" : "")}</small>
                                 </span>
                                 <span class="world-map-region-arrow" aria-hidden="true">›</span>
                             </button>
