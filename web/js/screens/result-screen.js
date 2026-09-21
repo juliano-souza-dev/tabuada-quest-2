@@ -1,19 +1,41 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
-    function renderIslandRewards(regionId, islandId) {
-        const rewards = TQ.content.getIslandRewards(regionId, islandId);
-        if (!rewards.length) return "";
+    function renderIslandRewards(rewards) {
+        const configured = Array.isArray(rewards) ? rewards : [];
+        if (!configured.length) return "";
 
         return `
-            <section class="result-rewards" aria-label="Recompensa desta Ilha">
-                <h2>Marco desta Ilha</h2>
-                ${rewards.map((reward) => {
+            <section class="result-rewards" aria-label="Recompensas desta Ilha">
+                <h2>Recompensas da Ilha</h2>
+                ${configured.map((reward) => {
                     if (reward.type === "map_fragment") return `<p>🧩 Peça ${reward.fragment}/4 do Mapa ${reward.mapId}</p>`;
-                    if (reward.type === "chest") return "<p>🎁 Baú encontrado</p>";
-                    if (reward.type === "pet") return "<p>🐾 PET salvo</p>";
+                    if (reward.type === "chest") return "<p>🎁 Baú conquistado</p>";
+                    if (reward.type === "pet") return "<p>🐾 PET resgatado</p>";
+                    if (reward.type === "ruby" && Number.isInteger(reward.amount) && reward.amount > 0) {
+                        return `<p>💎 +${reward.amount} Rubis</p>`;
+                    }
                     return "";
                 }).join("")}
+            </section>
+        `;
+    }
+
+    function renderNumericRewards(reward) {
+        if (!reward?.total) return "";
+        const xp = Number.isInteger(reward.total.xp) ? reward.total.xp : 0;
+        const gems = Number.isInteger(reward.total.gems) ? reward.total.gems : 0;
+        const coins = Number.isInteger(reward.total.coins) ? reward.total.coins : 0;
+        const xpBonus = Number.isInteger(reward.bonus?.xp) ? reward.bonus.xp : 0;
+        const gemBonus = Number.isInteger(reward.bonus?.gems) ? reward.bonus.gems : 0;
+        const coinBonus = Number.isInteger(reward.bonus?.coins) ? reward.bonus.coins : 0;
+
+        return `
+            <section class="result-rewards" aria-label="Recompensas recebidas">
+                <h2>Você recebeu</h2>
+                <p>⭐ +${xp} XP${xpBonus > 0 ? ` <small>(+${xpBonus} da Tripulação)</small>` : ""}</p>
+                ${coins > 0 ? `<p>🪙 +${coins} Ouro${coinBonus > 0 ? ` <small>(+${coinBonus} da Tripulação)</small>` : ""}</p>` : ""}
+                ${gems > 0 ? `<p>💎 +${gems} Rubis${gemBonus > 0 ? ` <small>(+${gemBonus} da Tripulação)</small>` : ""}</p>` : ""}
             </section>
         `;
     }
@@ -43,7 +65,8 @@
                         <div><dt>Erros</dt><dd>${result.wrongAnswers}</dd></div>
                         <div><dt>Tentativas extras</dt><dd>${result.recoveryAnswers}</dd></div>
                     </dl>
-                    ${renderIslandRewards(result.regionId, result.islandId)}
+                    ${renderNumericRewards(result.reward)}
+                    ${renderIslandRewards(result.reward?.structural)}
                     <button type="button" data-action="islands">Voltar às Ilhas</button>
                     <button type="button" data-action="regions">Ver Regiões</button>
                 </main>
@@ -62,6 +85,7 @@
     TQ.screens = TQ.screens || {};
     TQ.screens.result = Object.freeze({
         renderResultScreen,
-        renderIslandRewards
+        renderIslandRewards,
+        renderNumericRewards
     });
 })(globalThis);
