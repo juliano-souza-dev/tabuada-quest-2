@@ -935,3 +935,39 @@ O asset fornece a composição visual de celebração. Região, Ilha, estatísti
 
 Regra visual: `agentes/03-direcao-visual.md`.
 Implementação: `agentes/04-desenvolvimento.md`.
+
+
+## Efeitos de feedback dos desafios
+
+Catálogo/resolução:
+
+```text
+web/js/content/challenge-effects.js
+```
+
+Renderer compartilhado:
+
+```text
+web/js/core/challenge-effect-renderer.js
+```
+
+Consumidores:
+
+```text
+web/js/screens/challenge-screen.js
+web/js/screens/special-mission-screen.js
+```
+
+Estilo:
+
+```text
+web/css/screens/vertical-slice.css
+```
+
+Testes:
+
+```text
+tests/web/challenge-effects.test.cjs
+tests/web/challenge-art.test.cjs
+tests/web/gameplay-session.test.cjs
+```
