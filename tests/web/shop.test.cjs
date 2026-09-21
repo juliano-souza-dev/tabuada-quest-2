@@ -42,7 +42,19 @@ test("Ouro insuficiente não compra item",()=>{
     assert.deepEqual(next.shop.purchasedItemIds,[]);
 });
 
-test("Molduras e Fundos permanecem sem catálogo comercial até definição",()=>{
-    assert.deepEqual(TQ.content.shopCatalog.frames,[]);
+test("Loja possui cinco Molduras nomeadas sem arte e sem preço definido",()=>{
+    const frames=TQ.content.shopCatalog.frames;
+    assert.deepEqual(
+        frames.map((item)=>item.label),
+        ["Âncora Dourada","Coroa Corsária","Maré de Safira","Rubi do Capitão","Lenda do Kraken"]
+    );
+    assert.equal(frames.length,5);
+    for(const frame of frames){
+        assert.equal(frame.asset,null);
+        assert.equal(frame.price,null);
+    }
+});
+
+test("Fundos permanecem sem catálogo comercial até definição",()=>{
     assert.deepEqual(TQ.content.shopCatalog.backgrounds,[]);
 });
