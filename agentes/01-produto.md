@@ -286,6 +286,25 @@ Quando a fase de validação terminar, o Mapa mundo deve passar para **modo some
 
 O comportamento é global e não deve ser redefinido Região por Região.
 
+### Comportamento do botão Jogar
+
+O botão principal **Jogar** é um atalho de continuidade da campanha, não um atalho para a lista de Regiões.
+
+Regra:
+
+```text
+Região atual ainda possui Ilha jogável
+→ Jogar abre diretamente essa Região
+
+Região atual concluída e próxima Região desbloqueada
+→ Jogar abre diretamente a próxima Região desbloqueada
+
+nenhuma Região jogável disponível por gate/progressão
+→ Jogar abre a tela de Regiões para orientar o próximo passo
+```
+
+O atalho **Regiões** continua existindo separadamente para abrir o seletor completo.
+
 ## Home e personalização
 
 A Home possui dados dinâmicos de jogador e personalização visual.
