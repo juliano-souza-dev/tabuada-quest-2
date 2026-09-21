@@ -81,7 +81,40 @@
                     unlockAfterCompleted: 5
                 })
             ])
-        })
+        }),
+        13: Object.freeze({
+            assetKey: "region13Modular",
+            pages: Object.freeze([
+                Object.freeze({
+                    id: "obsidiana",
+                    backgroundId: 1,
+                    islandIds: Object.freeze([1, 2, 3, 4, 5]),
+                    slotLayout: Object.freeze({
+                        1: Object.freeze({
+                            art: Object.freeze({ x: 80, y: 539, width: 330, height: 330 }),
+                            hitbox: Object.freeze({ x: 95, y: 554, width: 300, height: 300 })
+                        }),
+                        2: Object.freeze({
+                            art: Object.freeze({ x: 566, y: 541, width: 330, height: 330 }),
+                            hitbox: Object.freeze({ x: 581, y: 556, width: 300, height: 300 })
+                        }),
+                        3: Object.freeze({
+                            art: Object.freeze({ x: 286, y: 803, width: 360, height: 360 }),
+                            hitbox: Object.freeze({ x: 301, y: 818, width: 330, height: 330 })
+                        }),
+                        4: Object.freeze({
+                            art: Object.freeze({ x: 50, y: 1092, width: 340, height: 340 }),
+                            hitbox: Object.freeze({ x: 65, y: 1107, width: 310, height: 310 })
+                        }),
+                        5: Object.freeze({
+                            art: Object.freeze({ x: 522, y: 1130, width: 340, height: 340 }),
+                            hitbox: Object.freeze({ x: 537, y: 1145, width: 310, height: 310 })
+                        })
+                    }),
+                    unlockAfterCompleted: 0
+                })
+            ])
+
     });
 
     function getRegionVisualConfig(regionId) {
@@ -260,8 +293,11 @@
             );
             const statusText = formatRegionStatus(status, isResume);
             const rewardText = rewardLabel(rewards);
+            const assetEntry = visual.assets.islands[islandId];
+            if (!assetEntry?.unlocked) return "";
+
             const islandAsset = getRegionIslandAsset(regionId, islandId, status);
-            const unlockedAsset = visual.assets.islands[islandId].unlocked;
+            const unlockedAsset = assetEntry.unlocked;
 
             return `
                 <div class="region-island-overlay is-${status}${isResume ? " is-resume" : ""}" data-island-ui="${islandId}">
@@ -283,7 +319,7 @@
                     </button>
                 </div>
             `;
-        }).join("");
+        }).filter(Boolean).join("");
 
         screen.innerHTML = `
             <div class="region-islands-canonical-stage">
