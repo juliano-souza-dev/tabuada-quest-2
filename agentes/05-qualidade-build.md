@@ -339,3 +339,11 @@ Validar:
 - migração v10 → v11 preserva Ouro/progresso;
 - navios permanecem sem arte e sem vídeo nesta etapa;
 - Molduras/Fundos não inventam catálogo nem preço.
+
+
+- a aba Molduras lista exatamente 5 itens;
+- nomes: Âncora Dourada, Coroa Corsária, Maré de Safira, Rubi do Capitão, Lenda do Kraken;
+- todas possuem `asset = null`;
+- todas possuem `price = null`;
+- preço nulo nunca vira compra de 0 Ouro;
+- nenhuma ação Equipar aparece.

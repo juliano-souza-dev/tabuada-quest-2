@@ -19,7 +19,13 @@
             Object.freeze({ id: "backgrounds", label: "Fundos" }),
             Object.freeze({ id: "shipyard", label: "Estaleiro" })
         ]),
-        frames: Object.freeze([]),
+        frames: Object.freeze([
+            Object.freeze({ id: "frame-ancora-dourada", type: "frame", label: "Âncora Dourada", price: null, asset: null }),
+            Object.freeze({ id: "frame-coroa-corsaria", type: "frame", label: "Coroa Corsária", price: null, asset: null }),
+            Object.freeze({ id: "frame-mare-de-safira", type: "frame", label: "Maré de Safira", price: null, asset: null }),
+            Object.freeze({ id: "frame-rubi-do-capitao", type: "frame", label: "Rubi do Capitão", price: null, asset: null }),
+            Object.freeze({ id: "frame-lenda-do-kraken", type: "frame", label: "Lenda do Kraken", price: null, asset: null })
+        ]),
         backgrounds: Object.freeze([]),
         ships: Object.freeze([
             Object.freeze({ id: "ship-colombo", type: "ship", label: "Colombo", price: 1000, asset: null, travelVideo: null }),

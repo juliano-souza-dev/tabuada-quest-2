@@ -742,3 +742,12 @@ Cristal Queen 9.000
 ```
 
 A Loja compra, mas não equipa.
+
+
+Catálogo inicial de Molduras em:
+
+```text
+web/js/content/game-content.js → shopCatalog.frames
+```
+
+5 nomes cadastrados; preço e asset ainda pendentes.

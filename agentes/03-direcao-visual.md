@@ -761,3 +761,10 @@ Nesta etapa do Estaleiro:
 - `asset = null` e `travelVideo = null` são estados válidos;
 - as artes dos navios e seus vídeos de viagem serão definidos em etapa visual posterior;
 - item comprado deve comunicar apenas “Comprado”, sem affordance visual de Equipar.
+
+
+### Molduras comerciais sem asset
+
+As cinco Molduras comerciais já existem como identidade de produto, mas ainda não possuem representação visual.
+
+Não gerar placeholder, ícone genérico ou moldura provisória. Manter `asset = null` até a etapa visual aprovada.
