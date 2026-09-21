@@ -37,9 +37,9 @@ function legacyV8(){
     };
 }
 
-test("estado inicial v9 usa 22 Regiões de 5 Ilhas",()=>{
+test("estado inicial v10 usa 22 Regiões de 5 Ilhas",()=>{
     const s=d.createInitialState();
-    assert.equal(s.schemaVersion,9);
+    assert.equal(s.schemaVersion,10);
     assert.deepEqual(s.campaign.unlockedRegionIds,[1]);
     assert.equal(Object.keys(s.campaign.regionProgress).length,22);
     assert.equal(s.campaign.regionProgress["22"].islandsTotal,5);
@@ -56,7 +56,7 @@ test("migração v8 traduz R1/I6 para R2/I1 sem perder progresso",()=>{
     old.campaign.travelPlayedIslandIds=["region-1-island-6"];
 
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,9);
+    assert.equal(m.schemaVersion,10);
     assert.equal(m.campaign.currentRegionId,2);
     assert.equal(m.campaign.currentIslandId,1);
     assert.equal(m.campaign.regionProgress["1"].islandsCompleted,5);
@@ -95,13 +95,13 @@ test("migração v8 converte sessão ativa e une histórico pedagógico",()=>{
     assert.equal(m.learning.schedulerState.recoveryQueue[0].remainingGap,1);
 });
 
-test("migração v7 ainda cria Tripulação e termina em v9",()=>{
+test("migração v7 ainda cria Tripulação e termina em v10",()=>{
     const old=legacyV8();
     old.schemaVersion=7;
     delete old.crew;
     old.wallet.coins=321;
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,9);
+    assert.equal(m.schemaVersion,10);
     assert.equal(m.wallet.coins,321);
     assert.deepEqual(m.crew.hiredIds,[]);
 });
@@ -157,8 +157,29 @@ test("recuperação pedagógica atravessa fronteira visual",()=>{
     assert.equal(d.getIslandStatus(s,2,1),"available");
 });
 
-test("estado inválido volta ao inicial v9",()=>{
+test("estado inválido volta ao inicial v10",()=>{
     const s=d.normalizeState({schemaVersion:999,wallet:{coins:999}});
-    assert.equal(s.schemaVersion,9);
+    assert.equal(s.schemaVersion,10);
     assert.equal(s.wallet.coins,0);
+});
+
+
+test("migração v9 adiciona estado persistente de Colecionáveis sem perder progresso",()=>{
+    const current=d.createInitialState();
+    const old={...current,schemaVersion:9,campaign:{...current.campaign}};
+    delete old.campaign.collectibles;
+    old.wallet.coins=432;
+    const migrated=d.normalizeState(old);
+    assert.equal(migrated.schemaVersion,10);
+    assert.deepEqual(migrated.campaign.collectibles,{collectedIds:[],pendingIds:[]});
+    assert.equal(migrated.wallet.coins,432);
+});
+
+test("Colecionável coletado persiste de forma idempotente",()=>{
+    const allowed=["collectible-001","collectible-002"];
+    let s=d.createInitialState();
+    s=d.collectCollectible(s,"collectible-001",allowed);
+    s=d.collectCollectible(s,"collectible-001",allowed);
+    assert.deepEqual(s.campaign.collectibles.collectedIds,["collectible-001"]);
+    assert.deepEqual(s.campaign.collectibles.pendingIds,[]);
 });
