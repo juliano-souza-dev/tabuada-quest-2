@@ -363,3 +363,38 @@
 
 /* CORSÁRIO 2: o texto repousa sobre a placa desenhada no próprio asset. */
 .region-islands-map-screen[data-region-page="corsario-2"] 
+
+
+/* Preview textual temporário acessado pelo Mapa Mundo. */
+.island-text-button.is-preview {
+    cursor: default;
+}
+
+.region-text-map-preview {
+    margin-top: 18px;
+    padding: 14px;
+    border: 2px solid rgba(226, 184, 92, .55);
+    border-radius: 16px;
+    background: rgba(39, 24, 16, .86);
+}
+
+.region-text-map-preview h2 {
+    margin: 0 0 10px;
+    color: #ffe29a;
+    font-size: .92rem;
+}
+
+.region-text-map-list {
+    display: grid;
+    gap: 7px;
+}
+
+.region-text-map-list span {
+    display: block;
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .08);
+    color: #fff7df;
+    font-size: .78rem;
+    font-weight: 800;
+}
