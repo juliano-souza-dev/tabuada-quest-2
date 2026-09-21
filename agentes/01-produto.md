@@ -382,10 +382,12 @@ Regras:
 - cada Baú possui um kit próprio de itens;
 - o kit pode existir vazio enquanto seu conteúdo ainda não tiver sido definido;
 - a tela de resultado é sempre exibida primeiro;
-- PET e Baú não são anunciados dentro do painel de premiação da tela de resultado;
-- quando a primeira conclusão conceder PET ou Baú, ao escolher `Voltar às Ilhas` ou `Ver Regiões`, o jogo abre antes uma tela dedicada à recompensa correspondente;
+- PET, Baú e fragmento de Mapa não são anunciados dentro do painel de premiação da tela de resultado;
+- quando a primeira conclusão conceder PET, Baú ou fragmento de Mapa, ao escolher `Voltar às Ilhas` ou `Ver Regiões`, o jogo abre antes uma tela dedicada à recompensa correspondente;
+- a tela de fragmento mostra qual Mapa recebeu a peça e o progresso atual de 0/4 a 4/4;
+- ao completar 4/4, a apresentação informa que a Missão Especial daquele Mapa foi liberada;
 - depois dessa apresentação, o fluxo continua para o destino que a criança havia escolhido;
-- as telas de PET e Baú podem ser funcionais e simples nesta etapa; arte final específica será tratada futuramente pela Direção Visual;
+- as telas especiais podem ser funcionais e simples nesta etapa; arte final específica será tratada futuramente pela Direção Visual;
 - abrir/receber um Baú não deve duplicar o mesmo Baú nem seus itens em replay.
 
 Produto determina se novos tipos de recompensa pertencem ao escopo. Game Design define distribuição e balanceamento. Desenvolvimento mantém o catálogo extensível e a persistência idempotente.
