@@ -650,3 +650,24 @@ web/js/screens/chest-screen.js
 ```
 
 Regra de fila: 1 pendência por Baú normal; Baú Final absorve todas.
+
+
+### Economia de partida
+
+```text
+web/js/domain/player-state.js
+→ calculateGoldBaseAmount
+→ getCollectibleBonusPercent
+→ calculateRewardBonuses
+```
+
+Parâmetros em `TQ.content.gameplayRewards`.
+
+PETs provisórios:
+
+```text
+TQ.content.pets
+TQ.content.getPet(petId)
+```
+
+Baú Final: 5.000 Rubis-base.
