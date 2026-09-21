@@ -47,17 +47,17 @@ test("replay concede XP novamente sem repetir recompensa única",()=>{
     const rewards=[
         {type:"pet",petId:"pet-test"},
         {type:"chest",chestId:"chest-test"},
-        {type:"ruby",amount:50}
+        {type:"ruby"}
     ];
     s=d.completeGameplaySession(s,result(1),regionState(),rewards,crew,config);
     assert.equal(s.progression.xpCurrent,20);
-    assert.equal(s.wallet.gems,50);
+    assert.equal(s.wallet.gems,20);
     assert.deepEqual(s.campaign.petsRescuedIds,["pet-test"]);
     assert.deepEqual(s.campaign.claimedChestIds,["chest-test"]);
 
     s=d.completeGameplaySession(s,result(1),regionState(),rewards,crew,config);
     assert.equal(s.progression.xpCurrent,40);
-    assert.equal(s.wallet.gems,50);
+    assert.equal(s.wallet.gems,20);
     assert.deepEqual(s.campaign.petsRescuedIds,["pet-test"]);
     assert.deepEqual(s.campaign.claimedChestIds,["chest-test"]);
     assert.deepEqual(s.learning.lastResult.reward.structural,[]);
@@ -87,14 +87,15 @@ test("bônus de gemas da Tripulação é aplicado ao Rubi da primeira conclusão
         s,
         result(1),
         regionState(),
-        [{type:"ruby",amount:100}],
+        [{type:"ruby"}],
         crew,
         config
     );
     assert.equal(s.learning.lastResult.reward.percent.gems,16);
-    assert.equal(s.learning.lastResult.reward.bonus.gems,16);
-    assert.equal(s.learning.lastResult.reward.total.gems,116);
-    assert.equal(s.wallet.gems,116);
+    assert.equal(s.learning.lastResult.reward.base.gems,20);
+    assert.equal(s.learning.lastResult.reward.bonus.gems,3);
+    assert.equal(s.learning.lastResult.reward.total.gems,23);
+    assert.equal(s.wallet.gems,23);
 });
 
 test("XP faz rollover de nível usando xpRequired vigente",()=>{
@@ -121,4 +122,45 @@ test("primeira conclusão com baú abre tela de baú e replay vai ao resultado",
 
     s=d.completeGameplaySession(s,result(1),regionState(),rewards,crew,config);
     assert.equal(s.ui.lastScreen,"result");
+});
+
+
+test("Rubi-base é acertos menos erros com mínimo zero",()=>{
+    assert.equal(d.calculateRubyBaseAmount({correctAnswers:18,wrongAnswers:2},[{type:"ruby"}]),16);
+    assert.equal(d.calculateRubyBaseAmount({correctAnswers:14,wrongAnswers:6},[{type:"ruby"}]),8);
+    assert.equal(d.calculateRubyBaseAmount({correctAnswers:4,wrongAnswers:9},[{type:"ruby"}]),0);
+    assert.equal(d.calculateRubyBaseAmount({correctAnswers:20,wrongAnswers:0},[{type:"pet",petId:"x"}]),0);
+});
+
+test("distribuição canônica cobre 110 Ilhas com uma recompensa principal cada",()=>{
+    const totals={pet:0,chest:0,ruby:0,map_fragment:0};
+    for(let regionId=1;regionId<=22;regionId++){
+        for(let islandId=1;islandId<=5;islandId++){
+            const rewards=TQ.content.getIslandRewards(regionId,islandId);
+            assert.equal(rewards.length,1,`R${regionId}/I${islandId}`);
+            assert.equal(TQ.content.getIslandPrimaryReward(regionId,islandId),rewards[0]);
+            totals[rewards[0].type]+=1;
+        }
+    }
+    assert.deepEqual(totals,{pet:30,chest:30,ruby:30,map_fragment:20});
+});
+
+test("fragmentos dos cinco Mapas Especiais ocupam as posições globais aprovadas",()=>{
+    const world=TQ.domain.worldStructure;
+    const expected={
+        1:[2,5,8,10],
+        2:[22,25,28,30],
+        3:[42,45,48,50],
+        4:[62,65,68,70],
+        5:[92,95,98,100]
+    };
+    for(const [mapId,globals] of Object.entries(expected)){
+        const found=[];
+        for(let g=1;g<=110;g++){
+            const loc=world.fromGlobalIslandIndex(g);
+            const reward=TQ.content.getIslandPrimaryReward(loc.regionId,loc.islandId);
+            if(reward?.type==="map_fragment" && reward.mapId===Number(mapId)) found.push(g);
+        }
+        assert.deepEqual(found,globals);
+    }
 });

@@ -228,3 +228,20 @@ Scheduler:
 - mudança de Região não cria reset pedagógico silencioso.
 
 Código ativo não pode usar 11 Regiões, 10 Ilhas por Região, `REGION_VISUAL_CONFIG.pages`, `regionStates` ou `island10*` como contrato atual. Esses termos são aceitos somente em migração histórica e testes de compatibilidade.
+
+
+## Gate da distribuição canônica de recompensas
+
+A suíte deve impedir divergência entre arte, catálogo e economia.
+
+Validar:
+
+- 110 Ilhas com exatamente uma recompensa principal;
+- totais exatos: 30 PETs, 30 Baús, 30 Rubis e 20 fragmentos;
+- Mapas 1–5 nas posições globais aprovadas;
+- `getIslandPrimaryReward(regionId, islandId)` retorna a recompensa usada como badge pela Direção Visual;
+- Rubi não possui `amount` fixo no catálogo;
+- `Rubis-base = max(0, correctAnswers - wrongAnswers)`;
+- bônus de gemas da Tripulação incide sobre Rubis-base;
+- replay não duplica Rubi;
+- IDs históricos dos primeiros PETs/Baús permanecem compatíveis com saves existentes.

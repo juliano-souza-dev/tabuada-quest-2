@@ -152,6 +152,7 @@
             if (reward.type === "map_fragment") return `🧩 Mapa ${reward.mapId}: peça ${reward.fragment}/4`;
             if (reward.type === "chest") return "🎁 Baú";
             if (reward.type === "pet") return "🐾 PET para salvar";
+            if (reward.type === "ruby") return "💎 Rubi";
             return "";
         }).filter(Boolean).join(" • ")}</span>`;
     }
@@ -176,6 +177,7 @@
         if (reward.type === "map_fragment") return `Fragmento ${reward.fragment} de 4 do Mapa ${reward.mapId}`;
         if (reward.type === "chest") return "Baú";
         if (reward.type === "pet") return "PET para salvar";
+        if (reward.type === "ruby") return "Rubi";
         return "Recompensa";
     }
 

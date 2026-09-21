@@ -190,8 +190,8 @@ Após a consolidação da migração estrutural, a sequência recomendada é:
 
 ```text
 1. validar/fechar a migração 22×5
-2. recalcular e cadastrar a distribuição definitiva de recompensas nas 110 Ilhas
-3. continuar a expansão visual das Regiões usando uma composição de 5 Ilhas por Região
+2. manter a distribuição canônica das 110 recompensas sincronizada entre Game Design, catálogo e Direção Visual
+3. continuar a expansão visual das Regiões usando a recompensa canônica para definir o badge de cada Ilha
 4. remover assets históricos não referenciados somente quando a limpeza física for segura
 ```
 

@@ -608,16 +608,19 @@
         };
     }
 
-    function configuredRubyAmount(rewards) {
-        if (!Array.isArray(rewards)) return 0;
-        return rewards.reduce((total, reward) => (
-            isObject(reward)
-            && reward.type === "ruby"
-            && Number.isInteger(reward.amount)
-            && reward.amount > 0
-                ? total + reward.amount
-                : total
-        ), 0);
+    function calculateRubyBaseAmount(result, rewards) {
+        const hasRubyReward = Array.isArray(rewards)
+            && rewards.some((reward) => isObject(reward) && reward.type === "ruby");
+        if (!hasRubyReward) return 0;
+
+        const correctAnswers = Number.isInteger(result?.correctAnswers)
+            ? Math.max(0, result.correctAnswers)
+            : 0;
+        const wrongAnswers = Number.isInteger(result?.wrongAnswers)
+            ? Math.max(0, result.wrongAnswers)
+            : 0;
+
+        return Math.max(0, correctAnswers - wrongAnswers);
     }
 
     function getIslandStatus(state, regionId, islandId) {
@@ -864,7 +867,7 @@
         const baseReward = {
             xp: xpPerCompletedMatch,
             coins: 0,
-            gems: alreadyCompleted ? 0 : configuredRubyAmount(structuralRewards)
+            gems: alreadyCompleted ? 0 : calculateRubyBaseAmount(result, structuralRewards)
         };
         const rewardBreakdown = calculateCrewReward(s, crewMembers, baseReward);
 
@@ -934,6 +937,7 @@
         hireCrewMember,
         getCrewBonusSummary,
         calculateCrewReward,
+        calculateRubyBaseAmount,
         grantXp,
         applyNumericReward,
         getIslandStatus,
