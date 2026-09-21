@@ -847,3 +847,27 @@ Contrato técnico:
 - a tela mantém fallback textual se o asset não estiver disponível;
 - Missão Especial continua funcional como ação dinâmica e não é incorporada ao bitmap;
 - alterações de coordenadas do overlay devem preservar alinhamento responsivo e ser cobertas por teste automatizado.
+
+
+## Sistema técnico de Efeitos de desafio
+
+Implementação compartilhada:
+
+```text
+web/js/content/challenge-effects.js
+web/js/core/challenge-effect-renderer.js
+web/js/screens/challenge-screen.js
+web/js/screens/special-mission-screen.js
+```
+
+Contrato:
+
+- catálogo de Efeitos é independente das telas;
+- o renderer recebe o Efeito resolvido e não decide acerto/erro;
+- resolução consulta, quando existir, `inventory.equipped.correctEffectId` e `inventory.equipped.wrongEffectId`;
+- enquanto o Baú de Itens não implementar persistência, IDs padrão funcionam como fallback;
+- Efeito de acerto dispara avanço ao terminar a animação, com fallback temporal para evitar deadlock;
+- Efeito de erro nunca avança automaticamente;
+- a resposta correta é fornecida pela sessão, não pelo catálogo de Efeitos;
+- `prefers-reduced-motion` reduz a animação sem bloquear o fluxo;
+- Missões Especiais reutilizam o mesmo renderer e resolver.
