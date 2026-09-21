@@ -234,7 +234,7 @@
         const visual = getRegionVisualConfig(regionId);
         const visualPage = getRegionVisualPage(state, regionId);
         if (!visual || !visualPage) {
-            return renderTextIslandsScreen({ state, onStateChange, onNavigate });
+            return renderTextIslandsScreen({ state, onStateChange, onNavigate, previewRegionId });
         }
 
         const region = previewMode
@@ -250,10 +250,10 @@
         const islandsMarkup = visualPage.hideIslands ? "" : visualPage.islandIds.map((islandId, slotIndex) => {
             const slotId = REGION_LAYOUT.visibleIslandIds[slotIndex];
             const layout = visualPage.slotLayout?.[slotId] || REGION_LAYOUT.islands[slotId];
-            const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
+            const status = previewMode ? "available" : TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             const identity = TQ.content.getIslandIdentity(regionId, islandId);
             const rewards = TQ.content.getIslandRewards(regionId, islandId);
-            const isResume = Boolean(
+            const isResume = !previewMode && Boolean(
                 active
                 && active.regionId === regionId
                 && active.islandId === islandId
@@ -398,7 +398,7 @@
 
         screen.innerHTML = `
             <header class="slice-header">
-                <button type="button" data-action="back-regions">← Regiões</button>
+                <button type="button" data-action="back-regions">${previewMode ? "← Mapa Mundo" : "← Regiões"}</button>
                 <div>
                     <small>REGIÃO ${regionId}</small>
                     <h1>${region ? region.label : "REGIÃO"}</h1>
@@ -430,8 +430,8 @@
                                 <span class="island-copy">
                                     <span class="island-number">Ilha ${islandId}</span>
                                     <span class="island-name">${identity ? identity.label : `Ilha ${islandId}`}</span>
-                                    <span class="island-challenge-type">Desafio misto</span>
-                                    ${renderRewardLabels(regionId, islandId)}
+                                    <span class="island-challenge-type">${previewMode ? "Prévia visual" : "Desafio misto"}</span>
+                                    ${previewMode ? "" : renderRewardLabels(regionId, islandId)}
                                 </span>
                                 <strong>${actionText}</strong>
                             </button>
@@ -459,6 +459,7 @@
             if (!islandButton) return;
 
             const islandId = Number(islandButton.dataset.islandId);
+            if (previewMode) return;
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
