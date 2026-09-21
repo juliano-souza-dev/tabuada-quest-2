@@ -20,36 +20,6 @@ function pngDimensions(bytes) {
     };
 }
 
-function jpegDimensions(bytes) {
-    assert.equal(bytes[0], 0xFF);
-    assert.equal(bytes[1], 0xD8);
-
-    let offset = 2;
-    while (offset < bytes.length) {
-        if (bytes[offset] !== 0xFF) {
-            offset += 1;
-            continue;
-        }
-
-        const marker = bytes[offset + 1];
-        offset += 2;
-
-        if (marker === 0xD8 || marker === 0xD9) continue;
-        const length = bytes.readUInt16BE(offset);
-
-        if ([0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF].includes(marker)) {
-            return {
-                height: bytes.readUInt16BE(offset + 3),
-                width: bytes.readUInt16BE(offset + 5)
-            };
-        }
-
-        offset += length;
-    }
-
-    throw new Error("Dimensões JPEG não encontradas");
-}
-
 test("OBSIDIANA possui as cinco Ilhas canônicas na ordem aprovada", () => {
     assert.deepEqual(
         Array.from({ length: 5 }, (_, index) =>
@@ -113,12 +83,13 @@ test("assets de Ilha preservam transparência e resolução de preview", () => {
     }
 });
 
-test("background da OBSIDIANA preserva o stage 941x1672", () => {
-    const file = path.join(assetRoot, "background.jpg");
+test("background da OBSIDIANA preserva o asset original 941x1672", () => {
+    const file = path.join(assetRoot, "background.png");
     const bytes = fs.readFileSync(file);
-    const image = jpegDimensions(bytes);
+    const image = pngDimensions(bytes);
 
-    assert.deepEqual(image, { width: 941, height: 1672 });
-    assert.ok(bytes.length > 100000, "background foi reduzido/degradado");
-    assert.ok(bytes.length <= 500000, "background excedeu orçamento web");
+    assert.equal(image.width, 941);
+    assert.equal(image.height, 1672);
+    assert.ok(bytes.length > 1000000, "background foi reduzido/degradado");
+    assert.ok(bytes.length <= 5000000, "background original excedeu limite de segurança");
 });
