@@ -46,3 +46,30 @@ test("Ilha 10 da Região 11 é o Coração da Fortaleza", () => {
         "Coração da Fortaleza"
     );
 });
+
+
+test("Ilhas canônicas sem nome recebem placeholder estável", () => {
+    const first = content.getIslandIdentity(22, 1);
+    const again = content.getIslandIdentity(22, 1);
+    const other = content.getIslandIdentity(22, 2);
+
+    assert.ok(first);
+    assert.equal(first.isPlaceholder, true);
+    assert.match(first.label, /^Ilha .+ \d{2}$/);
+    assert.equal(first.label, again.label);
+    assert.notEqual(first.label, other.label);
+    assert.equal(first.regionId, 22);
+    assert.equal(first.id, 1);
+});
+
+test("placeholder não sobrescreve nome já existente", () => {
+    const existing = content.getIslandIdentity(1, 1);
+    assert.equal(existing.label, "Porto da Âncora");
+    assert.notEqual(existing.isPlaceholder, true);
+});
+
+test("fallback temporário respeita apenas a macroestrutura 22x5", () => {
+    assert.equal(content.createTemporaryIslandIdentity(23, 1), null);
+    assert.equal(content.createTemporaryIslandIdentity(1, 6), null);
+    assert.equal(content.createTemporaryIslandIdentity(0, 1), null);
+});
