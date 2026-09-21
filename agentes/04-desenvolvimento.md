@@ -429,7 +429,7 @@ resultado da partida
 → marcos únicos da Ilha
 → persistência
 → Resultado
-→ PET/Baú ao sair do Resultado, quando aplicável
+→ PET/Baú/Mapa ao sair do Resultado, quando aplicável
 ```
 
 Contrato técnico:
@@ -439,8 +439,8 @@ Contrato técnico:
 - XP de partida é repetível; recompensa estrutural da Ilha é first-completion;
 - `ruby` é convertido para `wallet.gems` enquanto Produto não separar moedas;
 - kits de Baú são estruturas extensíveis com `items`, mesmo quando vazias;
-- `web/js/screens/chest-screen.js` e `web/js/screens/pet-screen.js` apresentam recompensas especiais depois do Resultado;
-- `web/js/screens/result-screen.js` decide somente se deve inserir o interlúdio de PET/Baú antes do destino escolhido pela criança;
+- `web/js/screens/chest-screen.js`, `web/js/screens/pet-screen.js` e `web/js/screens/map-reward-screen.js` apresentam recompensas especiais depois do Resultado;
+- `web/js/screens/result-screen.js` decide somente se deve inserir o interlúdio de PET/Baú/fragmento de Mapa antes do destino escolhido pela criança;
 - o destino pós-recompensa é transitório de navegação e não altera a concessão já persistida;
 - UI não recalcula bônus nem decide persistência.
 
@@ -842,7 +842,7 @@ Contrato técnico:
 
 - o asset é somente a composição visual;
 - região, estatísticas, XP, Ouro, Rubis, fragmentos de mapa e ações continuam dinâmicos;
-- PET e Baú não entram no painel de premiação do Resultado; possuem telas dedicadas após a ação de saída;
+- PET, Baú e fragmentos de Mapa não entram no painel de premiação do Resultado; possuem telas dedicadas após a ação de saída;
 - overlays e hitboxes usam o mesmo stage proporcional do asset;
 - a tela mantém fallback textual se o asset não estiver disponível;
 - Missão Especial continua funcional como ação dinâmica e não é incorporada ao bitmap;
