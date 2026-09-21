@@ -1,33 +1,37 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
+    const world = TQ.domain?.worldStructure;
+    if (!world) throw new Error("world-structure module must be loaded before scheduler");
 
-    const TOTAL_REGIONS = 11;
-    const ISLANDS_PER_REGION = 10;
+    const TOTAL_REGIONS = world.TOTAL_REGIONS;
+    const ISLANDS_PER_REGION = world.ISLANDS_PER_REGION;
     const TABLES = 10;
     const MULTIPLIERS = 10;
     const PLANNED_PER_ISLAND = 20;
-    const PLANNED_PER_REGION = 200;
-    const PLANNED_PER_TABLE_PER_REGION = 20;
-    const PLANNED_PER_OPERATION_PER_REGION = 2;
+    const PLANNED_PER_REGION = PLANNED_PER_ISLAND * ISLANDS_PER_REGION;
+    const PLANNED_PER_CAMPAIGN = PLANNED_PER_ISLAND * world.TOTAL_ISLANDS;
 
     const EXPOSURE_TYPE = Object.freeze({
         PLANNED: "PLANNED",
         RECOVERY: "RECOVERY"
     });
 
-    const REGION_CONFIG = Object.freeze({
-        1: Object.freeze({ k: 2, recoveryGap: 2 }),
-        2: Object.freeze({ k: 2, recoveryGap: 2 }),
-        3: Object.freeze({ k: 3, recoveryGap: 3 }),
-        4: Object.freeze({ k: 3, recoveryGap: 3 }),
-        5: Object.freeze({ k: 4, recoveryGap: 4 }),
-        6: Object.freeze({ k: 4, recoveryGap: 4 }),
-        7: Object.freeze({ k: 5, recoveryGap: 5 }),
-        8: Object.freeze({ k: 5, recoveryGap: 5 }),
-        9: Object.freeze({ k: 10, recoveryGap: 6 }),
-        10: Object.freeze({ k: 10, recoveryGap: 6 }),
-        11: Object.freeze({ k: 10, recoveryGap: 6 })
-    });
+    function configForRegion(regionId) {
+        if (regionId <= 4) return { k: 2, recoveryGap: 2 };
+        if (regionId <= 8) return { k: 3, recoveryGap: 3 };
+        if (regionId <= 12) return { k: 4, recoveryGap: 4 };
+        if (regionId <= 16) return { k: 5, recoveryGap: 5 };
+        return { k: 10, recoveryGap: 6 };
+    }
+
+    const REGION_CONFIG = Object.freeze(
+        Object.fromEntries(
+            Array.from({ length: TOTAL_REGIONS }, (_, index) => {
+                const regionId = index + 1;
+                return [regionId, Object.freeze(configForRegion(regionId))];
+            })
+        )
+    );
 
     const ROLE_MULTIPLIERS = Object.freeze({
         2: Object.freeze([
@@ -153,13 +157,16 @@
         requireInt(islandId, 1, ISLANDS_PER_REGION, "islandId");
         const config = getRegionConfig(regionId);
         const roleMultipliers = ROLE_MULTIPLIERS[config.k];
+        const globalIslandIndex = world.toGlobalIslandIndex(regionId, islandId);
+        const rotationPosition = (globalIslandIndex - 1) % 10;
         const slots = [];
 
         roleMultipliers.forEach((multipliers, role) => {
-            const table = 1 + ((islandId - 1 + role) % TABLES);
+            const table = 1 + ((rotationPosition + role) % TABLES);
             multipliers.forEach((multiplier) => {
                 slots.push(Object.freeze({
-                    id: `r${regionId}-i${islandId}-t${table}-m${multiplier}-p${role}`,
+                    id: `g${globalIslandIndex}-r${regionId}-i${islandId}-t${table}-m${multiplier}-p${role}`,
+                    globalIslandIndex,
                     regionId,
                     islandId,
                     role,
@@ -174,9 +181,10 @@
             throw new Error(`Invalid matrix for K=${config.k}: expected ${PLANNED_PER_ISLAND} slots`);
         }
 
-        const orderedSlots = orderSlots(slots, `${seed ?? "default"}:r${regionId}:i${islandId}`);
+        const orderedSlots = orderSlots(slots, `${seed ?? "default"}:g${globalIslandIndex}`);
 
         return Object.freeze({
+            globalIslandIndex,
             regionId,
             islandId,
             k: config.k,
@@ -237,6 +245,16 @@
             recoveryQueue: Object.freeze([]),
             plannedExposureCount: 0,
             recoveryAttemptCount: 0
+        });
+    }
+
+    function retargetRecoveryState(state, regionId) {
+        if (!state) return createRecoveryState(regionId);
+        const config = getRegionConfig(regionId);
+        return Object.freeze({
+            ...state,
+            regionId,
+            recoveryGap: config.recoveryGap
         });
     }
 
@@ -358,8 +376,8 @@
         });
     }
 
-    function isRegionPedagogicallyComplete(state) {
-        if (state.plannedExposureCount !== PLANNED_PER_REGION) return false;
+    function isCampaignPedagogicallyComplete(state) {
+        if (state.plannedExposureCount !== PLANNED_PER_CAMPAIGN) return false;
         if (state.recoveryQueue.length !== 0) return false;
         return Object.values(state.mastery).every((item) => item.correctStreak === 2);
     }
@@ -391,8 +409,7 @@
         MULTIPLIERS,
         PLANNED_PER_ISLAND,
         PLANNED_PER_REGION,
-        PLANNED_PER_TABLE_PER_REGION,
-        PLANNED_PER_OPERATION_PER_REGION,
+        PLANNED_PER_CAMPAIGN,
         EXPOSURE_TYPE,
         REGION_CONFIG,
         ROLE_MULTIPLIERS,
@@ -406,10 +423,11 @@
         summarizeSlots,
         createOperationMasteryState,
         createRecoveryState,
+        retargetRecoveryState,
         recordAttempt,
         peekEligibleRecovery,
         dequeueEligibleRecovery,
         relaxRecoveryAtTerminal,
-        isRegionPedagogicallyComplete
+        isCampaignPedagogicallyComplete
     });
 })(globalThis);
