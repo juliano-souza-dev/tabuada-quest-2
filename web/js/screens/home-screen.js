@@ -228,6 +228,11 @@
                 return;
             }
 
+            if (action === "collection") {
+                onNavigate("collectibles");
+                return;
+            }
+
             if (action === "regions" || action === "play") {
                 onNavigate("regions");
                 return;
@@ -236,7 +241,6 @@
             const messages = {
                 daily: "Recompensa diária preparada para a evolução da campanha.",
                 shop: "A Loja será liberada na evolução da campanha.",
-                collection: "Sua coleção ficará reunida aqui.",
                 chests: "Seus baús aparecerão aqui.",
                 pets: "Companheiros resgatados: " + petCount + "/" + totals.pets + ".",
                 items: "O Baú de Itens guardará seus itens da aventura."
