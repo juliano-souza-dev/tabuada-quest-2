@@ -5,6 +5,7 @@
 
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
     let worldMapPreviewRegionId = null;
+    let rewardReturnScreen = null;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function save(nextState) {
@@ -19,9 +20,15 @@
             : null;
     }
 
-    function navigate(screenId) {
+    function navigate(screenId, options = {}) {
         if (!["world-map", "islands"].includes(screenId)) {
             worldMapPreviewRegionId = null;
+        }
+
+        if (screenId === "pet" || screenId === "chest") {
+            rewardReturnScreen = options.afterReward === "regions" ? "regions" : "islands";
+        } else if (screenId !== "result") {
+            rewardReturnScreen = null;
         }
 
         state = TQ.persistence.localStorage.saveState(
@@ -45,6 +52,7 @@
             challenge: TQ.screens.challenge.renderChallengeScreen,
             "special-mission": TQ.screens.specialMission.renderSpecialMissionScreen,
             chest: TQ.screens.chest.renderChestScreen,
+            pet: TQ.screens.pet.renderPetScreen,
             result: TQ.screens.result.renderResultScreen
         };
         const renderer = renderers[state.ui.lastScreen] || renderers.home;
@@ -53,6 +61,7 @@
             state,
             onStateChange: save,
             onNavigate: navigate,
+            rewardReturnScreen,
             previewRegionId: worldMapPreviewRegionId,
             onPreviewRegionChange: setWorldMapPreviewRegion
         });
