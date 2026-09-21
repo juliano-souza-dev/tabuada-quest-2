@@ -166,16 +166,17 @@ Na versão textual inicial:
 
 ## Feedback de acerto e erro
 
-O feedback de atividades matemáticas deve usar comportamento visual compartilhado.
+O feedback de atividades matemáticas deve ser inequívoco, curto e compartilhado entre desafios normais e Missões Especiais.
 
 Nesta etapa:
 
-- acerto usa pulso/escala curta;
-- erro usa tremor lateral curto;
-- a animação nunca substitui a mensagem textual;
-- a criança deve ver a resposta correta após erro;
-- a animação não pode bloquear o botão para avançar;
-- o mesmo padrão deve ser reutilizável em desafios normais e Missões Especiais.
+- acerto usa um Efeito positivo curto e não exige botão;
+- ao terminar o Efeito de acerto, o fluxo avança automaticamente;
+- erro usa um Efeito visual distinto, mostra a resposta correta e exige botão para continuar;
+- a criança nunca deve perder a oportunidade de ler a correção por causa de uma animação automática;
+- Efeitos futuros podem trocar texto por assets animados sem alterar a lógica de navegação;
+- `prefers-reduced-motion` deve preservar clareza e continuidade mesmo com animação mínima;
+- o progresso `Questão X de Y` deve permanecer legível e alinhado à área prevista na arte da Ilha.
 
 
 ## Loja Rubi
