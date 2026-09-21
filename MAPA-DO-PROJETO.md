@@ -709,3 +709,12 @@ web/css/screens/vertical-slice.css
 .feedback-card.is-correct
 .feedback-card.is-wrong
 ```
+
+
+Missões Especiais usam a economia global de partida:
+
+```text
+XP 20
+Ouro = max(0, 10×acertos - 2×erros)
+Rubi = acertos×2
+```

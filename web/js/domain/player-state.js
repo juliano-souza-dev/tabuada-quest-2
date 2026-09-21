@@ -1026,10 +1026,18 @@
         const totalCollectibles = Array.isArray(contentApi?.collectibles)
             ? contentApi.collectibles.length
             : 0;
+        const xpPerCompletedMatch = Number.isInteger(rewardConfig?.xpPerCompletedMatch)
+            && rewardConfig.xpPerCompletedMatch > 0
+            ? rewardConfig.xpPerCompletedMatch
+            : 20;
         const reward = calculateRewardBonuses(
             s,
             crewMembers,
-            { xp: 0, coins: 0, gems: correctAnswers * perCorrect },
+            {
+                xp: xpPerCompletedMatch,
+                coins: calculateGoldBaseAmount({ correctAnswers, wrongAnswers }, rewardConfig),
+                gems: correctAnswers * perCorrect
+            },
             totalCollectibles,
             rewardConfig
         );

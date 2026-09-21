@@ -52,6 +52,8 @@
                     <div><dt>Acertos</dt><dd>${result.correctAnswers}</dd></div>
                     <div><dt>Erros</dt><dd>${result.wrongAnswers}</dd></div>
                 </dl>
+                <p>⭐ +${reward?.total?.xp || 0} XP</p>
+                <p>🪙 +${reward?.total?.coins || 0} Ouro</p>
                 <p>💎 +${reward?.total?.gems || 0} Rubis</p>
                 <button type="button" data-action="regions">Continuar aventura</button>
             </div>

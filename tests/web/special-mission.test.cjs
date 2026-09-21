@@ -93,7 +93,11 @@ test("concluir missão paga 2 Rubis-base por acerto e libera próximo gate",()=>
     );
     assert.equal(result.correctAnswers,15);
     assert.equal(state.campaign.specialMaps["1"].missionStatus,"mission_completed");
+    assert.equal(state.campaign.specialMaps["1"].lastMissionResult.reward.base.xp,20);
+    assert.equal(state.campaign.specialMaps["1"].lastMissionResult.reward.base.coins,140);
     assert.equal(state.campaign.specialMaps["1"].lastMissionResult.reward.base.gems,30);
+    assert.equal(state.progression.xpCurrent,20);
+    assert.equal(state.wallet.coins,140);
     assert.equal(state.wallet.gems,30);
     assert.ok(state.campaign.unlockedRegionIds.includes(3));
 });

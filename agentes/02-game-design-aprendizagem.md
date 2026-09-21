@@ -409,8 +409,8 @@ Cada missão:
 - uma única tentativa por questão;
 - erro não gera recovery e não repete a operação;
 - cada acerto vale 2 Rubis-base;
-- recompensa-base = `acertos × 2`;
-- bônus de Tripulação para Rubi e bônus de Colecionáveis são aplicados sobre essa base;
+- XP-base segue a regra global de toda partida: 20 XP;
+- Ouro-base segue a regra global: `max(0, 10 × acertos - 2 × erros)`;
+- Rubi-base da missão = `acertos × 2`;
+- bônus de Tripulação e Colecionáveis são aplicados normalmente em XP, Ouro e Rubi;
 - a missão concluída marca o mapa como `mission_completed` e libera o próximo bloco de Regiões.
-
-Não conceder Ouro ou XP adicionais pela Missão Especial, pois sua recompensa própria é em Rubis.
