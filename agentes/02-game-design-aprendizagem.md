@@ -388,3 +388,29 @@ O bônus de Colecionáveis usa interpolação linear entre os marcos aprovados:
 Entre 0–50% e 50–100%, o percentual cresce linearmente.
 
 Tripulação e Colecionáveis são calculados separadamente sobre a mesma base e depois somados.
+
+
+## Missão Especial dos Mapas
+
+Gates:
+
+```text
+Mapa 1 → após global 10
+Mapa 2 → após global 30
+Mapa 3 → após global 50
+Mapa 4 → após global 70
+Mapa 5 → após global 100
+```
+
+Cada missão:
+
+- 20 questões;
+- operações aleatórias apenas do conjunto já introduzido até o gate;
+- uma única tentativa por questão;
+- erro não gera recovery e não repete a operação;
+- cada acerto vale 2 Rubis-base;
+- recompensa-base = `acertos × 2`;
+- bônus de Tripulação para Rubi e bônus de Colecionáveis são aplicados sobre essa base;
+- a missão concluída marca o mapa como `mission_completed` e libera o próximo bloco de Regiões.
+
+Não conceder Ouro ou XP adicionais pela Missão Especial, pois sua recompensa própria é em Rubis.

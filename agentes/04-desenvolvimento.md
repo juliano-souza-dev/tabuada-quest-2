@@ -605,3 +605,39 @@ Ouro é recorrente e também existe em replay. Recompensas estruturais continuam
 O Baú Final injeta 5.000 Rubis na recompensa-base antes dos bônus aplicáveis.
 
 PETs provisórios são derivados dos IDs reais de `regionRewards`, evitando quebrar saves quando os nomes finais forem substituídos.
+
+
+## Missão Especial
+
+Domínio puro:
+
+```text
+web/js/domain/special-mission.js
+```
+
+Responsabilidades:
+
+- derivar operações já introduzidas usando o scheduler canônico;
+- gerar 20 questões pseudoaleatórias/determinísticas;
+- garantir uma única chance por questão;
+- não tocar no recovery normal;
+- produzir resultado final.
+
+Persistência e economia:
+
+```text
+web/js/domain/player-state.js
+startSpecialMapMission(...)
+updateSpecialMapMission(...)
+completeSpecialMapMission(...)
+```
+
+Sessão ativa vive em `campaign.specialMaps[mapId].mission`.
+
+Tela:
+
+```text
+web/js/screens/special-mission-screen.js
+```
+
+Entrada disponível tanto no resultado que completa o mapa quanto na tela de Regiões enquanto a missão estiver pendente/em andamento.

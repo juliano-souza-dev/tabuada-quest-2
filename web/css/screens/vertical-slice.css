@@ -398,3 +398,39 @@
     font-size: .78rem;
     font-weight: 800;
 }
+
+
+/* Feedback reutilizável para atividades matemáticas. */
+.feedback-card.is-correct {
+    animation: tq-feedback-correct 420ms ease-out;
+}
+
+.feedback-card.is-wrong {
+    animation: tq-feedback-wrong 420ms ease-out;
+}
+
+@keyframes tq-feedback-correct {
+    0% { transform: scale(.94); }
+    55% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+
+@keyframes tq-feedback-wrong {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-4px); }
+}
+
+.special-mission-callout {
+    margin: 18px 0;
+    padding: 14px;
+    border: 2px solid #e6b64d;
+    border-radius: 16px;
+    background: rgba(93, 57, 18, .36);
+}
+
+.special-mission-callout button,
+.special-mission-entry {
+    width: 100%;
+}

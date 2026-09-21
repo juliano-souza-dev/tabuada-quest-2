@@ -458,3 +458,26 @@ Tripulação e Colecionáveis aplicam bônus sobre a recompensa-base de XP, Ouro
 O Baú Final contém **5.000 Rubis-base**.
 
 Enquanto a lista definitiva de PETs não for entregue, o catálogo usa nomes provisórios `Pet 01` até `Pet 30`, preservando os IDs persistidos.
+
+
+## Missões Especiais dos Mapas
+
+Ao completar os 4 fragmentos de um Mapa Especial, a missão desse mapa é liberada.
+
+A missão contém exatamente 20 questões de multiplicação escolhidas somente entre operações já apresentadas à criança antes daquele gate.
+
+Cada questão possui uma única chance. Não existe recovery dentro da Missão Especial.
+
+Fluxo:
+
+```text
+4º fragmento
+→ missão pendente
+→ 20 questões
+→ uma resposta por questão
+→ conclusão
+→ recompensa em Rubis
+→ próximo bloco de Regiões liberado
+```
+
+A Missão Especial usa o mesmo sistema visual de feedback de acerto/erro das demais atividades.

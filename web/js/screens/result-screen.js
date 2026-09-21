@@ -42,7 +42,7 @@
         `;
     }
 
-    function renderResultScreen({ state, onNavigate }) {
+    function renderResultScreen({ state, onStateChange, onNavigate }) {
         const result = state.learning.lastResult;
         const screen = document.createElement("section");
         screen.className = "slice-screen result-text-screen";
@@ -57,6 +57,7 @@
             `;
         } else {
             const region = TQ.content.regions.find((item) => item.id === result.regionId);
+            const pendingMapId = TQ.domain.playerState.getPendingSpecialMapId(state);
             screen.innerHTML = `
                 <main class="slice-content result-card">
                     <small>${region ? region.label : `Região ${result.regionId}`}</small>
@@ -69,6 +70,13 @@
                     </dl>
                     ${renderNumericRewards(result.reward)}
                     ${renderIslandRewards(result.reward?.structural)}
+                    ${pendingMapId ? `
+                        <section class="special-mission-callout">
+                            <h2>Missão Especial liberada! 🗺️</h2>
+                            <p>20 questões. Uma chance por questão. Cada acerto vale 2 Rubis-base.</p>
+                            <button type="button" data-action="special-mission" data-map-id="${pendingMapId}">Iniciar Missão Especial</button>
+                        </section>
+                    ` : ""}
                     <button type="button" data-action="islands">Voltar às Ilhas</button>
                     <button type="button" data-action="regions">Ver Regiões</button>
                 </main>
@@ -79,6 +87,11 @@
             const action = event.target.closest("[data-action]")?.dataset.action;
             if (action === "islands") onNavigate("islands");
             if (action === "regions") onNavigate("regions");
+            if (action === "special-mission") {
+                const mapId = Number(event.target.closest("[data-map-id]")?.dataset.mapId);
+                const mission = TQ.domain.specialMission.createMission(mapId, `special-map-${mapId}`);
+                onStateChange(TQ.domain.playerState.startSpecialMapMission(state, mapId, mission));
+            }
         });
 
         return screen;
