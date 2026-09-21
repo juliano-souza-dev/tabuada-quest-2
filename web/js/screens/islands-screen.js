@@ -36,13 +36,13 @@
     });
 
     const RUBY_SHOP_SHIP_LAYOUT = Object.freeze({
-        width: 180,
-        height: 180,
+        width: 220,
+        height: 220,
         clearance: 18,
         edgeInset: 24,
         headerInset: 280,
         gridStep: 8,
-        preferredCenter: Object.freeze({ x: 830, y: 1100 })
+        preferredCenter: Object.freeze({ x: 798, y: 942 })
     });
 
     function rectanglesOverlap(a, b, clearance = 0) {
