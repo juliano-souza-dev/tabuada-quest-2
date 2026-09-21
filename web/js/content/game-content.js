@@ -18,6 +18,7 @@
         coinsPerCorrectAnswer: 10,
         coinsPenaltyPerWrongAnswer: 2,
         finalChestRubies: 5000,
+        specialMissionRubiesPerCorrect: 2,
         collectibles: Object.freeze({
             twoItemMaxErrorPercent: 20,
             pendingPerNormalChest: 1,
@@ -532,7 +533,7 @@
             specialMaps: 5,
             fragmentsPerMap: 4,
             finalMapFragments: 9,
-            diamondsPerMapMission: 1000
+            specialMissionRubiesPerCorrect: 2
         }),
         worldRegions,
         getWorldRegion,
