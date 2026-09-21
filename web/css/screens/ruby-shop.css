@@ -202,7 +202,35 @@
     filter: drop-shadow(0 11px 10px rgba(15, 6, 2, .36));
 }
 
+.region-ruby-shop-button::before {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 8%;
+    bottom: 5%;
+    height: 22%;
+    z-index: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse at center,
+            rgba(255, 255, 255, .82) 0 12%,
+            rgba(191, 246, 255, .74) 24%,
+            rgba(73, 205, 242, .46) 42%,
+            rgba(255, 255, 255, .24) 55%,
+            transparent 72%);
+    filter: blur(1.3px);
+    transform: rotate(-7deg) scaleX(1.05);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-ruby-shop-button::before {
+    opacity: .92;
+}
+
 .region-ruby-shop-asset {
+    position: relative;
+    z-index: 1;
     display: block;
     width: 100%;
     height: 100%;
