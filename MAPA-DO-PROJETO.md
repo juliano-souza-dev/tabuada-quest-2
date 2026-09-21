@@ -252,6 +252,15 @@ web/js/screens/challenge-screen.js
 
 A arte contém cenário, placas e estrutura visual. Progresso, operação matemática, respostas e feedback são sempre dados dinâmicos sobrepostos por HTML/CSS/JS.
 
+As coordenadas do conteúdo não são globais. Cada Ilha pode possuir sua própria malha visual em:
+
+```text
+web/js/screens/challenge-screen.js
+CHALLENGE_ART_LAYOUTS[regionId][islandId]
+```
+
+O código deve se adaptar às áreas vazias da arte aprovada.
+
 Arquivos históricos das antigas Ilhas 06–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas não pertencem ao catálogo executável.
 
 ### Macroestrutura canônica do mundo
