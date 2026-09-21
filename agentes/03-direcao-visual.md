@@ -926,3 +926,25 @@ web/assets/regions/region-{regionId}/challenges/island-05-challenge.webp
 ```
 
 A Direção Visual gera a arte; Desenvolvimento associa o asset pelo par `regionId/islandId` e sobrepõe os dados dinâmicos.
+
+### Regra de encaixe do overlay
+
+As áreas vazias desenhadas na arte são a fonte de verdade para o posicionamento do conteúdo dinâmico.
+
+Portanto:
+
+- não existe uma única coordenada global obrigatória para todas as Ilhas;
+- cada combinação `regionId/islandId` pode possuir seu próprio layout de overlay;
+- progresso deve ocupar exclusivamente a área de progresso desenhada;
+- operação deve ficar centralizada na placa principal vazia;
+- cada resposta deve ficar centralizada dentro da sua própria placa;
+- Desenvolvimento adapta as coordenadas à arte aprovada, nunca desloca/deforma a arte para atender uma grade fixa;
+- se um asset aprovado trouxer acidentalmente conteúdo que deveria ser dinâmico, a correção preferencial é regenerar o asset; enquanto isso, uma máscara técnica pode ser usada somente para impedir que o dado fixo fique visível.
+
+No CORSÁRIO, os layouts individuais são registrados em:
+
+```text
+web/js/screens/challenge-screen.js
+CHALLENGE_ART_LAYOUTS[1]
+```
+
