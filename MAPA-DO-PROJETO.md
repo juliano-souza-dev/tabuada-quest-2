@@ -443,6 +443,15 @@ Produto: `agentes/01-produto.md`. Distribuição e cálculo de Rubis: `agentes/0
 
 A Direção Visual deve consultar a mesma distribuição antes de gerar qualquer Ilha, para definir o badge/medalhão correto. Regra visual: `agentes/03-direcao-visual.md`.
 
+Fechamento da campanha:
+
+```text
+global 109 → Rubi
+global 110 → Baú Final
+```
+
+O Baú Final usa `chestId = "final-grand-chest"`. O valor generoso de Rubis do Baú Final e a implementação completa dos Colecionáveis permanecem pendentes das regras de balanceamento ainda abertas.
+
 Contrato de Rubi:
 
 ```text

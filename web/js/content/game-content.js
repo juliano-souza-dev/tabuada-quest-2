@@ -350,8 +350,8 @@
             "1": Object.freeze([Object.freeze({ type: "ruby" })]),
             "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r22-i2" })]),
             "3": Object.freeze([Object.freeze({ type: "ruby" })]),
-            "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r22-i4" })]),
-            "5": Object.freeze([Object.freeze({ type: "ruby" })])
+            "4": Object.freeze([Object.freeze({ type: "ruby" })]),
+            "5": Object.freeze([Object.freeze({ type: "chest", chestId: "final-grand-chest", isFinalChest: true })])
         })
     });
 

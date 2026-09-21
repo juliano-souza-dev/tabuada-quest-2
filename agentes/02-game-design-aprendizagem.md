@@ -246,7 +246,7 @@ R18 CRISTÁLIA       → R | B | R | P | R
 R19 ILHAS CELESTES  → P | M5-1/4 | B | P | M5-2/4
 R20 COROA DO MAR    → B | P      | M5-3/4 | B | M5-4/4
 R21 ZONA FÊNIX      → R | B | P | R | B
-R22 REINO DAS MARÉS → R | P | R | B | R
+R22 REINO DAS MARÉS → R | P | R | R | B
 ```
 
 Fragmentos dos Mapas Especiais por índice global:
@@ -262,6 +262,43 @@ Mapa 5 → 092, 095, 098, 100
 Os gates permanecem após as Regiões 2, 6, 10, 14 e 20. A missão especial continua reservada e não deve ser implementada até nova decisão.
 
 As posições globais 101–109 também avançam os 9 fragmentos do mapa final por `finalJourney`. Esse avanço é adicional à recompensa principal da Ilha e não cria um segundo medalhão na arte, salvo decisão visual/produto futura.
+
+A posição global 109 concede Rubi como recompensa principal. A posição global 110 concede o **Baú Final**.
+
+### Colecionáveis dentro dos Baús
+
+Os Baús são o canal de obtenção de Colecionáveis.
+
+Regras fechadas:
+
+```text
+sem erros → 3 Colecionáveis
+faixa intermediária → 2 Colecionáveis
+faixa mínima → 1 Colecionável
+```
+
+Os percentuais exatos das duas faixas com erro permanecem pendentes e não devem ser inferidos.
+
+Quando Colecionáveis disponíveis em um Baú não são conquistados:
+
+1. eles entram em uma fila de redistribuição;
+2. são adicionados a Baús seguintes;
+3. continuam sujeitos ao desempenho no novo Baú;
+4. se ainda não forem conquistados, voltam para a fila;
+5. apenas o Baú Final entrega obrigatoriamente todos os Colecionáveis pendentes.
+
+Isso evita replay obrigatório e também evita entrega automática antecipada.
+
+Bônus da coleção:
+
+```text
+50% da coleção  → bônus total de 10% em XP, ouro e Rubi
+100% da coleção → bônus total de 25% em XP, ouro e Rubi
+```
+
+A curva de progressão entre 0%, 50% e 100% ainda precisa ser definida antes da implementação econômica dos Colecionáveis.
+
+O Baú Final também contém uma quantidade generosa de Rubis. O valor numérico permanece pendente de balanceamento.
 
 Não tratar a antiga distribuição de 10 Ilhas da CORSÁRIO como contrato vigente.
 

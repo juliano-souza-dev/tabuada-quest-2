@@ -458,6 +458,15 @@ Nunca escolher badge por tema da Região, aparência da Ilha ou memória de gera
 
 Os fragmentos adicionais do mapa final das globais 101–109 pertencem à progressão `finalJourney` e, por enquanto, não adicionam medalhão extra à arte.
 
+Exceção final aprovada:
+
+```text
+global 109 → badge Rubi
+global 110 → badge Baú
+```
+
+A Ilha global 110 representa o Baú Final da campanha. Não usar badge de Rubi como recompensa principal nessa Ilha.
+
 ### Estado desbloqueado
 
 A versão desbloqueada é a composição canônica da Ilha:
