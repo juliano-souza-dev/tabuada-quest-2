@@ -397,6 +397,44 @@ web/js/domain/gameplay-session.js
 
 Contrato pedagógico: `agentes/02-game-design-aprendizagem.md`.
 
+## Recompensas de partida e de Ilha
+
+Catálogo e kits:
+
+```text
+web/js/content/game-content.js
+TQ.content.gameplayRewards
+TQ.content.regionRewards
+TQ.content.chestKits
+TQ.content.getChestKit(chestId)
+```
+
+Aplicação/persistência:
+
+```text
+web/js/domain/player-state.js
+TQ.domain.playerState.completeGameplaySession(...)
+TQ.domain.playerState.calculateCrewReward(...)
+TQ.domain.playerState.grantXp(...)
+```
+
+Apresentação:
+
+```text
+web/js/screens/chest-screen.js
+web/js/screens/result-screen.js
+```
+
+Testes:
+
+```text
+tests/web/rewards.test.cjs
+tests/web/crew.test.cjs
+tests/web/region-1-rewards.test.cjs
+```
+
+Produto: `agentes/01-produto.md`. Balanceamento: `agentes/02-game-design-aprendizagem.md`. Implementação: `agentes/04-desenvolvimento.md`.
+
 ## Estado e persistência
 
 ```text
