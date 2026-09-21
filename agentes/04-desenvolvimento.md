@@ -871,3 +871,27 @@ Contrato:
 - a resposta correta é fornecida pela sessão, não pelo catálogo de Efeitos;
 - `prefers-reduced-motion` reduz a animação sem bloquear o fluxo;
 - Missões Especiais reutilizam o mesmo renderer e resolver.
+
+
+## Continuidade pelo botão Jogar
+
+Fonte de decisão:
+
+```text
+web/js/domain/player-state.js
+TQ.domain.playerState.getPlayRegionId(state)
+```
+
+Consumo:
+
+```text
+web/js/screens/home-screen.js
+```
+
+Contrato:
+
+- sessão ativa válida tem prioridade;
+- Região atual incompleta permanece como destino;
+- Região concluída nunca é reaberta pelo botão Jogar se existir outra Região desbloqueada e não concluída;
+- se não houver Região jogável, a Home cai para a tela de Regiões;
+- o botão Regiões continua independente deste atalho.
