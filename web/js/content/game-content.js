@@ -51,7 +51,7 @@
 
     const rubyShopCatalog = Object.freeze({
         mode: "local",
-        enabledRegionIds: Object.freeze([14]),
+        enabledRegionIds: Object.freeze([1, 5, 9, 13, 17, 21]),
         items: Object.freeze([
             Object.freeze({
                 id: "ruby-physical-stickers-dev",
