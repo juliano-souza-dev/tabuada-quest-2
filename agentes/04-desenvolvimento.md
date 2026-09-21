@@ -467,3 +467,50 @@ Desenvolvimento
 ```
 
 Em trabalho visual, Direção Visual deve avaliar fidelidade antes do gate técnico final.
+
+
+## Distribuição canônica de recompensas das Ilhas
+
+Fonte executável:
+
+```text
+web/js/content/game-content.js
+TQ.content.regionRewards
+TQ.content.getIslandRewards(regionId, islandId)
+TQ.content.getIslandPrimaryReward(regionId, islandId)
+```
+
+Contrato vigente:
+
+```text
+110 Ilhas
+→ exatamente 1 recompensa principal por Ilha
+→ 30 PETs
+→ 30 Baús
+→ 30 Rubis
+→ 20 fragmentos de Mapas Especiais
+```
+
+IDs de PETs/Baús já utilizados antes da migração devem permanecer estáveis para não duplicar recompensa em saves existentes.
+
+### Rubi por desempenho
+
+O catálogo marca apenas `{ type: "ruby" }`; ele não armazena valor fixo.
+
+O valor é calculado no fechamento da primeira conclusão:
+
+```text
+Rubis-base = max(0, result.correctAnswers - result.wrongAnswers)
+```
+
+Implementação:
+
+```text
+web/js/domain/player-state.js
+TQ.domain.playerState.calculateRubyBaseAmount(result, rewards)
+TQ.domain.playerState.completeGameplaySession(...)
+```
+
+O bônus de Tripulação da categoria `gems` é aplicado depois sobre esse valor-base.
+
+Replay não recalcula nem concede Rubi novamente.
