@@ -775,3 +775,27 @@ Não gerar placeholder, ícone genérico ou moldura provisória. Manter `asset =
 Os cinco Fundos comerciais possuem identidade textual e preço, mas continuam com `asset = null`.
 
 Não criar imagem, thumbnail ou placeholder nesta etapa de código.
+
+
+## CORSÁRIO — nomes e Ilha 1 aprovados
+
+Nomes canônicos aprovados para as 5 Ilhas:
+
+```text
+1 Enseada da Bandeira
+2 Baía do Saque Perdido
+3 Farol da Rota Corsária
+4 Porto do Capitão
+5 Rochedo da Âncora Dourada
+```
+
+A Ilha 1, **Enseada da Bandeira**, possui arte aprovada nas duas variantes:
+
+```text
+island-01-unlocked.webp
+island-01-locked.webp
+```
+
+Recompensa visual canônica: **PET → patinha**.
+
+A versão bloqueada preserva a mesma identidade/composição base e adiciona correntes, cadeado e escurecimento. Ambas usam alpha real.
