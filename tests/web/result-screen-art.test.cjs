@@ -38,7 +38,8 @@ test("resultado mantém dados da partida como overlays dinâmicos",()=>{
     assert.match(source,/data-action="special-mission"/);
     assert.match(source,/getDeferredReward/);
     assert.match(source,/afterReward/);
-    assert.match(source,/reward\.type === "pet" \|\| reward\.type === "chest"/);
+    assert.match(source,/reward\.type === "pet"/);
+    assert.match(source,/reward\.type === "chest"/);
     assert.doesNotMatch(source,/Ilha \${result\.islandId} concluída/);
     assert.doesNotMatch(source,/resgatado/);
     assert.doesNotMatch(source,/conquistado/);
