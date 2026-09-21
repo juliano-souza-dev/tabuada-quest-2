@@ -373,3 +373,18 @@ Validar:
 - asset `null` não quebra a Home;
 - travel usa vídeo padrão enquanto `travelVideo = null`;
 - Loja continua sem ação Equipar.
+
+
+## Gate dos Efeitos de feedback
+
+Validar automaticamente:
+
+- catálogo possui fallback de acerto e erro;
+- acerto não renderiza botão de continuidade;
+- acerto avança quando a animação termina e possui fallback temporal;
+- erro mostra a operação com resposta correta;
+- erro só avança por ação explícita;
+- nenhum texto fixo `Acertou`/`Errou` permanece como mecanismo principal fora do sistema de Efeitos;
+- desafios normais e Missões Especiais usam o mesmo contrato;
+- redução de movimento não cria deadlock;
+- progresso continua dinâmico e alinhado à caixa específica da Ilha.
