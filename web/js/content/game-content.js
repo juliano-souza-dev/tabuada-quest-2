@@ -128,12 +128,59 @@
         ]))
     );
 
+    const TEMP_ISLAND_WORDS = Object.freeze([
+        "Bruma",
+        "Âncora",
+        "Coral",
+        "Maré",
+        "Vela",
+        "Rochedo",
+        "Farol",
+        "Concha",
+        "Timão",
+        "Pérola",
+        "Névoa",
+        "Estrela",
+        "Baía",
+        "Vento",
+        "Onda",
+        "Tesouro"
+    ]);
+
+    function createTemporaryIslandIdentity(regionId, islandId) {
+        const normalizedRegionId = Number(regionId);
+        const normalizedIslandId = Number(islandId);
+
+        if (!Number.isInteger(normalizedRegionId)
+            || normalizedRegionId < 1
+            || normalizedRegionId > 22
+            || !Number.isInteger(normalizedIslandId)
+            || normalizedIslandId < 1
+            || normalizedIslandId > 5) {
+            return null;
+        }
+
+        const wordIndex = Math.abs((normalizedRegionId * 31) + (normalizedIslandId * 17))
+            % TEMP_ISLAND_WORDS.length;
+        const suffix = (((normalizedRegionId * 43) + (normalizedIslandId * 29)) % 90) + 10;
+
+        return Object.freeze({
+            id: normalizedIslandId,
+            regionId: normalizedRegionId,
+            label: `Ilha ${TEMP_ISLAND_WORDS[wordIndex]} ${String(suffix).padStart(2, "0")}`,
+            sceneKey: `r${normalizedRegionId}-i${normalizedIslandId}`,
+            challengeIdentity: "mixed",
+            isPlaceholder: true
+        });
+    }
+
     function getRegionIdentity(regionId) {
         return regionIdentities.find((item) => item.regionId === Number(regionId)) || null;
     }
 
     function getIslandIdentity(regionId, islandId) {
-        return islandIdentities[String(regionId)]?.[Number(islandId) - 1] || null;
+        const existing = islandIdentities[String(regionId)]?.[Number(islandId) - 1] || null;
+        return existing || createTemporaryIslandIdentity(regionId, islandId);
     }
 
     const regionTextMaps = Object.freeze({
@@ -223,6 +270,7 @@
         islandIdentities,
         getRegionIdentity,
         getIslandIdentity,
+        createTemporaryIslandIdentity,
         regionTextMaps,
         getRegionTextMaps,
         regionRewards,
