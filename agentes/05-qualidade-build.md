@@ -297,3 +297,19 @@ Validar:
 - bônus de Tripulação e Colecionáveis somam sobre a base;
 - Baú Final contém 5.000 Rubis-base;
 - existem 30 PETs provisórios com IDs únicos e labels Pet 01–30.
+
+
+## Gate da Missão Especial
+
+Validar:
+
+- 20 questões por missão;
+- todas pertencem ao conjunto introduzido antes do gate;
+- resposta errada consome a questão e segue adiante;
+- não cria recovery;
+- acertos × 2 = Rubis-base;
+- bônus de Tripulação/Colecionáveis aplicados apenas sobre Rubi;
+- missão concluída marca `mission_completed`;
+- próximo bloco de Regiões só libera após a missão;
+- sessão pode ser retomada se já estiver `mission_in_progress`;
+- feedback visual de acerto/erro não altera estado matemático.
