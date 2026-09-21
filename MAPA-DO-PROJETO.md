@@ -374,9 +374,13 @@ Preview de desenvolvimento:
 ```text
 web/js/app.js
 web/js/screens/islands-screen.js
+TQ.screens.islands.getImplementedRegionIds()
+TQ.screens.islands.getDevelopmentRegionStatus(regionId)
 ```
 
-A Região escolhida no Mapa Mundo é mantida somente em memória durante a navegação. Não altera `campaign.currentRegionId`, desbloqueios, conclusão ou progresso persistente.
+Regiões com configuração visual válida em `REGION_VISUAL_CONFIG` entram automaticamente como concluídas/liberadas para inspeção no preview.
+
+A Região escolhida no Mapa Mundo e seu status automático de desenvolvimento são mantidos somente em memória/renderização. Não alteram `campaign.currentRegionId`, desbloqueios, conclusão ou progresso persistente.
 
 Destino final: **modo somente visualização**.
 
