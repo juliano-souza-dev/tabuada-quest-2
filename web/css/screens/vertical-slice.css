@@ -96,7 +96,7 @@
 }
 
 .feedback-card h2 {
-    font-size: 5.5cqw;
+    font-size: 30px;
 }
 
 .result-stats {
@@ -491,35 +491,46 @@
 
 .challenge-art-progress {
     position: absolute;
-    left: 20%;
-    top: 37.2%;
-    width: 60%;
-    height: 6.6%;
+    left: var(--challenge-progress-x, 20.5%);
+    top: var(--challenge-progress-y, 40.2%);
+    width: var(--challenge-progress-w, 59%);
+    height: var(--challenge-progress-h, 4.2%);
     overflow: hidden;
     display: grid;
     place-items: center;
-    border: 3px solid rgba(185, 117, 48, .9);
-    border-radius: 999px;
     box-sizing: border-box;
-    background: linear-gradient(180deg, rgba(20, 18, 16, .98), rgba(7, 7, 7, .98));
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
     color: #fff4d0;
-    font-size: 3.35cqw;
+    font-size: var(--challenge-progress-font, 3.15cqw);
     line-height: 1;
     font-weight: 900;
-    text-shadow: 0 2px 3px rgba(0,0,0,.85);
-    box-shadow: inset 0 0 0 2px rgba(0,0,0,.45);
+    text-shadow: 0 2px 3px rgba(0, 0, 0, .92);
+}
+
+.challenge-art-stage[data-progress-mask="true"] .challenge-art-progress {
+    border: 2px solid rgba(163, 101, 38, .92);
+    background:
+        linear-gradient(180deg, rgba(45, 27, 17, .99), rgba(8, 8, 8, .99));
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, .42),
+        0 2px 4px rgba(0, 0, 0, .28);
 }
 
 .challenge-art-progress::before {
     content: "";
     position: absolute;
     left: 1.5%;
-    bottom: 8%;
-    width: calc(var(--challenge-progress, 0%) * .97);
-    height: 22%;
+    bottom: 7%;
+    width: 97%;
+    height: 20%;
     border-radius: 999px;
-    background: linear-gradient(90deg, #21c65a, #75f080);
-    box-shadow: 0 0 8px rgba(71, 235, 109, .45);
+    background: linear-gradient(90deg, #20bc54, #72ef80);
+    box-shadow: 0 0 7px rgba(69, 232, 106, .5);
+    transform: scaleX(var(--challenge-progress-ratio, 0));
+    transform-origin: left center;
+    transition: transform 180ms ease;
 }
 
 .challenge-art-progress > span {
@@ -529,33 +540,33 @@
 
 .challenge-art-question {
     position: absolute;
-    left: 16.5%;
-    top: 45.2%;
-    width: 67%;
-    height: 15.8%;
+    left: var(--challenge-question-x, 14.5%);
+    top: var(--challenge-question-y, 44.6%);
+    width: var(--challenge-question-w, 71%);
+    height: var(--challenge-question-h, 16.5%);
     display: grid;
     place-items: center;
     padding: 2%;
     box-sizing: border-box;
     color: #2b1608;
-    font-size: 8.9cqw;
+    font-size: var(--challenge-question-font, 8.6cqw);
     line-height: 1;
     font-weight: 950;
     text-align: center;
-    text-shadow: 0 1px 0 rgba(255,255,255,.45);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
 }
 
 .challenge-art-answers {
     position: absolute;
-    left: 20.5%;
-    top: 63.5%;
-    width: 59%;
-    height: 18%;
+    left: var(--challenge-answers-x, 17%);
+    top: var(--challenge-answers-y, 63%);
+    width: var(--challenge-answers-w, 66%);
+    height: var(--challenge-answers-h, 16.5%);
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    column-gap: 6%;
-    row-gap: 8%;
+    column-gap: var(--challenge-answer-column-gap, 5.5%);
+    row-gap: var(--challenge-answer-row-gap, 8%);
     pointer-events: auto;
 }
 
@@ -563,22 +574,25 @@
     width: 100%;
     height: 100%;
     min-height: 0 !important;
+    display: grid;
+    place-items: center;
     padding: 0 !important;
     border: 0 !important;
     background: transparent !important;
     color: #fff5d2;
-    font-size: 5.2cqw !important;
+    font-size: var(--challenge-answer-font, 5.7cqw) !important;
     line-height: 1;
     font-weight: 950 !important;
-    text-shadow: 0 3px 3px rgba(0,0,0,.82);
+    text-align: center;
+    text-shadow: 0 3px 3px rgba(0, 0, 0, .86);
     transition: transform 120ms ease, filter 120ms ease;
 }
 
 .challenge-art-answer:hover,
 .challenge-art-answer:focus-visible {
-    transform: scale(1.05);
-    filter: brightness(1.2);
-    outline: 4px solid rgba(255,239,122,.95);
+    transform: scale(1.045);
+    filter: brightness(1.18);
+    outline: 4px solid rgba(255, 239, 122, .95);
     outline-offset: -4px;
 }
 
@@ -587,7 +601,7 @@
 }
 
 .challenge-art-feedback {
-    font-size: 30px;
+    font-size: var(--challenge-feedback-font, 5.1cqw);
     line-height: 1.15;
 }
 
