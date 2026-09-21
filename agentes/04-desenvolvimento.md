@@ -702,3 +702,10 @@ web/css/screens/shop.css
 ```
 
 A Home reutiliza o hotspot já existente de Loja.
+
+
+### Catálogo de Molduras
+
+`shopCatalog.frames` contém 5 registros estáveis.
+
+Preço nulo é estado válido de catálogo e significa item visível, porém ainda não comprável. A UI deve tratar `price = null` sem converter para zero.
