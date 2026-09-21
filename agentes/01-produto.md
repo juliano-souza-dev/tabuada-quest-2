@@ -334,9 +334,30 @@ A Taberna é a tela funcional para descoberta e contratação da Tripulação. A
 
 ## PETs, recompensas, economia e inventário
 
-Esses sistemas existem como domínios distintos e só devem ser implementados quando suas regras estiverem definidas pelas personas responsáveis.
+Recompensas configuradas para uma Ilha/partida devem ser entregues pelo domínio, nunca apenas representadas visualmente.
 
-Produto determina se o sistema pertence ao escopo e seus objetivos. Game Design define distribuição/regras pedagógicas quando aplicável. Desenvolvimento implementa somente após o contrato estar fechado.
+Contrato vigente:
+
+```text
+toda partida concluída → concede XP
+recompensa da Ilha = o tipo configurado no catálogo
+chest → Baú
+ruby  → Rubi
+pet   → PET
+```
+
+Regras:
+
+- XP é recompensa de partida e é concedido a cada conclusão válida, inclusive em replay;
+- PET, Baú, Rubi e demais marcos vinculados à Ilha são recompensas únicas da primeira conclusão, salvo decisão futura explícita;
+- enquanto Rubi e Diamante não forem separados em moedas distintas, recompensas do tipo `ruby` creditam o saldo já existente de `wallet.gems`;
+- cada Baú possui um kit próprio de itens;
+- o kit pode existir vazio enquanto seu conteúdo ainda não tiver sido definido;
+- ao concluir uma Ilha/partida cuja recompensa efetivamente recebida contenha Baú, o jogo abre uma tela dedicada de Baú antes do resultado;
+- a tela de Baú atual pode ser funcional e simples; arte final será tratada futuramente pela Direção Visual;
+- abrir/receber um Baú não deve duplicar o mesmo Baú nem seus itens em replay.
+
+Produto determina se novos tipos de recompensa pertencem ao escopo. Game Design define distribuição e balanceamento. Desenvolvimento mantém o catálogo extensível e a persistência idempotente.
 
 Não reutilizar distribuições antigas de 10 Ilhas por tela como regra vigente.
 
