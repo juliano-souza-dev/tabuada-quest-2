@@ -381,8 +381,11 @@ Regras:
 - enquanto Rubi e Diamante não forem separados em moedas distintas, recompensas do tipo `ruby` creditam o saldo já existente de `wallet.gems`;
 - cada Baú possui um kit próprio de itens;
 - o kit pode existir vazio enquanto seu conteúdo ainda não tiver sido definido;
-- ao concluir uma Ilha/partida cuja recompensa efetivamente recebida contenha Baú, o jogo abre uma tela dedicada de Baú antes do resultado;
-- a tela de Baú atual pode ser funcional e simples; arte final será tratada futuramente pela Direção Visual;
+- a tela de resultado é sempre exibida primeiro;
+- PET e Baú não são anunciados dentro do painel de premiação da tela de resultado;
+- quando a primeira conclusão conceder PET ou Baú, ao escolher `Voltar às Ilhas` ou `Ver Regiões`, o jogo abre antes uma tela dedicada à recompensa correspondente;
+- depois dessa apresentação, o fluxo continua para o destino que a criança havia escolhido;
+- as telas de PET e Baú podem ser funcionais e simples nesta etapa; arte final específica será tratada futuramente pela Direção Visual;
 - abrir/receber um Baú não deve duplicar o mesmo Baú nem seus itens em replay.
 
 Produto determina se novos tipos de recompensa pertencem ao escopo. Game Design define distribuição e balanceamento. Desenvolvimento mantém o catálogo extensível e a persistência idempotente.
