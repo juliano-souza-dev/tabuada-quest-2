@@ -103,35 +103,72 @@ REGION_3_LAYOUT
 
 nem duplicar renderer ou CSS por Região.
 
-### Legado atual a migrar
+### Estrutura canônica migrada
 
-O código atual ainda contém a solução histórica:
-
-```text
-CORSÁRIO 1 → Ilhas 01–05
-CORSÁRIO 2 → Ilhas 06–10
-dentro da mesma Região usando REGION_VISUAL_CONFIG.pages
-```
-
-Essa arquitetura está **descontinuada**.
-
-Também permanecem no domínio constantes históricas equivalentes a:
+A estrutura física do domínio é centralizada em:
 
 ```text
-11 Regiões
-10 Ilhas por Região
+web/js/domain/world-structure.js
 ```
 
-Elas não devem ser copiadas ou ampliadas. A migração correta é para:
+Contrato:
 
 ```text
 22 Regiões
 5 Ilhas por Região
+110 Ilhas
 ```
 
-preservando as 110 Ilhas e o estado/progresso do jogador.
+Conversão canônica:
 
-Enquanto os novos assets de Ilha não forem refeitos, as composições atuais da CORSÁRIO podem permanecer temporariamente com `hideIslands: true`, mas isso não altera a macroestrutura-alvo.
+```text
+globalIslandIndex = (regionId - 1) × 5 + islandId
+```
+
+Regras técnicas:
+
+- `REGION_VISUAL_CONFIG` possui no máximo uma composição ativa por Região;
+- não existe `pages` para simular segunda metade de Região;
+- CORSÁRIO usa somente os cinco slots da Região 1;
+- arquivos históricos de assets podem permanecer fisicamente no repositório, mas não entram no catálogo ativo;
+- `regions-screen.js` trabalha com as 22 Regiões canônicas;
+- o domínio usa os limites fornecidos por `world-structure.js`, não constantes próprias divergentes.
+
+### Compatibilidade de save 11×10 → 22×5
+
+Persistência vigente:
+
+```text
+schemaVersion = 9
+```
+
+Saves v8 são convertidos pela posição global:
+
+```text
+antiga R1/I6   → global 6   → nova R2/I1
+antiga R11/I10 → global 110 → nova R22/I5
+```
+
+A migração preserva:
+
+- Ilhas concluídas;
+- Região/Ilha atual;
+- viagens já exibidas;
+- sessão ativa;
+- último resultado;
+- XP, nível, moedas e gemas;
+- Tripulação;
+- PETs e Baús já recebidos;
+- mapas especiais;
+- arco final.
+
+Referências explícitas a 11×10, `regionStates` ou `island10*` são permitidas somente dentro do migrador de schema legado.
+
+### Estado pedagógico contínuo
+
+`learning.schedulerState` substitui `learning.regionStates` como estado ativo.
+
+O scheduler preserva mastery, recovery queue e contadores ao atravessar Regiões. Ao mudar de faixa pedagógica, somente `regionId` e `recoveryGap` são retargetados; o histórico não é apagado.
 
 ### Status visual
 
