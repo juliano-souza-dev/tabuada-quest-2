@@ -517,3 +517,24 @@ Cristal Queen  → 9.000 Ouro
 Nesta etapa, os navios possuem apenas nome e preço. Arte e vídeo próprio entram depois.
 
 Molduras e Fundos já possuem abas na Loja, porém o catálogo comercial e os preços ainda não foram definidos.
+
+
+### Catálogo inicial de Molduras
+
+A aba Molduras possui cinco itens comerciais cadastrados somente por nome:
+
+```text
+Âncora Dourada
+Coroa Corsária
+Maré de Safira
+Rubi do Capitão
+Lenda do Kraken
+```
+
+Nesta etapa:
+
+- `asset = null`;
+- `price = null`;
+- itens sem preço não podem ser comprados;
+- a Loja mostra “Preço a definir” / “Em breve”;
+- nenhuma Moldura é equipada pela Loja.
