@@ -344,7 +344,7 @@ Toda Ilha deve seguir:
 - estilo cartunesco polido;
 - rica em detalhes, mas com leitura clara;
 - composição compacta e centralizada;
-- fundo branco limpo;
+- fundo transparente com alpha real;
 - aparência de asset de jogo casual/adventure;
 - forte sensação de peça colecionável/selecionável do mapa.
 
@@ -388,7 +388,7 @@ Obrigatórias em todas as Ilhas:
 
 - composição quadrada;
 - Ilha centralizada;
-- fundo branco limpo;
+- fundo transparente com alpha real;
 - asset isolado;
 - estética diorama 3D premium;
 - sem personagens humanos;
@@ -426,6 +426,37 @@ GEMA / CRISTAL     → gema lapidada
 ```
 
 Mostrar **somente recompensas reais** da Ilha.
+
+#### Fonte obrigatória do badge da Ilha
+
+Antes de montar qualquer `PROMPT_PROPOSTO` de `TIPO_DE_ARTE = ILHA`, resolver a recompensa principal canônica:
+
+```text
+Região + Ilha
+→ índice global
+→ agentes/02-game-design-aprendizagem.md
+→ distribuição canônica das 110 recompensas
+→ badge/medalhão correspondente
+```
+
+A implementação espelha a mesma regra em:
+
+```text
+TQ.content.getIslandPrimaryReward(regionId, islandId)
+```
+
+Dicionário obrigatório para a distribuição atual:
+
+```text
+pet          → patinha
+map_fragment → pergaminho / mapa rasgado
+chest        → baú de tesouro
+ruby         → rubi/gema lapidada
+```
+
+Nunca escolher badge por tema da Região, aparência da Ilha ou memória de geração anterior. O badge deriva da recompensa canônica daquela posição.
+
+Os fragmentos adicionais do mapa final das globais 101–109 pertencem à progressão `finalJourney` e, por enquanto, não adicionam medalhão extra à arte.
 
 ### Estado desbloqueado
 
@@ -515,7 +546,7 @@ Depois gerar, nesta ordem:
 Sempre que `TIPO_DE_ARTE = ILHA` e o estado for desbloqueado, partir deste prompt e preencher todos os campos variáveis antes de submetê-lo ao líder:
 
 ```text
-Crie um asset de ilha para jogo no estilo diorama 3D premium, altamente detalhado, polido, colorido, com composição quadrada, centralizada, fundo branco limpo e visual isolado. A ilha deve parecer um asset de mapa de game casual/adventure, compacto, legível e colecionável.
+Crie um asset de ilha para jogo no estilo diorama 3D premium, altamente detalhado, polido, colorido, com composição quadrada, centralizada, fundo transparente com alpha real e visual isolado. A ilha deve parecer um asset de mapa de game casual/adventure, compacto, legível e colecionável.
 
 A composição deve seguir a estrutura canônica: massa insular compacta cercada por água, grande elemento central dominante, estruturas secundárias integradas, passarelas/plataformas/escadas ou píeres, props temáticos, e uma grande placa principal de madeira com o nome da ilha.
 
@@ -562,7 +593,7 @@ Adicionar somente os elementos de bloqueio:
 - leve escurecimento geral
 - sensação visual de ilha bloqueada
 
-As correntes e o cadeado devem se integrar ao asset sem destruir sua leitura. Manter composição quadrada, centralizada, fundo branco limpo e asset isolado. Não alterar o tema base, não mudar recompensas e não adicionar placa inferior vazia.
+As correntes e o cadeado devem se integrar ao asset sem destruir sua leitura. Manter composição quadrada, centralizada, fundo transparente com alpha real e asset isolado. Não alterar o tema base, não mudar recompensas e não adicionar placa inferior vazia.
 ```
 
 Remover do prompt qualquer recompensa inexistente.
