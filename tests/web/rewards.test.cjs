@@ -115,11 +115,11 @@ test("30 Baús distribuem os 90 Colecionáveis-base sem repetição",()=>{
     assert.deepEqual(ids,TQ.content.collectibles.map((item)=>item.id));
 });
 
-test("primeira conclusão com baú abre tela de baú e replay vai ao resultado",()=>{
+test("resultado sempre abre antes da apresentação de Baú",()=>{
     let s=d.createInitialState();
     const rewards=[{type:"chest",chestId:"chest-r1-i3"}];
     s=d.completeGameplaySession(s,result(1),regionState(),rewards,crew,config);
-    assert.equal(s.ui.lastScreen,"chest");
+    assert.equal(s.ui.lastScreen,"result");
     assert.equal(s.learning.lastResult.reward.structural[0].type,"chest");
 
     s=d.completeGameplaySession(s,result(1),regionState(),rewards,crew,config);
