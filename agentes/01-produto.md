@@ -109,6 +109,20 @@ MAREMÍSTICA
 Nenhum nome fora da lista definitiva ou da reserva aprovada deve ser tratado como canônico sem nova validação do líder.
 
 
+### Ilhas canônicas do CORSÁRIO
+
+A Região 1 usa exatamente esta sequência:
+
+```text
+01 Enseada da Bandeira
+02 Baía do Saque Perdido
+03 Farol da Rota Corsária
+04 Porto do Capitão
+05 Rochedo da Âncora Dourada
+```
+
+Nesta etapa visual, somente a Ilha 1 está publicada. As Ilhas 2–5 preservam seus nomes canônicos e aguardam suas artes aprovadas.
+
 ### Ilhas canônicas da OBSIDIANA
 
 A Região 13 usa exatamente esta sequência:
@@ -122,6 +136,20 @@ A Região 13 usa exatamente esta sequência:
 ```
 
 Esses nomes pertencem às **Ilhas jogáveis da Região** e são independentes do catálogo de mapas textuais temáticos.
+
+### Ilhas canônicas da ZONA RUBI
+
+A Região 14 usa exatamente esta sequência:
+
+```text
+01 Carmesim
+02 Coroa Rubi
+03 Pedras Rosada
+04 Pedras Rubras
+05 Rubi do Rei
+```
+
+A ZONA RUBI publica as cinco Ilhas como composição visual completa.
 
 ### Nomes temporários de Ilha
 
