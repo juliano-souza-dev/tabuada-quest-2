@@ -643,6 +643,10 @@
     text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
 }
 
+.challenge-art-question .tabuada-pergunta-numero {
+    transform: translateY(var(--tabuada-pergunta-offset-y, -6px));
+}
+
 .challenge-art-answers {
     position: absolute;
     left: var(--challenge-answers-x, 17%);

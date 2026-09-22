@@ -49,6 +49,7 @@
             4: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
                 question: Object.freeze({ x: 21.5, y: 41.3, width: 56, height: 15 }),
+                questionOffsetY: 0,
                 answers: Object.freeze({ x: 18, y: 62.5, width: 64, height: 17.9, columnGap: 7.8, rowGap: 19 }),
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
@@ -128,6 +129,7 @@
             `--challenge-question-y:${question.y}%`,
             `--challenge-question-w:${question.width}%`,
             `--challenge-question-h:${question.height}%`,
+            ...(layout.questionOffsetY === undefined ? [] : [`--tabuada-pergunta-offset-y:${layout.questionOffsetY}px`]),
             `--challenge-answers-x:${answers.x}%`,
             `--challenge-answers-y:${answers.y}%`,
             `--challenge-answers-w:${answers.width}%`,
@@ -172,7 +174,7 @@
             <div class="challenge-dynamic-layer" aria-live="polite">
                 ${renderProgress(session, session.plannedAnswered + 1)}
                 <div class="challenge-art-question" aria-label="${challenge.table} vezes ${challenge.multiplier}">
-                    ${challenge.table} × ${challenge.multiplier} = ?
+                    <span class="tabuada-pergunta-numero">${challenge.table} × ${challenge.multiplier} = ?</span>
                 </div>
                 <div class="challenge-art-answers">
                     ${options.map((answer) => `
