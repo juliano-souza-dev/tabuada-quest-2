@@ -63,5 +63,10 @@ test("CSS mantém stage proporcional e hitboxes alinhadas ao asset",()=>{
     assert.match(css,/\.result-art-numeric-rewards/);
     assert.match(css,/flex-direction:\s*column/);
     assert.match(css,/\.result-art-action-primary/);
+    const primaryBlock=css.match(/\.result-art-action-primary\s*\{[\s\S]*?\}/)?.[0] || "";
+    assert.match(primaryBlock,/display:\s*grid/);
+    assert.match(primaryBlock,/place-items:\s*center/);
+    assert.match(primaryBlock,/padding:\s*0\s*!important/);
+    assert.match(primaryBlock,/text-align:\s*center/);
     assert.match(css,/\.result-art-action-secondary/);
 });
