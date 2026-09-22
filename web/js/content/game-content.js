@@ -736,11 +736,11 @@
             regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
             region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130",
             region1ChallengeArt: Object.freeze({
-                1: "./assets/regions/region-1/challenges/island-01-challenge.webp?v=20260921-challenge-art",
-                2: "./assets/regions/region-1/challenges/island-02-challenge.webp?v=20260921-challenge-art",
-                3: "./assets/regions/region-1/challenges/island-03-challenge.webp?v=20260921-challenge-art",
-                4: "./assets/regions/region-1/challenges/island-04-challenge.webp?v=20260921-challenge-art",
-                5: "./assets/regions/region-1/challenges/island-05-challenge.webp?v=20260921-challenge-art"
+                1: "./assets/regions/region-1/challenges/corsario-enseada-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v2",
+                2: "./assets/regions/region-1/challenges/corsario-enseada-do-saque-challenge-bg.webp?v=20260922-corsario-challenge-v2",
+                3: "./assets/regions/region-1/challenges/corsario-farol-torto-challenge-bg.webp?v=20260922-corsario-challenge-v2",
+                4: "./assets/regions/region-1/challenges/corsario-refugio-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v2",
+                5: "./assets/regions/region-1/challenges/corsario-ilha-do-vulcao-challenge-bg.webp?v=20260922-corsario-challenge-v2"
             }),
             region2ChallengeArt: Object.freeze({
                 1: "./assets/regions/region-2/challenges/island-01-challenge.webp?v=20260922-birades-challenge",
