@@ -1163,7 +1163,7 @@ web/js/screens/challenge-screen.js
 web/js/screens/special-mission-screen.js
 ```
 
-Contrato persistente desde save schema v14:
+Contrato persistente desde save schema v15:
 
 ```text
 inventory.items[]
@@ -1182,3 +1182,26 @@ Regras técnicas:
 - a tela `items` é aberta pelo hotspot Baú de Itens da Home;
 - a estrutura de inventário é extensível a futuras categorias;
 - save v13 migra automaticamente Efeitos já comprados para `inventory.items`, sem equipá-los automaticamente.
+
+
+### Molduras no Baú e Moda/Skin
+
+Contrato:
+
+```text
+Baú de Itens
+├── Molduras
+└── Efeitos
+
+Moda
+└── Skins / roupas do avatar
+```
+
+- Molduras pertencem ao Baú de Itens, nunca ao menu Moda;
+- Molduras base de `TQ.content.profileFrames` ficam disponíveis no Baú;
+- Molduras comerciais aparecem no Baú somente após compra;
+- comprar Moldura adiciona o ID a `inventory.items`, mas não equipa;
+- equipamento continua persistido em `player.profileFrameId`;
+- Home apenas renderiza a Moldura equipada e pode encaminhar o perfil para `items`;
+- `hotspot-fashion` abre o fluxo Moda/Skin e, enquanto não houver catálogo, apresenta estado vazio seguro;
+- save schema v15 migra Molduras comerciais compradas em v14 para `inventory.items`.
