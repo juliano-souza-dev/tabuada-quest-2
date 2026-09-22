@@ -9,6 +9,57 @@ converted=0
 converted_source_bytes=0
 converted_output_bytes=0
 
+validate_candidate() {
+  local src="$1"
+  local dst="$2"
+
+  python3 - "$src" "$dst" <<'PY'
+from PIL import Image, ImageChops
+import sys
+
+src, dst = sys.argv[1], sys.argv[2]
+a = Image.open(src).convert("RGBA")
+b = Image.open(dst).convert("RGBA")
+
+if a.size != b.size:
+    print(f"dimension mismatch: {src} {a.size} != {dst} {b.size}")
+    raise SystemExit(1)
+
+alpha_a = a.getchannel("A")
+alpha_b = b.getchannel("A")
+alpha_diff = ImageChops.difference(alpha_a, alpha_b)
+if alpha_diff.getbbox() is not None:
+    print(f"alpha mismatch: {src} -> {dst}")
+    raise SystemExit(1)
+
+pa = a.load()
+pb = b.load()
+weighted_error = 0.0
+visible_weight = 0.0
+
+for y in range(a.height):
+    for x in range(a.width):
+        ar, ag, ab, aa = pa[x, y]
+        br, bg, bb, _ = pb[x, y]
+        weight = aa / 255.0
+        if weight == 0:
+            continue
+        weighted_error += ((abs(ar - br) + abs(ag - bg) + abs(ab - bb)) / 3.0) * weight
+        visible_weight += weight
+
+visible_mae = weighted_error / visible_weight if visible_weight else 0.0
+
+if visible_mae > 5.0:
+    print(f"visible RGB delta too high ({visible_mae:.3f}): {src} -> {dst}")
+    raise SystemExit(1)
+
+print(
+    f"validated {src} -> {dst}: "
+    f"size={a.size[0]}x{a.size[1]}, visible_rgb_mae={visible_mae:.3f}, alpha=exact"
+)
+PY
+}
+
 convert_asset() {
   local src="$1"
   local dst="$2"
@@ -18,30 +69,38 @@ convert_asset() {
   local src_bytes
   src_bytes=$(stat -c%s "$src")
 
-  cwebp -quiet -mt -m 6 -preset picture -q 92 -alpha_q 100 "$src" -o "$dst"
+  local accepted="false"
+  local quality
 
-  python3 - "$src" "$dst" <<'PY'
-from PIL import Image, ImageChops, ImageStat
-import sys
-src, dst = sys.argv[1], sys.argv[2]
-a = Image.open(src).convert("RGBA")
-b = Image.open(dst).convert("RGBA")
-if a.size != b.size:
-    raise SystemExit(f"dimension mismatch: {src} {a.size} != {dst} {b.size}")
-alpha_diff = ImageChops.difference(a.getchannel("A"), b.getchannel("A"))
-if alpha_diff.getbbox() is not None:
-    raise SystemExit(f"alpha mismatch: {src} -> {dst}")
-rgb_diff = ImageChops.difference(a.convert("RGB"), b.convert("RGB"))
-mae = sum(ImageStat.Stat(rgb_diff).mean) / 3.0
-if mae > 5.0:
-    raise SystemExit(f"visual delta too high ({mae:.3f}): {src} -> {dst}")
-print(f"validated {src} -> {dst}: size={a.size[0]}x{a.size[1]}, rgb_mae={mae:.3f}, alpha=exact")
-PY
+  for quality in 92 96 98 100; do
+    cwebp -quiet -mt -m 6 -preset picture -q "$quality" -alpha_q 100 "$src" -o "$dst"
+    if validate_candidate "$src" "$dst"; then
+      echo "Accepted lossy WebP q=$quality: $src"
+      accepted="true"
+      break
+    fi
+    rm -f "$dst"
+  done
+
+  if [[ "$accepted" != "true" ]]; then
+    cwebp -quiet -mt -m 6 -lossless -z 9 "$src" -o "$dst"
+    if validate_candidate "$src" "$dst"; then
+      echo "Accepted lossless WebP fallback: $src"
+      accepted="true"
+    else
+      rm -f "$dst"
+    fi
+  fi
+
+  if [[ "$accepted" != "true" ]]; then
+    echo "Keeping PNG because no WebP candidate met visual validation: $src"
+    return 0
+  fi
 
   local dst_bytes
   dst_bytes=$(stat -c%s "$dst")
   if (( dst_bytes >= src_bytes )); then
-    echo "Keeping PNG because WebP is not smaller: $src"
+    echo "Keeping PNG because validated WebP is not smaller: $src"
     rm -f "$dst"
     return 0
   fi
@@ -68,23 +127,28 @@ done
 
 python3 <<'PY'
 from pathlib import Path
+
 p = Path("web/js/content/game-content.js")
 s = p.read_text(encoding="utf-8")
+
 pairs = {
     "./assets/global/mapa_mundial.png": "./assets/global/mapa_mundial.webp",
     "./assets/regions/region-1/mapa_marítimo_do_corsário.png": "./assets/regions/region-1/background.webp",
     "./assets/regions/region-13/background.png": "./assets/regions/region-13/background.webp",
 }
+
 for n in range(1, 6):
     nn = f"{n:02d}"
     pairs[f"./assets/regions/region-1/island-{nn}-locked.png"] = f"./assets/regions/region-1/island-{nn}-locked.webp"
     pairs[f"./assets/regions/region-1/island-{nn}-unlocked.png"] = f"./assets/regions/region-1/island-{nn}-unlocked.webp"
     pairs[f"./assets/regions/region-13/island-{nn}-locked.png"] = f"./assets/regions/region-13/island-{nn}-locked.webp"
     pairs[f"./assets/regions/region-13/island-{nn}-unlocked.png"] = f"./assets/regions/region-13/island-{nn}-unlocked.webp"
+
 for old, new in pairs.items():
     repo_path = "web/" + new.removeprefix("./")
     if Path(repo_path).exists():
         s = s.replace(old, new)
+
 p.write_text(s, encoding="utf-8")
 PY
 
@@ -117,8 +181,10 @@ cat > "$REPORT" <<EOF
 - três mapas estáticos declarados, mas sem consumidor, foram removidos da configuração e do bundle;
 - cada PNG ativo convertido mantém as mesmas dimensões;
 - alpha/transparência é validado pixel a pixel;
-- diferença RGB média precisa ficar em até 5 níveis por canal;
-- o PNG original só é removido quando o WebP resultante é menor;
+- a diferença RGB visível é ponderada pelo alpha e precisa ficar em até 5 níveis por canal;
+- pixels 100% transparentes não contam na diferença visual porque seu RGB não é renderizado;
+- a conversão tenta q=92, 96, 98 e 100 e usa WebP lossless como fallback;
+- o PNG original só é removido quando o WebP validado também é menor;
 - todas as referências convertidas são atualizadas no mesmo lote;
 - `game-content.js` passa por validação de sintaxe antes do build.
 
