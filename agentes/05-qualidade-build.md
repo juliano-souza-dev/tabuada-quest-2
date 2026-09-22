@@ -326,7 +326,7 @@ Validar:
 Validar:
 
 - Loja abre pela Home;
-- abas: Molduras, Fundos e Estaleiro;
+- abas: Molduras, Fundos, Estaleiro e Efeitos;
 - Colombo = 1.000 Ouro;
 - Rosa Intenso = 3.000 Ouro;
 - Cristal Queen = 9.000 Ouro;
@@ -356,6 +356,20 @@ Validar:
 - compra usa Ouro e persiste;
 - compra não equipa nem troca personalização ativa.
 
+
+### Gate comercial dos Efeitos
+
+Validar:
+
+- a aba Efeitos lista somente Efeitos comercializáveis, sem incluir fallbacks padrão;
+- cada item possui ID único, `category = effect`, tipo, nome, preço e renderer textual;
+- todos os Efeitos comerciais permanecem com `asset = null` nesta etapa;
+- compra desconta exatamente o preço em Ouro;
+- recompra não desconta novamente;
+- compra persiste o ID em `shop.purchasedItemIds` após reload;
+- compra não cria nem altera estado de equipamento;
+- `getShopItem(...)` resolve IDs de Efeitos;
+- os fallbacks padrão de acerto/erro continuam funcionando após a integração com a Loja.
 
 ## Gate de personalização da Home
 
