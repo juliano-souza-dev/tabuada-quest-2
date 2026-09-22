@@ -44,12 +44,6 @@
                 .filter((item) => purchasedIds.has(item.id))
                 .map(normalizeShopBackground)
         ];
-        const ownedFrames = [
-            ...TQ.content.profileFrames,
-            ...TQ.content.shopCatalog.frames
-                .filter((item) => purchasedIds.has(item.id))
-                .map(normalizeShopFrame)
-        ];
         const ownedShips = TQ.content.shopCatalog.ships.filter((item) => purchasedIds.has(item.id));
         const equippedShip = ownedShips.find((item) => item.id === state.shop.equippedShipId) || null;
         const defaultBackground = TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)
@@ -80,7 +74,7 @@
                      alt=""
                      aria-hidden="true">
 
-                <button class="profile-slot ${profileFrame.src ? "has-frame" : "is-simple"}" type="button" data-action="frames" aria-label="Trocar moldura do perfil">
+                <button class="profile-slot ${profileFrame.src ? "has-frame" : "is-simple"}" type="button" data-action="items" aria-label="Abrir Baú de Itens para trocar moldura">
                     <img class="profile-slot-avatar" src="${avatarSrc}" alt="">
                     ${profileFrame.src ? `<img class="profile-slot-frame" src="${profileFrame.src}" alt="" aria-hidden="true">` : ""}
                 </button>
@@ -103,7 +97,7 @@
                      alt="Avatar selecionado em traje de aventura pirata">
 
                 <button class="art-hotspot hotspot-background" type="button" data-action="backgrounds" aria-label="Escolher fundo"></button>
-                <button class="art-hotspot hotspot-fashion" type="button" data-action="frames" aria-label="Escolher moldura"></button>
+                <button class="art-hotspot hotspot-fashion" type="button" data-action="fashion" aria-label="Abrir Moda"></button>
 
                 <button class="play-slot" type="button" data-action="play" aria-label="Jogar"></button>
                 <button class="crew-menu-button" type="button" data-action="crew" aria-label="Abrir Tripulação">
@@ -163,30 +157,16 @@
                 </section>
             </div>
 
-            <div class="personalization-sheet" data-sheet="frames" hidden>
+            <div class="personalization-sheet" data-sheet="fashion" hidden>
                 <button class="sheet-backdrop" type="button" data-action="close-sheet" aria-label="Fechar"></button>
-                <section class="sheet-panel" aria-label="Escolha a moldura">
+                <section class="sheet-panel" aria-label="Moda">
                     <header>
-                        <strong>Escolha a moldura</strong>
+                        <strong>Moda</strong>
                         <button type="button" data-action="close-sheet">×</button>
                     </header>
-                    <div class="choice-grid">
-                        ${ownedFrames.map((item) => `
-                            <button type="button"
-                                    class="choice-card ${item.id === profileFrame.id ? "is-selected" : ""}"
-                                    data-frame-id="${item.id}">
-                                <span class="frame-thumb">
-                                    <img class="frame-thumb-avatar" src="${avatarSrc}" alt="">
-                                    ${item.src
-    ? `<img class="frame-thumb-art" src="${item.src}" alt="">`
-    : (item.id === TQ.content.defaultProfileFrameId
-        ? `<span class="frame-thumb-simple" aria-hidden="true"></span>`
-        : `<span class="asset-pending-label">Arte em breve</span>`)}
-                                </span>
-                                <strong>${item.label}</strong>
-                            </button>
-                        `).join("")}
-                    </div>
+                    <p class="personalization-empty">
+                        As skins e roupas do avatar aparecerão aqui.
+                    </p>
                 </section>
             </div>
 
@@ -260,19 +240,6 @@
                 return;
             }
 
-            const frameChoice = event.target.closest("[data-frame-id]");
-            if (frameChoice) {
-                const allowed = ownedFrames.map((item) => item.id);
-                onStateChange(
-                    TQ.domain.playerState.withProfileFrame(
-                        state,
-                        frameChoice.dataset.frameId,
-                        allowed
-                    )
-                );
-                return;
-            }
-
             const shipChoice = event.target.closest("[data-ship-id]");
             if (shipChoice) {
                 const allowed = ownedShips.map((item) => item.id);
@@ -296,8 +263,8 @@
                 return;
             }
 
-            if (action === "frames") {
-                openSheet("frames");
+            if (action === "fashion") {
+                openSheet("fashion");
                 return;
             }
 
