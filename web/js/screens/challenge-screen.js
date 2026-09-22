@@ -24,21 +24,21 @@
     const CHALLENGE_ART_LAYOUTS = Object.freeze({
         1: Object.freeze({
             1: Object.freeze({
-                progress: Object.freeze({ x: 20.2, y: 40.45, width: 59.6, height: 3.95 }),
-                question: Object.freeze({ x: 13.6, y: 44.8, width: 72.8, height: 15.8 }),
+                progress: Object.freeze({ x: 20.45, y: 40.35, width: 59.3, height: 3.65 }),
+                question: Object.freeze({ x: 14, y: 44.95, width: 72, height: 15.45 }),
                 answers: Object.freeze({
-                    x: 15.5,
-                    y: 62.35,
-                    width: 69,
-                    height: 16.55,
-                    columnGap: 5.4,
-                    rowGap: 8.5
+                    x: 16,
+                    y: 62.45,
+                    width: 68,
+                    height: 16.25,
+                    columnGap: 5.7,
+                    rowGap: 8
                 }),
                 font: Object.freeze({
-                    progress: 3.05,
-                    question: 8.55,
-                    answer: 5.75,
-                    feedback: 5
+                    progress: 3,
+                    question: 8.35,
+                    answer: 5.55,
+                    feedback: 4.9
                 }),
                 progressMask: false
             }),
