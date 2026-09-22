@@ -977,3 +977,36 @@ Regras técnicas:
 - locked/unlocked são pares explícitos por Ilha;
 - os nomes canônicos pertencem a `canonicalIslandNameOverrides["2"]`;
 - a Região 2 entra automaticamente no preview implementado via `REGION_VISUAL_CONFIG`.
+
+
+### Telas jogáveis de BIRADES
+
+Assets:
+
+```text
+web/assets/regions/region-2/challenges/island-01-challenge.webp
+...
+web/assets/regions/region-2/challenges/island-05-challenge.webp
+```
+
+Catálogo:
+
+```text
+web/js/content/game-content.js → assets.region2ChallengeArt
+```
+
+Renderer/layout:
+
+```text
+web/js/screens/challenge-screen.js
+CHALLENGE_ART_LAYOUTS[2][islandId]
+```
+
+Contrato técnico:
+
+- os 5 assets são 941×1672 em WebP otimizado;
+- cada Ilha possui coordenadas próprias para progresso, operação e respostas;
+- a arte não contém valores dinâmicos;
+- progresso, questão, respostas e feedback são injetados pelo renderer compartilhado;
+- o resolvedor de arte usa o padrão `assets.region{regionId}ChallengeArt`;
+- teste de regressão verifica existência física e limite de peso abaixo de 500 KB por arte.
