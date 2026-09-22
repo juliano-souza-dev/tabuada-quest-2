@@ -450,3 +450,27 @@ Validar permanentemente:
 - Home abre a rota `items`;
 - desafio normal e Missão Especial consomem o mesmo resolvedor;
 - outras categorias futuras não devem exigir remodelar os slots de Efeitos.
+## Matriz obrigatória de viewport
+
+Para telas imersivas 941×1672, validar no mínimo:
+
+```text
+celular estreito/alto
+celular com safe area superior e inferior
+tablet vertical 800×1200
+tablet/viewport 4:3 vertical
+browser preview
+Android WebView
+```
+
+Invariantes:
+
+- razão 941:1672 preservada;
+- canvas usa a maior área segura disponível;
+- nenhum teto legado de 430px/540px limita o APK/tablet;
+- hitboxes permanecem alinhadas à arte;
+- controles não entram em notch, câmera ou zona de gesto;
+- bleed pode cortar sem perder informação;
+- browser e Android mantêm o mesmo posicionamento funcional.
+
+Teste canônico: `tests/web/safe-viewport.test.cjs`.
