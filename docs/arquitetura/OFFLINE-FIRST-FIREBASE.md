@@ -127,3 +127,34 @@ app/src/main/java/com/tabuadaquest/app/MainActivity.java
 web/js/persistence/local-storage.js
 firebase/firestore.rules
 ```
+
+
+## Identidade Android oficial
+
+```text
+applicationId: tabuadaquest.juliano.filhas
+namespace Java: com.tabuadaquest.app
+```
+
+O `applicationId` é a identidade pública/instalada do APK e deve coincidir com o app Android registrado no Firebase.
+
+O `namespace` Java permanece independente para evitar mover classes sem necessidade.
+
+## Projeto Firebase conectado
+
+```text
+project_id: tabuadaquest2
+project_number: 489461827440
+android_app_id: 1:489461827440:android:5c4feb6409dac2ae5871b5
+package_name: tabuadaquest.juliano.filhas
+```
+
+A configuração padrão fica no build Android e pode ser sobrescrita por Gradle properties:
+
+```text
+TQ_FIREBASE_API_KEY
+TQ_FIREBASE_APP_ID
+TQ_FIREBASE_PROJECT_ID
+```
+
+O arquivo `app/google-services.json` continua ignorado pelo Git porque a inicialização atual usa `FirebaseOptions` a partir de `BuildConfig`.
