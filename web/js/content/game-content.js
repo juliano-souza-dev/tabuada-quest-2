@@ -742,6 +742,13 @@
                 4: "./assets/regions/region-1/challenges/island-04-challenge.webp?v=20260921-challenge-art",
                 5: "./assets/regions/region-1/challenges/island-05-challenge.webp?v=20260921-challenge-art"
             }),
+            region2ChallengeArt: Object.freeze({
+                1: "./assets/regions/region-2/challenges/island-01-challenge.webp?v=20260922-birades-challenge",
+                2: "./assets/regions/region-2/challenges/island-02-challenge.webp?v=20260922-birades-challenge",
+                3: "./assets/regions/region-2/challenges/island-03-challenge.webp?v=20260922-birades-challenge",
+                4: "./assets/regions/region-2/challenges/island-04-challenge.webp?v=20260922-birades-challenge",
+                5: "./assets/regions/region-2/challenges/island-05-challenge.webp?v=20260922-birades-challenge"
+            }),
             region1Modular: Object.freeze({
                 background: "./assets/regions/region-1/mapa_marítimo_do_corsário.png?v=20260920-1727",
                 backgrounds: Object.freeze({
