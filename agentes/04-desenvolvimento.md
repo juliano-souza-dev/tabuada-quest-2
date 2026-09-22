@@ -949,3 +949,31 @@ Antes de ajustar coordenadas:
 CSS compartilhado deve conter apenas comportamento realmente global. Posições, dimensões ou offsets dependentes da composição da arte devem vir de configuração local como `CHALLENGE_ART_LAYOUTS[regionId][islandId]` ou estrutura equivalente.
 
 Quando um elemento compartilhado precisar de parâmetros adicionais para encaixar em artes diferentes, preferir variáveis/configuração por Região + Ilha em vez de hardcode global.
+
+
+## BIRADES / Região 2
+
+Assets canônicos:
+
+```text
+web/assets/regions/region-2/background.webp
+web/assets/regions/region-2/*_unlocked.webp
+web/assets/regions/region-2/*_locked.webp
+```
+
+Integração:
+
+```text
+web/js/content/game-content.js → assets.region2Modular
+web/js/screens/islands-screen.js → REGION_VISUAL_CONFIG[2]
+```
+
+Regras técnicas:
+
+- PNGs enviados pelo líder são entrada temporária e não permanecem na pasta de produção;
+- conversão de BIRADES usa WebP lossless para preservar pixels, transparência e dimensões;
+- `REGION_VISUAL_CONFIG[2]` utiliza `slotLayout` próprio aprovado pela Direção Visual;
+- o botão Mapa Mundo de BIRADES usa `worldMapEmbedded=true`, aproveitando o elemento incorporado ao background;
+- locked/unlocked são pares explícitos por Ilha;
+- os nomes canônicos pertencem a `canonicalIslandNameOverrides["2"]`;
+- a Região 2 entra automaticamente no preview implementado via `REGION_VISUAL_CONFIG`.
