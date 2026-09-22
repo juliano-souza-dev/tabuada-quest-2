@@ -101,3 +101,17 @@ test("Ilha 1 preserva o encaixe refinado da overlay dinâmica",()=>{
     assert.doesNotMatch(css,/padding:\s*0\s+4%\s+11%/);
     assert.match(css,/\.challenge-art-progress\s*>\s*span[\s\S]*white-space:\s*nowrap/);
 });
+
+
+test("fill do progresso fica centralizado no trilho visual",()=>{
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    const block=css.match(/\.challenge-art-progress::before\s*\{[\s\S]*?\}/)?.[0] || "";
+    assert.match(block,/top:\s*50%/);
+    assert.match(block,/height:\s*24%/);
+    assert.match(block,/translateY\(-50%\)\s+scaleX\(var\(--challenge-progress-ratio, 0\)\)/);
+    assert.doesNotMatch(block,/bottom:\s*7%/);
+});
