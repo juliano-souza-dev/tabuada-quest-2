@@ -7,6 +7,7 @@ delete global.TabuadaQuest;
 require("../../web/js/domain/world-structure.js");
 require("../../web/js/domain/scheduler.js");
 require("../../web/js/domain/player-state.js");
+require("../../web/js/domain/gameplay-session.js");
 require("../../web/js/content/game-content.js");
 require("../../web/js/screens/islands-screen.js");
 
@@ -71,4 +72,40 @@ test("DEV Regiões é um destino válido do estado de navegação",()=>{
     const next=playerState.withLastScreen(initial,"development-regions");
 
     assert.equal(next.ui.lastScreen,"development-regions");
+});
+
+
+test("Ilha aberta pelo DEV inicia desafio sem exigir desbloqueio da campanha",()=>{
+    const initial=playerState.createInitialState();
+    const snapshot=JSON.stringify(initial);
+
+    const next=islands.createDevelopmentIslandEntryState(initial,2,5);
+
+    assert.equal(next.ui.lastScreen,"challenge");
+    assert.equal(next.learning.activeSession.regionId,2);
+    assert.equal(next.learning.activeSession.islandId,5);
+    assert.ok(next.learning.activeSession.currentChallenge);
+    assert.equal(JSON.stringify(initial),snapshot);
+});
+
+test("fluxo DEV usa estado volátil e não salva partida de teste no progresso real",()=>{
+    const app=fs.readFileSync(
+        path.join(__dirname,"../../web/js/app.js"),
+        "utf8"
+    );
+    const islandsSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+
+    assert.match(app,/let developmentState = null/);
+    assert.match(app,/let developmentMode = false/);
+    assert.match(app,/if \(developmentMode\) \{\s*developmentState = nextState;/);
+    assert.match(app,/screenId === "development-regions"/);
+    assert.match(app,/developmentState = TQ\.domain\.playerState\.withLastScreen/);
+    assert.match(app,/screenId === "home"/);
+
+    assert.match(islandsSource,/createDevelopmentIslandEntryState/);
+    assert.match(islandsSource,/onStateChange\(createDevelopmentIslandEntryState\(state, regionId, islandId\)\)/);
+    assert.doesNotMatch(islandsSource,/if \(previewMode\) return;/);
 });
