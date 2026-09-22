@@ -18,3 +18,8 @@ keystore.properties
 .DS_Store
 Thumbs.db
 .vscode/
+
+
+# Firebase local configuration
+app/google-services.json
+firebase.properties
