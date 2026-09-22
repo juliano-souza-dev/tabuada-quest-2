@@ -2,7 +2,7 @@ package com.tabuadaquest.app;
 
 import android.app.Activity;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
+import android.os.Handler;\nimport android.os.Looper;\nimport android.webkit.WebView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +15,11 @@ final class NativeDataBridge {
     private final WebView webView;
     private final NativeSaveDatabase database;
     private final FirebaseSyncManager syncManager;
+    private final Handler syncHandler = new Handler(Looper.getMainLooper());
+    private final Runnable debouncedSync = () ->
+        syncManager.syncNow((ok, code) ->
+            emit("tq:native-sync", ok, code)
+        );
 
     NativeDataBridge(
         Activity activity,
@@ -49,6 +54,9 @@ final class NativeDataBridge {
             payload,
             now
         );
+
+        syncHandler.removeCallbacks(debouncedSync);
+        syncHandler.postDelayed(debouncedSync, 2000L);
         return true;
     }
 
