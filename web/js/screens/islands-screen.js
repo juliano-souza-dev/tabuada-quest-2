@@ -144,6 +144,13 @@
                 })
             })
         }),
+        3: Object.freeze({
+            assetKey: "region3Modular",
+            id: "ouro",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            hideIslands: true
+        }),
         13: Object.freeze({
             assetKey: "region13Modular",
             id: "obsidiana",
