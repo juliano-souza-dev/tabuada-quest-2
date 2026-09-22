@@ -820,3 +820,18 @@ Contrato:
 - nenhum asset visual próprio é exigido enquanto a direção de arte definitiva não for definida;
 - o botão não aparece nas telas de atividade/desafio nesta etapa;
 - expansões futuras para outras telas exigem decisão explícita de Produto.
+
+
+### CORSÁRIO — nomes canônicos dos challenges
+
+A Região 1, CORSÁRIO, usa estes cinco challenges nesta ordem:
+
+```text
+1. Enseada da Bandeira
+2. Enseada do Saque
+3. Ilha da Caveira Rosa
+4. Refúgio da Bandeira
+5. Ilha do Vulcão
+```
+
+Esses nomes devem permanecer sincronizados entre conteúdo, assets de challenge e validação visual. `Farol Torto` pertence à BIRADES e não faz parte de CORSÁRIO.
