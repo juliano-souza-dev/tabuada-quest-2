@@ -316,3 +316,19 @@ test("catálogo provisório possui Pet 01 a Pet 30 preservando IDs de recompensa
     assert.equal(TQ.content.pets[29].label,"Pet 30");
     assert.equal(new Set(TQ.content.pets.map((pet)=>pet.id)).size,30);
 });
+
+
+test("IDs dos 30 PETs correspondem à Região e Ilha onde são resgatados",()=>{
+    const ids=[];
+    for(let regionId=1;regionId<=22;regionId++){
+        for(let islandId=1;islandId<=5;islandId++){
+            const reward=TQ.content.getIslandPrimaryReward(regionId,islandId);
+            if(reward?.type!=="pet") continue;
+            const expected=`pet-r${regionId}-i${islandId}`;
+            assert.equal(reward.petId,expected,`PET incorreto em R${regionId}/I${islandId}`);
+            ids.push(reward.petId);
+        }
+    }
+    assert.equal(ids.length,30);
+    assert.equal(new Set(ids).size,30);
+});

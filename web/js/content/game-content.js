@@ -453,7 +453,7 @@
         }),
         "2": Object.freeze({
             "1": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i6" })]),
-            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r1-i7" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r2-i2" })]),
             "3": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 3 })]),
             "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i9" })]),
             "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 4 })])
