@@ -90,7 +90,7 @@ test("renderer mantém progresso, conta e respostas fora do asset",()=>{
 
 test("Ilha 1 preserva o encaixe refinado da overlay dinâmica",()=>{
     const layout=TQ.screens.challenge.getChallengeArtLayout(1,1);
-    assert.deepEqual(layout.progress,{x:20.45,y:40.35,width:59.3,height:3.65});
+    assert.deepEqual(layout.progress,{x:21.57,y:40.35,width:55.84,height:3.65});
     assert.deepEqual(layout.question,{x:14,y:44.95,width:72,height:15.45});
     assert.deepEqual(layout.answers,{x:16,y:62.45,width:68,height:16.25,columnGap:5.7,rowGap:8});
 
@@ -121,16 +121,13 @@ test("fill do progresso fica centralizado no trilho visual",()=>{
 
 test("calibração horizontal da barra reproduz o trilho medido no stage",()=>{
     const layout=TQ.screens.challenge.getChallengeArtLayout(1,1);
-    const fillLeftInsideContainer=1.89/100;
-    const fillWidthInsideContainer=94.17/100;
-
-    const startPercent=layout.progress.x + layout.progress.width*fillLeftInsideContainer;
-    const widthPercent=layout.progress.width*fillWidthInsideContainer;
+    const startPercent=layout.progress.x;
+    const widthPercent=layout.progress.width;
     const endPercent=startPercent+widthPercent;
 
-    assert.ok(Math.abs(startPercent-21.57)<0.03);
-    assert.ok(Math.abs(widthPercent-55.84)<0.03);
-    assert.ok(Math.abs(endPercent-77.41)<0.04);
+    assert.ok(Math.abs(startPercent-21.57)<0.001);
+    assert.ok(Math.abs(widthPercent-55.84)<0.001);
+    assert.ok(Math.abs(endPercent-77.41)<0.001);
 
     const stageWidthPx=394;
     assert.ok(Math.abs(stageWidthPx*startPercent/100-85)<0.2);
@@ -145,4 +142,40 @@ test("Questão 3 de 20 usa 15% do trilho de progresso",()=>{
     assert.equal(TQ.screens.challenge.progressPercent(20),100);
     assert.equal(TQ.screens.challenge.progressPercent(99),100);
     assert.equal(TQ.screens.challenge.progressPercent(0),5);
+});
+
+
+test("R1 I1 usa o CSS local fornecido para container e fill",()=>{
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    const containerSelector='.challenge-art-screen[data-region-id="1"][data-island-id="1"] .challenge-art-progress';
+    const fillSelector='.challenge-art-screen[data-region-id="1"][data-island-id="1"] .challenge-art-progress::before';
+
+    const containerStart=css.indexOf(containerSelector);
+    const fillStart=css.indexOf(fillSelector);
+    assert.ok(containerStart>=0);
+    assert.ok(fillStart>=0);
+
+    const containerBlock=css.slice(containerStart,css.indexOf("}",containerStart)+1);
+    const fillBlock=css.slice(fillStart,css.indexOf("}",fillStart)+1);
+
+    assert.match(containerBlock,/height:\s*20px/);
+    assert.match(containerBlock,/background:\s*#3a2a1a/);
+    assert.match(containerBlock,/border:\s*2px solid #6b4a2a/);
+    assert.match(containerBlock,/border-radius:\s*999px/);
+    assert.match(containerBlock,/padding:\s*0/);
+    assert.match(containerBlock,/box-sizing:\s*border-box/);
+    assert.match(containerBlock,/overflow:\s*hidden/);
+
+    assert.match(fillBlock,/left:\s*0/);
+    assert.match(fillBlock,/top:\s*0/);
+    assert.match(fillBlock,/width:\s*calc\(var\(--challenge-progress-ratio, 0\) \* 100%\)/);
+    assert.match(fillBlock,/height:\s*100%/);
+    assert.match(fillBlock,/linear-gradient\(180deg, #7ed957, #4caf50\)/);
+    assert.match(fillBlock,/border-radius:\s*inherit/);
+    assert.match(fillBlock,/transform:\s*none/);
+    assert.match(fillBlock,/transition:\s*width \.3s ease/);
 });
