@@ -228,13 +228,27 @@ test("resolver de arte de desafio é compartilhado por Região",()=>{
 });
 
 
-test("BIRADES publica o catálogo das 5 artes de desafio",()=>{
+test("BIRADES publica e mantém os 5 assets jogáveis físicos",()=>{
     const map=TQ.content.assets.region2ChallengeArt;
     assert.ok(map);
+
     for(let islandId=1;islandId<=5;islandId++){
+        const asset=map[islandId];
         assert.match(
-            map[islandId],
+            asset,
             new RegExp(`region-2/challenges/island-0${islandId}-challenge\\.webp`)
         );
+
+        const cleanPath=asset.split("?")[0].replace(/^\.\//,"");
+        const physicalPath=path.join(__dirname,"../../web",cleanPath);
+        assert.equal(
+            fs.existsSync(physicalPath),
+            true,
+            `asset jogável ausente em BIRADES/Ilha ${islandId}: ${physicalPath}`
+        );
+
+        const size=fs.statSync(physicalPath).size;
+        assert.ok(size>100_000, `asset BIRADES/Ilha ${islandId} pequeno demais: ${size}`);
+        assert.ok(size<500_000, `asset BIRADES/Ilha ${islandId} pesado demais: ${size}`);
     }
 });
