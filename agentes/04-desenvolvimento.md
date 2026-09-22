@@ -1066,3 +1066,86 @@ Contrato:
 - progresso, carteira, PETs, Baús, mapas e conclusão reais do jogador não podem ser alterados por uma partida DEV;
 - voltar para Ilhas mantém a Região DEV selecionada;
 - voltar para Home encerra o modo DEV e descarta completamente o estado temporário.
+
+
+## Persistência nativa offline-first
+
+O empacotamento Android usa WebView nativo. O jogo não pode depender de rede para jogar.
+
+Contrato:
+
+```text
+gameplay
+→ persistência local nativa
+→ fila de sync
+→ Firebase
+```
+
+Fonte operacional no APK:
+
+```text
+SQLite
+app/src/main/java/com/tabuadaquest/app/NativeSaveDatabase.java
+```
+
+Bridge:
+
+```text
+window.TabuadaQuestNative
+app/src/main/java/com/tabuadaquest/app/NativeDataBridge.java
+```
+
+O adaptador web continua em:
+
+```text
+web/js/persistence/local-storage.js
+```
+
+Regras:
+
+- no APK, o bridge nativo tem prioridade sobre `localStorage`;
+- no browser, `localStorage` continua sendo fallback;
+- save local é síncrono do ponto de vista do gameplay;
+- sync remoto é sempre assíncrono/best-effort;
+- ausência de Internet, Firebase ou autenticação nunca bloqueia gameplay;
+- SQLite mantém snapshot + fila pendente;
+- cada evento de sync possui ID único;
+- sync pode ocorrer após save com debounce, retorno de rede e retorno ao app;
+- estado DEV não pode ser persistido nem sincronizado;
+- restauração remota grava primeiro no SQLite e só depois recarrega o WebView.
+
+Firebase:
+
+```text
+Firebase Authentication
+Cloud Firestore
+```
+
+Configuração externa esperada via Gradle properties:
+
+```text
+TQ_FIREBASE_API_KEY
+TQ_FIREBASE_APP_ID
+TQ_FIREBASE_PROJECT_ID
+```
+
+Sem configuração, o build e o jogo offline continuam válidos.
+
+Estrutura remota atual:
+
+```text
+players/{uid}/state/current
+players/{uid}/events/{eventId}
+```
+
+Regras Firestore:
+
+```text
+firebase/firestore.rules
+```
+
+Documento detalhado:
+
+```text
+docs/arquitetura/OFFLINE-FIRST-FIREBASE.md
+```
