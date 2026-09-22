@@ -68,7 +68,7 @@
 
         return Object.freeze([
             REGION_LAYOUT.back,
-            REGION_LAYOUT.worldMap,
+            visualPage.worldMapLayout || REGION_LAYOUT.worldMap,
             ...islandRects
         ]);
     }
@@ -113,6 +113,36 @@
             id: "corsario",
             backgroundId: 1,
             islandIds: Object.freeze([1, 2, 3, 4, 5])
+        }),
+        2: Object.freeze({
+            assetKey: "region2Modular",
+            id: "birades",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            worldMapLayout: Object.freeze({ x: 760, y: 18, width: 160, height: 140 }),
+            worldMapEmbedded: true,
+            slotLayout: Object.freeze({
+                1: Object.freeze({
+                    art: Object.freeze({ x: 125, y: 365, width: 350, height: 350 }),
+                    hitbox: Object.freeze({ x: 140, y: 380, width: 320, height: 320 })
+                }),
+                2: Object.freeze({
+                    art: Object.freeze({ x: 500, y: 525, width: 350, height: 350 }),
+                    hitbox: Object.freeze({ x: 515, y: 540, width: 320, height: 320 })
+                }),
+                3: Object.freeze({
+                    art: Object.freeze({ x: 45, y: 725, width: 360, height: 360 }),
+                    hitbox: Object.freeze({ x: 60, y: 740, width: 330, height: 330 })
+                }),
+                4: Object.freeze({
+                    art: Object.freeze({ x: 510, y: 950, width: 360, height: 360 }),
+                    hitbox: Object.freeze({ x: 525, y: 965, width: 330, height: 330 })
+                }),
+                5: Object.freeze({
+                    art: Object.freeze({ x: 205, y: 1260, width: 360, height: 360 }),
+                    hitbox: Object.freeze({ x: 220, y: 1275, width: 330, height: 330 })
+                })
+            })
         }),
         13: Object.freeze({
             assetKey: "region13Modular",
@@ -188,6 +218,8 @@
             backgroundId: visual.backgroundId || 1,
             islandIds: visual.islandIds || REGION_LAYOUT.visibleIslandIds,
             slotLayout: visual.slotLayout,
+            worldMapLayout: visual.worldMapLayout,
+            worldMapEmbedded: Boolean(visual.worldMapEmbedded),
             hideIslands: Boolean(visual.hideIslands),
             background,
             assets: visual.assets
@@ -403,15 +435,17 @@
                     </button>
                 ` : ""}
 
-                <button class="global-world-map-button"
+                <button class="global-world-map-button${visualPage.worldMapEmbedded ? " is-embedded" : ""}"
                     type="button"
-                    style="${rectStyle(REGION_LAYOUT.worldMap)}"
+                    style="${rectStyle(visualPage.worldMapLayout || REGION_LAYOUT.worldMap)}"
                     data-action="open-world-map"
                     aria-label="Abrir Mapa mundo">
-                    <img class="global-world-map-asset"
-                        src="${TQ.content.assets.global.worldMap}"
-                        alt=""
-                        aria-hidden="true">
+                    ${visualPage.worldMapEmbedded ? "" : `
+                        <img class="global-world-map-asset"
+                            src="${TQ.content.assets.global.worldMap}"
+                            alt=""
+                            aria-hidden="true">
+                    `}
                 </button>
             </div>
         `;
