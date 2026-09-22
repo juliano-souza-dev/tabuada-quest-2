@@ -480,7 +480,7 @@
                 : [];
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 15,
                 inventory: {
                     items: Array.from(new Set([
                         ...existingItems,
