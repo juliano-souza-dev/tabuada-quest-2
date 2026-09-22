@@ -615,27 +615,14 @@
 }
 
 
-/* Região 1: contrato visual da barra. As coordenadas continuam específicas por Ilha. */
+/* Região 1: os novos fundos não possuem área visual de progresso.
+   O progresso continua existindo na sessão, mas não é renderizado no challenge. */
 .challenge-art-screen[data-region-id="1"] .challenge-art-progress {
-    height: 20px;
-    background: #3a2a1a;
-    border: 2px solid #6b4a2a;
-    border-radius: 999px;
-    padding: 0;
-    box-sizing: border-box;
-    overflow: hidden;
+    display: none;
 }
 
 .challenge-art-screen[data-region-id="1"] .challenge-art-progress::before {
-    left: 0;
-    top: 0;
-    width: calc(var(--challenge-progress-ratio, 0) * 100%);
-    height: 100%;
-    background: linear-gradient(180deg, #7ed957, #4caf50);
-    border-radius: inherit;
-    box-shadow: none;
-    transform: none;
-    transition: width .3s ease;
+    display: none;
 }
 
 .challenge-art-question {
