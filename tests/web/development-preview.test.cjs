@@ -106,8 +106,9 @@ test("fluxo DEV usa estado volátil e não salva partida de teste no progresso r
     assert.match(app,/screenId === "home"/);
 
     assert.match(islandsSource,/createDevelopmentIslandEntryState/);
-    assert.match(islandsSource,/onStateChange\(createDevelopmentIslandEntryState\(state, regionId, islandId\)\)/);
-    assert.doesNotMatch(islandsSource,/if \(previewMode\) return;/);
+    assert.match(islandsSource,/if \(developmentMode\) \{/);
+    assert.match(islandsSource,/onDevelopmentIslandOpen\(regionId, islandId\)/);
+    assert.match(islandsSource,/if \(previewMode\) return;/);
 });
 
 
