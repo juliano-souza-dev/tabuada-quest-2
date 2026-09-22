@@ -1051,3 +1051,18 @@ Contrato:
 - a tela DEV não altera progresso real da campanha;
 - a Região selecionada em DEV usa `previewRegionId` em memória e abre `islands` em modo de inspeção;
 - regressões de rota devem testar o estado real, não apenas buscar strings nos arquivos.
+
+
+### DEV Regiões em modo jogável
+
+O preview de desenvolvimento permite abrir qualquer Ilha para validar a atividade, mesmo quando a campanha real ainda não desbloqueou essa Região/Ilha.
+
+Contrato:
+
+- clique em uma Ilha DEV cria sessão de desafio diretamente, sem exigir unlock da campanha;
+- viagem é ignorada no DEV para acelerar validação;
+- sessão, respostas, resultado e recompensas de teste vivem em `developmentState`, mantido apenas em memória;
+- `developmentState` nunca é salvo no `localStorage`;
+- progresso, carteira, PETs, Baús, mapas e conclusão reais do jogador não podem ser alterados por uma partida DEV;
+- voltar para Ilhas mantém a Região DEV selecionada;
+- voltar para Home encerra o modo DEV e descarta completamente o estado temporário.
