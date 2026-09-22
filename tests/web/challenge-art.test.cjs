@@ -145,14 +145,14 @@ test("Questão 3 de 20 usa 15% do trilho de progresso",()=>{
 });
 
 
-test("R1 I1 usa o CSS local fornecido para container e fill",()=>{
+test("Região 1 usa o CSS fornecido para container e fill em todas as ilhas",()=>{
     const css=fs.readFileSync(
         path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
         "utf8"
     );
 
-    const containerSelector='.challenge-art-screen[data-region-id="1"][data-island-id="1"] .challenge-art-progress';
-    const fillSelector='.challenge-art-screen[data-region-id="1"][data-island-id="1"] .challenge-art-progress::before';
+    const containerSelector='.challenge-art-screen[data-region-id="1"] .challenge-art-progress';
+    const fillSelector='.challenge-art-screen[data-region-id="1"] .challenge-art-progress::before';
 
     const containerStart=css.indexOf(containerSelector);
     const fillStart=css.indexOf(fillSelector);
