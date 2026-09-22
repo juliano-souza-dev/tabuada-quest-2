@@ -1,5 +1,7 @@
 name: Android Debug APK
 
+# signed-build trigger: keystore secrets configured
+
 on:
   workflow_dispatch:
   push:
