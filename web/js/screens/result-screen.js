@@ -36,10 +36,9 @@
         `;
     }
 
-    function renderTextFallback(result, region, pendingMapId) {
+    function renderTextFallback(result, pendingMapId) {
         return `
             <main class="slice-content result-card">
-                <small>${region ? region.label : `Região ${result.regionId}`}</small>
                 <dl class="result-stats">
                     <div><dt>Questões planejadas</dt><dd>${result.plannedAnswered}/20</dd></div>
                     <div><dt>Acertos</dt><dd>${result.correctAnswers}</dd></div>
@@ -89,7 +88,6 @@
                 </main>
             `;
         } else {
-            const region = TQ.content.regions.find((item) => item.id === result.regionId);
             const pendingMapId = TQ.domain.playerState.getPendingSpecialMapId(state);
             const victoryArt = TQ.content.assets.global?.victoryScreen;
 
@@ -106,10 +104,6 @@
                             aria-hidden="true">
 
                         <div class="result-art-dynamic-layer">
-                            <header class="result-art-title">
-                                <small>${region ? region.label : `Região ${result.regionId}`}</small>
-                            </header>
-
                             <dl class="result-art-stats" aria-label="Resumo da partida">
                                 <div><dt>Questões planejadas</dt><dd>${result.plannedAnswered}/20</dd></div>
                                 <div><dt>Acertos</dt><dd>${result.correctAnswers}</dd></div>
@@ -150,7 +144,7 @@
                     </main>
                 `;
             } else {
-                screen.innerHTML = renderTextFallback(result, region, pendingMapId);
+                screen.innerHTML = renderTextFallback(result, pendingMapId);
             }
         }
 
