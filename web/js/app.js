@@ -6,6 +6,7 @@
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
     let worldMapPreviewRegionId = null;
     let rewardReturnScreen = null;
+    let worldMapReturnScreen = "home";
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function save(nextState) {
@@ -21,7 +22,12 @@
     }
 
     function navigate(screenId, options = {}) {
-        if (!["world-map", "islands"].includes(screenId)) {
+        if (["world-map", "regions"].includes(screenId)) {
+            worldMapReturnScreen = options.returnScreen
+                || (state.ui.lastScreen === "islands" ? "islands" : "home");
+        }
+
+        if (!["world-map", "development-regions", "islands"].includes(screenId)) {
             worldMapPreviewRegionId = null;
         }
 
@@ -46,7 +52,8 @@
             shop: TQ.screens.shop.renderShopScreen,
             "ruby-shop": TQ.screens.rubyShop.renderRubyShopScreen,
             "world-map": TQ.screens.worldMap.renderWorldMapScreen,
-            regions: TQ.screens.regions.renderRegionsScreen,
+            regions: TQ.screens.worldMap.renderWorldMapScreen,
+            "development-regions": TQ.screens.developmentRegions.renderDevelopmentRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,
             travel: TQ.screens.travel.renderIslandTravelScreen,
             challenge: TQ.screens.challenge.renderChallengeScreen,
@@ -63,6 +70,7 @@
             onStateChange: save,
             onNavigate: navigate,
             rewardReturnScreen,
+            worldMapReturnScreen,
             previewRegionId: worldMapPreviewRegionId,
             onPreviewRegionChange: setWorldMapPreviewRegion
         });
