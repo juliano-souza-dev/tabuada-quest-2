@@ -1149,3 +1149,31 @@ data-sheet="fashion"
 ```
 
 Moda/Skin não reutiliza Molduras.
+
+
+## Challenges de CORSÁRIO — conjunto atual
+
+Diretório:
+
+```text
+web/assets/regions/region-1/challenges/
+```
+
+Linkagem ativa em:
+
+```text
+web/js/content/game-content.js
+assets.region1ChallengeArt
+```
+
+Ordem vigente:
+
+```text
+1 → corsario-enseada-da-bandeira-challenge-bg.webp
+2 → corsario-enseada-do-saque-challenge-bg.webp
+3 → ilha_da_caveira_rosa.webp
+4 → corsario-refugio-da-bandeira-challenge-bg.webp
+5 → corsario-ilha-do-vulcao-challenge-bg.webp
+```
+
+`corsario-farol-torto-challenge-bg.webp` foi removido porque Farol Torto pertence à Região 2, BIRADES.
