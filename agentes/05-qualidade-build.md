@@ -433,3 +433,20 @@ R1/I1 com defeito
 → testar R1/I1
 → validar print R1/I1
 ```
+
+
+## Gate do Baú de Itens
+
+Validar permanentemente:
+
+- save schema v14 contém `inventory.items` e slots `correctEffectId` / `wrongEffectId`;
+- migração v13 preserva compras e popula Efeitos já adquiridos no inventário;
+- comprar Efeito não equipa automaticamente;
+- item não possuído nunca pode ser equipado;
+- acerto aceita somente Efeito compatível com acerto;
+- erro aceita somente Efeito compatível com erro;
+- desequipar volta ao Efeito padrão;
+- seleção persiste após reload;
+- Home abre a rota `items`;
+- desafio normal e Missão Especial consomem o mesmo resolvedor;
+- outras categorias futuras não devem exigir remodelar os slots de Efeitos.
