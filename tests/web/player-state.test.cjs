@@ -37,9 +37,9 @@ function legacyV8(){
     };
 }
 
-test("estado inicial v13 usa 22 Regiões de 5 Ilhas",()=>{
+test("estado inicial v14 usa 22 Regiões de 5 Ilhas",()=>{
     const s=d.createInitialState();
-    assert.equal(s.schemaVersion,13);
+    assert.equal(s.schemaVersion,14);
     assert.deepEqual(s.campaign.unlockedRegionIds,[1]);
     assert.equal(Object.keys(s.campaign.regionProgress).length,22);
     assert.equal(s.campaign.regionProgress["22"].islandsTotal,5);
@@ -56,7 +56,7 @@ test("migração v8 traduz R1/I6 para R2/I1 sem perder progresso",()=>{
     old.campaign.travelPlayedIslandIds=["region-1-island-6"];
 
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,13);
+    assert.equal(m.schemaVersion,14);
     assert.equal(m.campaign.currentRegionId,2);
     assert.equal(m.campaign.currentIslandId,1);
     assert.equal(m.campaign.regionProgress["1"].islandsCompleted,5);
@@ -95,13 +95,13 @@ test("migração v8 converte sessão ativa e une histórico pedagógico",()=>{
     assert.equal(m.learning.schedulerState.recoveryQueue[0].remainingGap,1);
 });
 
-test("migração v7 ainda cria Tripulação e termina em v13",()=>{
+test("migração v7 ainda cria Tripulação e termina em v14",()=>{
     const old=legacyV8();
     old.schemaVersion=7;
     delete old.crew;
     old.wallet.coins=321;
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,13);
+    assert.equal(m.schemaVersion,14);
     assert.equal(m.wallet.coins,321);
     assert.deepEqual(m.crew.hiredIds,[]);
 });
@@ -178,9 +178,9 @@ test("recuperação pedagógica atravessa fronteira visual",()=>{
     assert.equal(d.getIslandStatus(s,2,1),"available");
 });
 
-test("estado inválido volta ao inicial v13",()=>{
+test("estado inválido volta ao inicial v14",()=>{
     const s=d.normalizeState({schemaVersion:999,wallet:{coins:999}});
-    assert.equal(s.schemaVersion,13);
+    assert.equal(s.schemaVersion,14);
     assert.equal(s.wallet.coins,0);
 });
 
@@ -191,7 +191,7 @@ test("migração v9 adiciona estado persistente de Colecionáveis sem perder pro
     delete old.campaign.collectibles;
     old.wallet.coins=432;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,13);
+    assert.equal(migrated.schemaVersion,14);
     assert.deepEqual(migrated.campaign.collectibles,{collectedIds:[],pendingIds:[]});
     assert.equal(migrated.wallet.coins,432);
 });
@@ -212,7 +212,7 @@ test("migração v10 cria estado da Loja v12 sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,13);
+    assert.equal(migrated.schemaVersion,14);
     assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
@@ -224,7 +224,7 @@ test("migração v10 cria estado da Loja sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,13);
+    assert.equal(migrated.schemaVersion,14);
     assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
@@ -238,7 +238,7 @@ test("migração v11 preserva compras e adiciona navio equipado nulo",()=>{
         shop:{purchasedItemIds:["ship-colombo"]}
     };
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,13);
+    assert.equal(migrated.schemaVersion,14);
     assert.deepEqual(migrated.shop,{
         purchasedItemIds:["ship-colombo"],
         equippedShipId:null
@@ -272,7 +272,7 @@ test("migração v12 adiciona pedidos da Loja Rubi sem perder carteira",()=>{
     delete old.rubyShop;
     old.wallet={coins:321,gems:87};
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,13);
+    assert.equal(migrated.schemaVersion,14);
     assert.equal(migrated.wallet.coins,321);
     assert.equal(migrated.wallet.gems,87);
     assert.deepEqual(migrated.rubyShop,{orders:[]});
@@ -327,4 +327,70 @@ test("desbloqueio da Loja Rubi respeita Região elegível e regra configurada",(
         s=d.completeIsland(s,1,islandId);
     }
     assert.equal(d.isRubyShopUnlocked(s,1,regionCompleteRule,enabled),true);
+});
+
+
+test("inventário de Efeitos nasce vazio e separado da Loja",()=>{
+    const s=d.createInitialState();
+    assert.deepEqual(s.inventory,{
+        items:[],
+        equipped:{correctEffectId:null,wrongEffectId:null}
+    });
+});
+
+test("migração v13 cria inventário com Efeitos já comprados",()=>{
+    const current=d.createInitialState();
+    const old={
+        ...current,
+        schemaVersion:13,
+        shop:{
+            purchasedItemIds:["effect-correct-brilho-capitao","ship-colombo"],
+            equippedShipId:"ship-colombo"
+        }
+    };
+    delete old.inventory;
+
+    const migrated=d.normalizeState(old);
+
+    assert.equal(migrated.schemaVersion,14);
+    assert.deepEqual(migrated.inventory.items,["effect-correct-brilho-capitao"]);
+    assert.deepEqual(migrated.inventory.equipped,{
+        correctEffectId:null,
+        wrongEffectId:null
+    });
+    assert.equal(migrated.shop.equippedShipId,"ship-colombo");
+});
+
+test("Efeito só equipa se estiver no inventário e pode ser removido",()=>{
+    const correctId="effect-correct-brilho-capitao";
+    const wrongId="effect-wrong-quase-la";
+    let s=d.createInitialState();
+
+    s=d.withEquippedEffect(s,"correct",correctId,[correctId]);
+    assert.equal(s.inventory.equipped.correctEffectId,null);
+
+    s={
+        ...s,
+        shop:{...s.shop,purchasedItemIds:[correctId,wrongId]},
+        inventory:{
+            items:[correctId,wrongId],
+            equipped:{correctEffectId:null,wrongEffectId:null}
+        }
+    };
+
+    s=d.withEquippedEffect(s,"correct",correctId,[correctId]);
+    assert.equal(s.inventory.equipped.correctEffectId,correctId);
+    assert.equal(d.getEquippedEffectId(s,"correct"),correctId);
+
+    s=d.withEquippedEffect(s,"wrong",wrongId,[wrongId]);
+    assert.equal(s.inventory.equipped.wrongEffectId,wrongId);
+
+    s=d.withEquippedEffect(s,"correct",null,[correctId]);
+    assert.equal(s.inventory.equipped.correctEffectId,null);
+    assert.equal(s.inventory.equipped.wrongEffectId,wrongId);
+});
+
+test("rota items é persistível pelo player-state",()=>{
+    const s=d.withLastScreen(d.createInitialState(),"items");
+    assert.equal(s.ui.lastScreen,"items");
 });
