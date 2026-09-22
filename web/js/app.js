@@ -125,6 +125,7 @@
             crew: TQ.screens.crew.renderCrewScreen,
             collectibles: TQ.screens.collectibles.renderCollectiblesScreen,
             shop: TQ.screens.shop.renderShopScreen,
+            items: TQ.screens.items.renderItemsScreen,
             "ruby-shop": TQ.screens.rubyShop.renderRubyShopScreen,
             "world-map": TQ.screens.worldMap.renderWorldMapScreen,
             regions: TQ.screens.worldMap.renderWorldMapScreen,
