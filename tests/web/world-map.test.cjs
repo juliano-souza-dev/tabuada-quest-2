@@ -16,7 +16,7 @@ test("Mapa mundo navega pelo ponto global único", () => {
 
     assert.equal(result.handled, true);
     assert.equal(result.implemented, true);
-    assert.equal(result.mode, "development-navigation");
+    assert.equal(result.mode, "visual-map");
     assert.equal(result.nextScreen, "world-map");
     assert.equal(result.canNavigate, true);
     assert.equal(destination, "world-map");
