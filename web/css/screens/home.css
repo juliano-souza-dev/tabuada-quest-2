@@ -529,3 +529,22 @@
     font-size: .72rem;
     line-height: 1.45;
 }
+
+
+/* Atalho temporário para navegação durante o desenvolvimento. */
+.development-regions-shortcut {
+    position: absolute;
+    z-index: 60;
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    min-height: 30px;
+    padding: 5px 9px;
+    border: 1px solid rgba(255, 230, 150, .78);
+    border-radius: 999px;
+    color: #fff3c4;
+    background: rgba(10, 31, 43, .82);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .28);
+    font: 900 10px/1 Arial, sans-serif;
+    letter-spacing: .04em;
+    cursor: pointer;
+}
