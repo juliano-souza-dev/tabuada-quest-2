@@ -299,6 +299,13 @@
             "Porto do Capitão",
             "Rochedo da Âncora Dourada"
         ]),
+        "2": Object.freeze([
+            "Porto Desengonçado",
+            "Baía dos Bichos Piratas",
+            "Farol Torto",
+            "Fortaleza das Tralhas",
+            "Cabo do Mapa Impossível"
+        ]),
         "13": Object.freeze([
             "Rocha Negra",
             "Cinzas",
@@ -758,6 +765,34 @@
                     5: Object.freeze({
                         unlocked: "./assets/regions/region-1/island-05-unlocked.png?v=20260920-1628",
                         locked: "./assets/regions/region-1/island-05-locked.png?v=20260920-1628"
+                    })
+                })
+            }),
+            region2Modular: Object.freeze({
+                background: "./assets/regions/region-2/background.webp?v=20260922-birades",
+                backgrounds: Object.freeze({
+                    1: "./assets/regions/region-2/background.webp?v=20260922-birades"
+                }),
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-2/porto_desengoncado_unlocked.webp?v=20260922-birades",
+                        locked: "./assets/regions/region-2/porto_desengoncado_locked.webp?v=20260922-birades"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-2/baia_dos_bichos_piratas_unlocked.webp?v=20260922-birades",
+                        locked: "./assets/regions/region-2/baia_dos_bichos_piratas_locked.webp?v=20260922-birades"
+                    }),
+                    3: Object.freeze({
+                        unlocked: "./assets/regions/region-2/farol_torto_unlocked.webp?v=20260922-birades",
+                        locked: "./assets/regions/region-2/farol_torto_locked.webp?v=20260922-birades"
+                    }),
+                    4: Object.freeze({
+                        unlocked: "./assets/regions/region-2/fortaleza_das_tralhas_unlocked.webp?v=20260922-birades",
+                        locked: "./assets/regions/region-2/fortaleza_das_tralhas_locked.webp?v=20260922-birades"
+                    }),
+                    5: Object.freeze({
+                        unlocked: "./assets/regions/region-2/cabo_do_mapa_impossivel_unlocked.webp?v=20260922-birades",
+                        locked: "./assets/regions/region-2/cabo_do_mapa_impossivel_locked.webp?v=20260922-birades"
                     })
                 })
             }),
