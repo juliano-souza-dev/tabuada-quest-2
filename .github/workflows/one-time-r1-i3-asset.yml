@@ -3,7 +3,7 @@ name: One-time R1 I3 asset conversion
 on:
   push:
     branches:
-      - chore-replace-r1-i3-challenge
+      - main
     paths:
       - ".github/workflows/one-time-r1-i3-asset.yml"
       - "web/assets/regions/region-1/challenges/a_vibrant_high_detail_pirate_island_game_ui_scene.png"
