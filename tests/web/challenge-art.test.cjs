@@ -86,3 +86,18 @@ test("renderer mantém progresso, conta e respostas fora do asset",()=>{
     assert.match(source,/--challenge-answers-x/);
     assert.doesNotMatch(source,/<h1>Ilha \$\{session\.islandId\}<\/h1>/);
 });
+
+
+test("Ilha 1 preserva o encaixe refinado da overlay dinâmica",()=>{
+    const layout=TQ.screens.challenge.getChallengeArtLayout(1,1);
+    assert.deepEqual(layout.progress,{x:20.45,y:40.35,width:59.3,height:3.65});
+    assert.deepEqual(layout.question,{x:14,y:44.95,width:72,height:15.45});
+    assert.deepEqual(layout.answers,{x:16,y:62.45,width:68,height:16.25,columnGap:5.7,rowGap:8});
+
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+    assert.doesNotMatch(css,/padding:\s*0\s+4%\s+11%/);
+    assert.match(css,/\.challenge-art-progress\s*>\s*span[\s\S]*white-space:\s*nowrap/);
+});
