@@ -4,10 +4,14 @@ const fs=require("node:fs");
 const path=require("node:path");
 
 delete global.TabuadaQuest;
+require("../../web/js/domain/world-structure.js");
+require("../../web/js/domain/scheduler.js");
+require("../../web/js/domain/player-state.js");
 require("../../web/js/content/game-content.js");
 require("../../web/js/screens/islands-screen.js");
 
 const islands=global.TabuadaQuest.screens.islands;
+const playerState=global.TabuadaQuest.domain.playerState;
 
 test("preview deriva Regiões implementadas do REGION_VISUAL_CONFIG",()=>{
     const expected=Object.keys(islands.REGION_VISUAL_CONFIG)
@@ -63,12 +67,6 @@ test("atalho temporário de desenvolvimento mantém acesso à lista sem asset",(
 
 
 test("DEV Regiões é um destino válido do estado de navegação",()=>{
-    delete global.TabuadaQuest;
-    require("../../web/js/domain/world-structure.js");
-    require("../../web/js/domain/scheduler.js");
-    require("../../web/js/domain/player-state.js");
-
-    const playerState=global.TabuadaQuest.domain.playerState;
     const initial=playerState.createInitialState();
     const next=playerState.withLastScreen(initial,"development-regions");
 
