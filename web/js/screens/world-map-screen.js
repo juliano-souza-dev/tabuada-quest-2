@@ -19,6 +19,10 @@
         const screen = document.createElement("section");
         screen.className = "world-map-screen";
         screen.setAttribute("aria-label", "Mapa Mundo");
+        screen.style.setProperty(
+            "--world-map-bleed-image",
+            `url("${TQ.content.assets.global.worldMapVisual}")`
+        );
 
         const visibleRegionIds = [1, 2];
 
