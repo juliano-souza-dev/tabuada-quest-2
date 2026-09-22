@@ -30,7 +30,10 @@ jobs:
           SRC="web/assets/global/ac5173e1-4012-4f34-b6b6-d5c2785dd8f5.png"
           DST="web/assets/global/pet_rescue_screen.webp"
 
-          test -f "$SRC"
+          if [ ! -f "$SRC" ]; then
+            echo "Source PNG already processed; nothing to do."
+            exit 0
+          fi
 
           SOURCE_DIMENSIONS="$(identify -format '%wx%h' "$SRC")"
 
