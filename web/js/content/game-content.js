@@ -726,7 +726,8 @@
                 worldMap: "./assets/global/mapa-mundo.png?v=20260920-1808",
                 worldMapVisual: "./assets/global/mapa_mundial.png?v=20260922-world-map-v1",
                 rubyShopMerchantShip: "./assets/global/comercial_ship.webp?v=20260921-1720",
-                victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028"
+                victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028",
+                petRescueScreen: "./assets/global/pet_rescue_screen.webp?v=20260922-pet-rescue-v1"
             }),
             islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",

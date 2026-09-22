@@ -1069,3 +1069,140 @@
 .map-reward-card > button {
     width: 100%;
 }
+
+
+/* Resgate global de PET: arte fixa; PET e bônus são dados dinâmicos. */
+.pet-rescue-art-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    padding: 0;
+    background: #2b160b;
+    color: #fff6dc;
+}
+
+.pet-rescue-stage {
+    position: absolute;
+    width: min(100%, 56.28vh, 540px);
+    aspect-ratio: 941 / 1672;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    container-type: inline-size;
+    overflow: hidden;
+}
+
+.pet-rescue-background {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: fill;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.pet-rescue-dynamic-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    font-family: Arial, sans-serif;
+}
+
+.pet-rescue-pet {
+    position: absolute;
+    z-index: 2;
+    left: 26%;
+    top: 20.2%;
+    width: 48%;
+    height: 31.5%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center bottom;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter:
+        drop-shadow(0 7px 7px rgba(55, 24, 5, .56))
+        drop-shadow(0 0 10px rgba(255, 221, 91, .28));
+}
+
+.pet-rescue-bonus {
+    position: absolute;
+    z-index: 3;
+    left: 11.7%;
+    top: 72.9%;
+    width: 76.6%;
+    height: 8.6%;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 0 6%;
+    color: #fff5d8;
+    font-size: 4.25cqw;
+    line-height: 1.16;
+    font-weight: 900;
+    text-align: center;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, .82);
+    pointer-events: none;
+}
+
+.pet-rescue-continue {
+    position: absolute;
+    z-index: 4;
+    left: 18.1%;
+    top: 84.1%;
+    width: 63.8%;
+    height: 8.9%;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    outline: 0;
+    background: transparent !important;
+    color: transparent !important;
+    box-shadow: none !important;
+    appearance: none;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pet-rescue-continue:focus-visible {
+    outline: 4px solid rgba(255, 247, 180, .98) !important;
+    outline-offset: -4px;
+}
+
+.pet-rescue-continue:active {
+    transform: scale(.985);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .pet-rescue-pet {
+        animation: pet-rescue-arrival 420ms cubic-bezier(.2, .82, .24, 1.15) both;
+    }
+
+    @keyframes pet-rescue-arrival {
+        0% {
+            opacity: 0;
+            transform: translateY(12%) scale(.76);
+        }
+        72% {
+            opacity: 1;
+            transform: translateY(-2%) scale(1.04);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}
