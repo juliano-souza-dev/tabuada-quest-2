@@ -10,7 +10,7 @@ const TQ = global.TabuadaQuest;
 const collectiblesScreen = TQ.screens.collectibles;
 
 test("manifest usa somente WebP e IDs de Colecionáveis válidos", () => {
-    const manifest = TQ.content.collectibleAssetManifest;
+    const manifest = TQ.collectibleAssetManifest;
     assert.equal(manifest.length, 10);
     assert.equal(new Set(manifest.map((entry) => entry.id)).size, manifest.length);
 
@@ -23,13 +23,13 @@ test("manifest usa somente WebP e IDs de Colecionáveis válidos", () => {
 test("tela considera somente Colecionáveis que possuem asset visual", () => {
     const resolved = collectiblesScreen.resolveAssetCatalog(
         TQ.content.collectibles,
-        TQ.content.collectibleAssetManifest
+        TQ.collectibleAssetManifest
     );
 
     assert.equal(resolved.length, 10);
     assert.deepEqual(
         resolved.map((item) => item.id),
-        TQ.content.collectibleAssetManifest.map((entry) => entry.id)
+        TQ.collectibleAssetManifest.map((entry) => entry.id)
     );
 });
 
