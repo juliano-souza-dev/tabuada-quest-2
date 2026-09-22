@@ -529,6 +529,28 @@ O Baú Final contém **5.000 Rubis-base**.
 
 Enquanto a lista definitiva de PETs não for entregue, o catálogo usa nomes provisórios `Pet 01` até `Pet 30`, preservando os IDs persistidos.
 
+### Bônus permanentes dos PETs
+
+Cada PET resgatado passa a conceder um bônus econômico permanente. O bônus começa a valer para recompensas futuras após o resgate e é aplicado em paralelo aos bônus de Tripulação e Colecionáveis, sempre sobre a recompensa-base.
+
+Distribuição canônica dos 30 PETs:
+
+```text
+10 PETs → +10% XP cada    → total da coleção: +100% XP
+10 PETs → +5% Ouro cada  → total da coleção: +50% Ouro
+10 PETs → +1% Rubis cada → total da coleção: +10% Rubis
+```
+
+A ordem do catálogo alterna XP → Ouro → Rubis. Cada PET exibe somente o próprio bônus na tela de resgate. Ao completar os 30 PETs, o jogador acumula exatamente **+100% XP, +50% Ouro e +10% Rubis** provenientes de PETs.
+
+A tela global de resgate deve usar a área azul para a informação dinâmica:
+
+```text
+Como recompensa, você agora recebe bônus de:
+[ bônus específico daquele PET ]
+```
+
+
 
 ## Missões Especiais dos Mapas
 
