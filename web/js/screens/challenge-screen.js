@@ -159,15 +159,17 @@
         ].join(";");
     }
 
-    function progressPercent(session) {
-        return Math.max(0, Math.min(100, (session.plannedAnswered / 20) * 100));
+    function progressPercent(questionNumber) {
+        const normalizedQuestion = Math.max(1, Math.min(Number(questionNumber) || 1, 20));
+        return (normalizedQuestion / 20) * 100;
     }
 
     function renderProgress(session, questionNumber) {
+        const normalizedQuestion = Math.max(1, Math.min(Number(questionNumber) || 1, 20));
         return `
             <div class="challenge-art-progress"
-                style="--challenge-progress-ratio:${progressPercent(session) / 100}">
-                <span>Questão ${Math.max(1, Math.min(questionNumber, 20))} de 20</span>
+                style="--challenge-progress-ratio:${progressPercent(normalizedQuestion) / 100}">
+                <span>Questão ${normalizedQuestion} de 20</span>
             </div>
         `;
     }
@@ -393,6 +395,7 @@
         getChallengeArtLayout,
         renderChallengeScreen,
         renderFeedback,
-        advanceAfterFeedback
+        advanceAfterFeedback,
+        progressPercent
     });
 })(globalThis);
