@@ -109,3 +109,39 @@ test("fluxo DEV usa estado volátil e não salva partida de teste no progresso r
     assert.match(islandsSource,/onStateChange\(createDevelopmentIslandEntryState\(state, regionId, islandId\)\)/);
     assert.doesNotMatch(islandsSource,/if \(previewMode\) return;/);
 });
+
+
+test("DEV Regiões usa seleção própria e callback explícito para abrir Ilha",()=>{
+    const app=fs.readFileSync(
+        path.join(__dirname,"../../web/js/app.js"),
+        "utf8"
+    );
+    const islandsSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+
+    assert.match(app,/let developmentRegionId = null/);
+    assert.match(app,/function setDevelopmentRegion\(regionId\)/);
+    assert.match(app,/function openDevelopmentIsland\(regionId, islandId\)/);
+    assert.match(app,/TQ\.screens\.islands\.createDevelopmentIslandEntryState/);
+    assert.match(app,/previewRegionId: developmentMode \? developmentRegionId : worldMapPreviewRegionId/);
+    assert.match(app,/onPreviewRegionChange: developmentMode \? setDevelopmentRegion : setWorldMapPreviewRegion/);
+    assert.match(app,/onDevelopmentIslandOpen: openDevelopmentIsland/);
+
+    assert.match(islandsSource,/if \(developmentMode\) \{/);
+    assert.match(islandsSource,/onDevelopmentIslandOpen\(regionId, islandId\)/);
+    assert.match(islandsSource,/if \(previewMode\) return;/);
+});
+
+test("prévia normal de mapa continua não-jogável",()=>{
+    const islandsSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+
+    const devBranch=islandsSource.indexOf("if (developmentMode) {");
+    const previewGuard=islandsSource.indexOf("if (previewMode) return;",devBranch);
+    assert.ok(devBranch>=0);
+    assert.ok(previewGuard>devBranch);
+});
