@@ -173,6 +173,14 @@
                 })
             })
         }),
+        4: Object.freeze({
+            assetKey: "region4Modular",
+            id: "terras-gelidas",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            hideIslands: true,
+            developmentStatus: "preview"
+        }),
         13: Object.freeze({
             assetKey: "region13Modular",
             id: "obsidiana",
@@ -233,6 +241,8 @@
 
     function getDevelopmentRegionStatus(regionId) {
         const normalizedRegionId = Number(regionId);
+        const visual = getRegionVisualConfig(normalizedRegionId);
+        if (visual?.developmentStatus) return visual.developmentStatus;
         return getImplementedRegionIds().includes(normalizedRegionId)
             ? "completed"
             : "preview";
