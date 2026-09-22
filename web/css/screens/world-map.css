@@ -1,4 +1,96 @@
 .world-map-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #061722;
+}
+
+.world-map-stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(100%, 56.28vh, 540px);
+    aspect-ratio: 941 / 1672;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+}
+
+.world-map-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.world-map-back {
+    position: absolute;
+    z-index: 5;
+    left: 2.4%;
+    top: 1.5%;
+    width: 10%;
+    aspect-ratio: 1;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: .45cqw solid rgba(244, 211, 119, .95);
+    border-radius: 50%;
+    color: #fff7de;
+    background: rgba(63, 35, 17, .86);
+    box-shadow: 0 .55cqw 1.2cqw rgba(0, 0, 0, .35);
+    font-size: 5cqw;
+    line-height: 1;
+    font-weight: 950;
+    cursor: pointer;
+}
+
+.world-map-region-hotspot {
+    position: absolute;
+    z-index: 4;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 12%;
+    outline: 0;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.world-map-region-hotspot:hover,
+.world-map-region-hotspot:focus-visible {
+    outline: .8cqw solid rgba(255, 236, 139, .95);
+    outline-offset: -.8cqw;
+    background: rgba(255, 237, 144, .06);
+}
+
+.world-map-region-hotspot.is-locked {
+    cursor: default;
+    background: rgba(5, 17, 24, .16);
+}
+
+.world-map-region-lock {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 11cqw;
+    height: 11cqw;
+    transform: translate(-50%, -50%);
+    border: .45cqw solid rgba(243, 214, 134, .92);
+    border-radius: 50%;
+    background: rgba(19, 20, 23, .8);
+    box-shadow: 0 .75cqw 1.6cqw rgba(0, 0, 0, .42);
+    font-size: 5.4cqw;
+}
+
+.development-regions-screen {
     width: 100%;
     height: 100%;
     overflow: hidden;

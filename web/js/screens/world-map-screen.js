@@ -1,74 +1,77 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
-    function renderWorldMapScreen({ previewRegionId, onPreviewRegionChange, onNavigate }) {
-        const regions = TQ.content.worldRegions || [];
-        const selectedId = Number(previewRegionId) || null;
-        const implementedRegionIds = new Set(
-            typeof TQ.screens?.islands?.getImplementedRegionIds === "function"
-                ? TQ.screens.islands.getImplementedRegionIds()
-                : []
-        );
+    const WORLD_MAP_REGION_HITBOXES = Object.freeze({
+        1: Object.freeze({ x: 3.2, y: 2.4, width: 46.5, height: 27.5 }),
+        2: Object.freeze({ x: 50.2, y: 14.2, width: 46.2, height: 27.8 })
+    });
 
+    function hotspotStyle(rect) {
+        return [
+            `left:${rect.x}%`,
+            `top:${rect.y}%`,
+            `width:${rect.width}%`,
+            `height:${rect.height}%`
+        ].join(";");
+    }
+
+    function renderWorldMapScreen({ state, onStateChange, onNavigate, worldMapReturnScreen }) {
         const screen = document.createElement("section");
         screen.className = "world-map-screen";
         screen.setAttribute("aria-label", "Mapa Mundo");
 
+        const visibleRegionIds = [1, 2];
+
         screen.innerHTML = `
-            <header class="world-map-header">
-                <button type="button" data-action="back" aria-label="Voltar para a Região">←</button>
-                <div>
-                    <small>MAPA MUNDO</small>
-                    <h1>Regiões</h1>
-                </div>
-                <span class="world-map-count">${regions.length}</span>
-            </header>
+            <main class="world-map-stage">
+                <img class="world-map-art"
+                    src="${TQ.content.assets.global.worldMapVisual}"
+                    alt=""
+                    aria-hidden="true">
 
-            <main class="world-map-content">
-                <p class="world-map-intro">
-                    Modo de validação: escolha qualquer Região para visualizar.
-                </p>
+                <button type="button"
+                    class="world-map-back"
+                    data-action="back"
+                    aria-label="Voltar">←</button>
 
-                <div class="world-map-region-list">
-                    ${regions.map((region) => {
-                        const textMaps = TQ.content.getRegionTextMaps(region.id);
-                        const isSelected = region.id === selectedId;
-                        const isImplemented = implementedRegionIds.has(region.id);
-                        return `
-                            <button type="button"
-                                    class="world-map-region-item${isSelected ? " is-selected" : ""}${isImplemented ? " is-implemented" : ""}"
-                                    data-region-id="${region.id}"
-                                    data-development-status="${isImplemented ? "completed" : "preview"}"
-                                    aria-label="Abrir Região ${region.id}, ${region.label}${isImplemented ? ", implementada e liberada para teste" : ""}">
-                                <span class="world-map-region-number">${String(region.id).padStart(2, "0")}</span>
-                                <span class="world-map-region-copy">
-                                    <strong>${region.label}</strong>
-                                    <small>5 Ilhas${isImplemented ? " • IMPLEMENTADA ✓" : (textMaps.length ? " • " + textMaps.length + " mapas cadastrados" : "")}</small>
-                                </span>
-                                <span class="world-map-region-arrow" aria-hidden="true">›</span>
-                            </button>
-                        `;
-                    }).join("")}
-                </div>
+                ${visibleRegionIds.map((regionId) => {
+                    const region = TQ.content.getWorldRegion?.(regionId)
+                        || TQ.content.regions.find((item) => item.id === regionId);
+                    const status = TQ.domain.playerState.getRegionStatus(state, regionId);
+                    const locked = status === "locked";
+                    const rect = WORLD_MAP_REGION_HITBOXES[regionId];
+
+                    return `
+                        <button type="button"
+                            class="world-map-region-hotspot${locked ? " is-locked" : ""}"
+                            style="${hotspotStyle(rect)}"
+                            data-region-id="${regionId}"
+                            ${locked ? "disabled" : ""}
+                            aria-label="${region?.label || `Região ${regionId}`}${locked ? ", bloqueada" : ", abrir Região"}">
+                            ${locked ? '<span class="world-map-region-lock" aria-hidden="true">🔒</span>' : ""}
+                        </button>
+                    `;
+                }).join("")}
             </main>
         `;
 
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="back"]')) {
-                onNavigate("islands");
+                onNavigate(worldMapReturnScreen || "home");
                 return;
             }
 
             const regionButton = event.target.closest("[data-region-id]");
-            if (!regionButton) return;
+            if (!regionButton || regionButton.disabled) return;
 
             const regionId = Number(regionButton.dataset.regionId);
-            if (!Number.isInteger(regionId) || regionId < 1 || regionId > 22) return;
+            if (![1, 2].includes(regionId)) return;
 
-            if (typeof onPreviewRegionChange === "function") {
-                onPreviewRegionChange(regionId);
-            }
-            onNavigate("islands");
+            const status = TQ.domain.playerState.getRegionStatus(state, regionId);
+            if (status === "locked") return;
+
+            const selected = TQ.domain.playerState.selectRegion(state, regionId);
+            onStateChange(TQ.domain.playerState.withLastScreen(selected, "islands"));
         });
 
         return screen;
@@ -76,6 +79,7 @@
 
     TQ.screens = TQ.screens || {};
     TQ.screens.worldMap = Object.freeze({
+        WORLD_MAP_REGION_HITBOXES,
         renderWorldMapScreen
     });
 })(globalThis);

@@ -1,5 +1,7 @@
 const test=require("node:test");
 const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const path=require("node:path");
 
 delete global.TabuadaQuest;
 require("../../web/js/content/game-content.js");
@@ -28,4 +30,33 @@ test("status automático de desenvolvimento não depende do estado persistente d
     const snapshot=JSON.stringify(before);
     islands.getDevelopmentRegionStatus(13);
     assert.equal(JSON.stringify(before),snapshot);
+});
+
+
+test("atalho temporário de desenvolvimento mantém acesso à lista sem asset",()=>{
+    assert.equal(global.TabuadaQuest.content.development.shortcutsEnabled,true);
+
+    const home=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/home-screen.js"),
+        "utf8"
+    );
+    const app=fs.readFileSync(
+        path.join(__dirname,"../../web/js/app.js"),
+        "utf8"
+    );
+    const developmentScreen=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/development-regions-screen.js"),
+        "utf8"
+    );
+    const islandsScreen=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+
+    assert.match(home,/data-action="development-regions"/);
+    assert.match(app,/"development-regions": TQ\.screens\.developmentRegions\.renderDevelopmentRegionsScreen/);
+    assert.match(developmentScreen,/Acesso de desenvolvimento/);
+    assert.match(developmentScreen,/onPreviewRegionChange/);
+    assert.match(developmentScreen,/onNavigate\("islands"\)/);
+    assert.match(islandsScreen,/previewMode \? "development-regions" : "regions"/);
 });

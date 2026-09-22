@@ -3,12 +3,12 @@
 
     function open({ onNavigate } = {}) {
         const canNavigate = typeof onNavigate === "function";
-        if (canNavigate) onNavigate("world-map");
+        if (canNavigate) onNavigate("world-map", { returnScreen: "islands" });
 
         return Object.freeze({
             handled: true,
             implemented: true,
-            mode: "development-navigation",
+            mode: "visual-map",
             nextScreen: "world-map",
             canNavigate
         });
