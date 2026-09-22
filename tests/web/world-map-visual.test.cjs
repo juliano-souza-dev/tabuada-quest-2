@@ -10,9 +10,10 @@ require("../../web/js/screens/world-map-screen.js");
 const TQ=globalThis.TabuadaQuest;
 
 test("Mapa Mundo V1 usa o asset global aprovado",()=>{
-    assert.match(TQ.content.assets.global.worldMapVisual,/assets\/global\/mapa_mundial\.png/);
+    assert.match(TQ.content.assets.global.worldMapVisual,/assets\/global\/mapa_mundial\.(?:png|webp)/);
+    const configured=TQ.content.assets.global.worldMapVisual.split("?")[0].replace(/^\.\//,"");
     assert.equal(
-        fs.existsSync(path.join(__dirname,"../../web/assets/global/mapa_mundial.png")),
+        fs.existsSync(path.join(__dirname,"../../web",configured)),
         true
     );
 });
