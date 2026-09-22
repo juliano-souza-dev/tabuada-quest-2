@@ -162,8 +162,23 @@
     background: #0863a0;
 }
 
+.region-islands-map-screen::before {
+    content: "";
+    position: absolute;
+    inset: -3%;
+    z-index: 0;
+    background-image: var(--region-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: blur(18px) brightness(.74) saturate(.9);
+    transform: scale(1.06);
+    pointer-events: none;
+}
+
 .region-islands-canonical-stage {
     position: absolute;
+    z-index: 1;
     width: 941px;
     height: 1672px;
     transform-origin: 0 0;
@@ -520,9 +535,24 @@
     background: #061722;
 }
 
+.challenge-art-screen::before {
+    content: "";
+    position: absolute;
+    inset: -4%;
+    z-index: 0;
+    background-image: var(--challenge-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: blur(20px) brightness(.62) saturate(.82);
+    transform: scale(1.08);
+    pointer-events: none;
+}
+
 .challenge-art-stage {
     position: absolute;
-    width: min(100%, 56.25vh, 540px);
+    z-index: 1;
+    width: min(100%, 56.25dvh, 540px);
     aspect-ratio: 9 / 16;
     left: 50%;
     top: 50%;
