@@ -684,9 +684,11 @@ Home → equipa/personaliza
 
 Na Home:
 
-- Molduras compradas aparecem no seletor de Molduras existente;
 - Fundos comprados aparecem no seletor de Fundos existente;
-- Estaleiro é um novo menu de personalização;
+- Moda abre exclusivamente o fluxo de Moda/Skin;
+- o perfil pode direcionar a criança ao Baú de Itens para trocar Moldura;
+- Molduras são equipadas exclusivamente no Baú de Itens;
+- Estaleiro é um menu de personalização;
 - somente navios comprados aparecem no Estaleiro;
 - selecionar um navio no Estaleiro o torna o navio equipado;
 - comprar um navio na Loja nunca o equipa automaticamente.
