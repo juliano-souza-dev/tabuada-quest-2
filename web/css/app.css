@@ -1,5 +1,5 @@
 @import url("./tokens.css");
-@import url("./base.css");
+@import url("./base.css?v=20260922-global-home");
 @import url("./screens/home.css?v=20260922-world-map-v1");
 @import url("./screens/crew.css?v=20260920-2304");
 @import url("./screens/collectibles.css?v=20260921-1112");
@@ -10,3 +10,38 @@
 @import url("./screens/vertical-slice.css?v=20260922-r1-progress-all");
 
 @import url("./screens/ruby-shop.css?v=20260921-1545");
+
+
+/* Retorno global temporário para a Home nas telas de navegação do mundo. */
+.global-home-button {
+    position: absolute;
+    z-index: 100;
+    left: 50%;
+    top: max(10px, env(safe-area-inset-top));
+    min-width: 82px;
+    min-height: 40px;
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    padding: 7px 15px;
+    border: 2px solid rgba(242, 206, 112, .92);
+    border-radius: 999px;
+    color: #fff7de;
+    background: rgba(12, 31, 42, .88);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .34);
+    font: 900 13px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: .04em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.global-home-button:hover,
+.global-home-button:focus-visible {
+    background: rgba(71, 47, 27, .96);
+    outline: 3px solid rgba(255, 238, 145, .72);
+    outline-offset: 2px;
+}
+
+.global-home-button:active {
+    transform: translate(-50%, 2px);
+}
