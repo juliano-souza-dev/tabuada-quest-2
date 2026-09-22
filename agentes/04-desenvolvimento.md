@@ -1217,3 +1217,26 @@ Contrato vigente para Região 1:
 - conta e respostas permanecem dinâmicas;
 - cada Ilha possui coordenadas próprias para centralizar conta e respostas nas áreas vazias desenhadas no asset;
 - qualquer nova recalibração deve alterar `CHALLENGE_ART_LAYOUTS[1][islandId]`, nunca editar o bitmap para compensar posicionamento dinâmico.
+## Safe viewport canônico
+
+Fonte técnica:
+
+```text
+web/js/core/safe-viewport.js
+web/css/base.css
+app/src/main/java/com/tabuadaquest/app/MainActivity.java
+```
+
+Contrato:
+
+- design canônico vertical = 941×1672;
+- `TQ.core.safeViewport.computeFit(...)` calcula o maior canvas proporcional que cabe na área segura;
+- `bindCanonicalStage(...)` aplica o canvas às telas imersivas;
+- `.tq-safe-visual-area` delimita a área livre de notch/câmera/barras/gestos;
+- o APK injeta os insets estáveis do Android nas variáveis `--tq-native-safe-*`;
+- CSS combina os insets nativos com `env(safe-area-inset-*)`;
+- o preview desktop pode manter moldura de telefone, mas `.tq-native-runtime` nunca recebe o limite de 430px;
+- não criar novos limites fixos como 430px/540px para stages de produção;
+- bleed ocupa a viewport total; conteúdo interativo permanece no canvas seguro.
+
+Telas atuais ligadas ao contrato: Home, Mapa Mundo, Regiões/Ilhas, Desafio, Resultado e Resgate de PET.
