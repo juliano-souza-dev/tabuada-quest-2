@@ -406,6 +406,11 @@
         }).filter(Boolean).join("");
 
         screen.innerHTML = `
+            <button type="button"
+                class="global-home-button"
+                data-action="home"
+                aria-label="Voltar para Home">Home</button>
+
             <div class="region-islands-canonical-stage">
                 <img class="region-islands-background"
                     src="${visualPage.background}"
@@ -470,6 +475,11 @@
         }
 
         screen.addEventListener("click", (event) => {
+            if (event.target.closest('[data-action="home"]')) {
+                onNavigate("home");
+                return;
+            }
+
             if (event.target.closest('[data-action="back-regions"]')) {
                 onNavigate(previewMode ? "development-regions" : "regions");
                 return;
@@ -545,6 +555,11 @@
         screen.setAttribute("aria-label", "Ilhas da Região");
 
         screen.innerHTML = `
+            <button type="button"
+                class="global-home-button"
+                data-action="home"
+                aria-label="Voltar para Home">Home</button>
+
             <header class="slice-header">
                 <button type="button" data-action="back-regions">${previewMode ? "← Mapa Mundo" : "← Regiões"}</button>
                 <div>
@@ -611,6 +626,11 @@
         `;
 
         screen.addEventListener("click", (event) => {
+            if (event.target.closest('[data-action="home"]')) {
+                onNavigate("home");
+                return;
+            }
+
             if (event.target.closest('[data-action="back-regions"]')) {
                 onNavigate(previewMode ? "world-map" : "regions");
                 return;
