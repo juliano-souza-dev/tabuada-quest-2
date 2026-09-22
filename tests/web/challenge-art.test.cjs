@@ -110,8 +110,30 @@ test("fill do progresso fica centralizado no trilho visual",()=>{
     );
 
     const block=css.match(/\.challenge-art-progress::before\s*\{[\s\S]*?\}/)?.[0] || "";
+    assert.match(block,/left:\s*1\.89%/);
     assert.match(block,/top:\s*50%/);
+    assert.match(block,/width:\s*94\.17%/);
     assert.match(block,/height:\s*24%/);
     assert.match(block,/translateY\(-50%\)\s+scaleX\(var\(--challenge-progress-ratio, 0\)\)/);
     assert.doesNotMatch(block,/bottom:\s*7%/);
+});
+
+
+test("calibração horizontal da barra reproduz o trilho medido no stage",()=>{
+    const layout=TQ.screens.challenge.getChallengeArtLayout(1,1);
+    const fillLeftInsideContainer=1.89/100;
+    const fillWidthInsideContainer=94.17/100;
+
+    const startPercent=layout.progress.x + layout.progress.width*fillLeftInsideContainer;
+    const widthPercent=layout.progress.width*fillWidthInsideContainer;
+    const endPercent=startPercent+widthPercent;
+
+    assert.ok(Math.abs(startPercent-21.57)<0.03);
+    assert.ok(Math.abs(widthPercent-55.84)<0.03);
+    assert.ok(Math.abs(endPercent-77.41)<0.04);
+
+    const stageWidthPx=394;
+    assert.ok(Math.abs(stageWidthPx*startPercent/100-85)<0.2);
+    assert.ok(Math.abs(stageWidthPx*widthPercent/100-220)<0.2);
+    assert.ok(Math.abs(stageWidthPx*endPercent/100-305)<0.3);
 });
