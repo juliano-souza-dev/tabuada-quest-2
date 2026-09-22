@@ -1,0 +1,112 @@
+name: Issue 127 Asset Optimization
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - "web/**"
+      - "scripts/issue-127-optimize-assets.sh"
+      - ".github/workflows/issue-127-optimize.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  optimize-and-validate:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+
+      - name: Detect pending PNG optimization
+        id: gate
+        shell: bash
+        run: |
+          if [[ -f web/assets/global/mapa_mundial.png || -f web/assets/regions/region-1/mapa_marítimo_do_corsário.png || -f web/assets/regions/region-13/background.png ]]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install image tooling
+        if: steps.gate.outputs.needed == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webp python3-pil
+
+      - name: Optimize active PNG assets
+        if: steps.gate.outputs.needed == 'true'
+        run: bash scripts/issue-127-optimize-assets.sh
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          find web/js -type f -name '*.js' -print0 | while IFS= read -r -d '' file; do
+            node --check "$file"
+          done
+
+      - name: Run web tests
+        run: node --test tests/web/*.test.cjs
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Gradle 9.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.6.0"
+
+      - name: Build debug APK
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Finalize optimization report
+        if: steps.gate.outputs.needed == 'true'
+        shell: bash
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          APK_BYTES=$(stat -c%s "$APK")
+          APK_MIB=$(awk -v b="$APK_BYTES" 'BEGIN { printf "%.2f", b/1024/1024 }')
+          {
+            echo
+            echo "## APK de validação"
+            echo
+            echo "- APK anterior: **>120 MB** (baseline reportado na issue #127; o artefato anterior exato não está preservado neste job)."
+            echo "- APK debug após a limpeza: **$APK_BYTES bytes ($APK_MIB MiB)**."
+            echo "- Build Android: **sucesso**."
+            echo "- Testes web: **sucesso**."
+          } >> docs/issue-127-asset-audit.md
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tabuada-quest-2-issue-127-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Commit optimized assets and report
+        if: steps.gate.outputs.needed == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web docs/issue-127-asset-audit.md
+          if git diff --cached --quiet; then
+            echo "No optimization changes to commit."
+            exit 0
+          fi
+          git commit -m "perf: optimize active image assets for #127"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
