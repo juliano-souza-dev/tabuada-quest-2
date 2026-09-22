@@ -11,6 +11,9 @@ val firebaseAppId = providers.gradleProperty("TQ_FIREBASE_APP_ID")
 val firebaseProjectId = providers.gradleProperty("TQ_FIREBASE_PROJECT_ID")
     .orElse("tabuadaquest2")
     .get()
+val googleWebClientId = providers.gradleProperty("TQ_GOOGLE_WEB_CLIENT_ID")
+    .orElse("489461827440-rkapqc45m857of2fm4hb6tm10muhkg6c.apps.googleusercontent.com")
+    .get()
 
 fun quotedBuildConfig(value: String): String =
     "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
@@ -29,6 +32,7 @@ android {
         buildConfigField("String", "FIREBASE_API_KEY", quotedBuildConfig(firebaseApiKey))
         buildConfigField("String", "FIREBASE_APP_ID", quotedBuildConfig(firebaseAppId))
         buildConfigField("String", "FIREBASE_PROJECT_ID", quotedBuildConfig(firebaseProjectId))
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", quotedBuildConfig(googleWebClientId))
     }
 
     buildFeatures {
@@ -62,4 +66,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 }
