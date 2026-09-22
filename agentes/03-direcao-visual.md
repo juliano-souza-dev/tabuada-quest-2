@@ -977,3 +977,45 @@ Regras permanentes:
 - nenhum valor variável deve ser incorporado à imagem;
 - a composição visual deve preservar áreas legíveis para os overlays da aplicação;
 - qualquer substituição futura desse asset passa novamente pelo fluxo obrigatório de Direção Visual e aprovação do líder.
+
+## Regra canônica — ajuste pixel a pixel das atividades
+
+Todo ajuste pixel-perfect de uma atividade é **LOCAL à combinação exata Região + Ilha**.
+
+Antes de medir ou alterar qualquer overlay de atividade, fixar explicitamente:
+
+```text
+REGIAO_ALVO = região exata
+ILHA_ALVO   = ilha exata
+ARTE_ALVO   = imagem/asset dessa atividade
+PRINT_ALVO  = captura fornecida para essa mesma Região + Ilha
+```
+
+Exemplo:
+
+```text
+Região 1 / Ilha 1
+→ usar somente a arte da Região 1 / Ilha 1
+→ usar somente o print da Região 1 / Ilha 1
+→ medir e corrigir somente a Região 1 / Ilha 1
+```
+
+Regras obrigatórias:
+
+- nunca inferir coordenadas pixel-perfect de uma Ilha a partir de outra Ilha;
+- nunca usar a arte de outra Região como referência geométrica;
+- não transformar um ajuste local em CSS/posição global sem evidência de que todas as artes compartilham exatamente a mesma geometria;
+- progresso, pergunta, respostas, feedback, hitboxes e demais overlays devem ser mapeados contra a **arte específica da atividade alvo**;
+- quando houver print fornecido pelo líder, ele é a referência de validação daquela combinação Região + Ilha;
+- uma correção aprovada para R1/I1 não autoriza copiar coordenadas para R1/I2, R2/I1 ou qualquer outra atividade;
+- consistência visual global não significa coordenadas globais. A linguagem visual pode ser compartilhada; a geometria pixel-perfect é local.
+
+Validação:
+
+```text
+arte específica
++ print específico
++ medição específica
+→ configuração local Região/Ilha
+→ validação visual na mesma Região/Ilha
+```
