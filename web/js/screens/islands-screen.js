@@ -149,6 +149,7 @@
             id: "zona-ouro",
             backgroundId: 1,
             islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            worldMapLayout: Object.freeze({ x: 717, y: 1435, width: 200, height: 200 }),
             slotLayout: Object.freeze({
                 1: Object.freeze({
                     art: Object.freeze({ x: 164, y: 449, width: 340, height: 340 }),
