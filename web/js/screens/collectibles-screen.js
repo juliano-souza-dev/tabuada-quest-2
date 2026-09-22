@@ -37,7 +37,7 @@
 
     function renderCollectiblesScreen({ state, onNavigate }) {
         const catalog = TQ.content.collectibles || [];
-        const manifest = TQ.content.collectibleAssetManifest || [];
+        const manifest = TQ.collectibleAssetManifest || [];
         const assetCatalog = resolveAssetCatalog(catalog, manifest);
         const collected = new Set(state.campaign?.collectibles?.collectedIds || []);
         const collectedCount = catalog.filter((item) => collected.has(item.id)).length;
