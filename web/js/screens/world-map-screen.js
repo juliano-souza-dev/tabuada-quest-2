@@ -23,6 +23,11 @@
         const visibleRegionIds = [1, 2];
 
         screen.innerHTML = `
+            <button type="button"
+                class="global-home-button"
+                data-action="home"
+                aria-label="Voltar para Home">Home</button>
+
             <main class="world-map-stage">
                 <img class="world-map-art"
                     src="${TQ.content.assets.global.worldMapVisual}"
@@ -56,6 +61,11 @@
         `;
 
         screen.addEventListener("click", (event) => {
+            if (event.target.closest('[data-action="home"]')) {
+                onNavigate("home");
+                return;
+            }
+
             if (event.target.closest('[data-action="back"]')) {
                 onNavigate(worldMapReturnScreen || "home");
                 return;
