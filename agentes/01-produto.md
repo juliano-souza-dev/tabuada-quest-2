@@ -326,6 +326,24 @@ O fundo da Home é selecionável e persiste.
 
 A personalização visual não altera scheduler, progressão pedagógica ou conteúdo das atividades.
 
+## Molduras x Moda
+
+Contrato atualizado pelo líder:
+
+```text
+Baú de Itens → equipa Molduras
+Moda / Provador → equipa Moda/Skin
+```
+
+Regras:
+
+- Molduras compradas ficam disponíveis no Baú de Itens;
+- Molduras nunca são equipadas pelo menu Moda;
+- comprar Moldura na Loja não equipa automaticamente;
+- o perfil usa a Moldura selecionada no Baú;
+- o menu Moda é reservado exclusivamente para roupas/skins do avatar;
+- enquanto o catálogo de Moda/Skin não estiver definido, o menu Moda pode abrir um estado funcional vazio/“em breve”, mas não pode reutilizar Molduras como conteúdo provisório.
+
 ## Moda / Provador
 
 Regra global de experiência:
