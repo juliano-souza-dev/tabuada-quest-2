@@ -43,7 +43,7 @@
                 progressMask: false
             }),
             2: Object.freeze({
-                progress: Object.freeze({ x: 22, y: 39.75, width: 56.2, height: 3.9 }),
+                progress: Object.freeze({ x: 21.4, y: 39.75, width: 57.2, height: 3.9 }),
                 question: Object.freeze({ x: 14.6, y: 44.25, width: 71.1, height: 16.4 }),
                 answers: Object.freeze({
                     x: 17.35,
