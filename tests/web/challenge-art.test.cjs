@@ -215,3 +215,39 @@ test("entrada na Ilha e viagem pré-carregam a arte do desafio",()=>{
     assert.match(islandsSource,/preloadChallengeArt/);
     assert.match(travelSource,/preloadChallengeArt/);
 });
+
+
+test("viewport alto mantém bleed visível atrás da arte 9:16",()=>{
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    const challengeBlock=css.slice(
+        css.indexOf(".challenge-art-screen {"),
+        css.indexOf("}",css.indexOf(".challenge-art-screen {"))+1
+    );
+    assert.match(challengeBlock,/isolation:\s*isolate/);
+    assert.match(challengeBlock,/var\(--challenge-bleed-image\)/);
+    assert.match(challengeBlock,/background-size:\s*cover/);
+
+    const challengeBleed=css.slice(
+        css.indexOf(".challenge-art-screen::before"),
+        css.indexOf("}",css.indexOf(".challenge-art-screen::before"))+1
+    );
+    assert.match(challengeBleed,/z-index:\s*1/);
+
+    const challengeStage=css.slice(
+        css.indexOf(".challenge-art-stage {"),
+        css.indexOf("}",css.indexOf(".challenge-art-stage {"))+1
+    );
+    assert.match(challengeStage,/z-index:\s*2/);
+    assert.match(challengeStage,/56\.25dvh/);
+
+    const regionBlock=css.slice(
+        css.indexOf(".region-islands-map-screen {"),
+        css.indexOf("}",css.indexOf(".region-islands-map-screen {"))+1
+    );
+    assert.match(regionBlock,/isolation:\s*isolate/);
+    assert.match(regionBlock,/var\(--region-bleed-image\)/);
+});
