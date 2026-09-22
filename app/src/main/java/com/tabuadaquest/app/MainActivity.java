@@ -1,7 +1,12 @@
 package com.tabuadaquest.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -14,8 +19,13 @@ import android.webkit.WebViewClient;
 public final class MainActivity extends Activity {
 
     private static final String START_URL = "file:///android_asset/index.html";
+    private static final String BRIDGE_NAME = "TabuadaQuestNative";
 
     private WebView webView;
+    private NativeSaveDatabase nativeDatabase;
+    private FirebaseSyncManager syncManager;
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +33,20 @@ public final class MainActivity extends Activity {
 
         enableWebViewDebuggingForDebugBuilds();
 
+        nativeDatabase = new NativeSaveDatabase(this);
+        syncManager = new FirebaseSyncManager(this, nativeDatabase);
+
         webView = new WebView(this);
         configureWebView(webView);
+        webView.addJavascriptInterface(
+            new NativeDataBridge(this, webView, nativeDatabase, syncManager),
+            BRIDGE_NAME
+        );
 
         setContentView(webView);
         webView.loadUrl(START_URL);
 
+        registerConnectivitySync();
         hideSystemUi();
     }
 
@@ -46,6 +64,28 @@ public final class MainActivity extends Activity {
         view.setWebViewClient(new WebViewClient());
         view.setBackgroundColor(0xFF10172A);
         view.setOverScrollMode(View.OVER_SCROLL_NEVER);
+    }
+
+    private void registerConnectivitySync() {
+        connectivityManager =
+            (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (connectivityManager == null || syncManager == null) return;
+
+        NetworkRequest request = new NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build();
+
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                syncManager.syncNow((ok, code) -> {
+                    // Sync é best-effort. Gameplay nunca depende deste callback.
+                });
+            }
+        };
+
+        connectivityManager.registerNetworkCallback(request, networkCallback);
     }
 
     private void enableWebViewDebuggingForDebugBuilds() {
@@ -81,6 +121,17 @@ public final class MainActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (syncManager != null) {
+            syncManager.syncNow((ok, code) -> {
+                // Best-effort ao retornar para o app.
+            });
+        }
+    }
+
+    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
@@ -101,10 +152,24 @@ public final class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (connectivityManager != null && networkCallback != null) {
+            try {
+                connectivityManager.unregisterNetworkCallback(networkCallback);
+            } catch (RuntimeException ignored) {
+                // Activity já pode ter perdido o callback.
+            }
+        }
+
         if (webView != null) {
+            webView.removeJavascriptInterface(BRIDGE_NAME);
             webView.stopLoading();
             webView.destroy();
             webView = null;
+        }
+
+        if (nativeDatabase != null) {
+            nativeDatabase.close();
+            nativeDatabase = null;
         }
 
         super.onDestroy();
