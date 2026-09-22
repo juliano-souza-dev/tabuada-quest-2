@@ -471,7 +471,7 @@
 
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="back-regions"]')) {
-                onNavigate(previewMode ? "world-map" : "regions");
+                onNavigate(previewMode ? "development-regions" : "regions");
                 return;
             }
 
