@@ -96,6 +96,20 @@ final class NativeDataBridge {
     }
 
     @JavascriptInterface
+    public void signInWithGoogle() {
+        activity.runOnUiThread(() ->
+            syncManager.signInWithGoogle(activity, (ok, code) -> {
+                emit("tq:native-auth", ok, code);
+                if (ok) {
+                    syncManager.syncNow((syncOk, syncCode) ->
+                        emit("tq:native-sync", syncOk, syncCode)
+                    );
+                }
+            })
+        );
+    }
+
+    @JavascriptInterface
     public void signOut() {
         syncManager.signOut();
         emit("tq:native-auth", true, "signed_out");
