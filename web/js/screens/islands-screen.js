@@ -265,22 +265,12 @@
     }
 
     function computeRegionStageGeometry(viewportWidth, viewportHeight) {
-        const width = Number(viewportWidth) || 0;
-        const height = Number(viewportHeight) || 0;
-        const scale = Math.min(
-            width / REGION_LAYOUT.viewport.width,
-            height / REGION_LAYOUT.viewport.height
+        return TQ.core.safeViewport.computeFit(
+            viewportWidth,
+            viewportHeight,
+            REGION_LAYOUT.viewport.width,
+            REGION_LAYOUT.viewport.height
         );
-        const renderWidth = REGION_LAYOUT.viewport.width * scale;
-        const renderHeight = REGION_LAYOUT.viewport.height * scale;
-
-        return Object.freeze({
-            scale,
-            renderWidth,
-            renderHeight,
-            offsetX: (width - renderWidth) / 2,
-            offsetY: (height - renderHeight) / 2
-        });
     }
 
     function renderRewardLabels(regionId, islandId) {
@@ -465,7 +455,8 @@
                 data-action="home"
                 aria-label="Voltar para Home">Home</button>
 
-            <div class="region-islands-canonical-stage">
+            <div class="tq-safe-visual-area">
+            <div class="region-islands-canonical-stage tq-canonical-stage">
                 <img class="region-islands-background"
                     src="${visualPage.background}"
                     alt=""
@@ -509,8 +500,10 @@
                     `}
                 </button>
             </div>
+            </div>
         `;
 
+        const safeArea = screen.querySelector(".tq-safe-visual-area");
         const stage = screen.querySelector(".region-islands-canonical-stage");
 
         screen.addEventListener("error", (event) => {
@@ -523,12 +516,11 @@
             image.closest(".region-island-overlay")?.classList.add("is-fallback-locked");
         }, true);
 
-        function applyStageGeometry() {
-            const geometry = computeRegionStageGeometry(screen.clientWidth, screen.clientHeight);
-            stage.style.left = `${geometry.offsetX}px`;
-            stage.style.top = `${geometry.offsetY}px`;
-            stage.style.transform = `scale(${geometry.scale})`;
-        }
+        TQ.core.safeViewport.bindCanonicalStage(safeArea, stage, {
+            mode: "scale",
+            designWidth: REGION_LAYOUT.viewport.width,
+            designHeight: REGION_LAYOUT.viewport.height
+        });
 
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="home"]')) {
@@ -579,23 +571,6 @@
 
             onStateChange(createIslandEntryState(state, regionId, islandId));
         });
-
-        if (typeof root.ResizeObserver === "function") {
-            const observer = new root.ResizeObserver(() => {
-                if (!screen.isConnected) {
-                    observer.disconnect();
-                    return;
-                }
-                applyStageGeometry();
-            });
-            observer.observe(screen);
-        } else {
-            root.addEventListener("resize", applyStageGeometry, { passive: true, once: true });
-        }
-
-        root.requestAnimationFrame
-            ? root.requestAnimationFrame(applyStageGeometry)
-            : setTimeout(applyStageGeometry, 0);
 
         return screen;
     }

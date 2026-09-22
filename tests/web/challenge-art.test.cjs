@@ -242,7 +242,15 @@ test("viewport alto mantém bleed visível atrás da arte 9:16",()=>{
         css.indexOf("}",css.indexOf(".challenge-art-stage {"))+1
     );
     assert.match(challengeStage,/z-index:\s*2/);
-    assert.match(challengeStage,/56\.25dvh/);
+    assert.match(challengeStage,/aspect-ratio:\s*941 \/ 1672/);
+    assert.doesNotMatch(challengeStage,/540px/);
+
+    const challengeSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+    assert.match(challengeSource,/tq-safe-visual-area/);
+    assert.match(challengeSource,/bindCanonicalStage/);
 
     const regionBlock=css.slice(
         css.indexOf(".region-islands-map-screen {"),

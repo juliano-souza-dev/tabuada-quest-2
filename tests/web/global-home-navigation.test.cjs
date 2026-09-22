@@ -39,6 +39,6 @@ test("botão Home global fica sobreposto e centralizado no topo",()=>{
     assert.match(block,/position:\s*absolute/);
     assert.match(block,/z-index:\s*100/);
     assert.match(block,/left:\s*50%/);
-    assert.match(block,/top:\s*max\(10px, env\(safe-area-inset-top\)\)/);
+    assert.match(block,/top:\s*max\(10px, var\(--tq-safe-top\)\)/);
     assert.match(block,/transform:\s*translateX\(-50%\)/);
 });

@@ -1074,3 +1074,19 @@ Mapeamento visual aprovado sobre o background 941×1672:
 ```
 
 O ícone de Mapa Mundo está incorporado visualmente ao background no topo direito e deve ser tratado como hitbox, sem sobrepor outro asset.
+## Canvas seguro e bleed responsivo
+
+Toda composição visual vertical canônica usa **941×1672** como área de conteúdo.
+
+Regras permanentes:
+
+- o canvas 941×1672 nunca é esticado para preencher a tela;
+- pergunta, respostas, botões, HUD, personagens importantes e qualquer informação necessária ficam dentro do canvas;
+- notch, câmera, barras do sistema e área de gesto nunca podem cobrir conteúdo necessário;
+- espaço excedente de celulares altos/largos e tablets pertence ao **bleed**, não ao canvas;
+- o bleed pode usar `cover`, corte, blur, céu, água, névoa ou continuação do cenário;
+- nenhum elemento indispensável pode existir somente no bleed;
+- uma arte deve continuar correta mesmo quando parte do bleed for cortada;
+- tablets devem aproveitar a maior escala possível do canvas dentro da safe area, sem transformar a composição em um telefone pequeno no centro.
+
+Este contrato vale para Home, Regiões, Mapa Mundo, Desafios, Resultado, Resgate de PET e novas telas imersivas.

@@ -1178,3 +1178,47 @@ Ordem vigente:
 ```
 
 `corsario-farol-torto-challenge-bg.webp` foi removido porque Farol Torto pertence à Região 2, BIRADES.
+## Safe viewport / canvas imersivo
+
+Controlador canônico:
+
+```text
+web/js/core/safe-viewport.js
+```
+
+Variáveis e área segura:
+
+```text
+web/css/base.css
+--tq-safe-top
+--tq-safe-right
+--tq-safe-bottom
+--tq-safe-left
+.tq-safe-visual-area
+.tq-canonical-stage
+```
+
+Insets nativos Android:
+
+```text
+app/src/main/java/com/tabuadaquest/app/MainActivity.java
+```
+
+Telas integradas:
+
+```text
+web/js/screens/home-screen.js
+web/js/screens/world-map-screen.js
+web/js/screens/islands-screen.js
+web/js/screens/challenge-screen.js
+web/js/screens/result-screen.js
+web/js/screens/pet-screen.js
+```
+
+Teste de regressão:
+
+```text
+tests/web/safe-viewport.test.cjs
+```
+
+Contrato: conteúdo crítico vive em canvas 941×1672 proporcional dentro da safe area; a viewport excedente é bleed visual e pode ser cortada.
