@@ -779,3 +779,24 @@ Regras:
 - propriedade e compra de Efeitos pertencem à Loja;
 - equipar/trocar Efeitos pertence ao Baú de Itens;
 - a lógica pedagógica da resposta não depende do renderer visual do Efeito.
+
+
+## Retorno global para Home
+
+Existe um acesso direto e global para a Home nas telas de navegação do mundo.
+
+Escopo atual:
+
+```text
+Mapa Mundo / mapa de Regiões
+Telas de Ilhas de cada Região
+```
+
+Contrato:
+
+- o botão é independente dos botões de voltar contextuais;
+- ao tocar, a criança retorna diretamente para a Home;
+- nesta etapa o botão é somente textual, exibindo `Home`;
+- nenhum asset visual próprio é exigido enquanto a direção de arte definitiva não for definida;
+- o botão não aparece nas telas de atividade/desafio nesta etapa;
+- expansões futuras para outras telas exigem decisão explícita de Produto.
