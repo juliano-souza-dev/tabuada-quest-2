@@ -1,8 +1,7 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    TQ.content = TQ.content || {};
 
-    TQ.content.collectibleAssetManifest = Object.freeze([
+    TQ.collectibleAssetManifest = Object.freeze([
         Object.freeze({ id: "collectible-001", asset: "./assets/collectibles/items/01_Bussola_Pirata_Dourada.webp" }),
         Object.freeze({ id: "collectible-002", asset: "./assets/collectibles/items/02_Bau_do_Grande_Tesouro.webp" }),
         Object.freeze({ id: "collectible-003", asset: "./assets/collectibles/items/03_Fruta_Mistica_dos_Mares.webp" }),
