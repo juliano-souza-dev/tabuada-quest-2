@@ -118,12 +118,112 @@
                 }),
                 progressMask: false
             })
+        }),
+        2: Object.freeze({
+            1: Object.freeze({
+                progress: Object.freeze({ x: 21.5, y: 35, width: 56.5, height: 3.8 }),
+                question: Object.freeze({ x: 14.5, y: 40.2, width: 71, height: 16.5 }),
+                answers: Object.freeze({
+                    x: 16,
+                    y: 58.5,
+                    width: 68,
+                    height: 16.5,
+                    columnGap: 5.7,
+                    rowGap: 8
+                }),
+                font: Object.freeze({
+                    progress: 3,
+                    question: 8.35,
+                    answer: 5.55,
+                    feedback: 4.9
+                }),
+                progressMask: false
+            }),
+            2: Object.freeze({
+                progress: Object.freeze({ x: 20.5, y: 42.2, width: 59, height: 3.6 }),
+                question: Object.freeze({ x: 13.5, y: 46.5, width: 73, height: 16.3 }),
+                answers: Object.freeze({
+                    x: 15,
+                    y: 64,
+                    width: 70,
+                    height: 16,
+                    columnGap: 5.5,
+                    rowGap: 8
+                }),
+                font: Object.freeze({
+                    progress: 3,
+                    question: 8.2,
+                    answer: 5.45,
+                    feedback: 4.8
+                }),
+                progressMask: false
+            }),
+            3: Object.freeze({
+                progress: Object.freeze({ x: 21, y: 41.3, width: 58, height: 3.8 }),
+                question: Object.freeze({ x: 14.2, y: 45.8, width: 71.6, height: 16 }),
+                answers: Object.freeze({
+                    x: 16.2,
+                    y: 63,
+                    width: 67.6,
+                    height: 15.8,
+                    columnGap: 5.7,
+                    rowGap: 8
+                }),
+                font: Object.freeze({
+                    progress: 3,
+                    question: 8.2,
+                    answer: 5.45,
+                    feedback: 4.8
+                }),
+                progressMask: false
+            }),
+            4: Object.freeze({
+                progress: Object.freeze({ x: 20.5, y: 40.2, width: 59, height: 3.8 }),
+                question: Object.freeze({ x: 14.2, y: 44.9, width: 71.6, height: 16.2 }),
+                answers: Object.freeze({
+                    x: 16,
+                    y: 62,
+                    width: 68,
+                    height: 16,
+                    columnGap: 5.7,
+                    rowGap: 8
+                }),
+                font: Object.freeze({
+                    progress: 3,
+                    question: 8.2,
+                    answer: 5.45,
+                    feedback: 4.8
+                }),
+                progressMask: false
+            }),
+            5: Object.freeze({
+                progress: Object.freeze({ x: 20.5, y: 37.7, width: 59, height: 3.7 }),
+                question: Object.freeze({ x: 13.5, y: 42, width: 73, height: 16.5 }),
+                answers: Object.freeze({
+                    x: 15.5,
+                    y: 60.3,
+                    width: 69,
+                    height: 16.2,
+                    columnGap: 5.7,
+                    rowGap: 8
+                }),
+                font: Object.freeze({
+                    progress: 3,
+                    question: 8.2,
+                    answer: 5.45,
+                    feedback: 4.8
+                }),
+                progressMask: false
+            })
         })
     });
 
     function getChallengeArt(session) {
-        if (!session || Number(session.regionId) !== 1) return null;
-        return TQ.content.assets.region1ChallengeArt?.[Number(session.islandId)] || null;
+        if (!session) return null;
+        const regionId = Number(session.regionId);
+        const islandId = Number(session.islandId);
+        const regionAssets = TQ.content.assets?.[`region${regionId}ChallengeArt`];
+        return regionAssets?.[islandId] || null;
     }
 
     function getChallengeArtLayout(regionId, islandId) {
@@ -392,6 +492,7 @@
     TQ.screens.challenge = Object.freeze({
         CHALLENGE_ART_LAYOUTS,
         DEFAULT_CHALLENGE_ART_LAYOUT,
+        getChallengeArt,
         getChallengeArtLayout,
         renderChallengeScreen,
         renderFeedback,
