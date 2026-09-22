@@ -145,7 +145,9 @@ test("compra de Efeito desconta Ouro, persiste propriedade e não equipa automat
 
     assert.equal(s.wallet.coins,700);
     assert.ok(s.shop.purchasedItemIds.includes(effect.id));
-    assert.equal(Object.prototype.hasOwnProperty.call(s,"inventory"),false);
+    assert.ok(s.inventory.items.includes(effect.id));
+    assert.equal(s.inventory.equipped.correctEffectId,null);
+    assert.equal(s.inventory.equipped.wrongEffectId,null);
 
     const again=d.purchaseShopItem(s,effect);
     assert.equal(again.wallet.coins,700);
