@@ -33,7 +33,33 @@ test("tela considera somente Colecionáveis que possuem asset visual", () => {
     );
 });
 
-test("paginação exibe no máximo 25 assets e só libera próxima página quando ela existe", () => {
+test("colecionável não coletado não aparece na estante", () => {
+    const resolved = collectiblesScreen.resolveAssetCatalog(
+        TQ.content.collectibles,
+        TQ.collectibleAssetManifest
+    );
+
+    const visible = collectiblesScreen.filterCollectedAssets(
+        resolved,
+        new Set(["collectible-001", "collectible-003"])
+    );
+
+    assert.deepEqual(
+        visible.map((item) => item.id),
+        ["collectible-001", "collectible-003"]
+    );
+});
+
+test("sem itens coletados a estante fica vazia", () => {
+    const resolved = collectiblesScreen.resolveAssetCatalog(
+        TQ.content.collectibles,
+        TQ.collectibleAssetManifest
+    );
+
+    assert.deepEqual(collectiblesScreen.filterCollectedAssets(resolved, new Set()), []);
+});
+
+test("paginação exibe no máximo 25 itens coletados e só libera próxima página quando ela existe", () => {
     const items = Array.from({ length: 26 }, (_, index) => ({ id: `item-${index + 1}` }));
 
     const first = collectiblesScreen.paginateAssetCatalog(items, 0);
@@ -48,7 +74,7 @@ test("paginação exibe no máximo 25 assets e só libera próxima página quand
     assert.equal(second.hasNext, false);
 });
 
-test("com até 25 assets a seta de próxima página permanece bloqueada", () => {
+test("com até 25 itens coletados a seta de próxima página permanece bloqueada", () => {
     const items = Array.from({ length: 25 }, (_, index) => ({ id: `item-${index + 1}` }));
     const page = collectiblesScreen.paginateAssetCatalog(items, 0);
 

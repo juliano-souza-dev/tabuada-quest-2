@@ -17,6 +17,14 @@
             .filter(Boolean);
     }
 
+    function filterCollectedAssets(items, collectedIds) {
+        const collected = collectedIds instanceof Set
+            ? collectedIds
+            : new Set(Array.isArray(collectedIds) ? collectedIds : []);
+
+        return (Array.isArray(items) ? items : []).filter((item) => collected.has(item.id));
+    }
+
     function paginateAssetCatalog(items, pageIndex, pageSize = PAGE_SIZE) {
         const source = Array.isArray(items) ? items : [];
         const safePageSize = Number.isInteger(pageSize) && pageSize > 0 ? pageSize : PAGE_SIZE;
@@ -40,6 +48,7 @@
         const manifest = TQ.collectibleAssetManifest || [];
         const assetCatalog = resolveAssetCatalog(catalog, manifest);
         const collected = new Set(state.campaign?.collectibles?.collectedIds || []);
+        const visibleCatalog = filterCollectedAssets(assetCatalog, collected);
         const collectedCount = catalog.filter((item) => collected.has(item.id)).length;
 
         let currentPage = 0;
@@ -94,7 +103,7 @@
         const pageStatus = screen.querySelector(".collectibles-page-status");
 
         function renderPage() {
-            const page = paginateAssetCatalog(assetCatalog, currentPage, PAGE_SIZE);
+            const page = paginateAssetCatalog(visibleCatalog, currentPage, PAGE_SIZE);
             currentPage = page.pageIndex;
 
             const cells = Array.from({ length: PAGE_SIZE }, (_, index) => {
@@ -103,19 +112,16 @@
                     return '<div class="collectible-slot is-empty" aria-hidden="true"></div>';
                 }
 
-                const isCollected = collected.has(item.id);
-                const stateLabel = isCollected ? "coletado" : "ainda não coletado";
-
                 return `
                     <div
-                        class="collectible-slot ${isCollected ? "is-collected" : "is-missing"}"
+                        class="collectible-slot is-collected"
                         role="listitem"
                         data-collectible-id="${item.id}"
-                        title="${item.label} — ${stateLabel}"
+                        title="${item.label}"
                     >
                         <img
                             src="${item.asset}"
-                            alt="${item.label}, ${stateLabel}"
+                            alt="${item.label}"
                             draggable="false"
                         >
                     </div>
@@ -157,6 +163,7 @@
         PAGE_SIZE,
         renderCollectiblesScreen,
         resolveAssetCatalog,
+        filterCollectedAssets,
         paginateAssetCatalog
     });
 })(globalThis);
