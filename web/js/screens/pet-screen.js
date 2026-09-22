@@ -50,7 +50,8 @@
 
             screen.className = "pet-rescue-art-screen";
             screen.innerHTML = `
-                <main class="pet-rescue-stage">
+                <div class="tq-safe-visual-area">
+                <main class="pet-rescue-stage tq-canonical-stage">
                     <img
                         class="pet-rescue-background"
                         src="${background}"
@@ -84,7 +85,12 @@
                         </button>
                     </div>
                 </main>
+                </div>
             `;
+            TQ.core.safeViewport.bindCanonicalStage(
+                screen.querySelector(".tq-safe-visual-area"),
+                screen.querySelector(".pet-rescue-stage")
+            );
         }
 
         screen.addEventListener("click", (event) => {
