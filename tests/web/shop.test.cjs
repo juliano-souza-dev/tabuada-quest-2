@@ -83,6 +83,9 @@ test("compras de Moldura e Fundo usam a mesma carteira e continuam sem equipar",
     s=d.purchaseShopItem(s,background);
     assert.equal(s.wallet.coins,1350);
     assert.deepEqual(s.shop.purchasedItemIds,[frame.id,background.id]);
+    assert.ok(s.inventory.items.includes(frame.id));
+    assert.equal(s.inventory.items.includes(background.id),false);
+    assert.equal(s.player.profileFrameId,TQ.content.defaultProfileFrameId);
     assert.equal(Object.prototype.hasOwnProperty.call(s.shop,"equippedItemIds"),false);
 });
 
