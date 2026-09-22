@@ -294,10 +294,10 @@
     const canonicalIslandNameOverrides = Object.freeze({
         "1": Object.freeze([
             "Enseada da Bandeira",
-            "Baía do Saque Perdido",
-            "Farol da Rota Corsária",
-            "Porto do Capitão",
-            "Rochedo da Âncora Dourada"
+            "Enseada do Saque",
+            "Ilha da Caveira Rosa",
+            "Refúgio da Bandeira",
+            "Ilha do Vulcão"
         ]),
         "2": Object.freeze([
             "Porto Desengonçado",
@@ -736,11 +736,11 @@
             regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
             region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130",
             region1ChallengeArt: Object.freeze({
-                1: "./assets/regions/region-1/challenges/corsario-enseada-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v2",
-                2: "./assets/regions/region-1/challenges/corsario-enseada-do-saque-challenge-bg.webp?v=20260922-corsario-challenge-v2",
-                3: "./assets/regions/region-1/challenges/corsario-farol-torto-challenge-bg.webp?v=20260922-corsario-challenge-v2",
-                4: "./assets/regions/region-1/challenges/corsario-refugio-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v2",
-                5: "./assets/regions/region-1/challenges/corsario-ilha-do-vulcao-challenge-bg.webp?v=20260922-corsario-challenge-v2"
+                1: "./assets/regions/region-1/challenges/corsario-enseada-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v3",
+                2: "./assets/regions/region-1/challenges/corsario-enseada-do-saque-challenge-bg.webp?v=20260922-corsario-challenge-v3",
+                3: "./assets/regions/region-1/challenges/ilha_da_caveira_rosa.webp?v=20260922-corsario-challenge-v3",
+                4: "./assets/regions/region-1/challenges/corsario-refugio-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v3",
+                5: "./assets/regions/region-1/challenges/corsario-ilha-do-vulcao-challenge-bg.webp?v=20260922-corsario-challenge-v3"
             }),
             region2ChallengeArt: Object.freeze({
                 1: "./assets/regions/region-2/challenges/island-01-challenge.webp?v=20260922-birades-challenge",
