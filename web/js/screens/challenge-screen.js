@@ -24,7 +24,7 @@
     const CHALLENGE_ART_LAYOUTS = Object.freeze({
         1: Object.freeze({
             1: Object.freeze({
-                progress: Object.freeze({ x: 20.45, y: 40.35, width: 59.3, height: 3.65 }),
+                progress: Object.freeze({ x: 21.57, y: 40.35, width: 55.84, height: 3.65 }),
                 question: Object.freeze({ x: 14, y: 44.95, width: 72, height: 15.45 }),
                 answers: Object.freeze({
                     x: 16,
