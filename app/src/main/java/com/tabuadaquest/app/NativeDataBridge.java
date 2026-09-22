@@ -16,10 +16,7 @@ final class NativeDataBridge {
     private final NativeSaveDatabase database;
     private final FirebaseSyncManager syncManager;
     private final Handler syncHandler = new Handler(Looper.getMainLooper());
-    private final Runnable debouncedSync = () ->
-        syncManager.syncNow((ok, code) ->
-            emit("tq:native-sync", ok, code)
-        );
+    private final Runnable debouncedSync;
 
     NativeDataBridge(
         Activity activity,
@@ -31,6 +28,10 @@ final class NativeDataBridge {
         this.webView = webView;
         this.database = database;
         this.syncManager = syncManager;
+        this.debouncedSync = () ->
+            this.syncManager.syncNow((ok, code) ->
+                emit("tq:native-sync", ok, code)
+            );
 
         if (database.getMeta("device_id").isEmpty()) {
             database.putMeta("device_id", UUID.randomUUID().toString());
