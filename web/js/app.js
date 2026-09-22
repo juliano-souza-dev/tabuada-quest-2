@@ -6,6 +6,7 @@
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
     let developmentState = null;
     let developmentMode = false;
+    let developmentRegionId = null;
     let worldMapPreviewRegionId = null;
     let rewardReturnScreen = null;
     let worldMapReturnScreen = "home";
@@ -22,11 +23,39 @@
         render();
     }
 
-    function setWorldMapPreviewRegion(regionId) {
+    function normalizePreviewRegionId(regionId) {
         const normalized = Number(regionId);
-        worldMapPreviewRegionId = Number.isInteger(normalized) && normalized >= 1 && normalized <= 22
+        return Number.isInteger(normalized) && normalized >= 1 && normalized <= 22
             ? normalized
             : null;
+    }
+
+    function setWorldMapPreviewRegion(regionId) {
+        worldMapPreviewRegionId = normalizePreviewRegionId(regionId);
+    }
+
+    function setDevelopmentRegion(regionId) {
+        developmentRegionId = normalizePreviewRegionId(regionId);
+    }
+
+    function openDevelopmentIsland(regionId, islandId) {
+        if (!developmentMode) return;
+
+        const normalizedRegionId = normalizePreviewRegionId(regionId);
+        const normalizedIslandId = Number(islandId);
+        if (!normalizedRegionId
+            || !Number.isInteger(normalizedIslandId)
+            || normalizedIslandId < 1
+            || normalizedIslandId > 5) return;
+
+        developmentRegionId = normalizedRegionId;
+        const baseState = developmentState || state;
+        developmentState = TQ.screens.islands.createDevelopmentIslandEntryState(
+            baseState,
+            normalizedRegionId,
+            normalizedIslandId
+        );
+        render();
     }
 
     function navigate(screenId, options = {}) {
@@ -44,6 +73,7 @@
             if (screenId === "home") {
                 developmentMode = false;
                 developmentState = null;
+                developmentRegionId = null;
                 worldMapPreviewRegionId = null;
                 state = TQ.persistence.localStorage.saveState(
                     root.localStorage,
@@ -116,8 +146,10 @@
             onNavigate: navigate,
             rewardReturnScreen,
             worldMapReturnScreen,
-            previewRegionId: worldMapPreviewRegionId,
-            onPreviewRegionChange: setWorldMapPreviewRegion
+            previewRegionId: developmentMode ? developmentRegionId : worldMapPreviewRegionId,
+            onPreviewRegionChange: developmentMode ? setDevelopmentRegion : setWorldMapPreviewRegion,
+            developmentMode,
+            onDevelopmentIslandOpen: openDevelopmentIsland
         });
     }
 
