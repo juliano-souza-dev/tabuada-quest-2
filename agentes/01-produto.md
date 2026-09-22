@@ -539,12 +539,13 @@ A Missão Especial usa o mesmo sistema visual de feedback de acerto/erro das dem
 
 A Loja é exclusivamente um ponto de **compra**.
 
-Ela possui três abas:
+Ela possui quatro abas:
 
 ```text
 Molduras
 Fundos
 Estaleiro
+Efeitos
 ```
 
 A Loja nunca equipa itens. Cada categoria terá seu próprio local de personalização/equipamento definido separadamente.
@@ -627,6 +628,30 @@ Horizonte Celeste 1.800 Ouro
 
 Todos continuam sem asset até a etapa visual.
 
+
+### Catálogo inicial de Efeitos
+
+A Loja também vende **Efeitos** usados como feedback nos desafios.
+
+Nesta etapa, Efeitos são produtos exclusivamente textuais:
+
+```text
+Brilho do Capitão    → acerto → 300 Ouro
+Tesouro Encontrado   → acerto → 600 Ouro
+Quase Lá             → erro   → 300 Ouro
+Nova Rota            → erro   → 600 Ouro
+```
+
+Regras atuais:
+
+- `asset = null`;
+- nome e preço aparecem normalmente na Loja;
+- a compra usa Ouro e persiste a propriedade do item;
+- item comprado mostra apenas `Comprado`;
+- comprar um Efeito nunca o equipa automaticamente;
+- equipar/trocar Efeitos pertence ao Baú de Itens;
+- a primeira versão mantém renderer textual animado;
+- assets animados podem substituir ou complementar o renderer futuramente sem alterar a regra de compra.
 
 ## Personalização na Home
 

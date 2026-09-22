@@ -3,6 +3,7 @@ const assert=require("node:assert/strict");
 
 delete global.TabuadaQuest;
 require("../../web/js/content/game-content.js");
+require("../../web/js/content/challenge-effects.js");
 require("../../web/js/domain/world-structure.js");
 require("../../web/js/domain/player-state.js");
 
@@ -107,4 +108,46 @@ test("navio não comprado nunca pode virar navio equipado",()=>{
     const ids=TQ.content.shopCatalog.ships.map((item)=>item.id);
     s=d.withEquippedShip(s,ids[2],ids);
     assert.equal(s.shop.equippedShipId,null);
+});
+
+
+test("Loja expõe a categoria Efeitos com catálogo textual sem assets",()=>{
+    assert.ok(TQ.content.shopCatalog.tabs.some((tab)=>tab.id==="effects"&&tab.label==="Efeitos"));
+    const effects=TQ.content.shopCatalog.effects;
+    assert.deepEqual(
+        effects.map((item)=>[item.name,item.effectType,item.price]),
+        [
+            ["Brilho do Capitão","correct",300],
+            ["Tesouro Encontrado","correct",600],
+            ["Quase Lá","wrong",300],
+            ["Nova Rota","wrong",600]
+        ]
+    );
+    for(const effect of effects){
+        assert.equal(effect.category,"effect");
+        assert.equal(effect.asset,null);
+        assert.equal(effect.renderer.kind,"text");
+        assert.ok(effect.renderer.text.length>0);
+    }
+});
+
+test("getShopItem encontra Efeitos comercializáveis",()=>{
+    const effect=TQ.content.shopCatalog.effects[0];
+    assert.equal(TQ.content.getShopItem(effect.id),effect);
+});
+
+test("compra de Efeito desconta Ouro, persiste propriedade e não equipa automaticamente",()=>{
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,coins:1000}};
+    const effect=TQ.content.shopCatalog.effects[0];
+
+    s=d.purchaseShopItem(s,effect);
+
+    assert.equal(s.wallet.coins,700);
+    assert.ok(s.shop.purchasedItemIds.includes(effect.id));
+    assert.equal(Object.prototype.hasOwnProperty.call(s,"inventory"),false);
+
+    const again=d.purchaseShopItem(s,effect);
+    assert.equal(again.wallet.coins,700);
+    assert.equal(again.shop.purchasedItemIds.filter((id)=>id===effect.id).length,1);
 });
