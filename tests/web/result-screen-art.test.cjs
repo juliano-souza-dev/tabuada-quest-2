@@ -33,6 +33,9 @@ test("resultado mantém dados da partida como overlays dinâmicos",()=>{
     assert.match(source,/result\.wrongAnswers/);
     assert.match(source,/result\.recoveryAnswers/);
     assert.match(source,/result\.reward/);
+    assert.doesNotMatch(source,/region\.label/);
+    assert.doesNotMatch(source,/Região \$\{result\.regionId\}/);
+    assert.doesNotMatch(source,/result-art-title/);
     assert.match(source,/data-action="islands"/);
     assert.match(source,/data-action="regions"/);
     assert.match(source,/data-action="special-mission"/);
