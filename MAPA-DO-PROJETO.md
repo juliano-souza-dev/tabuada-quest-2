@@ -288,6 +288,49 @@ TQ.domain.worldStructure.fromGlobalIslandIndex(globalIslandIndex)
 
 `fromLegacyLocation(...)` existe exclusivamente para migração de saves anteriores.
 
+### BIRADES / Região 2
+
+Assets canônicos de produção:
+
+```text
+web/assets/regions/region-2/background.webp
+web/assets/regions/region-2/porto_desengoncado_unlocked.webp
+web/assets/regions/region-2/porto_desengoncado_locked.webp
+web/assets/regions/region-2/baia_dos_bichos_piratas_unlocked.webp
+web/assets/regions/region-2/baia_dos_bichos_piratas_locked.webp
+web/assets/regions/region-2/farol_torto_unlocked.webp
+web/assets/regions/region-2/farol_torto_locked.webp
+web/assets/regions/region-2/fortaleza_das_tralhas_unlocked.webp
+web/assets/regions/region-2/fortaleza_das_tralhas_locked.webp
+web/assets/regions/region-2/cabo_do_mapa_impossivel_unlocked.webp
+web/assets/regions/region-2/cabo_do_mapa_impossivel_locked.webp
+```
+
+Ordem canônica:
+
+```text
+1 Porto Desengonçado
+2 Baía dos Bichos Piratas
+3 Farol Torto
+4 Fortaleza das Tralhas
+5 Cabo do Mapa Impossível
+```
+
+Configuração ativa:
+
+```text
+web/js/content/game-content.js → assets.region2Modular
+web/js/screens/islands-screen.js → REGION_VISUAL_CONFIG[2]
+```
+
+Teste dedicado:
+
+```text
+tests/web/region-2-map-layout.test.cjs
+```
+
+Os assets da Região 2 são WebP lossless e a pasta de produção não mantém as cópias PNG de entrada.
+
 ### OBSIDIANA / Região 13
 
 Assets de composição canônicos:
