@@ -615,12 +615,34 @@
             .filter((reward) => reward?.type === "pet" && typeof reward.petId === "string")
     );
 
+    const petBonusTotals = Object.freeze({
+        xp: 100,
+        coins: 50,
+        gems: 10
+    });
+
+    // Os 30 PETs alternam entre três bônus permanentes.
+    // Com a coleção completa: +100% XP, +50% Ouro e +10% Rubis.
+    const petBonusRotation = Object.freeze([
+        Object.freeze({ type: "xp", percent: 10, label: "⭐ +10% XP" }),
+        Object.freeze({ type: "coins", percent: 5, label: "🪙 +5% Ouro" }),
+        Object.freeze({ type: "gems", percent: 1, label: "💎 +1% Rubis" })
+    ]);
+
     const pets = Object.freeze(
-        petRewards.map((reward, index) => Object.freeze({
-            id: reward.petId,
-            label: `Pet ${String(index + 1).padStart(2, "0")}`,
-            asset: null
-        }))
+        petRewards.map((reward, index) => {
+            const bonus = petBonusRotation[index % petBonusRotation.length];
+            return Object.freeze({
+                id: reward.petId,
+                label: `Pet ${String(index + 1).padStart(2, "0")}`,
+                asset: null,
+                bonus: Object.freeze({
+                    type: bonus.type,
+                    percent: bonus.percent,
+                    label: bonus.label
+                })
+            });
+        })
     );
 
     function getPet(petId) {
@@ -699,6 +721,7 @@
         gameplayRewards,
         crewMembers,
         pets,
+        petBonusTotals,
         getPet,
         collectibles,
         getCollectible,
