@@ -49,6 +49,7 @@
             const petLabel = pet?.label || "Pet resgatado";
 
             screen.className = "pet-rescue-art-screen";
+            screen.style.setProperty("--pet-rescue-bleed-image", `url("${background}")`);
             screen.innerHTML = `
                 <div class="tq-safe-visual-area">
                 <main class="pet-rescue-stage tq-canonical-stage">
