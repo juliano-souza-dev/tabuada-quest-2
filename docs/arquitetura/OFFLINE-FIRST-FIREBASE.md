@@ -158,3 +158,59 @@ TQ_FIREBASE_PROJECT_ID
 ```
 
 O arquivo `app/google-services.json` continua ignorado pelo Git porque a inicialização atual usa `FirebaseOptions` a partir de `BuildConfig`.
+
+
+## Login com Google
+
+O APK expõe o fluxo Google Sign-In pela bridge nativa:
+
+```text
+TabuadaQuestNative.signInWithGoogle()
+```
+
+Fluxo:
+
+```text
+WebView
+→ Credential Manager
+→ Google ID token
+→ FirebaseAuth / GoogleAuthProvider
+→ UID Firebase
+→ syncNow() best-effort
+```
+
+O OAuth Web Client ID usado pelo Credential Manager fica em:
+
+```text
+BuildConfig.GOOGLE_WEB_CLIENT_ID
+```
+
+e pode ser sobrescrito via Gradle property:
+
+```text
+TQ_GOOGLE_WEB_CLIENT_ID
+```
+
+O login emite:
+
+```text
+tq:native-auth
+```
+
+e, quando bem-sucedido, dispara sincronização e emite:
+
+```text
+tq:native-sync
+```
+
+O primeiro request filtra contas previamente autorizadas. Quando não há credencial elegível, o fluxo repete a solicitação permitindo todas as contas Google disponíveis no dispositivo.
+
+O gameplay e o save local não dependem do login Google e continuam operando offline.
+
+### Assinatura Android
+
+Google Sign-In valida o package e o certificado do APK. Portanto, builds distribuídos precisam usar o mesmo certificado cujo SHA-1 foi cadastrado no Firebase para:
+
+```text
+tabuadaquest.juliano.filhas
+```
