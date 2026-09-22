@@ -93,6 +93,7 @@
 
             if (victoryArt) {
                 screen.classList.add("result-art-screen");
+                screen.style.setProperty("--result-bleed-image", `url("${victoryArt}")`);
                 screen.dataset.regionId = String(result.regionId);
                 screen.dataset.islandId = String(result.islandId);
                 screen.innerHTML = `
