@@ -127,6 +127,24 @@
         return false;
     }
 
+    function signInWithEmailPassword(email, password) {
+        const nativeBridge = getNativeBridge();
+        if (nativeBridge && typeof nativeBridge.signInWithEmailPassword === "function") {
+            nativeBridge.signInWithEmailPassword(String(email || ""), String(password || ""));
+            return true;
+        }
+        return false;
+    }
+
+    function signOut() {
+        const nativeBridge = getNativeBridge();
+        if (nativeBridge && typeof nativeBridge.signOut === "function") {
+            nativeBridge.signOut();
+            return true;
+        }
+        return false;
+    }
+
     function restoreFromServer() {
         const nativeBridge = getNativeBridge();
         if (nativeBridge && typeof nativeBridge.restoreFromServer === "function") {
@@ -143,6 +161,8 @@
         getNativeBridge,
         getSyncStatus,
         requestSync,
+        signInWithEmailPassword,
+        signOut,
         restoreFromServer,
         loadState,
         saveState
