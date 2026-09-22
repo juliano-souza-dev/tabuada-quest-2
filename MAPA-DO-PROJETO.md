@@ -1052,3 +1052,36 @@ tests/web/player-state.test.cjs
 ```
 
 O botão Jogar abre diretamente a Região jogável resolvida pela progressão. O botão Regiões permanece como acesso ao seletor completo.
+
+
+## Persistência nativa e Firebase
+
+Arquitetura:
+
+```text
+docs/arquitetura/OFFLINE-FIRST-FIREBASE.md
+```
+
+Implementação Android:
+
+```text
+app/src/main/java/com/tabuadaquest/app/NativeSaveDatabase.java
+app/src/main/java/com/tabuadaquest/app/FirebaseSyncManager.java
+app/src/main/java/com/tabuadaquest/app/NativeDataBridge.java
+app/src/main/java/com/tabuadaquest/app/MainActivity.java
+```
+
+Adaptador web:
+
+```text
+web/js/persistence/local-storage.js
+```
+
+Firebase:
+
+```text
+firebase/firestore.rules
+app/build.gradle.kts
+```
+
+No APK, SQLite é a fonte operacional local. Firebase é camada de sincronização/restauração, nunca requisito para gameplay.
