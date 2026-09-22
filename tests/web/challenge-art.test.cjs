@@ -137,3 +137,12 @@ test("calibração horizontal da barra reproduz o trilho medido no stage",()=>{
     assert.ok(Math.abs(stageWidthPx*widthPercent/100-220)<0.2);
     assert.ok(Math.abs(stageWidthPx*endPercent/100-305)<0.3);
 });
+
+
+test("Questão 3 de 20 usa 15% do trilho de progresso",()=>{
+    assert.equal(TQ.screens.challenge.progressPercent(3),15);
+    assert.equal(TQ.screens.challenge.progressPercent(1),5);
+    assert.equal(TQ.screens.challenge.progressPercent(20),100);
+    assert.equal(TQ.screens.challenge.progressPercent(99),100);
+    assert.equal(TQ.screens.challenge.progressPercent(0),5);
+});
