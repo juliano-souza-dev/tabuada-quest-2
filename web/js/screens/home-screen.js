@@ -326,6 +326,11 @@
                 return;
             }
 
+            if (action === "items") {
+                onNavigate("items");
+                return;
+            }
+
             if (action === "regions") {
                 onNavigate("regions");
                 return;
@@ -351,8 +356,7 @@
             const messages = {
                 daily: "Recompensa diária preparada para a evolução da campanha.",
                 chests: "Seus baús aparecerão aqui.",
-                pets: "Companheiros resgatados: " + petCount + "/" + totals.pets + ".",
-                items: "O Baú de Itens guardará seus itens da aventura."
+                pets: "Companheiros resgatados: " + petCount + "/" + totals.pets + "."
             };
 
             showToast(messages[action] || "");
