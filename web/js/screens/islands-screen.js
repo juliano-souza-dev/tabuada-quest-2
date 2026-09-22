@@ -345,7 +345,14 @@
         return Number.isInteger(preview) && preview >= 1 && preview <= 22;
     }
 
-    function renderRegionMap({ state, onStateChange, onNavigate, previewRegionId }) {
+    function renderRegionMap({
+        state,
+        onStateChange,
+        onNavigate,
+        previewRegionId,
+        developmentMode = false,
+        onDevelopmentIslandOpen
+    }) {
         const regionId = getDisplayedRegionId(state, previewRegionId);
         const previewMode = isWorldMapPreview(previewRegionId);
         const visual = getRegionVisualConfig(regionId);
@@ -518,10 +525,15 @@
             if (!islandButton) return;
 
             const islandId = Number(islandButton.dataset.islandId);
-            if (previewMode) {
-                onStateChange(createDevelopmentIslandEntryState(state, regionId, islandId));
+            if (developmentMode) {
+                if (typeof onDevelopmentIslandOpen === "function") {
+                    onDevelopmentIslandOpen(regionId, islandId);
+                } else {
+                    onStateChange(createDevelopmentIslandEntryState(state, regionId, islandId));
+                }
                 return;
             }
+            if (previewMode) return;
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
@@ -553,7 +565,14 @@
         return screen;
     }
 
-    function renderTextIslandsScreen({ state, onStateChange, onNavigate, previewRegionId }) {
+    function renderTextIslandsScreen({
+        state,
+        onStateChange,
+        onNavigate,
+        previewRegionId,
+        developmentMode = false,
+        onDevelopmentIslandOpen
+    }) {
         const regionId = getDisplayedRegionId(state, previewRegionId);
         const previewMode = isWorldMapPreview(previewRegionId);
         const region = previewMode
@@ -665,10 +684,15 @@
             if (!islandButton) return;
 
             const islandId = Number(islandButton.dataset.islandId);
-            if (previewMode) {
-                onStateChange(createDevelopmentIslandEntryState(state, regionId, islandId));
+            if (developmentMode) {
+                if (typeof onDevelopmentIslandOpen === "function") {
+                    onDevelopmentIslandOpen(regionId, islandId);
+                } else {
+                    onStateChange(createDevelopmentIslandEntryState(state, regionId, islandId));
+                }
                 return;
             }
+            if (previewMode) return;
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
