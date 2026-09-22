@@ -9,11 +9,12 @@
         const purchased = state.shop.purchasedItemIds.includes(item.id);
         const hasPrice = Number.isInteger(item.price) && item.price >= 0;
         const canBuy = hasPrice && state.wallet.coins >= item.price;
+        const displayName = item.label || item.name || item.id;
 
         return `
             <article class="shop-item-card" data-shop-item-id="${item.id}">
                 <div class="shop-item-copy">
-                    <h2>${item.label}</h2>
+                    <h2>${displayName}</h2>
                     <p class="shop-price">
                         ${hasPrice ? `🪙 ${formatGold(item.price)} Ouro` : "Preço a definir"}
                     </p>
@@ -84,6 +85,12 @@
                     <p class="shop-intro">A Loja apenas vende. O local de equipar navios será definido separadamente.</p>
                     <div class="shop-item-list">
                         ${catalog.ships.map((item) => renderStoreItem(item, state)).join("")}
+                    </div>
+                </section>
+                <section data-shop-panel="effects" hidden>
+                    <p class="shop-intro">Compre efeitos para usar nos desafios.</p>
+                    <div class="shop-item-list">
+                        ${catalog.effects.map((item) => renderStoreItem(item, state)).join("")}
                     </div>
                 </section>
             </main>
