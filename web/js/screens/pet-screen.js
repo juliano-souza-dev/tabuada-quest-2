@@ -70,7 +70,10 @@
                         <div
                             class="pet-rescue-bonus"
                             ${bonusText ? "" : 'aria-hidden="true"'}
-                        >${escapeHtml(bonusText)}</div>
+                        >
+                            <span class="pet-rescue-bonus-intro">Como recompensa, você agora recebe bônus de:</span>
+                            <strong class="pet-rescue-bonus-value">${escapeHtml(bonusText)}</strong>
+                        </div>
 
                         <button
                             class="pet-rescue-continue"
