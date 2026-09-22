@@ -267,7 +267,7 @@
     function computeRegionStageGeometry(viewportWidth, viewportHeight) {
         const width = Number(viewportWidth) || 0;
         const height = Number(viewportHeight) || 0;
-        const scale = Math.max(
+        const scale = Math.min(
             width / REGION_LAYOUT.viewport.width,
             height / REGION_LAYOUT.viewport.height
         );
@@ -413,6 +413,7 @@
         screen.className = "region-islands-map-screen";
         screen.dataset.regionId = String(regionId);
         screen.dataset.regionPage = visualPage.id;
+        screen.style.setProperty("--region-bleed-image", `url("${visualPage.background}")`);
         screen.setAttribute("aria-label", `Ilhas da Região ${region ? region.label : regionId}`);
 
         const islandsMarkup = visualPage.hideIslands ? "" : visualPage.islandIds.map((islandId, slotIndex) => {
