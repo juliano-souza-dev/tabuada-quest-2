@@ -195,6 +195,10 @@ test("desafio protege o conteúdo até a arte estar realmente pronta",()=>{
     assert.match(source,/background\.decode/);
     assert.match(source,/background\.addEventListener\("load"/);
     assert.match(source,/preloadChallengeArt/);
+    assert.match(source,/isChallengeArtLoaded/);
+    assert.match(source,/artAlreadyLoaded \? "is-art-ready" : "is-art-loading"/);
+    assert.match(source,/if \(!artAlreadyLoaded\) \{\s*armChallengeArtReveal\(screen, art\)/);
+    assert.match(source,/artAlreadyLoaded \? "" :/);
 
     assert.match(css,/challenge-art-screen\.is-art-loading \.challenge-dynamic-layer/);
     assert.match(css,/\.challenge-loading-boat/);
@@ -258,4 +262,21 @@ test("viewport alto mantém bleed visível atrás da arte 9:16",()=>{
     );
     assert.match(regionBlock,/isolation:\s*isolate/);
     assert.match(regionBlock,/var\(--region-bleed-image\)/);
+});
+
+
+test("loader do desafio não é rearmado quando a arte já foi carregada",()=>{
+    const source=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+
+    const classDecision=source.indexOf('artAlreadyLoaded ? "is-art-ready" : "is-art-loading"');
+    const guardedReveal=source.indexOf("if (!artAlreadyLoaded) {");
+    const cacheCheck=source.indexOf("loadedChallengeArtUrls.has(art)");
+
+    assert.ok(cacheCheck>=0);
+    assert.ok(classDecision>=0);
+    assert.ok(guardedReveal>=0);
+    assert.ok(cacheCheck<classDecision);
 });

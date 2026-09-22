@@ -108,6 +108,13 @@
         return regionAssets?.[islandId] || null;
     }
 
+    function isChallengeArtLoaded(sessionOrArt) {
+        const art = typeof sessionOrArt === "string"
+            ? sessionOrArt
+            : getChallengeArt(sessionOrArt);
+        return Boolean(art && loadedChallengeArtUrls.has(art));
+    }
+
     function preloadChallengeArt(session) {
         const art = getChallengeArt(session);
         if (!art) return Promise.resolve(false);
@@ -341,7 +348,11 @@
             const artLayout = getChallengeArtLayout(session.regionId, session.islandId);
 
             if (art) {
-                screen.classList.add("challenge-art-screen", "is-art-loading");
+                const artAlreadyLoaded = isChallengeArtLoaded(art);
+                screen.classList.add(
+                    "challenge-art-screen",
+                    artAlreadyLoaded ? "is-art-ready" : "is-art-loading"
+                );
                 screen.dataset.regionId = String(session.regionId);
                 screen.dataset.islandId = String(session.islandId);
                 screen.style.setProperty("--challenge-bleed-image", `url("${art}")`);
@@ -369,6 +380,7 @@
                         ` : ""}
                     </main>
                     </div>
+                    ${artAlreadyLoaded ? "" : `
                     <div class="challenge-art-loading" role="status" aria-live="polite">
                         <div class="challenge-loading-scene" aria-hidden="true">
                             <div class="challenge-loading-boat">
@@ -382,12 +394,15 @@
                         </div>
                         <span class="challenge-loading-label">Chegando à ilha...</span>
                     </div>
+                    `}
                 `;
                 TQ.core.safeViewport.bindCanonicalStage(
                     screen.querySelector(".tq-safe-visual-area"),
                     screen.querySelector(".challenge-art-stage")
                 );
-                armChallengeArtReveal(screen, art);
+                if (!artAlreadyLoaded) {
+                    armChallengeArtReveal(screen, art);
+                }
             } else {
                 screen.innerHTML = `
                     <header class="slice-header">
@@ -483,6 +498,7 @@
         CHALLENGE_ART_LAYOUTS,
         DEFAULT_CHALLENGE_ART_LAYOUT,
         getChallengeArt,
+        isChallengeArtLoaded,
         preloadChallengeArt,
         getChallengeArtLayout,
         renderChallengeScreen,
