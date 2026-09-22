@@ -68,9 +68,9 @@
                     x: 18.15,
                     y: 61.85,
                     width: 63.7,
-                    height: 17.95,
+                    height: 16.7,
                     columnGap: 5.2,
-                    rowGap: 10.5
+                    rowGap: 5.4
                 }),
                 font: Object.freeze({
                     progress: 3,
