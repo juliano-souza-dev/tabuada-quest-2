@@ -987,6 +987,11 @@
 
 .result-art-action-primary {
     top: 73.15%;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 0 !important;
+    text-align: center;
     color: #4a2508 !important;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
 }
