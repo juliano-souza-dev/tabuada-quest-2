@@ -402,3 +402,34 @@ Validar automaticamente:
 - desafios normais e Missões Especiais usam o mesmo contrato;
 - redução de movimento não cria deadlock;
 - progresso continua dinâmico e alinhado à caixa específica da Ilha.
+
+## Gate pixel-perfect das atividades
+
+Validação pixel-perfect é feita sempre na **mesma Região + Ilha usada como referência da implementação**.
+
+Para cada correção:
+
+- registrar Região e Ilha alvo;
+- validar contra a arte exata dessa atividade;
+- validar contra o print de referência correspondente;
+- conferir coordenadas/caixas do progresso, pergunta, respostas, feedback e hitboxes quando aplicável;
+- garantir que nenhuma correção local alterou silenciosamente outras Ilhas;
+- exigir teste de regressão para geometria local relevante;
+- repetir a validação visual na própria Região + Ilha após publicação.
+
+Não aceitar como evidência:
+
+- print de outra Ilha;
+- medição de outra Região;
+- aprovação visual de uma tela diferente;
+- teste apenas do renderer compartilhado quando o defeito é de geometria local.
+
+Exemplo de gate:
+
+```text
+R1/I1 com defeito
+→ medir R1/I1
+→ corrigir config R1/I1
+→ testar R1/I1
+→ validar print R1/I1
+```
