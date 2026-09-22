@@ -596,13 +596,13 @@
     content: "";
     position: absolute;
     left: 1.5%;
-    bottom: 7%;
+    top: 50%;
     width: 97%;
-    height: 20%;
+    height: 24%;
     border-radius: 999px;
     background: linear-gradient(90deg, #20bc54, #72ef80);
     box-shadow: 0 0 7px rgba(69, 232, 106, .5);
-    transform: scaleX(var(--challenge-progress-ratio, 0));
+    transform: translateY(-50%) scaleX(var(--challenge-progress-ratio, 0));
     transform-origin: left center;
     transition: transform 180ms ease;
 }
