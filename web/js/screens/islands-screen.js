@@ -317,6 +317,22 @@
             );
     }
 
+    function createDevelopmentIslandEntryState(state, regionId, islandId) {
+        const regionState = TQ.domain.gameplay.createRegionState(regionId);
+        const session = TQ.domain.gameplay.createIslandSession(
+            regionId,
+            islandId,
+            `dev-region-${regionId}-island-${islandId}`
+        );
+        const prepared = TQ.domain.gameplay.prepareNextChallenge(session, regionState);
+
+        return TQ.domain.playerState.withGameplaySession(
+            state,
+            prepared.session,
+            prepared.regionState
+        );
+    }
+
     function getDisplayedRegionId(state, previewRegionId) {
         const preview = Number(previewRegionId);
         return Number.isInteger(preview) && preview >= 1 && preview <= 22
@@ -502,7 +518,10 @@
             if (!islandButton) return;
 
             const islandId = Number(islandButton.dataset.islandId);
-            if (previewMode) return;
+            if (previewMode) {
+                onStateChange(createDevelopmentIslandEntryState(state, regionId, islandId));
+                return;
+            }
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
@@ -646,7 +665,10 @@
             if (!islandButton) return;
 
             const islandId = Number(islandButton.dataset.islandId);
-            if (previewMode) return;
+            if (previewMode) {
+                onStateChange(createDevelopmentIslandEntryState(state, regionId, islandId));
+                return;
+            }
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
@@ -685,6 +707,7 @@
         getDisplayedRegionId,
         isWorldMapPreview,
         createIslandEntryState,
+        createDevelopmentIslandEntryState,
         REGION_LAYOUT,
         REGION_VISUAL_CONFIG,
         RUBY_SHOP_SHIP_LAYOUT,
