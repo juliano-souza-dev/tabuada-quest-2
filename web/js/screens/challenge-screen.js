@@ -65,12 +65,12 @@
                 progress: Object.freeze({ x: 21.8, y: 38.15, width: 56.8, height: 6.4 }),
                 question: Object.freeze({ x: 14.9, y: 44.75, width: 70.2, height: 16.4 }),
                 answers: Object.freeze({
-                    x: 17.55,
-                    y: 63.05,
-                    width: 64.9,
-                    height: 15.85,
-                    columnGap: 6.4,
-                    rowGap: 8
+                    x: 18.15,
+                    y: 61.85,
+                    width: 63.7,
+                    height: 17.95,
+                    columnGap: 5.2,
+                    rowGap: 10.5
                 }),
                 font: Object.freeze({
                     progress: 3,
@@ -78,7 +78,7 @@
                     answer: 5.45,
                     feedback: 4.85
                 }),
-                progressMask: true
+                progressMask: false
             }),
             4: Object.freeze({
                 progress: Object.freeze({ x: 21.8, y: 39.55, width: 56.4, height: 3.85 }),
