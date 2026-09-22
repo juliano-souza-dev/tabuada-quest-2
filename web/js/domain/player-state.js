@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 13;
+    const STATE_VERSION = 14;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -90,6 +90,13 @@
             wallet: { coins: 0, gems: 0 },
             crew: { hiredIds: [] },
             shop: { purchasedItemIds: [], equippedShipId: null },
+            inventory: {
+                items: [],
+                equipped: {
+                    correctEffectId: null,
+                    wrongEffectId: null
+                }
+            },
             rubyShop: { orders: [] },
             campaign: {
                 currentRegionId: 1,
@@ -438,8 +445,27 @@
         if (migrated.schemaVersion === 12) {
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 13,
                 rubyShop: { orders: [] }
+            };
+        }
+
+        if (migrated.schemaVersion === 13) {
+            const purchasedItemIds = Array.isArray(migrated.shop?.purchasedItemIds)
+                ? migrated.shop.purchasedItemIds
+                : [];
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                inventory: {
+                    items: purchasedItemIds.filter((id) =>
+                        typeof id === "string" && id.startsWith("effect-")
+                    ),
+                    equipped: {
+                        correctEffectId: null,
+                        wrongEffectId: null
+                    }
+                }
             };
         }
 
@@ -477,6 +503,23 @@
             && Array.isArray(value.pendingIds)
             && value.pendingIds.every((id) => typeof id === "string")
         );
+    }
+
+    function validInventoryState(value, purchasedItemIds) {
+        if (!isObject(value)
+            || !Array.isArray(value.items)
+            || value.items.some((id) => typeof id !== "string")
+            || new Set(value.items).size !== value.items.length
+            || value.items.some((id) => !purchasedItemIds.includes(id))
+            || !isObject(value.equipped)) return false;
+
+        for (const key of ["correctEffectId", "wrongEffectId"]) {
+            const id = value.equipped[key];
+            if (id !== null && (typeof id !== "string" || !value.items.includes(id))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     function validRubyShopState(value) {
@@ -579,6 +622,7 @@
                 typeof value.shop.equippedShipId === "string"
                 && value.shop.purchasedItemIds.includes(value.shop.equippedShipId)
             ))
+            && validInventoryState(value.inventory, value.shop.purchasedItemIds)
             && validRubyShopState(value.rubyShop)
             && isObject(value.campaign)
             && Number.isInteger(value.campaign.currentRegionId) && value.campaign.currentRegionId >= 1 && value.campaign.currentRegionId <= TOTAL_REGIONS
@@ -624,7 +668,7 @@
 
     function withLastScreen(state, screenId) {
         const s = normalizeState(state);
-        return ["home", "crew", "collectibles", "shop", "ruby-shop", "world-map", "regions", "development-regions", "islands", "travel", "challenge", "chest", "pet", "map-reward", "result", "special-mission"].includes(screenId)
+        return ["home", "crew", "collectibles", "shop", "items", "ruby-shop", "world-map", "regions", "development-regions", "islands", "travel", "challenge", "chest", "pet", "map-reward", "result", "special-mission"].includes(screenId)
             ? { ...s, ui: { ...s.ui, lastScreen: screenId } }
             : s;
     }
@@ -650,6 +694,9 @@
         if (s.shop.purchasedItemIds.includes(item.id)) return s;
         if (s.wallet.coins < item.price) return s;
 
+        const purchasedItemIds = [...s.shop.purchasedItemIds, item.id];
+        const isInventoryItem = item.category === "effect";
+
         return {
             ...s,
             wallet: {
@@ -658,8 +705,16 @@
             },
             shop: {
                 ...s.shop,
-                purchasedItemIds: [...s.shop.purchasedItemIds, item.id]
-            }
+                purchasedItemIds
+            },
+            inventory: isInventoryItem
+                ? {
+                    ...s.inventory,
+                    items: s.inventory.items.includes(item.id)
+                        ? s.inventory.items
+                        : [...s.inventory.items, item.id]
+                }
+                : s.inventory
         };
     }
 
@@ -746,6 +801,47 @@
                 equippedShipId: shipId
             }
         };
+    }
+
+    function withEquippedEffect(state, effectType, effectId, allowedIds) {
+        const s = normalizeState(state);
+        const normalizedType = effectType === "wrong" ? "wrong" : "correct";
+        const key = normalizedType === "correct" ? "correctEffectId" : "wrongEffectId";
+
+        if (effectId === null) {
+            return {
+                ...s,
+                inventory: {
+                    ...s.inventory,
+                    equipped: {
+                        ...s.inventory.equipped,
+                        [key]: null
+                    }
+                }
+            };
+        }
+
+        if (typeof effectId !== "string") return s;
+        if (!Array.isArray(allowedIds) || !allowedIds.includes(effectId)) return s;
+        if (!s.inventory.items.includes(effectId)) return s;
+
+        return {
+            ...s,
+            inventory: {
+                ...s.inventory,
+                equipped: {
+                    ...s.inventory.equipped,
+                    [key]: effectId
+                }
+            }
+        };
+    }
+
+    function getEquippedEffectId(state, effectType) {
+        const s = normalizeState(state);
+        return effectType === "wrong"
+            ? s.inventory.equipped.wrongEffectId
+            : s.inventory.equipped.correctEffectId;
     }
 
     function collectCollectible(state, collectibleId, allowedIds) {
@@ -1585,6 +1681,8 @@
         isRubyShopUnlocked,
         purchaseRubyShopItem,
         withEquippedShip,
+        withEquippedEffect,
+        getEquippedEffectId,
         collectCollectible,
         getCrewBonusSummary,
         calculateCrewReward,
