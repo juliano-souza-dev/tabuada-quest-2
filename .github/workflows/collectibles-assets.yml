@@ -1,0 +1,40 @@
+name: Process collectibles assets
+
+on:
+  push:
+    paths:
+      - "web/assets/collectibles/*.png"
+      - "scripts/process-collectibles-assets.sh"
+      - ".github/workflows/collectibles-assets.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install image tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick webp
+
+      - name: Convert and resize collectibles
+        run: bash scripts/process-collectibles-assets.sh
+
+      - name: Commit optimized assets
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No collectible asset changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/assets/collectibles web/js/content/collectibles-assets.js
+          git commit -m "assets: optimize collectibles for web"
+          git push
