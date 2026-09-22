@@ -24,18 +24,14 @@
     const CHALLENGE_ART_LAYOUTS = Object.freeze({
         1: Object.freeze({
             1: Object.freeze({
-                progress: Object.freeze({ x: 21.57, y: 40.35, width: 55.84, height: 3.65 }),
-                question: Object.freeze({ x: 14, y: 44.95, width: 72, height: 15.45 }),
+                progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
+                question: Object.freeze({ x: 21.5, y: 45.2, width: 57.5, height: 17.4 }),
                 answers: Object.freeze({
-                    x: 16,
-                    y: 62.45,
-                    width: 68,
-                    height: 16.25,
-                    columnGap: 5.7,
-                    rowGap: 8
+                    x: 14, y: 64.7, width: 72, height: 20.9,
+                    columnGap: 5.8, rowGap: 5.8
                 }),
                 font: Object.freeze({
-                    progress: 3,
+                    progress: 0,
                     question: 8.35,
                     answer: 5.55,
                     feedback: 4.9
@@ -43,6 +39,67 @@
                 progressMask: false
             }),
             2: Object.freeze({
+                progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
+                question: Object.freeze({ x: 21.5, y: 26.2, width: 58, height: 26.8 }),
+                answers: Object.freeze({
+                    x: 8.5, y: 64.2, width: 83, height: 28.4,
+                    columnGap: 6.2, rowGap: 5.6
+                }),
+                font: Object.freeze({
+                    progress: 0,
+                    question: 8.35,
+                    answer: 5.55,
+                    feedback: 4.9
+                }),
+                progressMask: false
+            }),
+            3: Object.freeze({
+                progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
+                question: Object.freeze({ x: 21.5, y: 42.6, width: 57.5, height: 16.6 }),
+                answers: Object.freeze({
+                    x: 20.5, y: 60, width: 59.5, height: 22.4,
+                    columnGap: 5.5, rowGap: 4.8
+                }),
+                font: Object.freeze({
+                    progress: 0,
+                    question: 8.35,
+                    answer: 5.45,
+                    feedback: 4.85
+                }),
+                progressMask: false
+            }),
+            4: Object.freeze({
+                progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
+                question: Object.freeze({ x: 21.5, y: 39.1, width: 57.5, height: 18 }),
+                answers: Object.freeze({
+                    x: 15, y: 59.2, width: 70, height: 22.5,
+                    columnGap: 5.5, rowGap: 4.8
+                }),
+                font: Object.freeze({
+                    progress: 0,
+                    question: 8.35,
+                    answer: 5.55,
+                    feedback: 4.9
+                }),
+                progressMask: false
+            }),
+            5: Object.freeze({
+                progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
+                question: Object.freeze({ x: 21, y: 42.8, width: 58.5, height: 16.9 }),
+                answers: Object.freeze({
+                    x: 20.2, y: 60.8, width: 60.2, height: 21,
+                    columnGap: 5.2, rowGap: 4.8
+                }),
+                font: Object.freeze({
+                    progress: 0,
+                    question: 8.3,
+                    answer: 5.55,
+                    feedback: 4.9
+                }),
+                progressMask: false
+            })
+        }),
+        2: Object.freeze({
                 progress: Object.freeze({ x: 21.4, y: 39.36, width: 57.2, height: 3.9 }),
                 question: Object.freeze({ x: 14.6, y: 44.25, width: 71.1, height: 16.4 }),
                 answers: Object.freeze({
