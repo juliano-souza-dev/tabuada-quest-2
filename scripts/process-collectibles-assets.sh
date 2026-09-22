@@ -22,10 +22,14 @@ for source in "${png_files[@]}"; do
     fi
 
     temp_png="$(mktemp --suffix=.png)"
-    convert "$source"         -resize '220x220>'         -background none         -gravity center         -extent 256x256         "$temp_png"
+    convert "$source" \
+        -resize '220x220>' \
+        -background none \
+        -gravity center \
+        -extent 256x256 \
+        "$temp_png"
 
     cwebp -quiet -q 88 -alpha_q 100 -m 6 "$temp_png" -o "$ITEMS_DIR/$stem.webp"
-
     rm -f "$temp_png" "$source"
 done
 
@@ -64,9 +68,8 @@ const lines = entries.map(
 
 const output = `(function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    TQ.content = TQ.content || {};
 
-    TQ.content.collectibleAssetManifest = Object.freeze([
+    TQ.collectibleAssetManifest = Object.freeze([
 ${lines.join(",\n")}
     ]);
 })(globalThis);
