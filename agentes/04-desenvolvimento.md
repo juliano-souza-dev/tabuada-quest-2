@@ -873,6 +873,27 @@ Contrato:
 - Missões Especiais reutilizam o mesmo renderer e resolver.
 
 
+### Integração comercial dos Efeitos
+
+Fonte comercial:
+
+```text
+web/js/content/challenge-effects.js → TQ.effects.shopCatalog
+web/js/content/game-content.js      → shopCatalog.effects / getShopItem(...)
+web/js/screens/shop-screen.js       → aba Efeitos
+```
+
+Contrato técnico:
+
+- Efeitos comerciais usam `category = effect`, `effectType`, `name`, `price`, `renderer` e `asset`;
+- nesta etapa `asset = null` e o renderer textual continua sendo a implementação executável;
+- a Loja reutiliza `purchaseShopItem(...)` e persiste somente o ID em `shop.purchasedItemIds`;
+- propriedade é derivada de `shop.purchasedItemIds`; não duplicar `owned` como estado persistido;
+- a compra não cria nem altera `inventory.equipped`;
+- não há alteração de schema somente para vender Efeitos;
+- o Baú de Itens será responsável por inventário/equipamento em etapa própria;
+- o desafio permanece desacoplado da compra e continua consumindo apenas o resolvedor de Efeitos.
+
 ## Continuidade pelo botão Jogar
 
 Fonte de decisão:
