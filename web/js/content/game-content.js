@@ -805,6 +805,34 @@
                     })
                 })
             }),
+            region3Modular: Object.freeze({
+                background: "./assets/regions/region-3/background.webp?v=20260922-region3-gold",
+                backgrounds: Object.freeze({
+                    1: "./assets/regions/region-3/background.webp?v=20260922-region3-gold"
+                }),
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-3/costa_dourada_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/costa_dourada_locked.webp?v=20260922-region3-gold"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-3/minas_de_aurum_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/minas_de_aurum_locked.webp?v=20260922-region3-gold"
+                    }),
+                    3: Object.freeze({
+                        unlocked: "./assets/regions/region-3/coroa_solar_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/coroa_solar_locked.webp?v=20260922-region3-gold"
+                    }),
+                    4: Object.freeze({
+                        unlocked: "./assets/regions/region-3/templo_aureo_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/templo_aureo_locked.webp?v=20260922-region3-gold"
+                    }),
+                    5: Object.freeze({
+                        unlocked: "./assets/regions/region-3/ouro_do_rei_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/ouro_do_rei_locked.webp?v=20260922-region3-gold"
+                    })
+                })
+            }),
             region13Modular: Object.freeze({
                 background: "./assets/regions/region-13/background.png?v=20260921-0118",
                 backgrounds: Object.freeze({
