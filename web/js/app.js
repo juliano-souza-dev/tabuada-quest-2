@@ -4,12 +4,20 @@
     if (!TQ || !appRoot) return;
 
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
+    let developmentState = null;
+    let developmentMode = false;
     let worldMapPreviewRegionId = null;
     let rewardReturnScreen = null;
     let worldMapReturnScreen = "home";
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function save(nextState) {
+        if (developmentMode) {
+            developmentState = nextState;
+            render();
+            return;
+        }
+
         state = TQ.persistence.localStorage.saveState(root.localStorage, nextState);
         render();
     }
@@ -22,6 +30,40 @@
     }
 
     function navigate(screenId, options = {}) {
+        if (screenId === "development-regions") {
+            developmentMode = true;
+            developmentState = TQ.domain.playerState.withLastScreen(
+                developmentState || state,
+                "development-regions"
+            );
+            render();
+            return;
+        }
+
+        if (developmentMode) {
+            if (screenId === "home") {
+                developmentMode = false;
+                developmentState = null;
+                worldMapPreviewRegionId = null;
+                state = TQ.persistence.localStorage.saveState(
+                    root.localStorage,
+                    TQ.domain.playerState.withLastScreen(state, "home")
+                );
+                render();
+                return;
+            }
+
+            const developmentTarget = screenId === "regions"
+                ? "development-regions"
+                : screenId;
+            developmentState = TQ.domain.playerState.withLastScreen(
+                developmentState || state,
+                developmentTarget
+            );
+            render();
+            return;
+        }
+
         if (["world-map", "regions"].includes(screenId)) {
             worldMapReturnScreen = options.returnScreen
                 || (state.ui.lastScreen === "islands" ? "islands" : "home");
@@ -45,6 +87,9 @@
     }
 
     function render() {
+        const renderState = developmentMode && developmentState
+            ? developmentState
+            : state;
         const renderers = {
             home: TQ.screens.home.renderHomeScreen,
             crew: TQ.screens.crew.renderCrewScreen,
@@ -63,10 +108,10 @@
             "map-reward": TQ.screens.mapReward.renderMapRewardScreen,
             result: TQ.screens.result.renderResultScreen
         };
-        const renderer = renderers[state.ui.lastScreen] || renderers.home;
+        const renderer = renderers[renderState.ui.lastScreen] || renderers.home;
 
         screens.render(renderer, {
-            state,
+            state: renderState,
             onStateChange: save,
             onNavigate: navigate,
             rewardReturnScreen,
