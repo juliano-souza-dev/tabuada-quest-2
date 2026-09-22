@@ -166,3 +166,23 @@ test("feedback de erro só avança quando a continuidade manual é acionada",()=
         TQ.domain=previousDomain;
     }
 });
+
+
+test("desafio resolve Efeito customizado equipado",()=>{
+    const state={
+        inventory:{
+            equipped:{
+                correctEffectId:"effect-correct-brilho-capitao",
+                wrongEffectId:"effect-wrong-quase-la"
+            }
+        }
+    };
+
+    const correct=TQ.screens.challenge.renderFeedback(state,feedbackSession(true));
+    const wrong=TQ.screens.challenge.renderFeedback(state,feedbackSession(false));
+
+    assert.match(correct,/effect-correct-brilho-capitao/);
+    assert.match(correct,/Mandou bem, capitão!/);
+    assert.match(wrong,/effect-wrong-quase-la/);
+    assert.match(wrong,/Quase lá!/);
+});
