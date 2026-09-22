@@ -572,7 +572,7 @@
     display: grid;
     place-items: center;
     box-sizing: border-box;
-    padding: 0 4% 11%;
+    padding: 0 4%;
     border: 0;
     border-radius: 999px;
     background: transparent;
@@ -610,6 +610,8 @@
 .challenge-art-progress > span {
     position: relative;
     z-index: 1;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .challenge-art-question {
