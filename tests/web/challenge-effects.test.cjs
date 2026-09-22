@@ -116,3 +116,53 @@ test("renderer dispara avanço automático quando a animação de acerto termina
         globalThis.clearTimeout=originalClearTimeout;
     }
 });
+
+
+test("feedback de erro só avança quando a continuidade manual é acionada",()=>{
+    const session={...feedbackSession(false),regionId:1,islandId:1};
+    const nextSession={...session,phase:"question",plannedAnswered:8,lastFeedback:null};
+    const regionState={marker:"region-state"};
+    const state={learning:{activeSession:session}};
+    const previousDomain=TQ.domain;
+    let continueCalls=0;
+    let emittedState=null;
+
+    TQ.domain={
+        gameplay:{
+            createRegionState(){throw new Error("não deveria criar fallback");},
+            continueAfterFeedback(receivedSession,receivedRegionState){
+                continueCalls+=1;
+                assert.equal(receivedSession,session);
+                assert.equal(receivedRegionState,regionState);
+                return {session:nextSession,regionState};
+            }
+        },
+        playerState:{
+            getRegionLearningState(){return regionState;},
+            updateGameplaySession(current,updatedSession,updatedRegionState){
+                assert.equal(updatedSession,nextSession);
+                assert.equal(updatedRegionState,regionState);
+                return {
+                    ...current,
+                    learning:{...current.learning,activeSession:updatedSession}
+                };
+            }
+        }
+    };
+
+    try{
+        TQ.screens.challenge.renderFeedback(state,session);
+        assert.equal(continueCalls,0);
+
+        TQ.screens.challenge.advanceAfterFeedback(
+            state,
+            session,
+            (next)=>{emittedState=next;}
+        );
+
+        assert.equal(continueCalls,1);
+        assert.equal(emittedState.learning.activeSession,nextSession);
+    } finally {
+        TQ.domain=previousDomain;
+    }
+});
