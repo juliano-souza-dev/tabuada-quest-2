@@ -660,6 +660,7 @@
     }
 
     TQ.content = Object.freeze({
+        development: Object.freeze({ shortcutsEnabled: true }),
         campaignTotals: Object.freeze({
             regions: 22,
             islands: 110,
@@ -723,6 +724,7 @@
             itemChest: "./assets/ui/chest-items.webp",
             global: Object.freeze({
                 worldMap: "./assets/global/mapa-mundo.png?v=20260920-1808",
+                worldMapVisual: "./assets/global/mapa_mundial.png?v=20260922-world-map-v1",
                 rubyShopMerchantShip: "./assets/global/comercial_ship.webp?v=20260921-1720",
                 victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028"
             }),
