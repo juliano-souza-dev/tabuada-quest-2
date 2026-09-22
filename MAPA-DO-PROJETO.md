@@ -1085,3 +1085,41 @@ app/build.gradle.kts
 ```
 
 No APK, SQLite é a fonte operacional local. Firebase é camada de sincronização/restauração, nunca requisito para gameplay.
+
+
+## Baú de Itens
+
+Tela:
+
+```text
+web/js/screens/items-screen.js
+```
+
+Estado e APIs:
+
+```text
+web/js/domain/player-state.js
+inventory.items[]
+inventory.equipped.correctEffectId
+inventory.equipped.wrongEffectId
+withEquippedEffect(...)
+getEquippedEffectId(...)
+```
+
+Catálogo/resolvedor:
+
+```text
+web/js/content/challenge-effects.js
+TQ.effects.resolveEquippedEffect(...)
+```
+
+Testes:
+
+```text
+tests/web/items-screen.test.cjs
+tests/web/shop.test.cjs
+tests/web/challenge-effects.test.cjs
+tests/web/local-storage.test.cjs
+```
+
+O save schema vigente passa a ser v14.
