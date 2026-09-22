@@ -107,4 +107,5 @@ jobs:
           fi
 
           git commit -m "assets: optimize and normalize 30 pet assets"
+          git pull --rebase origin main
           git push
