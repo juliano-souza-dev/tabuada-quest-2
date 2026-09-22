@@ -7,7 +7,7 @@ require("../../web/js/content/challenge-effects.js");
 require("../../web/js/persistence/local-storage.js");
 const p=global.TabuadaQuest.persistence.localStorage;
 const d=global.TabuadaQuest.domain.playerState;
-function memory(seed={}){const m=new Map(Object.entries(seed));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v))}}
+function memory(seed={}){const m=new Map(Object.entries(seed));return{get length(){return m.size},key:i=>Array.from(m.keys())[i]??null,getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)}}
 function legacyV8(){
     const progress=Object.fromEntries(Array.from({length:11},(_,i)=>[String(i+1),{islandsCompleted:0,islandsTotal:10}]));
     const maps=Object.fromEntries(Array.from({length:5},(_,i)=>[String(i+1),{fragments:0,missionStatus:"collecting",rewardClaimed:false}]));
@@ -123,4 +123,18 @@ test("Google Sign-In é exposto apenas quando o bridge nativo oferece o método"
     assert.equal(p.signInWithGoogle(),false);
 
     if(previous!==undefined) global.TabuadaQuestNative=previous;
+});
+
+
+test("reset local remove somente dados do Tabuada Quest",()=>{
+    const st=memory({
+        [p.STORAGE_KEY]:JSON.stringify(d.createInitialState()),
+        "tabuadaQuest.preview":"temp",
+        "outroApp.keep":"preservar"
+    });
+
+    assert.equal(p.clearLocalState(st),true);
+    assert.equal(st.getItem(p.STORAGE_KEY),null);
+    assert.equal(st.getItem("tabuadaQuest.preview"),null);
+    assert.equal(st.getItem("outroApp.keep"),"preservar");
 });

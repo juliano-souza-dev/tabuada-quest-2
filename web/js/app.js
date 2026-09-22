@@ -44,6 +44,29 @@
         }
     }
 
+    function resetDevelopmentSession() {
+        const status = syncStatus();
+
+        if (status.native) {
+            signOut();
+            return;
+        }
+
+        TQ.persistence.localStorage.clearLocalState(root.localStorage);
+        state = TQ.domain.playerState.createInitialState();
+        developmentState = null;
+        developmentMode = false;
+        developmentRegionId = null;
+        worldMapPreviewRegionId = null;
+        rewardReturnScreen = null;
+        worldMapReturnScreen = "home";
+        authBusy = false;
+        authRestorePending = false;
+        authRestoreRequired = false;
+        authErrorCode = "";
+        render();
+    }
+
     function signOut() {
         TQ.persistence.localStorage.signOut();
         authBusy = false;
@@ -266,6 +289,7 @@
             state: renderState,
             onStateChange: save,
             onNavigate: navigate,
+            onExitSession: resetDevelopmentSession,
             rewardReturnScreen,
             worldMapReturnScreen,
             previewRegionId: developmentMode ? developmentRegionId : worldMapPreviewRegionId,

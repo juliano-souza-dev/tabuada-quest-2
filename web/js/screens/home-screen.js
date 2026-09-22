@@ -31,7 +31,7 @@
         return Math.max(0, Math.min(100, value));
     }
 
-    function renderHomeScreen({ state, onStateChange, onNavigate }) {
+    function renderHomeScreen({ state, onStateChange, onNavigate, onExitSession }) {
         const avatarId = safeAvatarId(state.player.avatarId);
         const avatarSrc = TQ.content.assets.avatars[avatarId];
         const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
@@ -123,12 +123,20 @@
                 <button class="art-hotspot hotspot-items" type="button" data-action="items" aria-label="Baú de itens"></button>
 
                 ${TQ.content.development?.shortcutsEnabled ? `
-                    <button class="development-regions-shortcut"
-                        type="button"
-                        data-action="development-regions"
-                        aria-label="Abrir lista de Regiões para desenvolvimento">
-                        DEV · REGIÕES
-                    </button>
+                    <div class="development-shortcuts" aria-label="Atalhos de desenvolvimento">
+                        <button class="development-regions-shortcut"
+                            type="button"
+                            data-action="development-regions"
+                            aria-label="Abrir lista de Regiões para desenvolvimento">
+                            DEV · REGIÕES
+                        </button>
+                        <button class="development-exit-shortcut"
+                            type="button"
+                            data-action="exit-session"
+                            aria-label="Sair e limpar a sessão local de testes">
+                            SAIR
+                        </button>
+                    </div>
                 ` : ""}
 
             </div>
@@ -305,6 +313,11 @@
 
             if (action === "development-regions") {
                 onNavigate("development-regions");
+                return;
+            }
+
+            if (action === "exit-session") {
+                onExitSession?.();
                 return;
             }
 

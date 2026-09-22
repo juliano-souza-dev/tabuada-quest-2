@@ -531,12 +531,19 @@
 }
 
 
-/* Atalho temporário para navegação durante o desenvolvimento. */
-.development-regions-shortcut {
+/* Atalhos temporários usados apenas durante o desenvolvimento local. */
+.development-shortcuts {
     position: absolute;
     z-index: 60;
     right: 8px;
     bottom: max(8px, env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.development-regions-shortcut,
+.development-exit-shortcut {
     min-height: 30px;
     padding: 5px 9px;
     border: 1px solid rgba(255, 230, 150, .78);
@@ -547,4 +554,15 @@
     font: 900 10px/1 Arial, sans-serif;
     letter-spacing: .04em;
     cursor: pointer;
+}
+
+.development-exit-shortcut {
+    border-color: rgba(255, 171, 142, .9);
+    color: #ffe0d4;
+    background: rgba(105, 31, 24, .88);
+}
+
+.development-regions-shortcut:active,
+.development-exit-shortcut:active {
+    transform: translateY(1px);
 }
