@@ -62,6 +62,7 @@ Android Debug APK
 Regra de gate:
 
 - alterações em `web/js/**`, `web/css/**`, `web/index.html` ou `tests/web/**` devem executar **Web Unit Tests no pull request antes do merge**;
+- alterações em `app/**`, Gradle ou no workflow Android devem executar **Android Debug APK no pull request antes do merge**;
 - o push em `main` continua validando novamente a integração final.
 
 APK debug:
