@@ -24,7 +24,10 @@ test("botão Home global é textual e não depende de asset",()=>{
 
     assert.match(worldMap,/>Home<\/button>/);
     assert.match(islands,/>Home<\/button>/);
-    assert.doesNotMatch(worldMap,/global-home-button[\s\S]{0,300}<img/);
+
+    const buttonMarkup=worldMap.match(/<button[^>]*class="global-home-button"[\s\S]*?<\/button>/)?.[0] || "";
+    assert.match(buttonMarkup,/>Home<\/button>/);
+    assert.doesNotMatch(buttonMarkup,/<img/);
 });
 
 test("botão Home global fica sobreposto e centralizado no topo",()=>{
