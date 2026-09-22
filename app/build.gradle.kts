@@ -18,6 +18,30 @@ val googleWebClientId = providers.gradleProperty("TQ_GOOGLE_WEB_CLIENT_ID")
 fun quotedBuildConfig(value: String): String =
     "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
+val tqKeystorePath = providers.gradleProperty("TQ_ANDROID_KEYSTORE_PATH")
+    .orElse(providers.environmentVariable("TQ_ANDROID_KEYSTORE_PATH"))
+    .orElse("")
+    .get()
+val tqKeystorePassword = providers.gradleProperty("TQ_ANDROID_KEYSTORE_PASSWORD")
+    .orElse(providers.environmentVariable("TQ_ANDROID_KEYSTORE_PASSWORD"))
+    .orElse("")
+    .get()
+val tqKeyAlias = providers.gradleProperty("TQ_ANDROID_KEY_ALIAS")
+    .orElse(providers.environmentVariable("TQ_ANDROID_KEY_ALIAS"))
+    .orElse("")
+    .get()
+val tqKeyPassword = providers.gradleProperty("TQ_ANDROID_KEY_PASSWORD")
+    .orElse(providers.environmentVariable("TQ_ANDROID_KEY_PASSWORD"))
+    .orElse("")
+    .get()
+
+val hasTqSigning = listOf(
+    tqKeystorePath,
+    tqKeystorePassword,
+    tqKeyAlias,
+    tqKeyPassword
+).all { it.isNotBlank() }
+
 android {
     namespace = "com.tabuadaquest.app"
     compileSdk = 37
@@ -35,6 +59,17 @@ android {
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", quotedBuildConfig(googleWebClientId))
     }
 
+    signingConfigs {
+        if (hasTqSigning) {
+            create("tq") {
+                storeFile = file(tqKeystorePath)
+                storePassword = tqKeystorePassword
+                keyAlias = tqKeyAlias
+                keyPassword = tqKeyPassword
+            }
+        }
+    }
+
     buildFeatures {
         buildConfig = true
     }
@@ -47,7 +82,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (hasTqSigning) {
+                signingConfig = signingConfigs.getByName("tq")
+            }
+        }
+
         release {
+            if (hasTqSigning) {
+                signingConfig = signingConfigs.getByName("tq")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
