@@ -31,3 +31,62 @@ test("compra de Efeito permanece após salvar e recarregar",()=>{
     assert.ok(l.shop.purchasedItemIds.includes(effect.id));
     assert.equal(Object.prototype.hasOwnProperty.call(l,"inventory"),false);
 });
+
+
+test("prioriza bridge nativo e mantém fallback local",()=>{
+    const previous=global.TabuadaQuestNative;
+    let nativePayload="";
+    let saveCalls=0;
+
+    global.TabuadaQuestNative={
+        getState:()=>nativePayload,
+        saveState:(payload)=>{
+            nativePayload=String(payload);
+            saveCalls+=1;
+            return true;
+        },
+        getStatus:()=>JSON.stringify({
+            native:true,
+            firebaseConfigured:false,
+            authenticated:false,
+            pendingSync:2
+        })
+    };
+
+    const st=memory();
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,coins:321}};
+    p.saveState(st,s);
+
+    assert.equal(saveCalls,1);
+    assert.equal(JSON.parse(nativePayload).wallet.coins,321);
+    assert.equal(p.loadState(st).wallet.coins,321);
+    assert.equal(p.getSyncStatus().native,true);
+    assert.equal(p.getSyncStatus().pendingSync,2);
+
+    if(previous===undefined) delete global.TabuadaQuestNative;
+    else global.TabuadaQuestNative=previous;
+});
+
+test("migra save legado do storage para o bridge nativo quando SQLite está vazio",()=>{
+    const previous=global.TabuadaQuestNative;
+    let nativePayload="";
+    global.TabuadaQuestNative={
+        getState:()=>"",
+        saveState:(payload)=>{
+            nativePayload=String(payload);
+            return true;
+        }
+    };
+
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,gems:77}};
+    const st=memory({[p.STORAGE_KEY]:JSON.stringify(s)});
+    const loaded=p.loadState(st);
+
+    assert.equal(loaded.wallet.gems,77);
+    assert.equal(JSON.parse(nativePayload).wallet.gems,77);
+
+    if(previous===undefined) delete global.TabuadaQuestNative;
+    else global.TabuadaQuestNative=previous;
+});
