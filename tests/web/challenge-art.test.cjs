@@ -214,10 +214,9 @@ test("resolver de arte de desafio é compartilhado por Região",()=>{
         TQ.screens.challenge.getChallengeArt({regionId:1,islandId:1}),
         /region-1\/challenges\/island-01-challenge\.webp/
     );
-    assert.equal(
+    assert.match(
         TQ.screens.challenge.getChallengeArt({regionId:2,islandId:1}),
-        null,
-        "BIRADES só deve ativar a arte quando o catálogo region2ChallengeArt estiver publicado"
+        /region-2\/challenges\/island-01-challenge\.webp/
     );
 
     const source=fs.readFileSync(
@@ -226,4 +225,16 @@ test("resolver de arte de desafio é compartilhado por Região",()=>{
     );
     assert.match(source,/region\$\{regionId\}ChallengeArt/);
     assert.doesNotMatch(source,/Number\(session\.regionId\) !== 1/);
+});
+
+
+test("BIRADES publica o catálogo das 5 artes de desafio",()=>{
+    const map=TQ.content.assets.region2ChallengeArt;
+    assert.ok(map);
+    for(let islandId=1;islandId<=5;islandId++){
+        assert.match(
+            map[islandId],
+            new RegExp(`region-2/challenges/island-0${islandId}-challenge\\.webp`)
+        );
+    }
 });
