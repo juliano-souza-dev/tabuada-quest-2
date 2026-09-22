@@ -214,3 +214,52 @@ Google Sign-In valida o package e o certificado do APK. Portanto, builds distrib
 ```text
 tabuadaquest.juliano.filhas
 ```
+
+
+## Assinatura fixa no GitHub Actions
+
+O workflow Android suporta um keystore fixo via GitHub Secrets.
+
+Secrets obrigatórios:
+
+```text
+TQ_ANDROID_KEYSTORE_BASE64
+TQ_ANDROID_KEYSTORE_PASSWORD
+TQ_ANDROID_KEY_ALIAS
+TQ_ANDROID_KEY_PASSWORD
+```
+
+Para gerar o valor de `TQ_ANDROID_KEYSTORE_BASE64` no Windows PowerShell:
+
+```powershell
+[Convert]::ToBase64String(
+  [IO.File]::ReadAllBytes("tabuadaquest-release.jks")
+) | Set-Clipboard
+```
+
+O alias recomendado para o keystore criado para o projeto é:
+
+```text
+tabuadaquest
+```
+
+Quando os secrets existem, o workflow:
+
+1. reconstrói `app/tabuadaquest-release.jks`;
+2. imprime SHA-1 e SHA-256 para validação;
+3. assina o APK debug com essa chave;
+4. publica o APK como artifact.
+
+O SHA-1 esperado para o certificado oficial cadastrado no Firebase é:
+
+```text
+C3:F4:6D:63:0F:9C:5F:98:65:45:62:AF:B5:CF:42:E4:32:4B:40:1E
+```
+
+O SHA-256 esperado é:
+
+```text
+25:3C:3A:AA:FE:D1:19:07:8F:83:14:55:38:E0:A8:E1:5F:D2:16:C4:46:6E:D1:7D:6D:36:89:56:B0:16:19:DC
+```
+
+Se os secrets não existirem, o build local/debug continua funcional com a assinatura padrão do Android, porém Google Sign-In não deve ser validado usando esse APK.
