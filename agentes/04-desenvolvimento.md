@@ -1149,3 +1149,36 @@ Documento detalhado:
 ```text
 docs/arquitetura/OFFLINE-FIRST-FIREBASE.md
 ```
+
+
+## Baú de Itens e Efeitos equipáveis
+
+Implementação:
+
+```text
+web/js/screens/items-screen.js
+web/js/domain/player-state.js
+web/js/content/challenge-effects.js
+web/js/screens/challenge-screen.js
+web/js/screens/special-mission-screen.js
+```
+
+Contrato persistente desde save schema v14:
+
+```text
+inventory.items[]
+inventory.equipped.correctEffectId
+inventory.equipped.wrongEffectId
+```
+
+Regras técnicas:
+
+- `inventory.items` contém apenas itens de inventário possuídos; nesta etapa, Efeitos;
+- comprar Efeito na Loja adiciona propriedade em `shop.purchasedItemIds` e em `inventory.items`;
+- comprar nunca equipa;
+- `withEquippedEffect(...)` só aceita item presente no inventário e permitido para o slot;
+- `null` desequipa e devolve o desafio ao fallback padrão;
+- `TQ.effects.resolveEquippedEffect(state, type)` é a API consumida por desafios normais e Missões Especiais;
+- a tela `items` é aberta pelo hotspot Baú de Itens da Home;
+- a estrutura de inventário é extensível a futuras categorias;
+- save v13 migra automaticamente Efeitos já comprados para `inventory.items`, sem equipá-los automaticamente.
