@@ -6,6 +6,40 @@
         return (TQ.content.shopCatalog.effects || []).filter((effect) => owned.has(effect.id));
     }
 
+    function getOwnedFrames(state) {
+        const purchased = new Set(state.shop?.purchasedItemIds || []);
+        const baseFrames = TQ.content.profileFrames || [];
+        const commercialFrames = (TQ.content.shopCatalog.frames || [])
+            .filter((frame) => purchased.has(frame.id));
+
+        return [...baseFrames, ...commercialFrames];
+    }
+
+    function renderFrameCard(frame, equippedId) {
+        const isEquipped = frame.id === equippedId;
+        const preview = frame.src || frame.asset;
+
+        return `
+            <article class="items-effect-card items-frame-card${isEquipped ? " is-equipped" : ""}">
+                <div class="items-frame-preview ${preview ? "" : "is-pending"}">
+                    ${preview
+                        ? `<img src="${preview}" alt="">`
+                        : `<span>${frame.id === TQ.content.defaultProfileFrameId ? "○" : "Arte em breve"}</span>`}
+                </div>
+                <div class="items-effect-copy">
+                    <small>Moldura</small>
+                    <strong>${frame.label}</strong>
+                    <span>${isEquipped ? "Em uso no perfil" : "Disponível"}</span>
+                </div>
+                <button type="button"
+                    data-frame-id="${frame.id}"
+                    ${isEquipped ? "disabled" : ""}>
+                    ${isEquipped ? "Equipada" : "Equipar"}
+                </button>
+            </article>
+        `;
+    }
+
     function renderEffectCard(effect, equippedId, slotLabel) {
         const isEquipped = effect.id === equippedId;
         return `
@@ -30,10 +64,12 @@
         screen.className = "slice-screen items-screen";
         screen.setAttribute("aria-label", "Baú de Itens");
 
+        const ownedFrames = getOwnedFrames(state);
         const ownedEffects = getOwnedEffects(state);
         const correctEffects = ownedEffects.filter((item) => item.effectType === "correct");
         const wrongEffects = ownedEffects.filter((item) => item.effectType === "wrong");
         const equipped = state.inventory?.equipped || {};
+        const frameAllowed = ownedFrames.map((item) => item.id);
         const correctAllowed = TQ.content.shopCatalog.effects
             .filter((item) => item.effectType === "correct")
             .map((item) => item.id);
@@ -52,8 +88,23 @@
 
             <main class="slice-content items-content">
                 <p class="items-intro">
-                    Escolha os Efeitos usados quando você acerta ou erra uma questão.
+                    Equipe aqui Molduras e Efeitos que você já possui.
                 </p>
+
+                <section class="items-group" aria-labelledby="items-frames-title">
+                    <div class="items-group-heading">
+                        <div>
+                            <small>PERFIL</small>
+                            <h2 id="items-frames-title">Molduras</h2>
+                        </div>
+                        <span>Equipar no perfil</span>
+                    </div>
+                    ${ownedFrames.length
+                        ? ownedFrames.map((frame) =>
+                            renderFrameCard(frame, state.player.profileFrameId)
+                        ).join("")
+                        : '<p class="items-empty">Nenhuma Moldura disponível ainda.</p>'}
+                </section>
 
                 <section class="items-group" aria-labelledby="items-correct-title">
                     <div class="items-group-heading">
@@ -92,6 +143,18 @@
         `;
 
         screen.addEventListener("click", (event) => {
+            const frameButton = event.target.closest("[data-frame-id]");
+            if (frameButton) {
+                onStateChange(
+                    TQ.domain.playerState.withProfileFrame(
+                        state,
+                        frameButton.dataset.frameId,
+                        frameAllowed
+                    )
+                );
+                return;
+            }
+
             const actionButton = event.target.closest("[data-action]");
             if (!actionButton) return;
 
@@ -131,6 +194,7 @@
     TQ.screens = TQ.screens || {};
     TQ.screens.items = Object.freeze({
         getOwnedEffects,
+        getOwnedFrames,
         renderItemsScreen
     });
 })(globalThis);
