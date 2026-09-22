@@ -1019,3 +1019,58 @@ arte específica
 → configuração local Região/Ilha
 → validação visual na mesma Região/Ilha
 ```
+
+
+## Template canônico de Ilhas — 22/09/2026
+
+O template abaixo passa a ser a referência estrutural de geração para novas Ilhas.
+
+Estrutura visual obrigatória:
+
+- pequena Ilha pirata isométrica em 3D estilizado, semi-realista de jogo mobile;
+- asset isolado com transparência/fundo neutro de produção;
+- massa insular irregular cercada por água azul-turquesa translúcida e espuma branca;
+- rochedos cinzentos detalhados emergindo da água;
+- elemento principal dominante no centro/topo;
+- coqueiros tropicais, vinhas e trepadeiras;
+- pequena cachoeira pelo lado direito quando compatível com a composição;
+- píer/deck de madeira no lado esquerdo, barris, canoa amarrada, boia vermelha/branca e lamparina;
+- bandeira pirata no topo;
+- **uma única placa central** de madeira com o nome da Ilha;
+- emblema circular ao lado da placa principal, com o ícone da recompensa;
+- versão desbloqueada sem correntes;
+- versão bloqueada deve preservar **a mesma composição da versão desbloqueada**, adicionando correntes pesadas, cadeado central e sombreamento leve;
+- não criar segunda placa abaixo do nome;
+- iluminacão quente, sombras suaves, alto detalhe e cores vibrantes.
+
+A versão locked não é uma releitura. Ela é a mesma Ilha, no mesmo enquadramento e composição, com o estado de bloqueio sobreposto.
+
+### BIRADES / Região 2
+
+Background aprovado:
+
+```text
+web/assets/regions/region-2/background.webp
+```
+
+Ordem canônica:
+
+```text
+1 Porto Desengonçado        → Baú
+2 Baía dos Bichos Piratas   → PET
+3 Farol Torto               → Mapa 1, fragmento 3/4
+4 Fortaleza das Tralhas     → Baú
+5 Cabo do Mapa Impossível   → Mapa 1, fragmento 4/4
+```
+
+Mapeamento visual aprovado sobre o background 941×1672:
+
+```text
+1 x=125 y=365  350×350
+2 x=500 y=525  350×350
+3 x=45  y=725  360×360
+4 x=510 y=950  360×360
+5 x=205 y=1260 360×360
+```
+
+O ícone de Mapa Mundo está incorporado visualmente ao background no topo direito e deve ser tratado como hitbox, sem sobrepor outro asset.
