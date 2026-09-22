@@ -2,7 +2,9 @@ package com.tabuadaquest.app;
 
 import android.app.Activity;
 import android.webkit.JavascriptInterface;
-import android.os.Handler;\nimport android.os.Looper;\nimport android.webkit.WebView;
+import android.os.Handler;
+import android.os.Looper;
+import android.webkit.WebView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
