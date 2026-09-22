@@ -60,3 +60,17 @@ test("atalho temporário de desenvolvimento mantém acesso à lista sem asset",(
     assert.match(developmentScreen,/onNavigate\("islands"\)/);
     assert.match(islandsScreen,/previewMode \? "development-regions" : "regions"/);
 });
+
+
+test("DEV Regiões é um destino válido do estado de navegação",()=>{
+    delete global.TabuadaQuest;
+    require("../../web/js/domain/world-structure.js");
+    require("../../web/js/domain/scheduler.js");
+    require("../../web/js/domain/player-state.js");
+
+    const playerState=global.TabuadaQuest.domain.playerState;
+    const initial=playerState.createInitialState();
+    const next=playerState.withLastScreen(initial,"development-regions");
+
+    assert.equal(next.ui.lastScreen,"development-regions");
+});
