@@ -1,10 +1,10 @@
 @import url("./tokens.css");
 @import url("./base.css");
-@import url("./screens/home.css?v=20260921-1305");
+@import url("./screens/home.css?v=20260922-world-map-v1");
 @import url("./screens/crew.css?v=20260920-2304");
 @import url("./screens/collectibles.css?v=20260921-1112");
 @import url("./screens/shop.css?v=20260922-0006");
-@import url("./screens/world-map.css?v=20260921-0015");
+@import url("./screens/world-map.css?v=20260922-world-map-v1");
 @import url("./screens/regions.css?v=20260920-0318");
 
 @import url("./screens/vertical-slice.css?v=20260922-0145");
