@@ -96,7 +96,8 @@
                 screen.dataset.regionId = String(result.regionId);
                 screen.dataset.islandId = String(result.islandId);
                 screen.innerHTML = `
-                    <main class="result-art-stage">
+                    <div class="tq-safe-visual-area">
+                    <main class="result-art-stage tq-canonical-stage">
                         <img
                             class="result-art-background"
                             src="${victoryArt}"
@@ -142,7 +143,12 @@
                             </button>
                         </div>
                     </main>
+                    </div>
                 `;
+                TQ.core.safeViewport.bindCanonicalStage(
+                    screen.querySelector(".tq-safe-visual-area"),
+                    screen.querySelector(".result-art-stage")
+                );
             } else {
                 screen.innerHTML = renderTextFallback(result, pendingMapId);
             }
