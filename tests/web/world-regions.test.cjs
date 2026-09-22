@@ -14,9 +14,9 @@ test("Mapa Mundo possui as 22 Regiões canônicas em ordem", () => {
             "CORSÁRIO",
             "BIRADES",
             "ZONA OURO",
-            "VALE ESMERALDA",
-            "ZONA SAFIRA",
             "TERRAS GÉLIDAS",
+            "ZONA SAFIRA",
+            "VALE ESMERALDA",
             "FANTASMAS",
             "MARÉ SOMBRIA",
             "TEMPESTÁRIA",
@@ -43,4 +43,10 @@ test("IDs do Mapa Mundo são únicos e consultáveis", () => {
     assert.equal(content.getWorldRegion(13).label, "OBSIDIANA");
     assert.equal(content.getWorldRegion(22).label, "REINO DAS MARÉS");
     assert.equal(content.getWorldRegion(23), null);
+});
+
+
+test("TERRAS GÉLIDAS ocupa oficialmente a Região 4",()=>{
+    assert.equal(content.getWorldRegion(4).label,"TERRAS GÉLIDAS");
+    assert.equal(content.getWorldRegion(6).label,"VALE ESMERALDA");
 });
