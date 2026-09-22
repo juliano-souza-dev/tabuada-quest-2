@@ -629,13 +629,47 @@
         Object.freeze({ type: "gems", percent: 1, label: "💎 +1% Rubis" })
     ]);
 
+    const petVisualCatalog = Object.freeze({
+        "pet-r1-i1": Object.freeze({ label: "Capitão Axolote", asset: "./assets/pets/axolotl-captain.webp" }),
+        "pet-r1-i4": Object.freeze({ label: "Pluma", asset: "./assets/pets/pluma.webp" }),
+        "pet-r2-i2": Object.freeze({ label: "Faísca", asset: "./assets/pets/faisca.webp" }),
+        "pet-r3-i2": Object.freeze({ label: "Marujo", asset: "./assets/pets/marujo.webp" }),
+        "pet-r3-i5": Object.freeze({ label: "Coral", asset: "./assets/pets/coral.webp" }),
+        "pet-r4-i4": Object.freeze({ label: "Pingo", asset: "./assets/pets/pingo.webp" }),
+        "pet-r5-i1": Object.freeze({ label: "Trovão", asset: "./assets/pets/trovao.webp" }),
+        "pet-r5-i4": Object.freeze({ label: "Rubi", asset: "./assets/pets/rubi.webp" }),
+        "pet-r6-i2": Object.freeze({ label: "Pirilampo", asset: "./assets/pets/pirilampo.webp" }),
+        "pet-r7-i3": Object.freeze({ label: "Bolota", asset: "./assets/pets/bolota.webp" }),
+        "pet-r8-i2": Object.freeze({ label: "Brisa", asset: "./assets/pets/brisa.webp" }),
+        "pet-r9-i1": Object.freeze({ label: "Dourado", asset: "./assets/pets/dourado.webp" }),
+        "pet-r9-i4": Object.freeze({ label: "Pipoca", asset: "./assets/pets/pipoca.webp" }),
+        "pet-r10-i2": Object.freeze({ label: "Cascalho", asset: "./assets/pets/cascalho.webp" }),
+        "pet-r11-i2": Object.freeze({ label: "Estrela", asset: "./assets/pets/estrela.webp" }),
+        "pet-r11-i5": Object.freeze({ label: "Fumaça", asset: "./assets/pets/fumaca.webp" }),
+        "pet-r12-i4": Object.freeze({ label: "Pérola", asset: "./assets/pets/perola.webp" }),
+        "pet-r13-i1": Object.freeze({ label: "Farofa", asset: "./assets/pets/farofa.webp" }),
+        "pet-r13-i4": Object.freeze({ label: "Tempestade", asset: "./assets/pets/tempestade.webp" }),
+        "pet-r14-i2": Object.freeze({ label: "Biscoito", asset: "./assets/pets/biscoito.webp" }),
+        "pet-r15-i3": Object.freeze({ label: "Oceano", asset: "./assets/pets/oceano.webp" }),
+        "pet-r16-i2": Object.freeze({ label: "Canela", asset: "./assets/pets/canela.webp" }),
+        "pet-r17-i2": Object.freeze({ label: "Relâmpago", asset: "./assets/pets/relampago.webp" }),
+        "pet-r17-i5": Object.freeze({ label: "Bambuzinho", asset: "./assets/pets/bambuzinho.webp" }),
+        "pet-r18-i4": Object.freeze({ label: "Tesouro", asset: "./assets/pets/tesouro.webp" }),
+        "pet-r19-i1": Object.freeze({ label: "Azulão", asset: "./assets/pets/azulao.webp" }),
+        "pet-r19-i4": Object.freeze({ label: "Cacau", asset: "./assets/pets/cacau.webp" }),
+        "pet-r20-i2": Object.freeze({ label: "Capitão", asset: "./assets/pets/capitao.webp" }),
+        "pet-r21-i3": Object.freeze({ label: "Jujuba", asset: "./assets/pets/jujuba.webp" }),
+        "pet-r22-i2": Object.freeze({ label: "Farol", asset: "./assets/pets/farol.webp" })
+    });
+
     const pets = Object.freeze(
         petRewards.map((reward, index) => {
             const bonus = petBonusRotation[index % petBonusRotation.length];
+            const visual = petVisualCatalog[reward.petId] || null;
             return Object.freeze({
                 id: reward.petId,
-                label: `Pet ${String(index + 1).padStart(2, "0")}`,
-                asset: null,
+                label: visual?.label || `Pet ${String(index + 1).padStart(2, "0")}`,
+                asset: visual?.asset || null,
                 bonus: Object.freeze({
                     type: bonus.type,
                     percent: bonus.percent,
@@ -720,6 +754,7 @@
         describeRubyShopUnlockRule,
         gameplayRewards,
         crewMembers,
+        petVisualCatalog,
         pets,
         petBonusTotals,
         getPet,
