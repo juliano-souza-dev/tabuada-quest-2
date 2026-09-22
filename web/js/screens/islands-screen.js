@@ -149,6 +149,8 @@
             id: "zona-ouro",
             backgroundId: 1,
             islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            worldMapLayout: Object.freeze({ x: 34, y: 28, width: 160, height: 140 }),
+            hideBack: true,
             slotLayout: Object.freeze({
                 1: Object.freeze({
                     art: Object.freeze({ x: 164, y: 449, width: 340, height: 340 }),
@@ -248,6 +250,7 @@
             slotLayout: visual.slotLayout,
             worldMapLayout: visual.worldMapLayout,
             worldMapEmbedded: Boolean(visual.worldMapEmbedded),
+            hideBack: Boolean(visual.hideBack),
             hideIslands: Boolean(visual.hideIslands),
             background,
             assets: visual.assets
@@ -468,12 +471,14 @@
                     alt=""
                     aria-hidden="true">
 
-                <button class="region-back-hitbox"
-                    type="button"
-                    style="${rectStyle(REGION_LAYOUT.back)}"
-                    data-action="back-regions"
-                    aria-label="Voltar para Regiões">
-                </button>
+                ${visualPage.hideBack ? "" : `
+                    <button class="region-back-hitbox"
+                        type="button"
+                        style="${rectStyle(REGION_LAYOUT.back)}"
+                        data-action="back-regions"
+                        aria-label="Voltar para Regiões">
+                    </button>
+                `}
 
                 ${islandsMarkup}
 
