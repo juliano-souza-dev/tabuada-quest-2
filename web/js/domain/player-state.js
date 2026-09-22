@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 14;
+    const STATE_VERSION = 15;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -456,7 +456,7 @@
                 : [];
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 14,
                 inventory: {
                     items: purchasedItemIds.filter((id) =>
                         typeof id === "string" && id.startsWith("effect-")
@@ -464,6 +464,37 @@
                     equipped: {
                         correctEffectId: null,
                         wrongEffectId: null
+                    }
+                }
+            };
+        }
+
+        if (migrated.schemaVersion === 14) {
+            const purchasedItemIds = Array.isArray(migrated.shop?.purchasedItemIds)
+                ? migrated.shop.purchasedItemIds
+                : [];
+            const existingInventory = isObject(migrated.inventory) ? migrated.inventory : {};
+            const existingItems = Array.isArray(existingInventory.items)
+                ? existingInventory.items
+                : [];
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                inventory: {
+                    items: Array.from(new Set([
+                        ...existingItems,
+                        ...purchasedItemIds.filter((id) =>
+                            typeof id === "string"
+                            && (id.startsWith("effect-") || id.startsWith("frame-"))
+                        )
+                    ])),
+                    equipped: {
+                        correctEffectId: typeof existingInventory.equipped?.correctEffectId === "string"
+                            ? existingInventory.equipped.correctEffectId
+                            : null,
+                        wrongEffectId: typeof existingInventory.equipped?.wrongEffectId === "string"
+                            ? existingInventory.equipped.wrongEffectId
+                            : null
                     }
                 }
             };
@@ -695,7 +726,7 @@
         if (s.wallet.coins < item.price) return s;
 
         const purchasedItemIds = [...s.shop.purchasedItemIds, item.id];
-        const isInventoryItem = item.category === "effect";
+        const isInventoryItem = item.category === "effect" || item.type === "frame";
 
         return {
             ...s,
