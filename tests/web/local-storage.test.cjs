@@ -3,6 +3,7 @@ const assert=require("node:assert/strict");
 global.TabuadaQuest={};
 require("../../web/js/domain/world-structure.js");
 require("../../web/js/domain/player-state.js");
+require("../../web/js/content/challenge-effects.js");
 require("../../web/js/persistence/local-storage.js");
 const p=global.TabuadaQuest.persistence.localStorage;
 const d=global.TabuadaQuest.domain.playerState;
@@ -17,3 +18,16 @@ test("persiste HUD e personalização",()=>{const st=memory();let s=d.createInit
 test("loadState migra save v8 para posição global equivalente",()=>{const old=legacyV8();old.campaign.currentIslandId=6;old.campaign.regionProgress["1"].islandsCompleted=6;old.campaign.completedIslandIds=Array.from({length:6},(_,i)=>`region-1-island-${i+1}`);const st=memory({[p.STORAGE_KEY]:JSON.stringify(old)});const l=p.loadState(st);assert.equal(l.schemaVersion,13);assert.equal(l.campaign.currentRegionId,2);assert.equal(l.campaign.currentIslandId,1);assert.equal(l.campaign.regionProgress["1"].islandsCompleted,5);assert.equal(l.campaign.regionProgress["2"].islandsCompleted,1)});
 test("persiste arco final sem tocar ledger normal",()=>{const st=memory();let s=d.createInitialState();s={...s,campaign:{...s.campaign,unlockedRegionIds:Array.from({length:22},(_,i)=>i+1)}};for(let i=1;i<=5;i++)s=d.completeIsland(s,21,i);for(let i=1;i<=5;i++)s=d.completeIsland(s,22,i);s=d.claimFinalGrandChest(s);p.saveState(st,s);const l=p.loadState(st);assert.equal(l.campaign.finalJourney.finalMapFragments,9);assert.equal(l.campaign.finalJourney.finalGrandChestClaimed,true);assert.equal(l.campaign.claimedChestIds.length,0)});
 test("JSON corrompido volta ao inicial",()=>{const s=p.loadState(memory({[p.STORAGE_KEY]:"{broken"}));assert.equal(s.schemaVersion,13);assert.equal(s.wallet.gems,0)});
+
+test("compra de Efeito permanece após salvar e recarregar",()=>{
+    const st=memory();
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,coins:1000}};
+    const effect=global.TabuadaQuest.effects.shopCatalog[0];
+    s=d.purchaseShopItem(s,effect);
+    p.saveState(st,s);
+    const l=p.loadState(st);
+    assert.equal(l.wallet.coins,700);
+    assert.ok(l.shop.purchasedItemIds.includes(effect.id));
+    assert.equal(Object.prototype.hasOwnProperty.call(l,"inventory"),false);
+});
