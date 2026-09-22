@@ -916,3 +916,36 @@ Contrato:
 - Região concluída nunca é reaberta pelo botão Jogar se existir outra Região desbloqueada e não concluída;
 - se não houver Região jogável, a Home cai para a tela de Regiões;
 - o botão Regiões continua independente deste atalho.
+
+## Regra técnica — overlays pixel-perfect por Região + Ilha
+
+A lógica e os renderers de atividade continuam compartilhados, mas **coordenadas pixel-perfect pertencem à configuração local da arte específica**.
+
+Contrato:
+
+```text
+renderer compartilhado
++
+layout/config por Região + Ilha
+```
+
+Antes de ajustar coordenadas:
+
+1. identificar `regionId` e `islandId` exatos;
+2. abrir a arte usada por essa atividade;
+3. usar o print de validação correspondente à mesma Região + Ilha;
+4. medir caixas e trilhos nessa referência;
+5. alterar apenas a entrada local dessa combinação;
+6. cobrir a geometria relevante com teste de regressão;
+7. validar novamente na mesma Região + Ilha.
+
+É proibido:
+
+- corrigir R1/I1 alterando coordenadas genéricas para todas as Ilhas;
+- extrapolar medidas de uma arte para outra;
+- usar fallback global como substituto de um layout local já conhecido;
+- considerar uma tela aprovada apenas porque outra Ilha visualmente semelhante passou.
+
+CSS compartilhado deve conter apenas comportamento realmente global. Posições, dimensões ou offsets dependentes da composição da arte devem vir de configuração local como `CHALLENGE_ART_LAYOUTS[regionId][islandId]` ou estrutura equivalente.
+
+Quando um elemento compartilhado precisar de parâmetros adicionais para encaixar em artes diferentes, preferir variáveis/configuração por Região + Ilha em vez de hardcode global.
