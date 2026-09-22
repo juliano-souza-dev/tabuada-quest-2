@@ -45,3 +45,95 @@
 .global-home-button:active {
     transform: translate(-50%, 2px);
 }
+
+
+/* Baú de Itens */
+.items-screen {
+    min-height: 100%;
+}
+
+.items-content {
+    display: grid;
+    gap: 18px;
+}
+
+.items-intro {
+    margin: 0;
+    opacity: .82;
+}
+
+.items-group {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10);
+}
+
+.items-group-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: end;
+}
+
+.items-group-heading h2,
+.items-group-heading small {
+    margin: 0;
+}
+
+.items-group-heading > span {
+    font-size: .78rem;
+    opacity: .72;
+}
+
+.items-effect-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(0,0,0,.18);
+    border: 1px solid rgba(255,255,255,.10);
+}
+
+.items-effect-card.is-equipped {
+    outline: 2px solid rgba(255,255,255,.55);
+    background: rgba(255,255,255,.10);
+}
+
+.items-effect-copy {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.items-effect-copy span,
+.items-effect-copy small {
+    opacity: .72;
+}
+
+.items-effect-card button,
+.items-shop-link {
+    min-height: 44px;
+    border: 0;
+    border-radius: 12px;
+    padding: 0 14px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.items-empty {
+    margin: 0;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(0,0,0,.12);
+    opacity: .78;
+}
+
+.items-shop-link {
+    justify-self: stretch;
+}
