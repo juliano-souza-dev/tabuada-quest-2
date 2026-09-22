@@ -255,6 +255,7 @@
                 screen.classList.add("challenge-art-screen");
                 screen.dataset.regionId = String(session.regionId);
                 screen.dataset.islandId = String(session.islandId);
+                screen.style.setProperty("--challenge-bleed-image", `url("${art}")`);
                 screen.innerHTML = `
                     <main class="challenge-art-stage"
                         data-progress-mask="${artLayout.progressMask ? "true" : "false"}"
