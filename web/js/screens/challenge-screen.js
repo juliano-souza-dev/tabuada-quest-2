@@ -346,7 +346,8 @@
                 screen.dataset.islandId = String(session.islandId);
                 screen.style.setProperty("--challenge-bleed-image", `url("${art}")`);
                 screen.innerHTML = `
-                    <main class="challenge-art-stage"
+                    <div class="tq-safe-visual-area">
+                    <main class="challenge-art-stage tq-canonical-stage"
                         data-progress-mask="${artLayout.progressMask ? "true" : "false"}"
                         style="${toLayoutStyle(artLayout)}">
                         <img class="challenge-art-background"
@@ -367,6 +368,7 @@
                             </div>
                         ` : ""}
                     </main>
+                    </div>
                     <div class="challenge-art-loading" role="status" aria-live="polite">
                         <div class="challenge-loading-scene" aria-hidden="true">
                             <div class="challenge-loading-boat">
@@ -381,6 +383,10 @@
                         <span class="challenge-loading-label">Chegando à ilha...</span>
                     </div>
                 `;
+                TQ.core.safeViewport.bindCanonicalStage(
+                    screen.querySelector(".tq-safe-visual-area"),
+                    screen.querySelector(".challenge-art-stage")
+                );
                 armChallengeArtReveal(screen, art);
             } else {
                 screen.innerHTML = `
