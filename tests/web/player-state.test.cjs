@@ -37,9 +37,9 @@ function legacyV8(){
     };
 }
 
-test("estado inicial v14 usa 22 Regiões de 5 Ilhas",()=>{
+test("estado inicial v15 usa 22 Regiões de 5 Ilhas",()=>{
     const s=d.createInitialState();
-    assert.equal(s.schemaVersion,14);
+    assert.equal(s.schemaVersion,15);
     assert.deepEqual(s.campaign.unlockedRegionIds,[1]);
     assert.equal(Object.keys(s.campaign.regionProgress).length,22);
     assert.equal(s.campaign.regionProgress["22"].islandsTotal,5);
@@ -56,7 +56,7 @@ test("migração v8 traduz R1/I6 para R2/I1 sem perder progresso",()=>{
     old.campaign.travelPlayedIslandIds=["region-1-island-6"];
 
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,14);
+    assert.equal(m.schemaVersion,15);
     assert.equal(m.campaign.currentRegionId,2);
     assert.equal(m.campaign.currentIslandId,1);
     assert.equal(m.campaign.regionProgress["1"].islandsCompleted,5);
@@ -95,13 +95,13 @@ test("migração v8 converte sessão ativa e une histórico pedagógico",()=>{
     assert.equal(m.learning.schedulerState.recoveryQueue[0].remainingGap,1);
 });
 
-test("migração v7 ainda cria Tripulação e termina em v14",()=>{
+test("migração v7 ainda cria Tripulação e termina em v15",()=>{
     const old=legacyV8();
     old.schemaVersion=7;
     delete old.crew;
     old.wallet.coins=321;
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,14);
+    assert.equal(m.schemaVersion,15);
     assert.equal(m.wallet.coins,321);
     assert.deepEqual(m.crew.hiredIds,[]);
 });
@@ -178,9 +178,9 @@ test("recuperação pedagógica atravessa fronteira visual",()=>{
     assert.equal(d.getIslandStatus(s,2,1),"available");
 });
 
-test("estado inválido volta ao inicial v14",()=>{
+test("estado inválido volta ao inicial v15",()=>{
     const s=d.normalizeState({schemaVersion:999,wallet:{coins:999}});
-    assert.equal(s.schemaVersion,14);
+    assert.equal(s.schemaVersion,15);
     assert.equal(s.wallet.coins,0);
 });
 
@@ -191,7 +191,7 @@ test("migração v9 adiciona estado persistente de Colecionáveis sem perder pro
     delete old.campaign.collectibles;
     old.wallet.coins=432;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,14);
+    assert.equal(migrated.schemaVersion,15);
     assert.deepEqual(migrated.campaign.collectibles,{collectedIds:[],pendingIds:[]});
     assert.equal(migrated.wallet.coins,432);
 });
@@ -212,7 +212,7 @@ test("migração v10 cria estado da Loja v12 sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,14);
+    assert.equal(migrated.schemaVersion,15);
     assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
@@ -224,7 +224,7 @@ test("migração v10 cria estado da Loja sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,14);
+    assert.equal(migrated.schemaVersion,15);
     assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
     assert.equal(migrated.wallet.coins,9876);
 });
@@ -238,7 +238,7 @@ test("migração v11 preserva compras e adiciona navio equipado nulo",()=>{
         shop:{purchasedItemIds:["ship-colombo"]}
     };
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,14);
+    assert.equal(migrated.schemaVersion,15);
     assert.deepEqual(migrated.shop,{
         purchasedItemIds:["ship-colombo"],
         equippedShipId:null
@@ -272,7 +272,7 @@ test("migração v12 adiciona pedidos da Loja Rubi sem perder carteira",()=>{
     delete old.rubyShop;
     old.wallet={coins:321,gems:87};
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,14);
+    assert.equal(migrated.schemaVersion,15);
     assert.equal(migrated.wallet.coins,321);
     assert.equal(migrated.wallet.gems,87);
     assert.deepEqual(migrated.rubyShop,{orders:[]});
@@ -338,7 +338,7 @@ test("inventário de Efeitos nasce vazio e separado da Loja",()=>{
     });
 });
 
-test("migração v13 cria inventário com Efeitos já comprados",()=>{
+test("migração v13 cria inventário e chega ao schema v15",()=>{
     const current=d.createInitialState();
     const old={
         ...current,
@@ -352,7 +352,7 @@ test("migração v13 cria inventário com Efeitos já comprados",()=>{
 
     const migrated=d.normalizeState(old);
 
-    assert.equal(migrated.schemaVersion,14);
+    assert.equal(migrated.schemaVersion,15);
     assert.deepEqual(migrated.inventory.items,["effect-correct-brilho-capitao"]);
     assert.deepEqual(migrated.inventory.equipped,{
         correctEffectId:null,
@@ -393,4 +393,40 @@ test("Efeito só equipa se estiver no inventário e pode ser removido",()=>{
 test("rota items é persistível pelo player-state",()=>{
     const s=d.withLastScreen(d.createInitialState(),"items");
     assert.equal(s.ui.lastScreen,"items");
+});
+
+
+test("migração v14 adiciona Molduras compradas ao inventário",()=>{
+    const current=d.createInitialState();
+    const effectId="effect-correct-brilho-capitao";
+    const frameId="frame-ancora-dourada";
+    const old={
+        ...current,
+        schemaVersion:14,
+        shop:{
+            ...current.shop,
+            purchasedItemIds:[effectId,frameId]
+        },
+        inventory:{
+            items:[effectId],
+            equipped:{correctEffectId:effectId,wrongEffectId:null}
+        }
+    };
+
+    const migrated=d.normalizeState(old);
+
+    assert.equal(migrated.schemaVersion,15);
+    assert.deepEqual(migrated.inventory.items,[effectId,frameId]);
+    assert.equal(migrated.inventory.equipped.correctEffectId,effectId);
+});
+
+test("Moldura comprada entra no inventário mas não equipa automaticamente",()=>{
+    const frame={id:"frame-ancora-dourada",type:"frame",label:"Âncora Dourada",price:250};
+    let s=d.createInitialState();
+    s={...s,wallet:{...s.wallet,coins:500}};
+    s=d.purchaseShopItem(s,frame);
+
+    assert.equal(s.wallet.coins,250);
+    assert.ok(s.inventory.items.includes(frame.id));
+    assert.equal(s.player.profileFrameId,d.DEFAULT_PROFILE_FRAME_ID);
 });
