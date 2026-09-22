@@ -2,37 +2,42 @@
 
 ## Resultado
 
-- Baseline exato do diretório : **118363725 bytes**.
-- Tamanho de  após remoção de órfãos + otimização WebP: **59413229 bytes**.
-- Economia absoluta no bundle web: **58950496 bytes**.
-- Economia percentual no bundle web: **49.80%**.
-- Arquivos órfãos/dead removidos antes da conversão: **30**.
-- PNGs ativos convertidos para WebP nesta etapa: **23**.
-- Bytes dos PNGs convertidos: **29903627**.
-- Bytes dos WebPs resultantes: **5862238**.
-- Economia apenas na conversão: **24041389 bytes**.
+- Baseline exato do diretório `web/`: **118.363.725 bytes**.
+- Tamanho final de `web/`: **59.413.229 bytes**.
+- Economia absoluta no bundle web: **58.950.496 bytes**.
+- Redução do bundle web: **49,80%**.
+- Assets órfãos/legados removidos: **30**.
+- PNGs ativos convertidos para WebP: **23**.
+- Peso original desses PNGs: **29.903.627 bytes**.
+- Peso dos WebPs resultantes: **5.862.238 bytes**.
+- Economia obtida somente pela conversão WebP: **24.041.389 bytes**.
 
-## Regras de validação aplicadas
+## APK validado
 
-- somente assets comprovadamente sem consumidor foram removidos;
-- Região 1 antiga (ilhas 6–10) foi removida porque o layout vigente declara apenas as ilhas 1–5;
-- três mapas estáticos declarados, mas sem consumidor, foram removidos da configuração e do bundle;
-- cada PNG ativo convertido mantém as mesmas dimensões;
-- alpha/transparência é validado pixel a pixel;
-- a diferença RGB visível é ponderada pelo alpha e precisa ficar em até 5 níveis por canal;
-- pixels 100% transparentes não contam na diferença visual porque seu RGB não é renderizado;
-- a conversão tenta q=92, 96, 98 e 100 e usa WebP lossless como fallback;
-- o PNG original só é removido quando o WebP validado também é menor;
-- todas as referências convertidas são atualizadas no mesmo lote;
--  passa por validação de sintaxe antes do build.
+- Baseline informado na issue #127: **mais de 120 MB**.
+- APK debug após a limpeza: **67.226.389 bytes (64,11 MiB)**.
+- Build Android final sobre os assets já persistidos: **sucesso**.
+- Validação de sintaxe JavaScript: **sucesso**.
+- Suíte de testes web: **sucesso**.
 
-## Observação
+## O que foi removido
 
-O APK anterior foi reportado na issue #127 como superior a 120 MB. O tamanho exato do artefato anterior não está disponível dentro deste job, por isso o relatório preserva o baseline exato de  e registra abaixo o tamanho exato do novo APK gerado.
+- antigas Ilhas 06–10 da Região 1;
+- backgrounds e composições substituídos;
+- partes antigas da Home que não possuíam consumidor;
+- mapas estáticos antigos sem consumidor;
+- cópias PNG substituídas pelos WebPs validados.
 
-## APK de validação
+## Critérios usados na conversão
 
-- APK anterior: **>120 MB** (baseline reportado na issue #127; o artefato anterior exato não está preservado neste job).
-- APK debug após a limpeza: **67226389 bytes (64.11 MiB)**.
-- Build Android: **sucesso**.
-- Testes web: **sucesso**.
+- mesmas dimensões do original;
+- alpha/transparência preservados pixel a pixel;
+- diferença RGB visível ponderada pelo alpha limitada a 5 níveis por canal;
+- tentativa progressiva de qualidade WebP;
+- fallback WebP lossless quando necessário;
+- conversão aceita somente quando o resultado validado também é menor que o PNG;
+- referências atualizadas no mesmo lote para evitar links quebrados.
+
+## Validação final
+
+O estado final da branch foi validado novamente **depois** de os WebPs terem sido gravados no repositório. Nesse segundo ciclo não houve conversão temporária: os testes e o APK foram executados diretamente sobre os assets finais que entrarão no merge.
