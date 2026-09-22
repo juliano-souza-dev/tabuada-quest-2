@@ -1205,3 +1205,15 @@ Moda
 - Home apenas renderiza a Moldura equipada e pode encaminhar o perfil para `items`;
 - `hotspot-fashion` abre o fluxo Moda/Skin e, enquanto não houver catálogo, apresenta estado vazio seguro;
 - save schema v15 migra Molduras comerciais compradas em v14 para `inventory.items`.
+
+
+### CORSÁRIO sem progresso visual
+
+Contrato vigente para Região 1:
+
+- os novos fundos de challenge não possuem área dedicada ao progresso;
+- `.challenge-art-progress` fica oculto visualmente em CORSÁRIO;
+- a progressão pedagógica/sessão continua existindo internamente;
+- conta e respostas permanecem dinâmicas;
+- cada Ilha possui coordenadas próprias para centralizar conta e respostas nas áreas vazias desenhadas no asset;
+- qualquer nova recalibração deve alterar `CHALLENGE_ART_LAYOUTS[1][islandId]`, nunca editar o bitmap para compensar posicionamento dinâmico.
