@@ -1122,4 +1122,30 @@ tests/web/challenge-effects.test.cjs
 tests/web/local-storage.test.cjs
 ```
 
-O save schema vigente passa a ser v14.
+O save schema vigente passa a ser v15.
+
+
+### Personalização de Molduras e Moda
+
+```text
+Baú de Itens → Molduras + Efeitos
+Home / Moda → Moda/Skin
+```
+
+Molduras:
+
+```text
+web/js/screens/items-screen.js
+player.profileFrameId
+inventory.items[]
+```
+
+Moda/Skin:
+
+```text
+web/js/screens/home-screen.js
+hotspot-fashion
+data-sheet="fashion"
+```
+
+Moda/Skin não reutiliza Molduras.
