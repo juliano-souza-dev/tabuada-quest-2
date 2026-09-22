@@ -179,3 +179,51 @@ test("Região 1 usa o CSS fornecido para container e fill em todas as ilhas",()=
     assert.match(fillBlock,/transform:\s*none/);
     assert.match(fillBlock,/transition:\s*width \.3s ease/);
 });
+
+
+test("BIRADES possui malha visual própria para as 5 telas jogáveis",()=>{
+    const layouts=TQ.screens.challenge.CHALLENGE_ART_LAYOUTS[2];
+    assert.ok(layouts);
+
+    const signatures=new Set();
+    for(let islandId=1;islandId<=5;islandId++){
+        const layout=TQ.screens.challenge.getChallengeArtLayout(2,islandId);
+        assert.ok(layout);
+        assert.ok(layout.question.y>layout.progress.y);
+        assert.ok(layout.answers.y>layout.question.y);
+
+        for(const box of [layout.progress,layout.question,layout.answers]){
+            assert.ok(box.x>=0 && box.y>=0);
+            assert.ok(box.width>0 && box.height>0);
+            assert.ok(box.x+box.width<=100.5);
+            assert.ok(box.y+box.height<=100.5);
+        }
+
+        signatures.add(JSON.stringify({
+            progress:layout.progress,
+            question:layout.question,
+            answers:layout.answers
+        }));
+    }
+
+    assert.equal(signatures.size,5);
+});
+
+test("resolver de arte de desafio é compartilhado por Região",()=>{
+    assert.match(
+        TQ.screens.challenge.getChallengeArt({regionId:1,islandId:1}),
+        /region-1\/challenges\/island-01-challenge\.webp/
+    );
+    assert.equal(
+        TQ.screens.challenge.getChallengeArt({regionId:2,islandId:1}),
+        null,
+        "BIRADES só deve ativar a arte quando o catálogo region2ChallengeArt estiver publicado"
+    );
+
+    const source=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+    assert.match(source,/region\$\{regionId\}ChallengeArt/);
+    assert.doesNotMatch(source,/Number\(session\.regionId\) !== 1/);
+});
