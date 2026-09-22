@@ -1010,3 +1010,24 @@ Contrato técnico:
 - progresso, questão, respostas e feedback são injetados pelo renderer compartilhado;
 - o resolvedor de arte usa o padrão `assets.region{regionId}ChallengeArt`;
 - teste de regressão verifica existência física e limite de peso abaixo de 500 KB por arte.
+
+
+## Retorno global para Home
+
+Implementação atual:
+
+```text
+web/js/screens/world-map-screen.js
+web/js/screens/islands-screen.js
+web/css/app.css
+```
+
+Contrato técnico:
+
+- ação uniforme: `data-action="home"`;
+- destino: `onNavigate("home")`;
+- classe visual compartilhada: `.global-home-button`;
+- o botão é renderizado fora do stage escalável das artes para manter posição e tamanho estáveis;
+- o botão atual é textual e não referencia asset;
+- escopo atual: Mapa Mundo e telas de Ilhas, incluindo fallback textual;
+- não inserir automaticamente o botão em desafios, resultados ou telas comerciais.
