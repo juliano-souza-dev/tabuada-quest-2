@@ -178,6 +178,7 @@
             id: "terras-gelidas",
             backgroundId: 1,
             islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            worldMapLayout: Object.freeze({ x: 717, y: 1448, width: 200, height: 200 }),
             hideIslands: true,
             developmentStatus: "preview"
         }),

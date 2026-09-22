@@ -47,6 +47,19 @@ Sempre preservar margem de segurança mínima de aproximadamente 20 px.
 
 Os redemoinhos do background funcionam como bases visuais para receber os assets das ilhas por cima, formando uma única composição.
 
+## Mapa Mundo
+
+O botão global **Mapa Mundo** deve ficar no **canto inferior direito**, em área segura.
+
+Layout canônico aprovado:
+
+- x: 717
+- y: 1448
+- largura: 200
+- altura: 200
+- margem direita: 24 px
+- margem inferior: 24 px
+
 ## Challenges
 
 As artes de desafio ficam em:

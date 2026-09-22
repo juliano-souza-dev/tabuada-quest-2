@@ -35,3 +35,16 @@ test("Região 4 aparece como preview enquanto as ilhas ainda não foram adiciona
     assert.deepEqual(visual.islandIds,[1,2,3,4,5]);
     assert.equal(TQ.screens.islands.getDevelopmentRegionStatus(4),"preview");
 });
+
+
+test("Mapa Mundo de Terras Gélidas fica no canto inferior direito com margem segura",()=>{
+    const visual=TQ.screens.islands.getRegionVisualConfig(4);
+    assert.deepEqual(visual.worldMapLayout,{x:717,y:1448,width:200,height:200});
+
+    const viewport=TQ.screens.islands.REGION_LAYOUT.viewport;
+    const rightMargin=viewport.width-(visual.worldMapLayout.x+visual.worldMapLayout.width);
+    const bottomMargin=viewport.height-(visual.worldMapLayout.y+visual.worldMapLayout.height);
+
+    assert.equal(rightMargin,24);
+    assert.equal(bottomMargin,24);
+});
