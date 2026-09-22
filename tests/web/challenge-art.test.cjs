@@ -177,3 +177,41 @@ test("BIRADES publica e mantém os 5 assets jogáveis físicos",()=>{
         assert.ok(size<700_000, `asset BIRADES/Ilha ${islandId} pesado demais para o limite atual: ${size}`);
     }
 });
+
+
+test("desafio protege o conteúdo até a arte estar realmente pronta",()=>{
+    const source=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    assert.match(source,/is-art-loading/);
+    assert.match(source,/challenge-art-loading/);
+    assert.match(source,/Chegando à ilha/);
+    assert.match(source,/background\.decode/);
+    assert.match(source,/background\.addEventListener\("load"/);
+    assert.match(source,/preloadChallengeArt/);
+
+    assert.match(css,/challenge-art-screen\.is-art-loading \.challenge-dynamic-layer/);
+    assert.match(css,/\.challenge-loading-boat/);
+    assert.match(css,/\.challenge-loading-wave/);
+    assert.match(css,/@keyframes challenge-boat-bob/);
+});
+
+test("entrada na Ilha e viagem pré-carregam a arte do desafio",()=>{
+    const islandsSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+    const travelSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/travel-screen.js"),
+        "utf8"
+    );
+
+    assert.match(islandsSource,/preloadChallengeArt/);
+    assert.match(travelSource,/preloadChallengeArt/);
+});

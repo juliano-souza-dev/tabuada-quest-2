@@ -1,5 +1,7 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
+    const loadedChallengeArtUrls = new Set();
+    const challengeArtPreloads = new Map();
 
     const DEFAULT_CHALLENGE_ART_LAYOUT = Object.freeze({
         progress: Object.freeze({ x: 20.5, y: 40.2, width: 59, height: 4.2 }),
@@ -106,6 +108,93 @@
         return regionAssets?.[islandId] || null;
     }
 
+    function preloadChallengeArt(session) {
+        const art = getChallengeArt(session);
+        if (!art) return Promise.resolve(false);
+        if (loadedChallengeArtUrls.has(art)) return Promise.resolve(true);
+        if (challengeArtPreloads.has(art)) return challengeArtPreloads.get(art);
+        if (typeof root.Image !== "function") return Promise.resolve(false);
+
+        const request = new Promise((resolve) => {
+            const image = new root.Image();
+            let settled = false;
+
+            function finish(success) {
+                if (settled) return;
+                settled = true;
+                if (success) loadedChallengeArtUrls.add(art);
+                resolve(success);
+            }
+
+            image.addEventListener("load", () => {
+                if (typeof image.decode === "function") {
+                    image.decode().catch(() => {}).then(() => finish(true));
+                    return;
+                }
+                finish(true);
+            }, { once: true });
+
+            image.addEventListener("error", () => finish(false), { once: true });
+            image.src = art;
+
+            if (image.complete && image.naturalWidth > 0) {
+                if (typeof image.decode === "function") {
+                    image.decode().catch(() => {}).then(() => finish(true));
+                } else {
+                    finish(true);
+                }
+            }
+        }).then((success) => {
+            challengeArtPreloads.delete(art);
+            return success;
+        });
+
+        challengeArtPreloads.set(art, request);
+        return request;
+    }
+
+    function armChallengeArtReveal(screen, art) {
+        const background = screen.querySelector(".challenge-art-background");
+        if (!background) return;
+
+        let revealed = false;
+        let fallbackTimer = null;
+
+        function reveal(success) {
+            if (revealed) return;
+            revealed = true;
+            if (fallbackTimer !== null) root.clearTimeout(fallbackTimer);
+            if (success) loadedChallengeArtUrls.add(art);
+
+            const applyReadyState = () => {
+                screen.classList.remove("is-art-loading");
+                screen.classList.add("is-art-ready");
+            };
+
+            if (typeof root.requestAnimationFrame === "function") {
+                root.requestAnimationFrame(applyReadyState);
+            } else {
+                applyReadyState();
+            }
+        }
+
+        function revealDecoded() {
+            if (typeof background.decode === "function") {
+                background.decode().catch(() => {}).then(() => reveal(true));
+                return;
+            }
+            reveal(true);
+        }
+
+        background.addEventListener("load", revealDecoded, { once: true });
+        background.addEventListener("error", () => reveal(false), { once: true });
+
+        if (background.complete && background.naturalWidth > 0) {
+            revealDecoded();
+        }
+
+        fallbackTimer = root.setTimeout(() => reveal(false), 8000);
+    }
     function getChallengeArtLayout(regionId, islandId) {
         return CHALLENGE_ART_LAYOUTS[Number(regionId)]?.[Number(islandId)]
             || DEFAULT_CHALLENGE_ART_LAYOUT;
@@ -252,7 +341,7 @@
             const artLayout = getChallengeArtLayout(session.regionId, session.islandId);
 
             if (art) {
-                screen.classList.add("challenge-art-screen");
+                screen.classList.add("challenge-art-screen", "is-art-loading");
                 screen.dataset.regionId = String(session.regionId);
                 screen.dataset.islandId = String(session.islandId);
                 screen.style.setProperty("--challenge-bleed-image", `url("${art}")`);
@@ -278,7 +367,21 @@
                             </div>
                         ` : ""}
                     </main>
+                    <div class="challenge-art-loading" role="status" aria-live="polite">
+                        <div class="challenge-loading-scene" aria-hidden="true">
+                            <div class="challenge-loading-boat">
+                                <span class="challenge-loading-mast"></span>
+                                <span class="challenge-loading-sail"></span>
+                                <span class="challenge-loading-flag"></span>
+                                <span class="challenge-loading-hull"></span>
+                            </div>
+                            <span class="challenge-loading-wave challenge-loading-wave-a"></span>
+                            <span class="challenge-loading-wave challenge-loading-wave-b"></span>
+                        </div>
+                        <span class="challenge-loading-label">Chegando à ilha...</span>
+                    </div>
                 `;
+                armChallengeArtReveal(screen, art);
             } else {
                 screen.innerHTML = `
                     <header class="slice-header">
@@ -374,6 +477,7 @@
         CHALLENGE_ART_LAYOUTS,
         DEFAULT_CHALLENGE_ART_LAYOUT,
         getChallengeArt,
+        preloadChallengeArt,
         getChallengeArtLayout,
         renderChallengeScreen,
         renderFeedback,

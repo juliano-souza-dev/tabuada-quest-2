@@ -571,6 +571,162 @@
     -webkit-user-drag: none;
 }
 
+.challenge-art-background,
+.challenge-dynamic-layer,
+.challenge-art-back-hitbox {
+    transition: opacity 180ms ease;
+}
+
+.challenge-art-screen.is-art-loading .challenge-art-background,
+.challenge-art-screen.is-art-loading .challenge-dynamic-layer,
+.challenge-art-screen.is-art-loading .challenge-art-back-hitbox {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none !important;
+}
+
+.challenge-art-screen.is-art-ready .challenge-art-background,
+.challenge-art-screen.is-art-ready .challenge-dynamic-layer,
+.challenge-art-screen.is-art-ready .challenge-art-back-hitbox {
+    opacity: 1;
+    visibility: visible;
+}
+
+.challenge-art-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 18px;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 38%, rgba(53, 151, 176, .22), transparent 33%),
+        linear-gradient(180deg, #06212d 0%, #073647 58%, #075269 100%);
+    color: #fff2c5;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 220ms ease, visibility 0s linear 220ms;
+}
+
+.challenge-art-screen.is-art-ready .challenge-art-loading {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.challenge-loading-scene {
+    position: relative;
+    width: min(58cqw, 250px);
+    height: min(33cqw, 145px);
+    overflow: hidden;
+}
+
+.challenge-loading-boat {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    bottom: 27%;
+    width: 42%;
+    height: 57%;
+    transform-origin: 50% 88%;
+    animation: challenge-boat-bob 1.55s ease-in-out infinite;
+}
+
+.challenge-loading-hull {
+    position: absolute;
+    left: 12%;
+    bottom: 0;
+    width: 76%;
+    height: 24%;
+    border-radius: 10% 10% 46% 46%;
+    background: linear-gradient(180deg, #c07a35, #6c351b);
+    clip-path: polygon(0 0, 100% 0, 82% 100%, 18% 100%);
+    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .32));
+}
+
+.challenge-loading-mast {
+    position: absolute;
+    left: 49%;
+    bottom: 18%;
+    width: 4%;
+    height: 69%;
+    border-radius: 999px;
+    background: #7b431f;
+}
+
+.challenge-loading-sail {
+    position: absolute;
+    left: 51%;
+    bottom: 39%;
+    width: 36%;
+    height: 45%;
+    background: linear-gradient(135deg, #fff1b5, #e4b95f);
+    clip-path: polygon(0 0, 100% 72%, 0 100%);
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .22));
+}
+
+.challenge-loading-flag {
+    position: absolute;
+    left: 52%;
+    bottom: 78%;
+    width: 23%;
+    height: 13%;
+    background: #d95c45;
+    clip-path: polygon(0 0, 100% 28%, 76% 100%, 0 76%);
+}
+
+.challenge-loading-wave {
+    position: absolute;
+    z-index: 4;
+    left: -22%;
+    width: 144%;
+    height: 24%;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse at 50% 0%, transparent 52%, rgba(145, 226, 239, .92) 54% 60%, transparent 62%)
+        0 0 / 44px 22px repeat-x;
+    animation: challenge-wave-drift 1.25s linear infinite;
+}
+
+.challenge-loading-wave-a {
+    bottom: 10%;
+    opacity: .92;
+}
+
+.challenge-loading-wave-b {
+    z-index: 2;
+    bottom: 19%;
+    opacity: .48;
+    transform: scaleX(-1);
+    animation-duration: 1.7s;
+}
+
+.challenge-loading-label {
+    font-size: clamp(.9rem, 4.2cqw, 1.2rem);
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, .56);
+}
+
+@keyframes challenge-boat-bob {
+    0%, 100% { transform: translate(-50%, 0) rotate(-2deg); }
+    50% { transform: translate(-50%, -6%) rotate(2deg); }
+}
+
+@keyframes challenge-wave-drift {
+    from { background-position-x: 0; }
+    to { background-position-x: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .challenge-loading-boat,
+    .challenge-loading-wave {
+        animation: none;
+    }
+}
+
 .challenge-art-back-hitbox {
     position: absolute;
     z-index: 5;

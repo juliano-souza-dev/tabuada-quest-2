@@ -570,6 +570,8 @@
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
+            TQ.screens.challenge?.preloadChallengeArt?.({ regionId, islandId });
+
             if (active && active.regionId === regionId && active.islandId === islandId) {
                 onNavigate("challenge");
                 return;

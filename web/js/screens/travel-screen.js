@@ -13,6 +13,8 @@
             return screen;
         }
 
+        TQ.screens.challenge?.preloadChallengeArt?.(active);
+
         const identity = TQ.content.getIslandIdentity(active.regionId, active.islandId);
         const label = identity ? identity.label : `Ilha ${active.islandId}`;
         const equippedShip = TQ.content.shopCatalog.ships.find(
