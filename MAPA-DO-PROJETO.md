@@ -331,6 +331,32 @@ tests/web/region-2-map-layout.test.cjs
 
 Os assets da Região 2 são WebP lossless e a pasta de produção não mantém as cópias PNG de entrada.
 
+Telas de desafio imersivas da Região 2:
+
+```text
+web/assets/regions/region-2/challenges/island-01-challenge.webp
+web/assets/regions/region-2/challenges/island-02-challenge.webp
+web/assets/regions/region-2/challenges/island-03-challenge.webp
+web/assets/regions/region-2/challenges/island-04-challenge.webp
+web/assets/regions/region-2/challenges/island-05-challenge.webp
+```
+
+Associação executável:
+
+```text
+web/js/content/game-content.js
+TQ.content.assets.region2ChallengeArt
+```
+
+Renderer compartilhado:
+
+```text
+web/js/screens/challenge-screen.js
+CHALLENGE_ART_LAYOUTS[2][islandId]
+```
+
+As cinco artes de desafio são WebP otimizados 941×1672. Progresso, operação, respostas e feedback permanecem dinâmicos por HTML/CSS/JS e cada Ilha possui malha própria.
+
 ### OBSIDIANA / Região 13
 
 Assets de composição canônicos:
