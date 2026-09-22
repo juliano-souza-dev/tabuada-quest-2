@@ -17,7 +17,8 @@
         tabs: Object.freeze([
             Object.freeze({ id: "frames", label: "Molduras" }),
             Object.freeze({ id: "backgrounds", label: "Fundos" }),
-            Object.freeze({ id: "shipyard", label: "Estaleiro" })
+            Object.freeze({ id: "shipyard", label: "Estaleiro" }),
+            Object.freeze({ id: "effects", label: "Efeitos" })
         ]),
         frames: Object.freeze([
             Object.freeze({ id: "frame-ancora-dourada", type: "frame", label: "Âncora Dourada", price: 250, asset: null }),
@@ -37,7 +38,10 @@
             Object.freeze({ id: "ship-colombo", type: "ship", label: "Colombo", price: 1000, asset: null, travelVideo: null }),
             Object.freeze({ id: "ship-rosa-intenso", type: "ship", label: "Rosa Intenso", price: 3000, asset: null, travelVideo: null }),
             Object.freeze({ id: "ship-cristal-queen", type: "ship", label: "Cristal Queen", price: 9000, asset: null, travelVideo: null })
-        ])
+        ]),
+        get effects() {
+            return TQ.effects?.shopCatalog || [];
+        }
     });
 
     function getShopItem(itemId) {
@@ -45,7 +49,8 @@
         return [
             ...shopCatalog.frames,
             ...shopCatalog.backgrounds,
-            ...shopCatalog.ships
+            ...shopCatalog.ships,
+            ...shopCatalog.effects
         ].find((item) => item.id === id) || null;
     }
 
