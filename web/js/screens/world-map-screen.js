@@ -28,7 +28,8 @@
                 data-action="home"
                 aria-label="Voltar para Home">Home</button>
 
-            <main class="world-map-stage">
+            <div class="tq-safe-visual-area">
+            <main class="world-map-stage tq-canonical-stage">
                 <img class="world-map-art"
                     src="${TQ.content.assets.global.worldMapVisual}"
                     alt=""
@@ -58,7 +59,13 @@
                     `;
                 }).join("")}
             </main>
+            </div>
         `;
+
+        TQ.core.safeViewport.bindCanonicalStage(
+            screen.querySelector(".tq-safe-visual-area"),
+            screen.querySelector(".world-map-stage")
+        );
 
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="home"]')) {
