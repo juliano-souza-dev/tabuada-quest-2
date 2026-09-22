@@ -146,10 +146,31 @@
         }),
         3: Object.freeze({
             assetKey: "region3Modular",
-            id: "ouro",
+            id: "zona-ouro",
             backgroundId: 1,
             islandIds: Object.freeze([1, 2, 3, 4, 5]),
-            hideIslands: true
+            slotLayout: Object.freeze({
+                1: Object.freeze({
+                    art: Object.freeze({ x: 164, y: 449, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 179, y: 464, width: 310, height: 310 })
+                }),
+                2: Object.freeze({
+                    art: Object.freeze({ x: 466, y: 595, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 481, y: 610, width: 310, height: 310 })
+                }),
+                3: Object.freeze({
+                    art: Object.freeze({ x: 164, y: 797, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 179, y: 812, width: 310, height: 310 })
+                }),
+                4: Object.freeze({
+                    art: Object.freeze({ x: 497, y: 998, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 512, y: 1013, width: 310, height: 310 })
+                }),
+                5: Object.freeze({
+                    art: Object.freeze({ x: 298, y: 1226, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 313, y: 1241, width: 310, height: 310 })
+                })
+            })
         }),
         13: Object.freeze({
             assetKey: "region13Modular",
