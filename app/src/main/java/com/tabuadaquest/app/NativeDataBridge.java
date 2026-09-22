@@ -85,27 +85,17 @@ final class NativeDataBridge {
 
     @JavascriptInterface
     public void signInWithEmailPassword(String email, String password) {
-        syncManager.signInWithEmailPassword(email, password, (ok, code) -> {
-            emit("tq:native-auth", ok, code);
-            if (ok) {
-                syncManager.syncNow((syncOk, syncCode) ->
-                    emit("tq:native-sync", syncOk, syncCode)
-                );
-            }
-        });
+        syncManager.signInWithEmailPassword(email, password, (ok, code) ->
+            emit("tq:native-auth", ok, code)
+        );
     }
 
     @JavascriptInterface
     public void signInWithGoogle() {
         activity.runOnUiThread(() ->
-            syncManager.signInWithGoogle(activity, (ok, code) -> {
-                emit("tq:native-auth", ok, code);
-                if (ok) {
-                    syncManager.syncNow((syncOk, syncCode) ->
-                        emit("tq:native-sync", syncOk, syncCode)
-                    );
-                }
-            })
+            syncManager.signInWithGoogle(activity, (ok, code) ->
+                emit("tq:native-auth", ok, code)
+            )
         );
     }
 

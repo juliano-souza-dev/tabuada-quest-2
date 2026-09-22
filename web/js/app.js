@@ -10,7 +10,91 @@
     let worldMapPreviewRegionId = null;
     let rewardReturnScreen = null;
     let worldMapReturnScreen = "home";
+    let authBusy = false;
+    let authRestorePending = false;
+    let authRestoreRequired = false;
+    let authErrorCode = "";
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
+
+    function syncStatus() {
+        return TQ.persistence.localStorage.getSyncStatus();
+    }
+
+    function requestRemoteRestore() {
+        authRestoreRequired = true;
+        authRestorePending = true;
+        authErrorCode = "";
+        render();
+        if (!TQ.persistence.localStorage.restoreFromServer()) {
+            authRestorePending = false;
+            authErrorCode = "restore_failed";
+            render();
+        }
+    }
+
+    function startGoogleSignIn() {
+        if (authBusy) return;
+        authBusy = true;
+        authErrorCode = "";
+        render();
+        if (!TQ.persistence.localStorage.signInWithGoogle()) {
+            authBusy = false;
+            authErrorCode = "google_sign_in_cancelled_or_failed";
+            render();
+        }
+    }
+
+    function signOut() {
+        TQ.persistence.localStorage.signOut();
+        authBusy = false;
+        authRestorePending = false;
+        authRestoreRequired = false;
+        authErrorCode = "";
+        render();
+    }
+
+    root.addEventListener("tq:native-auth", (event) => {
+        authBusy = false;
+        const detail = event.detail || {};
+
+        if (!detail.ok) {
+            authRestorePending = false;
+            authRestoreRequired = false;
+            authErrorCode = detail.code || "google_sign_in_cancelled_or_failed";
+            render();
+            return;
+        }
+
+        if (detail.code === "signed_out") {
+            authRestorePending = false;
+            authRestoreRequired = false;
+            authErrorCode = "";
+            render();
+            return;
+        }
+
+        requestRemoteRestore();
+    });
+
+    root.addEventListener("tq:native-restore", (event) => {
+        const detail = event.detail || {};
+        authRestorePending = false;
+
+        if (detail.code === "remote_state_empty") {
+            authRestoreRequired = false;
+            authErrorCode = "";
+            state = TQ.persistence.localStorage.saveState(
+                root.localStorage,
+                TQ.domain.playerState.createInitialState()
+            );
+            render();
+            return;
+        }
+
+        authRestoreRequired = true;
+        authErrorCode = detail.code || "restore_failed";
+        render();
+    });
 
     function save(nextState) {
         if (developmentMode) {
@@ -120,6 +204,43 @@
         const renderState = developmentMode && developmentState
             ? developmentState
             : state;
+        const status = syncStatus();
+
+        if (status.native && !status.authenticated) {
+            screens.render(TQ.screens.auth.renderAuthScreen, {
+                status,
+                busy: authBusy,
+                restoring: false,
+                errorCode: authErrorCode,
+                onGoogleSignIn: startGoogleSignIn,
+                onRetryRestore: requestRemoteRestore,
+                onSignOut: signOut
+            });
+            return;
+        }
+
+        if (status.native && (authRestorePending || authRestoreRequired)) {
+            screens.render(TQ.screens.auth.renderAuthScreen, {
+                status,
+                busy: false,
+                restoring: authRestorePending,
+                errorCode: authErrorCode,
+                onGoogleSignIn: startGoogleSignIn,
+                onRetryRestore: requestRemoteRestore,
+                onSignOut: signOut
+            });
+            return;
+        }
+
+        if (!renderState.player.profileCreated) {
+            screens.render(TQ.screens.profileSetup.renderProfileScreen, {
+                state: renderState,
+                status,
+                onStateChange: save
+            });
+            return;
+        }
+
         const renderers = {
             home: TQ.screens.home.renderHomeScreen,
             crew: TQ.screens.crew.renderCrewScreen,

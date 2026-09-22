@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 15;
+    const STATE_VERSION = 16;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -84,7 +84,8 @@
                 id: "local-player",
                 displayName: "Explorador",
                 avatarId: "luna",
-                profileFrameId: DEFAULT_PROFILE_FRAME_ID
+                profileFrameId: DEFAULT_PROFILE_FRAME_ID,
+                profileCreated: false
             },
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
@@ -500,6 +501,22 @@
             };
         }
 
+        if (migrated.schemaVersion === 15) {
+            const existingPlayer = isObject(migrated.player) ? migrated.player : {};
+            const existingName = typeof existingPlayer.displayName === "string"
+                ? existingPlayer.displayName.trim()
+                : "";
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: {
+                    ...existingPlayer,
+                    profileCreated: existingPlayer.profileCreated === true
+                        || (existingName.length > 0 && existingName !== "Explorador")
+                }
+            };
+        }
+
         return migrated;
     }
 
@@ -634,6 +651,7 @@
             && typeof value.player.displayName === "string"
             && typeof value.player.avatarId === "string"
             && typeof value.player.profileFrameId === "string"
+            && typeof value.player.profileCreated === "boolean"
             && isObject(value.progression)
             && Number.isInteger(value.progression.level) && value.progression.level >= 1
             && Number.isInteger(value.progression.xpCurrent) && value.progression.xpCurrent >= 0
@@ -695,6 +713,31 @@
         return Array.isArray(allowedIds) && allowedIds.includes(frameId)
             ? { ...s, player: { ...s.player, profileFrameId: frameId } }
             : s;
+    }
+
+    function createFreshProfile(displayName, avatarId, playerId, allowedAvatarIds) {
+        const name = String(displayName || "").trim().slice(0, 24);
+        const normalizedAvatarId = String(avatarId || "");
+        const allowed = Array.isArray(allowedAvatarIds) ? allowedAvatarIds : [];
+        if (!name || !allowed.includes(normalizedAvatarId)) return createInitialState();
+
+        const fresh = createInitialState();
+        return {
+            ...fresh,
+            player: {
+                ...fresh.player,
+                id: typeof playerId === "string" && playerId.trim()
+                    ? playerId.trim()
+                    : fresh.player.id,
+                displayName: name,
+                avatarId: normalizedAvatarId,
+                profileCreated: true
+            },
+            ui: {
+                ...fresh.ui,
+                lastScreen: "home"
+            }
+        };
     }
 
     function withLastScreen(state, screenId) {
@@ -1706,6 +1749,7 @@
         normalizeState,
         withHomeBackground,
         withProfileFrame,
+        createFreshProfile,
         withLastScreen,
         hireCrewMember,
         purchaseShopItem,

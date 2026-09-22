@@ -136,6 +136,15 @@
         return false;
     }
 
+    function signInWithGoogle() {
+        const nativeBridge = getNativeBridge();
+        if (nativeBridge && typeof nativeBridge.signInWithGoogle === "function") {
+            nativeBridge.signInWithGoogle();
+            return true;
+        }
+        return false;
+    }
+
     function signOut() {
         const nativeBridge = getNativeBridge();
         if (nativeBridge && typeof nativeBridge.signOut === "function") {
@@ -162,6 +171,7 @@
         getSyncStatus,
         requestSync,
         signInWithEmailPassword,
+        signInWithGoogle,
         signOut,
         restoreFromServer,
         loadState,
