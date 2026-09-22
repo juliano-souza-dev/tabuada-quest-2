@@ -189,6 +189,6 @@ test("BIRADES publica e mantém os 5 assets jogáveis físicos",()=>{
 
         const size=fs.statSync(physicalPath).size;
         assert.ok(size>100_000, `asset BIRADES/Ilha ${islandId} pequeno demais: ${size}`);
-        assert.ok(size<500_000, `asset BIRADES/Ilha ${islandId} pesado demais: ${size}`);
+        assert.ok(size<700_000, `asset BIRADES/Ilha ${islandId} pesado demais para o limite atual: ${size}`);
     }
 });

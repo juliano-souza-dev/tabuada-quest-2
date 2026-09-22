@@ -95,6 +95,29 @@
         return normalized;
     }
 
+    function clearLocalState(storage) {
+        try {
+            const keys = [];
+            const length = Number(storage?.length) || 0;
+
+            if (typeof storage?.key === "function") {
+                for (let index = 0; index < length; index += 1) {
+                    const key = storage.key(index);
+                    if (typeof key === "string" && key.startsWith("tabuadaQuest.")) {
+                        keys.push(key);
+                    }
+                }
+            }
+
+            if (!keys.length) keys.push(STORAGE_KEY);
+
+            keys.forEach((key) => storage.removeItem(key));
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     function getSyncStatus() {
         const nativeBridge = getNativeBridge();
         if (!nativeBridge || typeof nativeBridge.getStatus !== "function") {
@@ -136,6 +159,15 @@
         return false;
     }
 
+    function signInWithGoogle() {
+        const nativeBridge = getNativeBridge();
+        if (nativeBridge && typeof nativeBridge.signInWithGoogle === "function") {
+            nativeBridge.signInWithGoogle();
+            return true;
+        }
+        return false;
+    }
+
     function signOut() {
         const nativeBridge = getNativeBridge();
         if (nativeBridge && typeof nativeBridge.signOut === "function") {
@@ -162,8 +194,10 @@
         getSyncStatus,
         requestSync,
         signInWithEmailPassword,
+        signInWithGoogle,
         signOut,
         restoreFromServer,
+        clearLocalState,
         loadState,
         saveState
     });

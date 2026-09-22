@@ -1,10 +1,25 @@
 package com.tabuadaquest.app;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.CancellationSignal;
+
+import androidx.credentials.Credential;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CustomCredential;
+import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.GetCredentialException;
+import androidx.credentials.exceptions.NoCredentialException;
+import androidx.credentials.CredentialManagerCallback;
+
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -13,6 +28,7 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 final class FirebaseSyncManager {
 
@@ -86,6 +102,88 @@ final class FirebaseSyncManager {
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener(result -> callback.onComplete(true, "signed_in"))
             .addOnFailureListener(error -> callback.onComplete(false, "sign_in_failed"));
+    }
+
+    void signInWithGoogle(Activity activity, Callback callback) {
+        if (!isConfigured()) {
+            callback.onComplete(false, "firebase_not_configured");
+            return;
+        }
+
+        if (BuildConfig.GOOGLE_WEB_CLIENT_ID.isBlank()) {
+            callback.onComplete(false, "google_web_client_id_missing");
+            return;
+        }
+
+        requestGoogleCredential(activity, true, callback);
+    }
+
+    private void requestGoogleCredential(
+        Activity activity,
+        boolean authorizedOnly,
+        Callback callback
+    ) {
+        CredentialManager credentialManager = CredentialManager.create(activity);
+
+        GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(authorizedOnly)
+            .setServerClientId(BuildConfig.GOOGLE_WEB_CLIENT_ID)
+            .setAutoSelectEnabled(authorizedOnly)
+            .build();
+
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build();
+
+        Executor executor = activity.getMainExecutor();
+        credentialManager.getCredentialAsync(
+            activity,
+            request,
+            new CancellationSignal(),
+            executor,
+            new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                @Override
+                public void onResult(GetCredentialResponse response) {
+                    handleGoogleCredential(response.getCredential(), callback);
+                }
+
+                @Override
+                public void onError(GetCredentialException error) {
+                    if (authorizedOnly && error instanceof NoCredentialException) {
+                        requestGoogleCredential(activity, false, callback);
+                        return;
+                    }
+                    callback.onComplete(false, "google_sign_in_cancelled_or_failed");
+                }
+            }
+        );
+    }
+
+    private void handleGoogleCredential(Credential credential, Callback callback) {
+        if (!(credential instanceof CustomCredential customCredential)
+            || !GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL.equals(
+                customCredential.getType()
+            )) {
+            callback.onComplete(false, "google_credential_invalid");
+            return;
+        }
+
+        try {
+            GoogleIdTokenCredential googleCredential =
+                GoogleIdTokenCredential.createFrom(customCredential.getData());
+
+            String idToken = googleCredential.getIdToken();
+
+            auth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null))
+                .addOnSuccessListener(result ->
+                    callback.onComplete(true, "google_signed_in")
+                )
+                .addOnFailureListener(error ->
+                    callback.onComplete(false, "firebase_google_sign_in_failed")
+                );
+        } catch (RuntimeException error) {
+            callback.onComplete(false, "google_token_parse_failed");
+        }
     }
 
     void signOut() {

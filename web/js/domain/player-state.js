@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 15;
+    const STATE_VERSION = 16;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
@@ -84,7 +84,8 @@
                 id: "local-player",
                 displayName: "Explorador",
                 avatarId: "luna",
-                profileFrameId: DEFAULT_PROFILE_FRAME_ID
+                profileFrameId: DEFAULT_PROFILE_FRAME_ID,
+                profileCreated: false
             },
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
@@ -479,7 +480,7 @@
                 : [];
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 15,
                 inventory: {
                     items: Array.from(new Set([
                         ...existingItems,
@@ -496,6 +497,22 @@
                             ? existingInventory.equipped.wrongEffectId
                             : null
                     }
+                }
+            };
+        }
+
+        if (migrated.schemaVersion === 15) {
+            const existingPlayer = isObject(migrated.player) ? migrated.player : {};
+            const existingName = typeof existingPlayer.displayName === "string"
+                ? existingPlayer.displayName.trim()
+                : "";
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: {
+                    ...existingPlayer,
+                    profileCreated: existingPlayer.profileCreated === true
+                        || (existingName.length > 0 && existingName !== "Explorador")
                 }
             };
         }
@@ -634,6 +651,7 @@
             && typeof value.player.displayName === "string"
             && typeof value.player.avatarId === "string"
             && typeof value.player.profileFrameId === "string"
+            && typeof value.player.profileCreated === "boolean"
             && isObject(value.progression)
             && Number.isInteger(value.progression.level) && value.progression.level >= 1
             && Number.isInteger(value.progression.xpCurrent) && value.progression.xpCurrent >= 0
@@ -695,6 +713,31 @@
         return Array.isArray(allowedIds) && allowedIds.includes(frameId)
             ? { ...s, player: { ...s.player, profileFrameId: frameId } }
             : s;
+    }
+
+    function createFreshProfile(displayName, avatarId, playerId, allowedAvatarIds) {
+        const name = String(displayName || "").trim().slice(0, 24);
+        const normalizedAvatarId = String(avatarId || "");
+        const allowed = Array.isArray(allowedAvatarIds) ? allowedAvatarIds : [];
+        if (!name || !allowed.includes(normalizedAvatarId)) return createInitialState();
+
+        const fresh = createInitialState();
+        return {
+            ...fresh,
+            player: {
+                ...fresh.player,
+                id: typeof playerId === "string" && playerId.trim()
+                    ? playerId.trim()
+                    : fresh.player.id,
+                displayName: name,
+                avatarId: normalizedAvatarId,
+                profileCreated: true
+            },
+            ui: {
+                ...fresh.ui,
+                lastScreen: "home"
+            }
+        };
     }
 
     function withLastScreen(state, screenId) {
@@ -930,6 +973,23 @@
         };
     }
 
+    function getPetBonusSummary(state, pets) {
+        const s = normalizeState(state);
+        const summary = { xp: 0, coins: 0, gems: 0 };
+        if (!Array.isArray(pets)) return summary;
+
+        for (const pet of pets) {
+            if (!isObject(pet) || !s.campaign.petsRescuedIds.includes(pet.id)) continue;
+            const type = pet.bonus?.type;
+            const percent = pet.bonus?.percent;
+            if (!Object.prototype.hasOwnProperty.call(summary, type)) continue;
+            if (!Number.isFinite(percent) || percent < 0) continue;
+            summary[type] += percent;
+        }
+
+        return summary;
+    }
+
     function calculateGoldBaseAmount(result, rewardConfig) {
         const correctAnswers = Number.isInteger(result?.correctAnswers)
             ? Math.max(0, result.correctAnswers)
@@ -967,13 +1027,14 @@
         return halfPercent + (((progress - 0.5) / 0.5) * (fullPercent - halfPercent));
     }
 
-    function calculateRewardBonuses(state, crewMembers, reward, totalCollectibles, rewardConfig) {
+    function calculateRewardBonuses(state, crewMembers, reward, totalCollectibles, rewardConfig, pets) {
         const base = {
             xp: Number.isInteger(reward?.xp) && reward.xp > 0 ? reward.xp : 0,
             coins: Number.isInteger(reward?.coins) && reward.coins > 0 ? reward.coins : 0,
             gems: Number.isInteger(reward?.gems) && reward.gems > 0 ? reward.gems : 0
         };
         const crewPercent = getCrewBonusSummary(state, crewMembers);
+        const petPercent = getPetBonusSummary(state, pets);
         const collectiblePercent = getCollectibleBonusPercent(state, totalCollectibles, rewardConfig);
         const collectiblePercentByType = {
             xp: collectiblePercent,
@@ -985,26 +1046,33 @@
             coins: Math.floor(base.coins * crewPercent.coins / 100),
             gems: Math.floor(base.gems * crewPercent.gems / 100)
         };
+        const petBonus = {
+            xp: Math.floor(base.xp * petPercent.xp / 100),
+            coins: Math.floor(base.coins * petPercent.coins / 100),
+            gems: Math.floor(base.gems * petPercent.gems / 100)
+        };
         const collectibleBonus = {
             xp: Math.floor(base.xp * collectiblePercent / 100),
             coins: Math.floor(base.coins * collectiblePercent / 100),
             gems: Math.floor(base.gems * collectiblePercent / 100)
         };
         const bonus = {
-            xp: crewBonus.xp + collectibleBonus.xp,
-            coins: crewBonus.coins + collectibleBonus.coins,
-            gems: crewBonus.gems + collectibleBonus.gems
+            xp: crewBonus.xp + petBonus.xp + collectibleBonus.xp,
+            coins: crewBonus.coins + petBonus.coins + collectibleBonus.coins,
+            gems: crewBonus.gems + petBonus.gems + collectibleBonus.gems
         };
         return {
             base,
             percent: {
-                xp: crewPercent.xp + collectiblePercent,
-                coins: crewPercent.coins + collectiblePercent,
-                gems: crewPercent.gems + collectiblePercent
+                xp: crewPercent.xp + petPercent.xp + collectiblePercent,
+                coins: crewPercent.coins + petPercent.coins + collectiblePercent,
+                gems: crewPercent.gems + petPercent.gems + collectiblePercent
             },
             crewPercent,
+            petPercent,
             collectiblePercent: collectiblePercentByType,
             crewBonus,
+            petBonus,
             collectibleBonus,
             bonus,
             total: {
@@ -1370,7 +1438,8 @@
                 gems: correctAnswers * perCorrect
             },
             totalCollectibles,
-            rewardConfig
+            rewardConfig,
+            contentApi?.pets
         );
 
         s = applyNumericReward(s, reward.total);
@@ -1625,7 +1694,8 @@
             crewMembers,
             baseReward,
             totalCollectibles,
-            rewardConfig
+            rewardConfig,
+            contentApi?.pets
         );
 
         s = applyNumericReward(s, rewardBreakdown.total);
@@ -1655,8 +1725,10 @@
                 base: rewardBreakdown.base,
                 percent: rewardBreakdown.percent,
                 crewPercent: rewardBreakdown.crewPercent,
+                petPercent: rewardBreakdown.petPercent,
                 collectiblePercent: rewardBreakdown.collectiblePercent,
                 crewBonus: rewardBreakdown.crewBonus,
+                petBonus: rewardBreakdown.petBonus,
                 collectibleBonus: rewardBreakdown.collectibleBonus,
                 bonus: rewardBreakdown.bonus,
                 total: rewardBreakdown.total,
@@ -1706,6 +1778,7 @@
         normalizeState,
         withHomeBackground,
         withProfileFrame,
+        createFreshProfile,
         withLastScreen,
         hireCrewMember,
         purchaseShopItem,
@@ -1717,6 +1790,7 @@
         collectCollectible,
         getCrewBonusSummary,
         calculateCrewReward,
+        getPetBonusSummary,
         calculateGoldBaseAmount,
         getCollectibleBonusPercent,
         calculateRewardBonuses,

@@ -204,6 +204,22 @@ Rubis são concedidos apenas na primeira conclusão da Ilha. Replay continua con
 
 Baús não são valores numéricos multiplicáveis. Cada Baú referencia um kit de itens próprio. Os kits podem permanecer vazios até a definição do inventário.
 
+### Bônus de PETs
+
+PETs resgatados concedem bônus permanentes sobre recompensas futuras. Os bônus não são compostos entre si: PETs, Tripulação e Colecionáveis calculam suas parcelas em paralelo sobre a recompensa-base e só depois as parcelas são somadas.
+
+Distribuição dos 30 PETs:
+
+```text
+índices 01, 04, 07... → +10% XP
+índices 02, 05, 08... → +5% Ouro
+índices 03, 06, 09... → +1% Rubis
+
+30/30 PETs → +100% XP +50% Ouro +10% Rubis
+```
+
+O PET obtido ao concluir uma Ilha não retroage sobre a recompensa daquela mesma partida. Ele passa a contar a partir da próxima recompensa calculada.
+
 ### Distribuição canônica das 110 recompensas principais
 
 A distribuição abaixo é obrigatória e também deve ser consultada pela Direção Visual ao gerar o badge/medalhão de cada Ilha.

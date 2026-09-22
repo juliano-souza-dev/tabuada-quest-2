@@ -144,6 +144,35 @@
                 })
             })
         }),
+        3: Object.freeze({
+            assetKey: "region3Modular",
+            id: "zona-ouro",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            worldMapLayout: Object.freeze({ x: 717, y: 1435, width: 200, height: 200 }),
+            slotLayout: Object.freeze({
+                1: Object.freeze({
+                    art: Object.freeze({ x: 164, y: 449, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 179, y: 464, width: 310, height: 310 })
+                }),
+                2: Object.freeze({
+                    art: Object.freeze({ x: 466, y: 595, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 481, y: 610, width: 310, height: 310 })
+                }),
+                3: Object.freeze({
+                    art: Object.freeze({ x: 164, y: 797, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 179, y: 812, width: 310, height: 310 })
+                }),
+                4: Object.freeze({
+                    art: Object.freeze({ x: 497, y: 998, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 512, y: 1013, width: 310, height: 310 })
+                }),
+                5: Object.freeze({
+                    art: Object.freeze({ x: 298, y: 1226, width: 340, height: 340 }),
+                    hitbox: Object.freeze({ x: 313, y: 1241, width: 310, height: 310 })
+                })
+            })
+        }),
         13: Object.freeze({
             assetKey: "region13Modular",
             id: "obsidiana",
@@ -220,6 +249,7 @@
             slotLayout: visual.slotLayout,
             worldMapLayout: visual.worldMapLayout,
             worldMapEmbedded: Boolean(visual.worldMapEmbedded),
+            hideBack: Boolean(visual.hideBack),
             hideIslands: Boolean(visual.hideIslands),
             background,
             assets: visual.assets
@@ -237,7 +267,7 @@
     function computeRegionStageGeometry(viewportWidth, viewportHeight) {
         const width = Number(viewportWidth) || 0;
         const height = Number(viewportHeight) || 0;
-        const scale = Math.max(
+        const scale = Math.min(
             width / REGION_LAYOUT.viewport.width,
             height / REGION_LAYOUT.viewport.height
         );
@@ -383,6 +413,7 @@
         screen.className = "region-islands-map-screen";
         screen.dataset.regionId = String(regionId);
         screen.dataset.regionPage = visualPage.id;
+        screen.style.setProperty("--region-bleed-image", `url("${visualPage.background}")`);
         screen.setAttribute("aria-label", `Ilhas da Região ${region ? region.label : regionId}`);
 
         const islandsMarkup = visualPage.hideIslands ? "" : visualPage.islandIds.map((islandId, slotIndex) => {
@@ -440,12 +471,14 @@
                     alt=""
                     aria-hidden="true">
 
-                <button class="region-back-hitbox"
-                    type="button"
-                    style="${rectStyle(REGION_LAYOUT.back)}"
-                    data-action="back-regions"
-                    aria-label="Voltar para Regiões">
-                </button>
+                ${visualPage.hideBack ? "" : `
+                    <button class="region-back-hitbox"
+                        type="button"
+                        style="${rectStyle(REGION_LAYOUT.back)}"
+                        data-action="back-regions"
+                        aria-label="Voltar para Regiões">
+                    </button>
+                `}
 
                 ${islandsMarkup}
 

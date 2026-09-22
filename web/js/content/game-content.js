@@ -615,12 +615,34 @@
             .filter((reward) => reward?.type === "pet" && typeof reward.petId === "string")
     );
 
+    const petBonusTotals = Object.freeze({
+        xp: 100,
+        coins: 50,
+        gems: 10
+    });
+
+    // Os 30 PETs alternam entre três bônus permanentes.
+    // Com a coleção completa: +100% XP, +50% Ouro e +10% Rubis.
+    const petBonusRotation = Object.freeze([
+        Object.freeze({ type: "xp", percent: 10, label: "⭐ +10% XP" }),
+        Object.freeze({ type: "coins", percent: 5, label: "🪙 +5% Ouro" }),
+        Object.freeze({ type: "gems", percent: 1, label: "💎 +1% Rubis" })
+    ]);
+
     const pets = Object.freeze(
-        petRewards.map((reward, index) => Object.freeze({
-            id: reward.petId,
-            label: `Pet ${String(index + 1).padStart(2, "0")}`,
-            asset: null
-        }))
+        petRewards.map((reward, index) => {
+            const bonus = petBonusRotation[index % petBonusRotation.length];
+            return Object.freeze({
+                id: reward.petId,
+                label: `Pet ${String(index + 1).padStart(2, "0")}`,
+                asset: null,
+                bonus: Object.freeze({
+                    type: bonus.type,
+                    percent: bonus.percent,
+                    label: bonus.label
+                })
+            });
+        })
     );
 
     function getPet(petId) {
@@ -699,6 +721,7 @@
         gameplayRewards,
         crewMembers,
         pets,
+        petBonusTotals,
         getPet,
         collectibles,
         getCollectible,
@@ -726,7 +749,8 @@
                 worldMap: "./assets/global/mapa-mundo.png?v=20260920-1808",
                 worldMapVisual: "./assets/global/mapa_mundial.png?v=20260922-world-map-v1",
                 rubyShopMerchantShip: "./assets/global/comercial_ship.webp?v=20260921-1720",
-                victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028"
+                victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028",
+                petRescueScreen: "./assets/global/pet_rescue_screen.webp?v=20260922-pet-rescue-v1"
             }),
             islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",
@@ -802,6 +826,34 @@
                     5: Object.freeze({
                         unlocked: "./assets/regions/region-2/cabo_do_mapa_impossivel_unlocked.webp?v=20260922-birades",
                         locked: "./assets/regions/region-2/cabo_do_mapa_impossivel_locked.webp?v=20260922-birades"
+                    })
+                })
+            }),
+            region3Modular: Object.freeze({
+                background: "./assets/regions/region-3/background.webp?v=20260922-region3-gold",
+                backgrounds: Object.freeze({
+                    1: "./assets/regions/region-3/background.webp?v=20260922-region3-gold"
+                }),
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-3/costa_dourada_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/costa_dourada_locked.webp?v=20260922-region3-gold"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-3/minas_de_aurum_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/minas_de_aurum_locked.webp?v=20260922-region3-gold"
+                    }),
+                    3: Object.freeze({
+                        unlocked: "./assets/regions/region-3/coroa_solar_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/coroa_solar_locked.webp?v=20260922-region3-gold"
+                    }),
+                    4: Object.freeze({
+                        unlocked: "./assets/regions/region-3/templo_aureo_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/templo_aureo_locked.webp?v=20260922-region3-gold"
+                    }),
+                    5: Object.freeze({
+                        unlocked: "./assets/regions/region-3/ouro_do_rei_unlocked.webp?v=20260922-region3-gold",
+                        locked: "./assets/regions/region-3/ouro_do_rei_locked.webp?v=20260922-region3-gold"
                     })
                 })
             }),
