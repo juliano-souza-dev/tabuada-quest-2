@@ -93,3 +93,52 @@ test("remover Efeito customizado devolve resolver ao fallback padrão",()=>{
         TQ.effects.DEFAULT_EFFECT_IDS.correct
     );
 });
+
+
+test("Baú lista Molduras base e Molduras compradas",()=>{
+    let state=d.createInitialState();
+    const frame=TQ.content.shopCatalog.frames[0];
+    state={
+        ...state,
+        shop:{...state.shop,purchasedItemIds:[frame.id]},
+        inventory:{
+            ...state.inventory,
+            items:[frame.id]
+        }
+    };
+
+    const ids=TQ.screens.items.getOwnedFrames(state).map((item)=>item.id);
+    assert.ok(ids.includes(TQ.content.defaultProfileFrameId));
+    assert.ok(ids.includes(frame.id));
+});
+
+test("Moldura comercial não comprada não aparece no Baú",()=>{
+    const state=d.createInitialState();
+    const commercialIds=new Set(TQ.content.shopCatalog.frames.map((item)=>item.id));
+    const listed=TQ.screens.items.getOwnedFrames(state).map((item)=>item.id);
+
+    assert.equal(listed.some((id)=>commercialIds.has(id)),false);
+});
+
+test("Home reserva Moda para skins e não contém seletor de Molduras",()=>{
+    const home=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/home-screen.js"),
+        "utf8"
+    );
+
+    assert.match(home,/data-action="fashion"/);
+    assert.match(home,/data-sheet="fashion"/);
+    assert.doesNotMatch(home,/data-sheet="frames"/);
+    assert.doesNotMatch(home,/data-action="frames"/);
+    assert.doesNotMatch(home,/data-frame-id/);
+});
+
+test("perfil da Home direciona troca de Moldura para o Baú de Itens",()=>{
+    const home=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/home-screen.js"),
+        "utf8"
+    );
+
+    assert.match(home,/profile-slot[^>]+data-action="items"/);
+    assert.match(home,/Abrir Baú de Itens para trocar moldura/);
+});
