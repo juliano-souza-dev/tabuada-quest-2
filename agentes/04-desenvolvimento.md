@@ -1031,3 +1031,23 @@ Contrato técnico:
 - o botão atual é textual e não referencia asset;
 - escopo atual: Mapa Mundo e telas de Ilhas, incluindo fallback textual;
 - não inserir automaticamente o botão em desafios, resultados ou telas comerciais.
+
+
+## DEV Regiões — rota de navegação
+
+Implementação:
+
+```text
+web/js/screens/home-screen.js
+web/js/screens/development-regions-screen.js
+web/js/app.js
+web/js/domain/player-state.js
+```
+
+Contrato:
+
+- o atalho `DEV · REGIÕES` navega para `development-regions`;
+- `development-regions` deve constar entre os destinos válidos de `playerState.withLastScreen(...)`;
+- a tela DEV não altera progresso real da campanha;
+- a Região selecionada em DEV usa `previewRegionId` em memória e abre `islands` em modo de inspeção;
+- regressões de rota devem testar o estado real, não apenas buscar strings nos arquivos.
