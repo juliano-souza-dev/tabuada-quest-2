@@ -4,7 +4,7 @@
     overflow-y: auto;
     background: #0c2735;
     color: #fff;
-    padding: max(18px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+    padding: max(18px, var(--tq-safe-top)) max(18px, var(--tq-safe-right)) max(24px, var(--tq-safe-bottom)) max(18px, var(--tq-safe-left));
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
@@ -181,6 +181,10 @@
     pointer-events: none;
 }
 
+.region-islands-map-screen > .tq-safe-visual-area {
+    z-index: 2;
+}
+
 .region-islands-canonical-stage {
     position: absolute;
     z-index: 2;
@@ -343,7 +347,7 @@
 .island-travel-play-button {
     position: absolute;
     left: 50%;
-    bottom: max(42px, env(safe-area-inset-bottom));
+    bottom: max(42px, var(--tq-safe-bottom));
     z-index: 3;
     transform: translateX(-50%);
     min-width: 170px;
@@ -561,14 +565,14 @@
     pointer-events: none;
 }
 
+.challenge-art-screen > .tq-safe-visual-area {
+    z-index: 2;
+}
+
 .challenge-art-stage {
     position: absolute;
     z-index: 2;
-    width: min(100%, 56.25dvh, 540px);
-    aspect-ratio: 9 / 16;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    aspect-ratio: 941 / 1672;
     container-type: inline-size;
 }
 
@@ -961,13 +965,13 @@
     color: #2d1608;
 }
 
+.result-art-screen > .tq-safe-visual-area {
+    z-index: 1;
+}
+
 .result-art-stage {
     position: absolute;
-    width: min(100%, 56.28vh, 540px);
     aspect-ratio: 941 / 1672;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     container-type: inline-size;
     overflow: hidden;
 }
@@ -1281,13 +1285,13 @@
     color: #fff6dc;
 }
 
+.pet-rescue-art-screen > .tq-safe-visual-area {
+    z-index: 1;
+}
+
 .pet-rescue-stage {
     position: absolute;
-    width: min(100%, 56.28vh, 540px);
     aspect-ratio: 941 / 1672;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     container-type: inline-size;
     overflow: hidden;
 }
