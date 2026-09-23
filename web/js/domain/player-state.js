@@ -690,9 +690,10 @@
             && Array.isArray(value.shop.purchasedItemIds)
             && value.shop.purchasedItemIds.every((id) => typeof id === "string")
             && new Set(value.shop.purchasedItemIds).size === value.shop.purchasedItemIds.length
-            && value.shop.purchasedItemIds.includes(DEFAULT_SHIP_ID)
-            && typeof value.shop.equippedShipId === "string"
-            && value.shop.purchasedItemIds.includes(value.shop.equippedShipId)
+            && (value.shop.equippedShipId === null || (
+                typeof value.shop.equippedShipId === "string"
+                && value.shop.purchasedItemIds.includes(value.shop.equippedShipId)
+            ))
             && validInventoryState(value.inventory, value.shop.purchasedItemIds)
             && validRubyShopState(value.rubyShop)
             && isObject(value.campaign)
