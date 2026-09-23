@@ -66,11 +66,13 @@
     position: absolute;
     z-index: 6;
     left: 50%;
-    top: 0.8%;
-    width: 58%;
+    top: 1.6%;
+    width: 44%;
     height: auto;
     transform: translateX(-50%);
     object-fit: contain;
+    object-position: center top;
+    mix-blend-mode: screen;
     pointer-events: none;
     user-select: none;
 }
