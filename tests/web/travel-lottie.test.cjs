@@ -87,3 +87,14 @@ test("canvas da viagem ocupa toda a cena e permanece isolado da UI",()=>{
     assert.match(css,/width:\s*100%\s*!important/);
     assert.match(css,/height:\s*100%\s*!important/);
 });
+
+
+test("fundo da viagem usa parallax e ondas independentes no PixiJS",()=>{
+    const source=fs.readFileSync(travelPath,"utf8");
+    assert.match(source,/backgroundTexture/);
+    assert.match(source,/backgroundBreathTween/);
+    assert.match(source,/backgroundDriftTween/);
+    assert.match(source,/waveBands/);
+    assert.match(source,/redrawWaterBands/);
+    assert.match(source,/graphic\.stroke\(/);
+});
