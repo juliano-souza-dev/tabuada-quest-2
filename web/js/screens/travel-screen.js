@@ -257,6 +257,7 @@
 
                 const backgroundLayer = new PIXI.Container();
                 const waterLayer = new PIXI.Container();
+                const waterHighlightLayer = new PIXI.Container();
                 const travelLayer = new PIXI.Container();
                 const floatLayer = new PIXI.Container();
                 const wakeLayer = new PIXI.Container();
@@ -264,8 +265,8 @@
                 const ship = new PIXI.Sprite(texture);
 
                 let backgroundSprite = null;
-                let backgroundBreathTween = null;
-                let backgroundDriftTween = null;
+                const backgroundTweens = [];
+                const waterStripTweens = [];
 
                 if (backgroundTexture) {
                     backgroundSprite = new PIXI.Sprite(backgroundTexture);
@@ -274,40 +275,77 @@
                     const coverScale = Math.max(
                         app.screen.width / Math.max(backgroundTexture.width, 1),
                         app.screen.height / Math.max(backgroundTexture.height, 1)
-                    ) * 1.035;
+                    ) * 1.08;
+
+                    const baseX = app.screen.width / 2;
+                    const baseY = app.screen.height / 2;
 
                     backgroundSprite.scale.set(coverScale);
-                    backgroundSprite.position.set(app.screen.width / 2, app.screen.height / 2);
+                    backgroundSprite.position.set(baseX, baseY);
                     backgroundLayer.addChild(backgroundSprite);
-
                     stage.style.backgroundImage = "none";
 
-                    backgroundBreathTween = gsap.to(backgroundSprite.scale, {
-                        x: coverScale * 1.012,
-                        y: coverScale * 1.012,
-                        duration: 3.8,
-                        repeat: -1,
-                        yoyo: true,
-                        ease: "sine.inOut"
-                    });
+                    // A parte superior permanece estável. A partir daqui duplicamos a
+                    // própria foto em faixas horizontais para deformar apenas o mar.
+                    const waterStart = app.screen.height * 0.49;
+                    const waterHeight = app.screen.height - waterStart;
+                    const stripCount = 6;
+                    const stripHeight = waterHeight / stripCount;
 
-                    backgroundDriftTween = gsap.to(backgroundSprite.position, {
-                        x: app.screen.width / 2 - Math.max(3, app.screen.width * 0.006),
-                        y: app.screen.height / 2 + Math.max(2, app.screen.height * 0.003),
-                        duration: 4.6,
-                        repeat: -1,
-                        yoyo: true,
-                        ease: "sine.inOut"
-                    });
+                    for (let index = 0; index < stripCount; index += 1) {
+                        const strip = new PIXI.Sprite(backgroundTexture);
+                        strip.anchor.set(0.5);
+                        strip.scale.set(coverScale);
+                        strip.position.set(baseX, baseY);
+
+                        const maskTop = waterStart + stripHeight * index - 2;
+                        const maskHeight = stripHeight + 4;
+                        const mask = new PIXI.Graphics()
+                            .rect(-24, maskTop, app.screen.width + 48, maskHeight)
+                            .fill({ color: 0xffffff, alpha: 1 });
+
+                        strip.mask = mask;
+                        waterLayer.addChild(strip);
+                        waterLayer.addChild(mask);
+
+                        const direction = index % 2 === 0 ? 1 : -1;
+                        const horizontalAmplitude = (5 + index * 1.8) * direction;
+                        const verticalAmplitude = 0.8 + index * 0.38;
+
+                        waterStripTweens.push(
+                            gsap.to(strip.position, {
+                                x: baseX + horizontalAmplitude,
+                                y: baseY + verticalAmplitude,
+                                duration: 1.55 + index * 0.21,
+                                repeat: -1,
+                                yoyo: true,
+                                ease: "sine.inOut",
+                                delay: index * -0.17
+                            })
+                        );
+                    }
+
+                    // Movimento de câmera quase nulo no fundo base, só para quebrar
+                    // a sensação de fotografia congelada sem deslocar o horizonte.
+                    backgroundTweens.push(
+                        gsap.to(backgroundSprite.scale, {
+                            x: coverScale * 1.004,
+                            y: coverScale * 1.004,
+                            duration: 4.8,
+                            repeat: -1,
+                            yoyo: true,
+                            ease: "sine.inOut"
+                        })
+                    );
                 }
 
                 const waveBands = [
-                    { graphic: new PIXI.Graphics(), y: 0.58, amp: 2.4, length: 72, speed: 1.15, alpha: 0.12, width: 1.2 },
-                    { graphic: new PIXI.Graphics(), y: 0.68, amp: 3.8, length: 108, speed: 0.78, alpha: 0.10, width: 1.5 },
-                    { graphic: new PIXI.Graphics(), y: 0.79, amp: 5.2, length: 146, speed: 0.52, alpha: 0.08, width: 1.8 }
+                    { graphic: new PIXI.Graphics(), y: 0.58, amp: 2.8, length: 76, speed: 1.15, alpha: 0.15, width: 1.4 },
+                    { graphic: new PIXI.Graphics(), y: 0.69, amp: 4.4, length: 112, speed: 0.78, alpha: 0.13, width: 1.7 },
+                    { graphic: new PIXI.Graphics(), y: 0.81, amp: 6.0, length: 152, speed: 0.52, alpha: 0.11, width: 2.0 }
                 ];
 
-                waveBands.forEach((band) => waterLayer.addChild(band.graphic));
+                waveBands.forEach((band) => waterHighlightLayer.addChild(band.graphic));
 
                 ship.anchor.set(0.5);
                 floatLayer.addChild(ship);
@@ -317,6 +355,7 @@
 
                 app.stage.addChild(backgroundLayer);
                 app.stage.addChild(waterLayer);
+                app.stage.addChild(waterHighlightLayer);
                 app.stage.addChild(travelLayer);
 
                 const maxShipWidth = Math.min(app.screen.width * 0.72, 620);
@@ -478,8 +517,8 @@
                         bobTween.kill();
                         rollTween.kill();
                         breatheTween.kill();
-                        if (backgroundBreathTween) backgroundBreathTween.kill();
-                        if (backgroundDriftTween) backgroundDriftTween.kill();
+                        backgroundTweens.forEach((tween) => tween.kill());
+                        waterStripTweens.forEach((tween) => tween.kill());
                         app.ticker.remove(tickerHandler);
                         particles.splice(0).forEach((particle) => {
                             try { particle.graphic.destroy(); } catch (_) {}
