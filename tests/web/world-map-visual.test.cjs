@@ -10,7 +10,7 @@ require("../../web/js/screens/world-map-screen.js");
 const TQ=globalThis.TabuadaQuest;
 
 test("Mapa Mundo usa a carta náutica sequencial ativa",()=>{
-    assert.match(TQ.content.assets.global.worldMapVisual,/assets\/global\/carta-nautica-\\d{2}\.webp/);
+    assert.match(TQ.content.assets.global.worldMapVisual,/assets\/global\/carta-nautica-\d{2}\.webp/);
     const configured=TQ.content.assets.global.worldMapVisual.split("?")[0].replace(/^\.\//,"");
     assert.equal(
         fs.existsSync(path.join(__dirname,"../../web",configured)),
