@@ -23,40 +23,52 @@
         progressMask: false
     });
 
+    // Calibração por ilha: caixas em % do stage 9:16; gaps em % da grade de respostas.
+    // As caixas delimitam o interior das placas (texto e hitbox compartilham o centro).
     const CHALLENGE_ART_LAYOUTS = Object.freeze({
         1: Object.freeze({
             1: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
                 question: Object.freeze({ x: 22.7, y: 27.0, width: 57.9, height: 12.9 }),
+                questionOffsetY: 0,
                 answers: Object.freeze({ x: 14, y: 64.7, width: 72, height: 20.9, columnGap: 5.8, rowGap: 5.8 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
             2: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
-                question: Object.freeze({ x: 21.5, y: 26.2, width: 58, height: 26.8 }),
-                answers: Object.freeze({ x: 8.5, y: 64.2, width: 83, height: 28.4, columnGap: 6.2, rowGap: 5.6 }),
+                question: Object.freeze({ x: 22, y: 32.5, width: 56, height: 18 }),
+                questionOffsetY: -6,
+                answers: Object.freeze({ x: 10, y: 67, width: 80, height: 23.7, columnGap: 10.2, rowGap: 30 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
             3: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
-                question: Object.freeze({ x: 21.5, y: 42.6, width: 57.5, height: 16.6 }),
-                answers: Object.freeze({ x: 20.5, y: 60, width: 59.5, height: 22.4, columnGap: 5.5, rowGap: 4.8 }),
+                question: Object.freeze({ x: 21.5, y: 42.6, width: 56, height: 16.6 }),
+                questionOffsetY: -6,
+                answers: Object.freeze({ x: 20, y: 63.2, width: 61, height: 18.4, columnGap: 7.8, rowGap: 16 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.45, feedback: 4.85 }),
                 progressMask: false
             }),
             4: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
-                question: Object.freeze({ x: 21.5, y: 39.1, width: 57.5, height: 18 }),
-                answers: Object.freeze({ x: 15, y: 59.2, width: 70, height: 22.5, columnGap: 5.5, rowGap: 4.8 }),
+                question: Object.freeze({ x: 21.5, y: 41.3, width: 56, height: 15 }),
+                questionOffsetY: 0,
+                answers: Object.freeze({ x: 18, y: 62.5, width: 64, height: 17.9, columnGap: 7.8, rowGap: 19 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
             5: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
-                question: Object.freeze({ x: 21, y: 42.8, width: 58.5, height: 16.9 }),
-                answers: Object.freeze({ x: 20.2, y: 60.8, width: 60.2, height: 21, columnGap: 5.2, rowGap: 4.8 }),
+                question: Object.freeze({ x: 21.5, y: 42.3, width: 56, height: 16 }),
+                questionOffsetY: -6,
+                answers: Object.freeze({ x: 20.3, y: 62.8, width: 59, height: 17.8, columnGap: 8.5, rowGap: 19 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.3, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             })
@@ -222,12 +234,16 @@
             `--challenge-question-y:${question.y}%`,
             `--challenge-question-w:${question.width}%`,
             `--challenge-question-h:${question.height}%`,
+            ...(layout.questionOffsetX === undefined ? [] : [`--tabuada-pergunta-offset-x:${layout.questionOffsetX}px`]),
+            ...(layout.questionOffsetY === undefined ? [] : [`--tabuada-pergunta-offset-y:${layout.questionOffsetY}px`]),
             `--challenge-answers-x:${answers.x}%`,
             `--challenge-answers-y:${answers.y}%`,
             `--challenge-answers-w:${answers.width}%`,
             `--challenge-answers-h:${answers.height}%`,
             `--challenge-answer-column-gap:${answers.columnGap}%`,
             `--challenge-answer-row-gap:${answers.rowGap}%`,
+            ...(layout.answerOffsetX === undefined ? [] : [`--tabuada-opcao-numero-offset-x:${layout.answerOffsetX}px`]),
+            ...(layout.answerOffsetY === undefined ? [] : [`--tabuada-opcao-numero-offset-y:${layout.answerOffsetY}px`]),
             `--challenge-progress-font:${font.progress}cqw`,
             `--challenge-question-font:${font.question}cqw`,
             `--challenge-answer-font:${font.answer}cqw`,
@@ -265,14 +281,14 @@
             <div class="challenge-dynamic-layer" aria-live="polite">
                 ${renderProgress(session, session.plannedAnswered + 1)}
                 <div class="challenge-art-question" aria-label="${challenge.table} vezes ${challenge.multiplier}">
-                    ${challenge.table} × ${challenge.multiplier} = ?
+                    <span class="tabuada-pergunta-numero">${challenge.table} × ${challenge.multiplier} = ?</span>
                 </div>
                 <div class="challenge-art-answers">
                     ${options.map((answer) => `
                         <button type="button"
-                            class="challenge-art-answer"
+                            class="challenge-art-answer tabuada-opcao"
                             data-answer="${answer}">
-                            ${answer}
+                            <span class="numero">${answer}</span>
                         </button>
                     `).join("")}
                 </div>

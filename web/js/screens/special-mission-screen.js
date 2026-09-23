@@ -14,8 +14,8 @@
                 </div>
                 <div class="answer-grid">
                     ${options.map((answer) => `
-                        <button type="button" class="answer-button" data-answer="${answer}">
-                            ${answer}
+                        <button type="button" class="answer-button tabuada-opcao" data-answer="${answer}">
+                            <span class="numero">${answer}</span>
                         </button>
                     `).join("")}
                 </div>

@@ -60,20 +60,20 @@ test("CORSÁRIO calibra conta e respostas nas áreas vazias de cada arte",()=>{
             answers:{x:14,y:64.7,width:72,height:20.9,columnGap:5.8,rowGap:5.8}
         },
         2:{
-            question:{x:21.5,y:26.2,width:58,height:26.8},
-            answers:{x:8.5,y:64.2,width:83,height:28.4,columnGap:6.2,rowGap:5.6}
+            question:{x:22,y:32.5,width:56,height:18},
+            answers:{x:10,y:67,width:80,height:23.7,columnGap:10.2,rowGap:30}
         },
         3:{
-            question:{x:21.5,y:42.6,width:57.5,height:16.6},
-            answers:{x:20.5,y:60,width:59.5,height:22.4,columnGap:5.5,rowGap:4.8}
+            question:{x:21.5,y:42.6,width:56,height:16.6},
+            answers:{x:20,y:63.2,width:61,height:18.4,columnGap:7.8,rowGap:16}
         },
         4:{
-            question:{x:21.5,y:39.1,width:57.5,height:18},
-            answers:{x:15,y:59.2,width:70,height:22.5,columnGap:5.5,rowGap:4.8}
+            question:{x:21.5,y:41.3,width:56,height:15},
+            answers:{x:18,y:62.5,width:64,height:17.9,columnGap:7.8,rowGap:19}
         },
         5:{
-            question:{x:21,y:42.8,width:58.5,height:16.9},
-            answers:{x:20.2,y:60.8,width:60.2,height:21,columnGap:5.2,rowGap:4.8}
+            question:{x:21.5,y:42.3,width:56,height:16},
+            answers:{x:20.3,y:62.8,width:59,height:17.8,columnGap:8.5,rowGap:19}
         }
     };
 
@@ -104,6 +104,29 @@ test("renderer mantém conta e respostas dinâmicas fora do asset",()=>{
     assert.match(source,/getChallengeArtLayout/);
     assert.match(source,/--challenge-question-x/);
     assert.match(source,/--challenge-answers-x/);
+    assert.match(source,/tabuada-opcao/);
+    assert.match(source,/tabuada-opcao-numero-offset-x/);
+    assert.match(source,/tabuada-opcao-numero-offset-y/);
+    assert.match(source,/tabuada-pergunta-numero/);
+    assert.match(source,/tabuada-pergunta-offset-x/);
+    assert.match(source,/tabuada-pergunta-offset-y/);
+});
+
+test("opções de tabuada permitem ajuste vertical definido por cada layout",()=>{
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    assert.match(css,/\.tabuada-opcao\s*\{[\s\S]*display:\s*flex/);
+    assert.match(css,/\.tabuada-opcao \.numero\s*\{[\s\S]*translate\([\s\S]*--tabuada-opcao-numero-offset-x, 0[\s\S]*--tabuada-opcao-numero-offset-y, 0/);
+    assert.match(css,/\.tabuada-pergunta-numero\s*\{[\s\S]*translate\([\s\S]*--tabuada-pergunta-offset-x, 0[\s\S]*--tabuada-pergunta-offset-y, 0/);
+
+    for(let islandId=1;islandId<=5;islandId++){
+        const layout=TQ.screens.challenge.getChallengeArtLayout(1,islandId);
+        assert.equal(typeof layout.questionOffsetY,"number");
+        assert.equal(typeof layout.answerOffsetY,"number");
+    }
 });
 
 test("BIRADES possui malha visual própria para as 5 telas jogáveis",()=>{
