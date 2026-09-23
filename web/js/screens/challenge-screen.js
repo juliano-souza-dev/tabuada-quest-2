@@ -30,7 +30,7 @@
                 question: Object.freeze({ x: 22.5, y: 45.2, width: 56, height: 12 }),
                 questionOffsetY: -6,
                 answers: Object.freeze({ x: 15.8, y: 66.6, width: 69.4, height: 16.5, columnGap: 9.6, rowGap: 23.5 }),
-                answerOffsetY: 0,
+                answerOffsetY: -5,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
