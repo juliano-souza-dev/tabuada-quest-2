@@ -483,6 +483,10 @@
                 data-action="home"
                 aria-label="Voltar para Home">Home</button>
 
+            <div class="region-assets-loader" role="status" aria-label="Carregando região">
+                <span class="region-assets-loader-hourglass" aria-hidden="true">⌛</span>
+            </div>
+
             <div class="tq-safe-visual-area">
             <div class="region-islands-canonical-stage tq-canonical-stage">
                 <img class="region-islands-background"
@@ -533,6 +537,23 @@
 
         const safeArea = screen.querySelector(".tq-safe-visual-area");
         const stage = screen.querySelector(".region-islands-canonical-stage");
+
+        const regionLoader = screen.querySelector(".region-assets-loader");
+        const regionImages = Array.from(stage?.querySelectorAll("img") || []);
+        const waitForImage = (image) => {
+            if (image.complete && image.naturalWidth > 0) return Promise.resolve();
+            return new Promise((resolve) => {
+                const done = () => resolve();
+                image.addEventListener("load", done, { once: true });
+                image.addEventListener("error", done, { once: true });
+            });
+        };
+        Promise.all(regionImages.map(waitForImage)).then(() => {
+            root.requestAnimationFrame(() => {
+                stage?.classList.add("is-assets-ready");
+                regionLoader?.classList.add("is-hidden");
+            });
+        });
 
         screen.addEventListener("error", (event) => {
             const image = event.target.closest?.(".region-island-art");
