@@ -1,0 +1,12 @@
+{
+  "id": "./",
+  "name": "Tabuada Quest 2",
+  "short_name": "Tabuada Quest",
+  "description": "Aventura pirata de matemática.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071d2c",
+  "theme_color": "#071d2c"
+}
