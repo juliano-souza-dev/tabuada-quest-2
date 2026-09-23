@@ -52,10 +52,10 @@ test("Mapa Mundo de Terras Gélidas fica no canto inferior direito com margem se
 
 test("Ilhas 1 e 2 de Terras Gélidas estão ligadas aos WebPs otimizados",()=>{
     const assets=TQ.content.assets.region4Modular.islands;
-    assert.match(assets[1].unlocked,/region-4\/island-01-unlocked\.webp/);
-    assert.match(assets[2].unlocked,/region-4\/island-02-unlocked\.webp/);
-    assert.equal(assets[1].locked,null);
-    assert.equal(assets[2].locked,null);
+    assert.match(assets[1].unlocked,/region-4\/porto-da-geada-unlocked\.webp/);
+    assert.match(assets[1].locked,/region-4\/porto-da-geada-locked\.webp/);
+    assert.match(assets[2].unlocked,/region-4\/baia-do-cristal-unlocked\.webp/);
+    assert.match(assets[2].locked,/region-4\/baia-do-cristal-locked\.webp/);
 
     for(const id of [1,2]){
         const relative=assets[id].unlocked.split("?")[0].replace(/^\.\//,"");
@@ -84,8 +84,9 @@ test("slots de Terras Gélidas seguem os cinco redemoinhos do background",()=>{
     assert.deepEqual(visual.slotLayout[5].art,{x:37,y:1381,width:300,height:270});
 });
 
-test("asset locked ausente usa o desbloqueado como fallback até a arte bloqueada existir",()=>{
+test("asset locked próprio é usado quando a arte bloqueada existe",()=>{
     const available=TQ.screens.islands.getRegionIslandAsset(4,1,"available");
     const locked=TQ.screens.islands.getRegionIslandAsset(4,1,"locked");
-    assert.equal(locked,available);
+    assert.notEqual(locked,available);
+    assert.match(locked,/region-4\/porto-da-geada-locked\.webp/);
 });

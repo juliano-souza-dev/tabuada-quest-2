@@ -90,7 +90,8 @@
             `;
             TQ.core.safeViewport.bindCanonicalStage(
                 screen.querySelector(".tq-safe-visual-area"),
-                screen.querySelector(".pet-rescue-stage")
+                screen.querySelector(".pet-rescue-stage"),
+                { fit: "cover" }
             );
         }
 

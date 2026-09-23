@@ -553,6 +553,7 @@
         }, true);
 
         TQ.core.safeViewport.bindCanonicalStage(safeArea, stage, {
+            fit: "cover",
             mode: "scale",
             designWidth: REGION_LAYOUT.viewport.width,
             designHeight: REGION_LAYOUT.viewport.height

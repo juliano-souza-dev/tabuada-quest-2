@@ -398,7 +398,8 @@
                 `;
                 TQ.core.safeViewport.bindCanonicalStage(
                     screen.querySelector(".tq-safe-visual-area"),
-                    screen.querySelector(".challenge-art-stage")
+                    screen.querySelector(".challenge-art-stage"),
+            { fit: "cover" }
                 );
                 if (!artAlreadyLoaded) {
                     armChallengeArtReveal(screen, art);

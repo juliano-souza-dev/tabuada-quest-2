@@ -18,6 +18,15 @@ function assertCanonicalRatio(geometry){
     );
 }
 
+test("cover canônico preenche toda a viewport sem deformar",()=>{
+    const geometry=safeViewport.computeFit(393,774,941,1672,"cover");
+    assert.ok(geometry.renderWidth>=393);
+    assert.ok(geometry.renderHeight>=774);
+    assert.ok(geometry.offsetX<=0);
+    assert.ok(geometry.offsetY<=0);
+    assertCanonicalRatio(geometry);
+});
+
 test("fit canônico usa toda a largura segura de um celular alto sem deformar",()=>{
     const geometry=safeViewport.computeFit(393,774);
     assert.equal(geometry.renderWidth,393);
