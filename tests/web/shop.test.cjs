@@ -18,11 +18,11 @@ test("Estaleiro possui os três navios oficiais e El Colombo já tem arte + anim
     const [colombo,...pendingShips]=TQ.content.shopCatalog.ships;
     assert.equal(colombo.asset,"./assets/transitions/el-colombo/images/el-colombo.webp");
     assert.equal(colombo.travelAnimation,"./assets/transitions/el-colombo/el-colombo-ocean-navigation.json");
-    assert.equal(colombo.travelVideo,null);
+    assert.equal(Object.prototype.hasOwnProperty.call(colombo,"travelVideo"),false);
     for(const ship of pendingShips){
         assert.equal(ship.asset,null);
         assert.equal(ship.travelAnimation,null);
-        assert.equal(ship.travelVideo,null);
+        assert.equal(Object.prototype.hasOwnProperty.call(ship,"travelVideo"),false);
     }
 });
 
