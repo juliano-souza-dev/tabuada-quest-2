@@ -938,6 +938,8 @@ shop.purchasedItemIds
 shop.equippedShipId
 ```
 
+Regra vigente: **El Colombo é o navio padrão**, já pertence ao jogador desde a criação do perfil e inicia equipado. Outros navios continuam dependendo de compra e seleção no Estaleiro.
+
 Seletores:
 
 ```text
