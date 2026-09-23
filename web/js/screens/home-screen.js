@@ -208,7 +208,8 @@
 
         TQ.core.safeViewport.bindCanonicalStage(
             screen.querySelector(".home-safe-visual-area"),
-            screen.querySelector(".home-design-stage")
+            screen.querySelector(".home-design-stage"),
+            { fit: "cover" }
         );
 
         const backgroundImage = screen.querySelector(".home-background-image");
