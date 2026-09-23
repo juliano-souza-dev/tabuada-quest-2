@@ -12,6 +12,7 @@ on:
       - 'web/assets/regions/region-4/file_0000000007b0820e85f5413aa9513c2d.png'
       - 'web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png'
       - 'web/assets/regions/region-4/file_000000009454820eaab2003eebf76977.png'
+      - 'web/assets/regions/region-4/file_000000001eb4820e9f55e739e089338b.png'
       - '.github/workflows/process-region4-islands.yml'
   workflow_dispatch:
 
@@ -85,11 +86,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SRC="web/assets/regions/region-4/file_000000009454820eaab2003eebf76977.png"
+          SRC_NEW="web/assets/regions/region-4/file_000000001eb4820e9f55e739e089338b.png"
+          SRC_OLD="web/assets/regions/region-4/file_000000009454820eaab2003eebf76977.png"
           DST="web/assets/regions/region-4/region-04-background-v2.webp"
-          if [ -f "$SRC" ]; then
+          SRC=""
+          if [ -f "$SRC_NEW" ]; then
+            SRC="$SRC_NEW"
+          elif [ -f "$SRC_OLD" ]; then
+            SRC="$SRC_OLD"
+          fi
+          if [ -n "$SRC" ]; then
             cwebp -quiet -q 86 -m 6 -sharp_yuv "$SRC" -o "$DST"
-            rm -f "$SRC"
+            rm -f "$SRC_NEW" "$SRC_OLD"
             test -s "$DST"
           fi
       - name: Link Region 4 islands
