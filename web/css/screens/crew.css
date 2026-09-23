@@ -21,21 +21,21 @@
 }
 .crew-bonus-overlay span { white-space: nowrap; }
 .crew-slots {
-    position: absolute; z-index: 3; left: 8.0%; right: 8.0%; top: 31.0%; bottom: 9.4%;
+    position: absolute; z-index: 3; left: 8.0%; right: 8.0%; top: 31.0%; bottom: 18.0%;
     display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
-    column-gap: 1.5%; row-gap: 1.0%;
+    column-gap: 1.5%; row-gap: 1.6%;
 }
 .crew-slot { position: relative; min-width: 0; min-height: 0; }
 .crew-slot-portrait {
-    position: absolute; left: 8%; right: 8%; top: 6%; bottom: 20%;
+    position: absolute; left: 8%; right: 8%; top: 4%; bottom: 18%;
     display: grid; place-items: end center; overflow: hidden; pointer-events: none;
 }
 .crew-slot-portrait img {
-    width: 78%; height: 78%; object-fit: contain; object-position: center bottom;
+    width: 74%; height: 74%; object-fit: contain; object-position: center bottom;
     filter: drop-shadow(0 .3cqw .3cqw rgba(0,0,0,.35));
 }
 .crew-slot-footer {
-    position: absolute; left: 4%; right: 4%; bottom: 1.2%; height: 13.5%;
+    position: absolute; left: 5%; right: 5%; bottom: 3.5%; height: 12%;
     display: grid; grid-template-columns: 35% minmax(0, 1fr); gap: 2%; align-items: center;
 }
 .crew-slot-price {
