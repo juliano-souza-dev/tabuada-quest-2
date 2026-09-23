@@ -7,15 +7,19 @@ const travelPath=path.join(__dirname,"../../web/js/screens/travel-screen.js");
 const contentPath=path.join(__dirname,"../../web/js/content/game-content.js");
 const legacyMp4Path=path.join(__dirname,"../../web/assets/transitions/island-travel.mp4");
 
-test("viagem do El Colombo usa Lottie e fallback animado do próprio navio",()=>{
+test("viagem do El Colombo prioriza PixiJS + GSAP e preserva fallback Lottie/CSS",()=>{
     const source=fs.readFileSync(travelPath,"utf8");
+    assert.match(source,/pixi\.js@8\.21\.0/);
+    assert.match(source,/gsap@3\.13\.0/);
+    assert.match(source,/renderPixiTravel/);
+    assert.match(source,/new PIXI\.Application\(\)/);
+    assert.match(source,/gsap\.to\(travelLayer\.position/);
+    assert.match(source,/ease:\s*"none"/);
+    assert.match(source,/new PIXI\.Graphics\(\)/);
+    assert.match(source,/renderLottieFallback/);
     assert.match(source,/root\.lottie\?\.loadAnimation/);
     assert.match(source,/renderer:\s*"svg"/);
-    assert.match(source,/autoplay:\s*true/);
-    assert.match(source,/assetsPath/);
-    assert.match(source,/goToAndPlay\(0, true\)/);
     assert.match(source,/renderColomboFallback/);
-    assert.match(source,/renderAnimationFallback/);
 });
 
 test("MP4 legado de viagem foi removido fisicamente e do código",()=>{
@@ -74,4 +78,12 @@ test("background do Colombo está otimizado e disponível offline",()=>{
     assert.ok(fs.statSync(background).size<500_000);
     const sw=fs.readFileSync(path.join(__dirname,"../../web/sw.js"),"utf8");
     assert.match(sw,/ocean-background\.webp/);
+});
+
+
+test("canvas da viagem ocupa toda a cena e permanece isolado da UI",()=>{
+    const css=fs.readFileSync(path.join(__dirname,"../../web/css/screens/vertical-slice.css"),"utf8");
+    assert.match(css,/\.island-travel-canvas/);
+    assert.match(css,/width:\s*100%\s*!important/);
+    assert.match(css,/height:\s*100%\s*!important/);
 });
