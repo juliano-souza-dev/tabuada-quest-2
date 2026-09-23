@@ -788,7 +788,7 @@
                 petRescueScreen: "./assets/global/pet_rescue_screen.webp?v=20260922-pet-rescue-v1"
             }),
             tavern: Object.freeze({
-                background: "./assets/tavern/tavern-background.webp?v=20260923-tavern-bg-v1"
+                background: "./assets/tavern/tavern-background.webp?v=20260923-tavern-bg-v2"
             }),
             islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",
