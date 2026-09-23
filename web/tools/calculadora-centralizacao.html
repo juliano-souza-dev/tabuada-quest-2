@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora de centralização</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #061d25; color: #f7f1dc; }
+    main { width: min(92vw, 680px); padding: 28px; border-radius: 18px; background: #12303a; box-shadow: 0 20px 60px #0008; }
+    h1 { margin: 0 0 8px; font-size: 1.5rem; }
+    p { color: #c6d8d5; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 24px 0; }
+    label { display: grid; gap: 6px; font-weight: 700; }
+    input { box-sizing: border-box; width: 100%; padding: 11px; border: 1px solid #5f8588; border-radius: 8px; background: #071b22; color: inherit; font: inherit; }
+    .result { padding: 18px; border-radius: 12px; background: #08242c; }
+    .value { margin: 8px 0; font-size: 1.1rem; }
+    code { padding: 3px 6px; border-radius: 5px; background: #0006; color: #ffdc76; }
+    .negative { color: #8de1ff; }
+    .positive { color: #ffd57d; }
+    .zero { color: #a7e7ac; }
+    @media (max-width: 500px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Calculadora de centralização vertical</h1>
+    <p>Insira os valores Y medidos pela régua de pixels. Use os limites visíveis da madeira da placa e do algarismo, sem a sombra externa.</p>
+
+    <section class="grid" aria-label="Medições">
+      <label>Topo da placa (px)<input id="plateTop" type="number" step="0.1" value="620"></label>
+      <label>Altura da placa (px)<input id="plateHeight" type="number" step="0.1" value="50"></label>
+      <label>Topo do número (px)<input id="numberTop" type="number" step="0.1" value="641"></label>
+      <label>Altura do número (px)<input id="numberHeight" type="number" step="0.1" value="20"></label>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <div class="value">Centro da placa: <strong id="plateCenter">—</strong></div>
+      <div class="value">Centro do número: <strong id="numberCenter">—</strong></div>
+      <div class="value">Correção: <strong id="offset">—</strong></div>
+      <p id="explanation"></p>
+      <p>Copie para o layout da ilha: <code id="code">answerOffsetY: 0</code></p>
+    </section>
+  </main>
+
+  <script>
+    const inputs = [...document.querySelectorAll('input')];
+    const output = {
+      plateCenter: document.querySelector('#plateCenter'),
+      numberCenter: document.querySelector('#numberCenter'),
+      offset: document.querySelector('#offset'),
+      explanation: document.querySelector('#explanation'),
+      code: document.querySelector('#code')
+    };
+
+    function value(id) {
+      return Number(document.querySelector(`#${id}`).value);
+    }
+
+    function format(number) {
+      return Number.isInteger(number) ? String(number) : number.toFixed(1);
+    }
+
+    function calculate() {
+      const plateCenter = value('plateTop') + value('plateHeight') / 2;
+      const numberCenter = value('numberTop') + value('numberHeight') / 2;
+      const offset = plateCenter - numberCenter;
+
+      if (![plateCenter, numberCenter, offset].every(Number.isFinite)) return;
+
+      output.plateCenter.textContent = `${format(plateCenter)}px`;
+      output.numberCenter.textContent = `${format(numberCenter)}px`;
+      output.offset.textContent = `${format(offset)}px`;
+      output.offset.className = offset < 0 ? 'negative' : offset > 0 ? 'positive' : 'zero';
+      output.code.textContent = `answerOffsetY: ${format(offset)}`;
+      output.explanation.textContent = offset < 0
+        ? `O número está baixo: suba ${format(Math.abs(offset))}px.`
+        : offset > 0
+          ? `O número está alto: desça ${format(offset)}px.`
+          : 'O número já está centralizado.';
+    }
+
+    inputs.forEach((input) => input.addEventListener('input', calculate));
+    calculate();
+  </script>
+</body>
+</html>
