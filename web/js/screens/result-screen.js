@@ -148,7 +148,8 @@
                 `;
                 TQ.core.safeViewport.bindCanonicalStage(
                     screen.querySelector(".tq-safe-visual-area"),
-                    screen.querySelector(".result-art-stage")
+                    screen.querySelector(".result-art-stage"),
+            { fit: "cover" }
                 );
             } else {
                 screen.innerHTML = renderTextFallback(result, pendingMapId);
