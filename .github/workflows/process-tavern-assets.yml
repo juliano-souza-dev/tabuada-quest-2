@@ -42,3 +42,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "assets: optimize Tavern background"
           git push
+
+# pipeline-ready: 2026-09-23
