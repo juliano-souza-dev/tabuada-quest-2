@@ -110,15 +110,21 @@ test("renderer mantém conta e respostas dinâmicas fora do asset",()=>{
     assert.match(source,/tabuada-pergunta-offset-y/);
 });
 
-test("opções de tabuada usam o ajuste vertical global configurável",()=>{
+test("opções de tabuada permitem ajuste vertical definido por cada layout",()=>{
     const css=fs.readFileSync(
         path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
         "utf8"
     );
 
     assert.match(css,/\.tabuada-opcao\s*\{[\s\S]*display:\s*flex/);
-    assert.match(css,/\.tabuada-opcao \.numero\s*\{[\s\S]*translateY\(var\(--tabuada-opcao-numero-offset-y, 6px\)\)/);
-    assert.match(css,/\.tabuada-pergunta-numero\s*\{[\s\S]*translateY\(var\(--tabuada-pergunta-offset-y, -6px\)\)/);
+    assert.match(css,/\.tabuada-opcao \.numero\s*\{[\s\S]*translateY\(var\(--tabuada-opcao-numero-offset-y, 0\)\)/);
+    assert.match(css,/\.tabuada-pergunta-numero\s*\{[\s\S]*translateY\(var\(--tabuada-pergunta-offset-y, 0\)\)/);
+
+    for(let islandId=1;islandId<=5;islandId++){
+        const layout=TQ.screens.challenge.getChallengeArtLayout(1,islandId);
+        assert.equal(typeof layout.questionOffsetY,"number");
+        assert.equal(typeof layout.answerOffsetY,"number");
+    }
 });
 
 test("BIRADES possui malha visual própria para as 5 telas jogáveis",()=>{

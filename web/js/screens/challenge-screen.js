@@ -28,21 +28,27 @@
             1: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
                 question: Object.freeze({ x: 22.5, y: 45.2, width: 56, height: 12 }),
+                questionOffsetY: -6,
                 answers: Object.freeze({ x: 15.8, y: 66.6, width: 69.4, height: 16.5, columnGap: 9.6, rowGap: 23.5 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
             2: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
                 question: Object.freeze({ x: 22, y: 32.5, width: 56, height: 18 }),
+                questionOffsetY: -6,
                 answers: Object.freeze({ x: 10, y: 67, width: 80, height: 23.7, columnGap: 10.2, rowGap: 30 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
             3: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
                 question: Object.freeze({ x: 21.5, y: 42.6, width: 56, height: 16.6 }),
+                questionOffsetY: -6,
                 answers: Object.freeze({ x: 20, y: 63.2, width: 61, height: 18.4, columnGap: 7.8, rowGap: 16 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.45, feedback: 4.85 }),
                 progressMask: false
             }),
@@ -51,13 +57,16 @@
                 question: Object.freeze({ x: 21.5, y: 41.3, width: 56, height: 15 }),
                 questionOffsetY: 0,
                 answers: Object.freeze({ x: 18, y: 62.5, width: 64, height: 17.9, columnGap: 7.8, rowGap: 19 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
             5: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
                 question: Object.freeze({ x: 21.5, y: 42.3, width: 56, height: 16 }),
+                questionOffsetY: -6,
                 answers: Object.freeze({ x: 20.3, y: 62.8, width: 59, height: 17.8, columnGap: 8.5, rowGap: 19 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.3, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             })

@@ -674,7 +674,7 @@
 }
 
 .challenge-art-question .tabuada-pergunta-numero {
-    transform: translateY(var(--tabuada-pergunta-offset-y, -6px));
+    transform: translateY(var(--tabuada-pergunta-offset-y, 0));
 }
 
 .challenge-art-answers {
@@ -715,7 +715,7 @@
 }
 
 .tabuada-opcao .numero {
-    transform: translateY(var(--tabuada-opcao-numero-offset-y, 6px));
+    transform: translateY(var(--tabuada-opcao-numero-offset-y, 0));
     line-height: 1;
     pointer-events: none;
 }

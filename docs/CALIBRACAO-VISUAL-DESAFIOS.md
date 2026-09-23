@@ -24,17 +24,17 @@ O ponto de manutenção é `web/js/screens/challenge-screen.js`, em
   fora do lugar.
 - `questionOffsetY` desloca apenas o texto da pergunta, em pixels. Use-o quando
   a área está correta, mas o texto parece alto ou baixo por causa da fonte.
-- `answerOffsetY` desloca apenas os números das respostas, em pixels. O padrão
-  global é `6px`, aplicado pela variável `--tabuada-opcao-numero-offset-y`.
+- `answerOffsetY` desloca apenas os números das respostas, em pixels. Declare o
+  valor no layout da Ilha: não existe deslocamento global para as respostas.
 
 Não mova o asset de fundo para corrigir texto. Não ajuste CSS global quando o
 problema existir em apenas uma Ilha.
 
 ## Exemplo
 
-Na Ilha do Vulcão de CORSÁRIO, a pergunta ficou alta quando recebeu o ajuste
-global de `-6px`. O layout da Ilha usa `questionOffsetY: 0` para neutralizar
-somente essa exceção, mantendo as demais Ilhas com o deslocamento padrão.
+Na Ilha do Vulcão de CORSÁRIO, a pergunta usa `questionOffsetY: 0`. As outras
+Ilhas declaram seus próprios valores após validação visual, sem herdar um
+deslocamento de outra arte.
 
 ## Validação final
 
