@@ -782,7 +782,7 @@
             itemChest: "./assets/ui/chest-items.webp",
             global: Object.freeze({
                 worldMap: "./assets/global/mapa-mundo.png?v=20260920-1808",
-                worldMapVisual: "./assets/global/mapa_mundial.webp?v=20260922-world-map-v1",
+                worldMapVisual: "./assets/global/carta-nautica-01.webp?v=20260923-carta-nautica-01-v1",
                 rubyShopMerchantShip: "./assets/global/comercial_ship.webp?v=20260921-1720",
                 victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028",
                 petRescueScreen: "./assets/global/pet_rescue_screen.webp?v=20260922-pet-rescue-v1"
