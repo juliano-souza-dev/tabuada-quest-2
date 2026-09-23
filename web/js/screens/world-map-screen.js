@@ -128,7 +128,7 @@
                         data-region-id="${regionId}"
                         ${locked ? "disabled" : ""}
                         aria-label="${region?.label || `Região ${regionId}`}${locked ? ", bloqueada" : ", abrir Região"}">
-                        ${locked ? '<span class="world-map-region-lock" aria-hidden="true">🔒</span>' : ""}
+                        
                     </button>
                 `;
             }).join("");
