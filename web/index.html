@@ -18,7 +18,7 @@
     </script>
     <link rel="stylesheet" href="./css/app.css?v=20260923-tavern-calibration-v5">
 </head>
-<body>
+<body>\n    <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
     <div class="app-stage">
         <main id="app" class="app-viewport" aria-live="polite"></main>
     </div>
@@ -62,6 +62,36 @@
             window.addEventListener("load", async () => {
                 try {
                     const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+                    const installButton = document.getElementById("pwa-install-button");
+                    let installPrompt = null;
+                    const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches
+                        || window.navigator.standalone === true;
+
+                    const refreshInstallButton = () => {
+                        if (!installButton) return;
+                        installButton.hidden = isStandalone() || !installPrompt;
+                    };
+
+                    window.addEventListener("beforeinstallprompt", (event) => {
+                        event.preventDefault();
+                        installPrompt = event;
+                        refreshInstallButton();
+                    });
+
+                    installButton?.addEventListener("click", async () => {
+                        if (!installPrompt) return;
+                        installButton.hidden = true;
+                        await installPrompt.prompt();
+                        await installPrompt.userChoice.catch(() => null);
+                        installPrompt = null;
+                        refreshInstallButton();
+                    });
+
+                    window.addEventListener("appinstalled", () => {
+                        installPrompt = null;
+                        if (installButton) installButton.hidden = true;
+                    });
+                    refreshInstallButton();
                     let refreshing = false;
 
                     navigator.serviceWorker.addEventListener("controllerchange", () => {
