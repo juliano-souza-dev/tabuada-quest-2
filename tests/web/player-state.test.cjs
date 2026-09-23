@@ -388,7 +388,7 @@ test("Efeito só equipa se estiver no inventário e pode ser removido",()=>{
 
     s={
         ...s,
-        shop:{...s.shop,purchasedItemIds:[correctId,wrongId]},
+        shop:{...s.shop,purchasedItemIds:["ship-colombo",correctId,wrongId]},
         inventory:{
             items:[correctId,wrongId],
             equipped:{correctEffectId:null,wrongEffectId:null}
