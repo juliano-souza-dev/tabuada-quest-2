@@ -62,6 +62,25 @@ jobs:
             process_asset "web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png" "web/assets/regions/region-4/coroa-do-inverno-locked.webp"
             rm -f web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png
           fi
+      - name: Repair Coroa do Inverno transparency
+        shell: bash
+        run: |
+          set -euo pipefail
+          repair_alpha() {
+            src="$1"
+            tmp="${src%.webp}.alpha.png"
+            out="${src%.webp}.alpha.webp"
+            convert "$src" -alpha on -bordercolor black -border 1 -fuzz 10% \
+              -fill none -draw "matte 0,0 floodfill" -shave 1x1 "$tmp"
+            cwebp -quiet -q 90 -alpha_q 100 -m 6 -sharp_yuv "$tmp" -o "$out"
+            mv "$out" "$src"
+            rm -f "$tmp"
+          }
+          repair_alpha "web/assets/regions/region-4/coroa-do-inverno-unlocked.webp"
+          repair_alpha "web/assets/regions/region-4/coroa-do-inverno-locked.webp"
+          identify -format '%[opaque]\n' web/assets/regions/region-4/coroa-do-inverno-unlocked.webp | grep -qx false
+          identify -format '%[opaque]\n' web/assets/regions/region-4/coroa-do-inverno-locked.webp | grep -qx false
+
       - name: Optimize Terras Gelidas background
         shell: bash
         run: |
