@@ -91,8 +91,19 @@
             const status = TQ.domain.playerState.getRegionStatus(state, regionId);
             if (status === "locked") return;
 
+            const loader = document.createElement("div");
+            loader.className = "region-transition-loader";
+            loader.setAttribute("role", "status");
+            loader.setAttribute("aria-label", "Carregando Região");
+            loader.innerHTML = '<span class="region-transition-hourglass" aria-hidden="true">⌛</span>';
+            screen.appendChild(loader);
+
             const selected = TQ.domain.playerState.selectRegion(state, regionId);
-            onStateChange(TQ.domain.playerState.withLastScreen(selected, "islands"));
+            root.requestAnimationFrame(() => {
+                root.requestAnimationFrame(() => {
+                    onStateChange(TQ.domain.playerState.withLastScreen(selected, "islands"));
+                });
+            });
         });
 
         return screen;
