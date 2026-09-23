@@ -68,7 +68,8 @@
 
         TQ.core.safeViewport.bindCanonicalStage(
             screen.querySelector(".tq-safe-visual-area"),
-            screen.querySelector(".world-map-stage")
+            screen.querySelector(".world-map-stage"),
+            { fit: "cover" }
         );
 
         screen.addEventListener("click", (event) => {
