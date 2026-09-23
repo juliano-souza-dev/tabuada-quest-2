@@ -360,65 +360,40 @@
 }
 
 
+.island-travel-stage.has-travel-background,
+.island-travel-colombo-fallback,
+.challenge-art-loading-animation.has-travel-background {
+    background-color: #062839;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
 .island-travel-colombo-fallback {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: linear-gradient(180deg, #7fd4f5 0%, #cceffc 42%, #08729b 43%, #034e72 100%);
-}
-
-.island-travel-colombo-sky,
-.island-travel-colombo-ocean,
-.island-travel-colombo-waves {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-}
-
-.island-travel-colombo-sky {
-    background:
-        radial-gradient(circle at 18% 18%, rgba(255,255,255,.88) 0 7%, transparent 8%),
-        radial-gradient(circle at 72% 13%, rgba(255,255,255,.78) 0 6%, transparent 7%),
-        linear-gradient(180deg, #6ec8f1 0%, #d7f3ff 46%, transparent 47%);
-}
-
-.island-travel-colombo-ocean {
-    top: 43%;
-    background: linear-gradient(180deg, #1597c8 0%, #09698f 45%, #034b6f 100%);
-}
-
-.island-travel-colombo-waves {
-    top: 48%;
-    opacity: .62;
-    background:
-        repeating-linear-gradient(172deg, transparent 0 24px, rgba(255,255,255,.34) 25px 29px, transparent 30px 58px);
-    animation: tq-colombo-waves 1.4s linear infinite;
 }
 
 .island-travel-colombo-ship {
     position: absolute;
     z-index: 2;
-    left: 0;
+    left: 100%;
     top: 50%;
     width: min(72vw, 620px);
     max-height: 64%;
     object-fit: contain;
-    transform: translate(-115%, -50%) rotate(-1deg);
+    transform: translate(12%, -50%) rotate(-1deg);
     filter: drop-shadow(0 18px 16px rgba(0,0,0,.34));
     animation: tq-colombo-sail 6s ease-in-out forwards;
 }
 
 @keyframes tq-colombo-sail {
-    0% { transform: translate(-115%, -48%) rotate(-2deg); }
+    0% { transform: translate(12%, -48%) rotate(-2deg); }
     18% { transform: translate(-38%, -54%) rotate(1.4deg); }
-    45% { transform: translate(18%, -48%) rotate(-1.2deg); }
-    72% { transform: translate(68%, -53%) rotate(1.2deg); }
-    100% { transform: translate(145%, -49%) rotate(0deg); }
-}
-
-@keyframes tq-colombo-waves {
-    from { transform: translateX(0); }
-    to { transform: translateX(-72px); }
+    45% { transform: translate(-92%, -48%) rotate(-1.2deg); }
+    72% { transform: translate(-148%, -53%) rotate(1.2deg); }
+    100% { transform: translate(-225%, -49%) rotate(0deg); }
 }
 
 
@@ -692,9 +667,10 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background:
-        radial-gradient(circle at 50% 30%, rgba(107, 205, 236, .18), transparent 36%),
-        linear-gradient(180deg, #082431 0%, #0a4053 58%, #08667d 100%);
+    background-color: #062839;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 }
 
 .challenge-art-loading-animation > svg {
@@ -705,22 +681,22 @@
 
 .challenge-loading-colombo-fallback {
     position: absolute;
-    left: 0;
+    left: 100%;
     top: 50%;
     width: min(76cqw, 520px);
     max-height: 66%;
     object-fit: contain;
-    transform: translate(-115%, -50%);
+    transform: translate(12%, -50%);
     filter: drop-shadow(0 18px 16px rgba(0, 0, 0, .34));
     animation: challenge-colombo-sail 5.6s ease-in-out infinite;
 }
 
 @keyframes challenge-colombo-sail {
-    0% { transform: translate(-115%, -49%) rotate(-2deg); }
-    22% { transform: translate(-34%, -54%) rotate(1deg); }
-    50% { transform: translate(16%, -49%) rotate(-1deg); }
-    78% { transform: translate(72%, -53%) rotate(1deg); }
-    100% { transform: translate(145%, -49%) rotate(0deg); }
+    0% { transform: translate(12%, -49%) rotate(-2deg); }
+    22% { transform: translate(-42%, -54%) rotate(1deg); }
+    50% { transform: translate(-98%, -49%) rotate(-1deg); }
+    78% { transform: translate(-158%, -53%) rotate(1deg); }
+    100% { transform: translate(-225%, -49%) rotate(0deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
