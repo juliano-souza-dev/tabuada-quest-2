@@ -1,4 +1,5 @@
-const CACHE_VERSION = "tq2-shell-20260923-1";
+const CACHE_VERSION = "tq2-shell-20260923-2";
+const CACHE_PREFIX = "tq2-shell-";
 const SHELL = [
   "./",
   "./index.html",
@@ -9,17 +10,22 @@ const SHELL = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(SHELL)));
-  self.skipWaiting();
+  // Do not skipWaiting here. The running game keeps its current version
+  // until the client explicitly activates the fully installed update.
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key.startsWith("tq2-shell-") && key !== CACHE_VERSION)
+      keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_VERSION)
         .map((key) => caches.delete(key))
     ))
   );
   self.clients.claim();
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("fetch", (event) => {
@@ -31,22 +37,24 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put("./index.html", copy));
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.put("./index.html", copy)));
+          }
           return response;
         })
-        .catch(() => caches.match("./index.html"))
+        .catch(() => caches.match("./index.html").then((cached) => cached || caches.match("./")))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: false }).then((cached) => {
+    caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
         if (!response || response.status !== 200 || response.type === "opaque") return response;
         const copy = response.clone();
-        caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, copy));
+        event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, copy)));
         return response;
       });
     })
