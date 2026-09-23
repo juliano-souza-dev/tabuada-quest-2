@@ -1,9 +1,11 @@
-const CACHE_VERSION = "tq2-shell-20260923-2";
+const CACHE_VERSION = "tq2-shell-20260923-3";
 const CACHE_PREFIX = "tq2-shell-";
 const SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./assets/pwa/icon-192.svg",
+  "./assets/pwa/icon-512.svg",
   "./css/app.css",
   "./js/app.js"
 ];
