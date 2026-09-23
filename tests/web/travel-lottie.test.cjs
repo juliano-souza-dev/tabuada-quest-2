@@ -46,3 +46,32 @@ test("fallback do El Colombo é animado por CSS, sem vídeo",()=>{
     assert.match(css,/@keyframes tq-colombo-sail/);
     assert.doesNotMatch(css,/\.island-travel-video|\.island-travel-play-button/);
 });
+
+
+test("El Colombo usa background real e navega na direção da proa",()=>{
+    const content=fs.readFileSync(contentPath,"utf8");
+    const source=fs.readFileSync(travelPath,"utf8");
+    const lottie=JSON.parse(fs.readFileSync(
+        path.join(__dirname,"../../web/assets/transitions/el-colombo/el-colombo-ocean-navigation.json"),
+        "utf8"
+    ));
+
+    assert.match(content,/travelBackground:\s*"\.\/assets\/transitions\/el-colombo\/images\/ocean-background\.webp"/);
+    assert.match(source,/travelBackground/);
+    assert.match(source,/backgroundImage/);
+    assert.match(source,/preserveAspectRatio:\s*"xMidYMid meet"/);
+
+    const names=lottie.layers.map((layer)=>layer.nm).join("|");
+    assert.doesNotMatch(names,/Sky|Ocean Base|Foreground Waves|Mid Waves|Far Waves/);
+
+    const controller=lottie.layers.find((layer)=>layer.nm==="El Colombo Controller");
+    assert.ok(controller.ks.p.k[0].s[0] > controller.ks.p.k.at(-1).s[0]);
+});
+
+test("background do Colombo está otimizado e disponível offline",()=>{
+    const background=path.join(__dirname,"../../web/assets/transitions/el-colombo/images/ocean-background.webp");
+    assert.equal(fs.existsSync(background),true);
+    assert.ok(fs.statSync(background).size<500_000);
+    const sw=fs.readFileSync(path.join(__dirname,"../../web/sw.js"),"utf8");
+    assert.match(sw,/ocean-background\.webp/);
+});
