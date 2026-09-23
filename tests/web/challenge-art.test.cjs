@@ -56,7 +56,7 @@ test("CORSÁRIO não renderiza progresso visual",()=>{
 test("CORSÁRIO calibra conta e respostas nas áreas vazias de cada arte",()=>{
     const expected={
         1:{
-            question:{x:21.5,y:45.2,width:57.5,height:17.4},
+            question:{x:22.7,y:27.0,width:57.9,height:12.9},
             answers:{x:14,y:64.7,width:72,height:20.9,columnGap:5.8,rowGap:5.8}
         },
         2:{
