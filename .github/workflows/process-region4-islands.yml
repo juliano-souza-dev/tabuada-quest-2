@@ -1,11 +1,11 @@
-name: Process Region 4 island assets
+name: Process Region 4 Island Assets
 
 on:
   push:
     paths:
-      - "web/assets/regions/region-4/file_00000000a91c820e95b4a9b70844352e.png"
-      - "web/assets/regions/region-4/file_00000000b75c820e856690e1cf04db37.png"
-      - ".github/workflows/process-region4-islands.yml"
+      - 'web/assets/regions/region-4/file_000000004cc8820ea9897c74a09cc1d5.png'
+      - 'web/assets/regions/region-4/file_00000000fa48820e90945503cf3ed97a.png'
+      - '.github/workflows/process-region4-islands.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,69 +15,55 @@ jobs:
   process:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: Install image tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y imagemagick webp
-
-      - name: Normalize and optimize Region 4 islands
+        run: sudo apt-get update && sudo apt-get install -y imagemagick webp
+      - name: Optimize Baia do Cristal pair
         shell: bash
         run: |
           set -euo pipefail
-
           process_asset() {
             src="$1"
             dst="$2"
-            test -f "$src"
-            before_bytes="$(stat -c%s "$src")"
-            before_dims="$(identify -format '%wx%h' "$src")"
-            tmp="$(mktemp --suffix=.png)"
-
-            convert "$src" \
-              -colorspace sRGB \
-              -filter Lanczos \
-              -resize '896x896>' \
-              -unsharp 0x0.45+0.45+0.015 \
-              -strip "$tmp"
-
+            tmp="${dst%.webp}.tmp.png"
+            convert "$src" -colorspace sRGB -filter Lanczos -resize '896x896>' -unsharp 0x0.45+0.45+0.015 -strip "$tmp"
             cwebp -quiet -q 90 -alpha_q 100 -m 6 -sharp_yuv "$tmp" -o "$dst"
+            rm -f "$tmp"
             test -s "$dst"
-
-            after_bytes="$(stat -c%s "$dst")"
-            after_dims="$(identify -format '%wx%h' "$dst")"
-            echo "$(basename "$src"): $before_dims / $before_bytes -> $(basename "$dst"): $after_dims / $after_bytes"
-
-            rm -f "$tmp" "$src"
           }
-
-          process_asset \
-            "web/assets/regions/region-4/file_00000000a91c820e95b4a9b70844352e.png" \
-            "web/assets/regions/region-4/porto-da-geada-unlocked.webp"
-
-          process_asset \
-            "web/assets/regions/region-4/file_00000000b75c820e856690e1cf04db37.png" \
-            "web/assets/regions/region-4/porto-da-geada-locked.webp"
-
-          test -s web/assets/regions/region-4/porto-da-geada-unlocked.webp
-          test -s web/assets/regions/region-4/porto-da-geada-locked.webp
-
-          sed -i 's#./assets/regions/region-4/island-01-unlocked.webp?v=20260923-terras-gelidas-i12#./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-i12-v2#g' web/js/content/game-content.js
-          true # Porto da Geada locked link is maintained in game-content.js
-
-      - name: Commit processed assets and links
+          process_asset "web/assets/regions/region-4/file_000000004cc8820ea9897c74a09cc1d5.png" "web/assets/regions/region-4/baia-do-cristal-unlocked.webp"
+          process_asset "web/assets/regions/region-4/file_00000000fa48820e90945503cf3ed97a.png" "web/assets/regions/region-4/baia-do-cristal-locked.webp"
+          rm -f web/assets/regions/region-4/file_000000004cc8820ea9897c74a09cc1d5.png
+          rm -f web/assets/regions/region-4/file_00000000fa48820e90945503cf3ed97a.png
+      - name: Link island 2
         shell: bash
         run: |
-          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("web/js/content/game-content.js")
+          s=p.read_text()
+          old='''                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-porto-v2",
+                        locked: "./assets/regions/region-4/porto-da-geada-locked.webp?v=20260922-terras-gelidas-porto-v2"
+                    })'''
+          new='''                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-porto-v2",
+                        locked: "./assets/regions/region-4/porto-da-geada-locked.webp?v=20260922-terras-gelidas-porto-v2"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-4/baia-do-cristal-unlocked.webp?v=20260923-terras-gelidas-baia-v1",
+                        locked: "./assets/regions/region-4/baia-do-cristal-locked.webp?v=20260923-terras-gelidas-baia-v1"
+                    })'''
+          if old not in s:
+              raise SystemExit("Region 4 island mapping block not found")
+          p.write_text(s.replace(old,new))
+          PY
+      - name: Commit processed assets
+        shell: bash
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A web/assets/regions/region-4 web/js/content/game-content.js
-          if git diff --cached --quiet; then
-            echo "Nothing to commit."
-            exit 0
-          fi
-          git commit -m "assets: replace and optimize Region 4 islands 1 and 2"
-          git pull --rebase origin main
+          git diff --cached --quiet && exit 0
+          git commit -m "assets: optimize and link Region 4 Baia do Cristal pair"
           git push
