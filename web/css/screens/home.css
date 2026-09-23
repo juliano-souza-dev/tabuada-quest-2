@@ -61,6 +61,20 @@
     background: linear-gradient(180deg, rgba(0, 25, 36, 0.02), rgba(0, 25, 36, 0.05));
 }
 
+
+.home-header-name {
+    position: absolute;
+    z-index: 6;
+    left: 50%;
+    top: 0.8%;
+    width: 58%;
+    height: auto;
+    transform: translateX(-50%);
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+}
+
 .home-art-overlay {
     position: absolute;
     inset: 0;
