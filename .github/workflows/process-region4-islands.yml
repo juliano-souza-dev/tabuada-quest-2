@@ -33,10 +33,6 @@ jobs:
             rm -f "$tmp"
             test -s "$dst"
           }
-          process_asset "web/assets/regions/region-4/file_000000004cc8820ea9897c74a09cc1d5.png" "web/assets/regions/region-4/baia-do-cristal-unlocked.webp"
-          process_asset "web/assets/regions/region-4/file_00000000fa48820e90945503cf3ed97a.png" "web/assets/regions/region-4/baia-do-cristal-locked.webp"
-          rm -f web/assets/regions/region-4/file_000000004cc8820ea9897c74a09cc1d5.png
-          rm -f web/assets/regions/region-4/file_00000000fa48820e90945503cf3ed97a.png
           if [ -f web/assets/regions/region-4/file_0000000067c8820eb893a4b6e412e499.png ]; then
             process_asset "web/assets/regions/region-4/file_0000000067c8820eb893a4b6e412e499.png" "web/assets/regions/region-4/rochedo-boreal-unlocked.webp"
             rm -f web/assets/regions/region-4/file_0000000067c8820eb893a4b6e412e499.png
