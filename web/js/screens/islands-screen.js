@@ -357,19 +357,11 @@
             || TQ.domain.gameplay.createRegionState(regionId);
         const session = TQ.domain.gameplay.createIslandSession(regionId, islandId);
         const prepared = TQ.domain.gameplay.prepareNextChallenge(session, existingRegionState);
-        const hasTravelPlayed = TQ.domain.playerState.hasPlayedIslandTravel(state, regionId, islandId);
-
-        return hasTravelPlayed
-            ? TQ.domain.playerState.withGameplaySession(
-                state,
-                prepared.session,
-                prepared.regionState
-            )
-            : TQ.domain.playerState.withIslandTravelSession(
-                state,
-                prepared.session,
-                prepared.regionState
-            );
+        return TQ.domain.playerState.withGameplaySession(
+            state,
+            prepared.session,
+            prepared.regionState
+        );
     }
 
     function createDevelopmentIslandEntryState(state, regionId, islandId) {
@@ -570,7 +562,15 @@
             }
 
             if (event.target.closest('[data-action="open-world-map"]')) {
-                TQ.core.worldMap.open({ onNavigate });
+                const loader = document.createElement("div");
+                loader.className = "world-map-transition-loader";
+                loader.setAttribute("role", "status");
+                loader.setAttribute("aria-label", "Carregando Mapa mundo");
+                loader.innerHTML = '<span class="world-map-transition-hourglass" aria-hidden="true">⌛</span>';
+                screen.appendChild(loader);
+                root.requestAnimationFrame(() => {
+                    root.requestAnimationFrame(() => TQ.core.worldMap.open({ onNavigate }));
+                });
                 return;
             }
 
