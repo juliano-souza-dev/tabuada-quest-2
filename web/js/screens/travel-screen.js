@@ -27,6 +27,7 @@
 
         const travelAnimation = equippedShip?.travelAnimation || defaultShip?.travelAnimation || null;
         const travelShipAsset = equippedShip?.asset || defaultShip?.asset || null;
+        const travelBackground = equippedShip?.travelBackground || defaultShip?.travelBackground || null;
 
         screen.innerHTML = `
             <div class="island-travel-stage" aria-label="Viajando para ${label}"></div>
@@ -34,6 +35,10 @@
         `;
 
         const stage = screen.querySelector(".island-travel-stage");
+        if (travelBackground) {
+            stage.classList.add("has-travel-background");
+            stage.style.backgroundImage = `url("${travelBackground}")`;
+        }
         let finished = false;
         let animation = null;
 
@@ -72,10 +77,8 @@
 
             const fallback = document.createElement("div");
             fallback.className = "island-travel-colombo-fallback";
+            if (travelBackground) fallback.style.backgroundImage = `url("${travelBackground}")`;
             fallback.innerHTML = `
-                <div class="island-travel-colombo-sky" aria-hidden="true"></div>
-                <div class="island-travel-colombo-ocean" aria-hidden="true"></div>
-                <div class="island-travel-colombo-waves" aria-hidden="true"></div>
                 <img class="island-travel-colombo-ship" src="${travelShipAsset}" alt="">
             `;
             stage.appendChild(fallback);
@@ -113,7 +116,7 @@
                     path: resolvedAnimationUrl.href,
                     assetsPath,
                     rendererSettings: {
-                        preserveAspectRatio: "xMidYMid slice",
+                        preserveAspectRatio: "xMidYMid meet",
                         progressiveLoad: true
                     }
                 });
