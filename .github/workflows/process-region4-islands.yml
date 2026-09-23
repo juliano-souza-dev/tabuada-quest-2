@@ -89,8 +89,8 @@ jobs:
                         unlocked: "./assets/regions/region-4/rochedo-boreal-unlocked.webp?v=20260923-terras-gelidas-rochedo-v1",
                         locked: "./assets/regions/region-4/rochedo-boreal-locked.webp?v=20260923-terras-gelidas-rochedo-v1"
                     })'''
-          if re.search(r'\\n\\s*3:\\s*Object\\.freeze\\(\\{',body):
-              body=re.sub(r'\\n\\s*3:\\s*Object\\.freeze\\(\\{[\\s\\S]*?\\n\\s*\\}\\)',island3,body,count=1)
+          if re.search(r'\n\s*3:\s*Object\.freeze\(\{',body):
+              body=re.sub(r'\n\s*3:\s*Object\.freeze\(\{[\s\S]*?\n\s*\}\)',island3,body,count=1)
           else:
               body=body.rstrip()
               if body and not body.endswith(','):
