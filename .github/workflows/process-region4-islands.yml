@@ -11,6 +11,7 @@ on:
       - 'web/assets/regions/region-4/file_00000000f1e0820e82ce97ba5cb3b0e9.png'
       - 'web/assets/regions/region-4/file_0000000007b0820e85f5413aa9513c2d.png'
       - 'web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png'
+      - 'web/assets/regions/region-4/file_000000009454820eaab2003eebf76977.png'
       - '.github/workflows/process-region4-islands.yml'
   workflow_dispatch:
 
@@ -60,6 +61,17 @@ jobs:
           if [ -f web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png ]; then
             process_asset "web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png" "web/assets/regions/region-4/coroa-do-inverno-locked.webp"
             rm -f web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png
+          fi
+      - name: Optimize Terras Gelidas background
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="web/assets/regions/region-4/file_000000009454820eaab2003eebf76977.png"
+          DST="web/assets/regions/region-4/region-04-background-v2.webp"
+          if [ -f "$SRC" ]; then
+            cwebp -quiet -q 86 -m 6 -sharp_yuv "$SRC" -o "$DST"
+            rm -f "$SRC"
+            test -s "$DST"
           fi
       - name: Link Region 4 islands
         shell: bash
