@@ -1460,3 +1460,36 @@
         }
     }
 }
+
+
+/* Mascara a troca para o Mapa Mundo até a próxima tela assumir a viewport. */
+.world-map-transition-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    background: rgba(4, 24, 42, .96);
+    pointer-events: all;
+}
+
+.world-map-transition-hourglass {
+    display: block;
+    font-size: clamp(64px, 20vw, 118px);
+    line-height: 1;
+    transform-origin: 50% 50%;
+    animation: world-map-hourglass-spin 1s ease-in-out infinite;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .35));
+}
+
+@keyframes world-map-hourglass-spin {
+    0% { transform: rotate(0deg) scale(.96); }
+    50% { transform: rotate(180deg) scale(1.04); }
+    100% { transform: rotate(360deg) scale(.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .world-map-transition-hourglass {
+        animation: none;
+    }
+}
