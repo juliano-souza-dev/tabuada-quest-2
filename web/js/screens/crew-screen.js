@@ -1,42 +1,31 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-
-    const BONUS_LABELS = Object.freeze({
-        xp: "XP",
-        coins: "OURO",
-        gems: "GEMAS"
-    });
+    const BONUS_LABELS = Object.freeze({ xp: "XP", coins: "Ouro", gems: "Gemas" });
 
     function renderCrewScreen({ state, onStateChange, onNavigate }) {
         const crew = TQ.content.crewMembers || [];
         const hired = new Set(state.crew?.hiredIds || []);
         const bonuses = TQ.domain.playerState.getCrewBonusSummary(state, crew);
 
-        const cards = crew.map((member) => {
+        const slots = crew.map((member) => {
             const isHired = hired.has(member.id);
             const canAfford = state.wallet.coins >= member.cost;
-            const bonusLabel = BONUS_LABELS[member.bonusType] || member.bonusType;
-            const buttonLabel = isHired ? "CONTRATADO ✓" : (canAfford ? "CONTRATAR" : "OURO INSUFICIENTE");
+            const status = isHired ? "Membro da tripulação" : "Contratar";
             const ariaLabel = isHired
-                ? member.label + " já contratado"
+                ? member.label + " já faz parte da tripulação"
                 : "Contratar " + member.label + " por " + member.cost + " ouro";
 
             return `
-                <article class="crew-card ${isHired ? "is-hired" : ""}">
-                    <div class="crew-portrait">
+                <article class="crew-slot ${isHired ? "is-hired" : ""}" data-role="${member.id}">
+                    <div class="crew-slot-portrait">
                         <img src="${member.asset}" alt="${member.label}">
                     </div>
-                    <div class="crew-info">
-                        <h2>${member.label}</h2>
-                        <p class="crew-bonus">+${member.bonusPercent}% ${bonusLabel}</p>
-                        <p class="crew-price">🪙 ${member.cost} ouro</p>
-                    </div>
-                    <button type="button"
-                            data-crew-id="${member.id}"
+                    <div class="crew-slot-footer">
+                        <span class="crew-slot-price" aria-label="${member.cost} ouro">${member.cost.toLocaleString("pt-BR")}</span>
+                        <button type="button" data-crew-id="${member.id}"
                             ${isHired || !canAfford ? "disabled" : ""}
-                            aria-label="${ariaLabel}">
-                        ${buttonLabel}
-                    </button>
+                            aria-label="${ariaLabel}">${status}</button>
+                    </div>
                 </article>
             `;
         }).join("");
@@ -44,26 +33,15 @@
         const screen = document.createElement("section");
         screen.className = "crew-screen";
         screen.setAttribute("aria-label", "Taberna da Tripulação");
-
         screen.innerHTML = `
             <img class="crew-tavern-bg" src="${TQ.content.assets.tavern.background}" alt="" aria-hidden="true">
-            <header class="crew-header">
-                <button type="button" data-action="back" aria-label="Voltar">←</button>
-                <div>
-                    <small>TRIPULAÇÃO</small>
-                    <h1>Taberna</h1>
-                </div>
-                <div class="crew-gold" aria-label="${state.wallet.coins} de ouro">🪙 ${state.wallet.coins}</div>
-            </header>
-
-            <section class="crew-summary" aria-label="Bônus ativos">
-                <strong>Bônus ativos</strong>
+            <button class="crew-art-back" type="button" data-action="back" aria-label="Voltar"></button>
+            <div class="crew-bonus-overlay" aria-label="Bônus ativos">
                 <span>XP +${bonuses.xp}%</span>
                 <span>Ouro +${bonuses.coins}%</span>
                 <span>Gemas +${bonuses.gems}%</span>
-            </section>
-
-            <main class="crew-list">${cards}</main>
+            </div>
+            <main class="crew-slots">${slots}</main>
         `;
 
         screen.addEventListener("click", (event) => {
@@ -71,16 +49,11 @@
                 onNavigate("home");
                 return;
             }
-
-            const hireButton = event.target.closest("[data-crew-id]");
-            if (!hireButton || hireButton.disabled) return;
-
-            const member = crew.find((item) => item.id === hireButton.dataset.crewId);
-            if (!member) return;
-
-            onStateChange(TQ.domain.playerState.hireCrewMember(state, member));
+            const button = event.target.closest("[data-crew-id]");
+            if (!button || button.disabled) return;
+            const member = crew.find((item) => item.id === button.dataset.crewId);
+            if (member) onStateChange(TQ.domain.playerState.hireCrewMember(state, member));
         });
-
         return screen;
     }
 
