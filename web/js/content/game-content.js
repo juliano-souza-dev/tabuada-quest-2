@@ -787,6 +787,9 @@
                 victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028",
                 petRescueScreen: "./assets/global/pet_rescue_screen.webp?v=20260922-pet-rescue-v1"
             }),
+            tavern: Object.freeze({
+                background: "./assets/tavern/tavern-background.webp?v=20260923-tavern-bg-v1"
+            }),
             islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
