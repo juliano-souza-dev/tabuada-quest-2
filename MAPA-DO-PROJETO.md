@@ -205,17 +205,17 @@ Regra técnica de compartilhamento: `agentes/04-desenvolvimento.md`.
 Assets ativos:
 
 ```text
-web/assets/regions/region-1/mapa_marítimo_do_corsário.png
-web/assets/regions/region-1/island-01-unlocked.png
-web/assets/regions/region-1/island-01-locked.png
-web/assets/regions/region-1/island-02-unlocked.png
-web/assets/regions/region-1/island-02-locked.png
-web/assets/regions/region-1/island-03-unlocked.png
-web/assets/regions/region-1/island-03-locked.png
-web/assets/regions/region-1/island-04-unlocked.png
-web/assets/regions/region-1/island-04-locked.png
-web/assets/regions/region-1/island-05-unlocked.png
-web/assets/regions/region-1/island-05-locked.png
+web/assets/regions/region-1/background.webp
+web/assets/regions/region-1/island-01-unlocked.webp
+web/assets/regions/region-1/island-01-locked.webp
+web/assets/regions/region-1/island-02-unlocked.webp
+web/assets/regions/region-1/island-02-locked.webp
+web/assets/regions/region-1/island-03-unlocked.webp
+web/assets/regions/region-1/island-03-locked.webp
+web/assets/regions/region-1/island-04-unlocked.webp
+web/assets/regions/region-1/island-04-locked.webp
+web/assets/regions/region-1/island-05-unlocked.webp
+web/assets/regions/region-1/island-05-locked.webp
 ```
 
 Configuração ativa:
@@ -261,7 +261,7 @@ CHALLENGE_ART_LAYOUTS[regionId][islandId]
 
 O código deve se adaptar às áreas vazias da arte aprovada.
 
-Arquivos históricos das antigas Ilhas 06–10 ou do segundo background podem permanecer fisicamente em `web/assets/regions/region-1/` até limpeza de assets, mas não pertencem ao catálogo executável.
+Os assets históricos das antigas Ilhas 06–10 e backgrounds substituídos foram removidos na limpeza da issue #127. A pasta de produção mantém apenas os assets canônicos usados pela composição atual.
 
 ### Macroestrutura canônica do mundo
 
@@ -362,17 +362,17 @@ As cinco artes de desafio são WebP otimizados 941×1672. Progresso, operação,
 Assets de composição canônicos:
 
 ```text
-web/assets/regions/region-13/background.png
-web/assets/regions/region-13/island-01-unlocked.png
-web/assets/regions/region-13/island-01-locked.png
-web/assets/regions/region-13/island-02-unlocked.png
-web/assets/regions/region-13/island-02-locked.png
-web/assets/regions/region-13/island-03-unlocked.png
-web/assets/regions/region-13/island-03-locked.png
-web/assets/regions/region-13/island-04-unlocked.png
-web/assets/regions/region-13/island-04-locked.png
-web/assets/regions/region-13/island-05-unlocked.png
-web/assets/regions/region-13/island-05-locked.png
+web/assets/regions/region-13/background.webp
+web/assets/regions/region-13/island-01-unlocked.webp
+web/assets/regions/region-13/island-01-locked.webp
+web/assets/regions/region-13/island-02-unlocked.webp
+web/assets/regions/region-13/island-02-locked.webp
+web/assets/regions/region-13/island-03-unlocked.webp
+web/assets/regions/region-13/island-03-locked.webp
+web/assets/regions/region-13/island-04-unlocked.webp
+web/assets/regions/region-13/island-04-locked.webp
+web/assets/regions/region-13/island-05-unlocked.webp
+web/assets/regions/region-13/island-05-locked.webp
 ```
 
 Ordem canônica:
@@ -461,10 +461,11 @@ Este catálogo é independente do legado `campaign.specialMaps` até que uma tar
 
 ## Mapa mundo
 
-Asset de acesso:
+Assets globais:
 
 ```text
-web/assets/global/mapa-mundo.png
+web/assets/global/mapa-mundo.png       → botão/acesso ao Mapa Mundo
+web/assets/global/mapa_mundial.webp   → composição visual do Mapa Mundo
 ```
 
 Catálogo canônico das 22 Regiões:
@@ -1177,3 +1178,47 @@ Ordem vigente:
 ```
 
 `corsario-farol-torto-challenge-bg.webp` foi removido porque Farol Torto pertence à Região 2, BIRADES.
+## Safe viewport / canvas imersivo
+
+Controlador canônico:
+
+```text
+web/js/core/safe-viewport.js
+```
+
+Variáveis e área segura:
+
+```text
+web/css/base.css
+--tq-safe-top
+--tq-safe-right
+--tq-safe-bottom
+--tq-safe-left
+.tq-safe-visual-area
+.tq-canonical-stage
+```
+
+Insets nativos Android:
+
+```text
+app/src/main/java/com/tabuadaquest/app/MainActivity.java
+```
+
+Telas integradas:
+
+```text
+web/js/screens/home-screen.js
+web/js/screens/world-map-screen.js
+web/js/screens/islands-screen.js
+web/js/screens/challenge-screen.js
+web/js/screens/result-screen.js
+web/js/screens/pet-screen.js
+```
+
+Teste de regressão:
+
+```text
+tests/web/safe-viewport.test.cjs
+```
+
+Contrato: conteúdo crítico vive em canvas 941×1672 proporcional dentro da safe area; a viewport excedente é bleed visual e pode ser cortada.

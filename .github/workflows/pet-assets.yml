@@ -1,0 +1,111 @@
+name: Optimize pet assets
+
+on:
+  push:
+    paths:
+      - "web/assets/pets/**"
+      - ".github/workflows/pet-assets.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install image tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
+      - name: Optimize and normalize pet assets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          declare -A PETS=(
+            ["01 - Pluma.webp"]="pluma.webp"
+            ["02 - Faísca.webp"]="faisca.webp"
+            ["03 - Marujo.webp"]="marujo.webp"
+            ["04 - Coral.webp"]="coral.webp"
+            ["05 - Pingo.webp"]="pingo.webp"
+            ["06 - Trovão.webp"]="trovao.webp"
+            ["07 - Rubi.webp"]="rubi.webp"
+            ["08 - Pirilampo.webp"]="pirilampo.webp"
+            ["09 - Bolota.webp"]="bolota.webp"
+            ["10 - Brisa.webp"]="brisa.webp"
+            ["11 - Dourado.webp"]="dourado.webp"
+            ["12 - Pipoca.webp"]="pipoca.webp"
+            ["13 - Cascalho.webp"]="cascalho.webp"
+            ["14 - Estrela.webp"]="estrela.webp"
+            ["15 - Fumaça.webp"]="fumaca.webp"
+            ["16 - Pérola.webp"]="perola.webp"
+            ["17 - Farofa.webp"]="farofa.webp"
+            ["18 - Tempestade.webp"]="tempestade.webp"
+            ["19 - Biscoito.webp"]="biscoito.webp"
+            ["20 - Oceano.webp"]="oceano.webp"
+            ["21 - Canela.webp"]="canela.webp"
+            ["22 - Relâmpago.webp"]="relampago.webp"
+            ["23 - Bambuzinho.webp"]="bambuzinho.webp"
+            ["24 - Tesouro.webp"]="tesouro.webp"
+            ["25 - Azulão.webp"]="azulao.webp"
+            ["26 - Cacau.webp"]="cacau.webp"
+            ["27 - Capitão.webp"]="capitao.webp"
+            ["28 - Jujuba.webp"]="jujuba.webp"
+            ["29 - Farol.webp"]="farol.webp"
+          )
+
+          processed=0
+
+          for source_name in "${!PETS[@]}"; do
+            src="web/assets/pets/$source_name"
+            dst="web/assets/pets/${PETS[$source_name]}"
+
+            if [ ! -f "$src" ]; then
+              continue
+            fi
+
+            before="$(stat -c%s "$src")"
+            dims_before="$(identify -format '%wx%h' "$src")"
+
+            convert "$src"               -resize '896x896>'               -strip               -define webp:method=6               -define webp:alpha-quality=100               -quality 92               "$dst"
+
+            test -s "$dst"
+            dims_after="$(identify -format '%wx%h' "$dst")"
+            after="$(stat -c%s "$dst")"
+
+            echo "$source_name: $dims_before -> $dims_after | $before -> $after bytes"
+
+            rm "$src"
+            processed=$((processed + 1))
+          done
+
+          echo "Processed: $processed"
+
+          expected=30
+          actual="$(find web/assets/pets -maxdepth 1 -type f -name '*.webp' | wc -l)"
+          if [ "$actual" -ne "$expected" ]; then
+            echo "Expected $expected pet WebPs, found $actual"
+            exit 1
+          fi
+
+      - name: Commit optimized assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A web/assets/pets
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "assets: optimize and normalize 30 pet assets"
+          git pull --rebase origin main
+          git push

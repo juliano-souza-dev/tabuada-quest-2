@@ -257,9 +257,9 @@
         Object.freeze({ id: 1, label: "CORSÁRIO" }),
         Object.freeze({ id: 2, label: "BIRADES" }),
         Object.freeze({ id: 3, label: "ZONA OURO" }),
-        Object.freeze({ id: 4, label: "VALE ESMERALDA" }),
+        Object.freeze({ id: 4, label: "TERRAS GÉLIDAS" }),
         Object.freeze({ id: 5, label: "ZONA SAFIRA" }),
-        Object.freeze({ id: 6, label: "TERRAS GÉLIDAS" }),
+        Object.freeze({ id: 6, label: "VALE ESMERALDA" }),
         Object.freeze({ id: 7, label: "FANTASMAS" }),
         Object.freeze({ id: 8, label: "MARÉ SOMBRIA" }),
         Object.freeze({ id: 9, label: "TEMPESTÁRIA" }),
@@ -453,7 +453,7 @@
         }),
         "2": Object.freeze({
             "1": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i6" })]),
-            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r1-i7" })]),
+            "2": Object.freeze([Object.freeze({ type: "pet", petId: "pet-r2-i2" })]),
             "3": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 3 })]),
             "4": Object.freeze([Object.freeze({ type: "chest", chestId: "chest-r1-i9" })]),
             "5": Object.freeze([Object.freeze({ type: "map_fragment", mapId: 1, fragment: 4 })])
@@ -629,13 +629,47 @@
         Object.freeze({ type: "gems", percent: 1, label: "💎 +1% Rubis" })
     ]);
 
+    const petVisualCatalog = Object.freeze({
+        "pet-r1-i1": Object.freeze({ label: "Capitão Axolote", asset: "./assets/pets/axolotl-captain.webp" }),
+        "pet-r1-i4": Object.freeze({ label: "Pluma", asset: "./assets/pets/pluma.webp" }),
+        "pet-r2-i2": Object.freeze({ label: "Faísca", asset: "./assets/pets/faisca.webp" }),
+        "pet-r3-i2": Object.freeze({ label: "Marujo", asset: "./assets/pets/marujo.webp" }),
+        "pet-r3-i5": Object.freeze({ label: "Coral", asset: "./assets/pets/coral.webp" }),
+        "pet-r4-i4": Object.freeze({ label: "Pingo", asset: "./assets/pets/pingo.webp" }),
+        "pet-r5-i1": Object.freeze({ label: "Trovão", asset: "./assets/pets/trovao.webp" }),
+        "pet-r5-i4": Object.freeze({ label: "Rubi", asset: "./assets/pets/rubi.webp" }),
+        "pet-r6-i2": Object.freeze({ label: "Pirilampo", asset: "./assets/pets/pirilampo.webp" }),
+        "pet-r7-i3": Object.freeze({ label: "Bolota", asset: "./assets/pets/bolota.webp" }),
+        "pet-r8-i2": Object.freeze({ label: "Brisa", asset: "./assets/pets/brisa.webp" }),
+        "pet-r9-i1": Object.freeze({ label: "Dourado", asset: "./assets/pets/dourado.webp" }),
+        "pet-r9-i4": Object.freeze({ label: "Pipoca", asset: "./assets/pets/pipoca.webp" }),
+        "pet-r10-i2": Object.freeze({ label: "Cascalho", asset: "./assets/pets/cascalho.webp" }),
+        "pet-r11-i2": Object.freeze({ label: "Estrela", asset: "./assets/pets/estrela.webp" }),
+        "pet-r11-i5": Object.freeze({ label: "Fumaça", asset: "./assets/pets/fumaca.webp" }),
+        "pet-r12-i4": Object.freeze({ label: "Pérola", asset: "./assets/pets/perola.webp" }),
+        "pet-r13-i1": Object.freeze({ label: "Farofa", asset: "./assets/pets/farofa.webp" }),
+        "pet-r13-i4": Object.freeze({ label: "Tempestade", asset: "./assets/pets/tempestade.webp" }),
+        "pet-r14-i2": Object.freeze({ label: "Biscoito", asset: "./assets/pets/biscoito.webp" }),
+        "pet-r15-i3": Object.freeze({ label: "Oceano", asset: "./assets/pets/oceano.webp" }),
+        "pet-r16-i2": Object.freeze({ label: "Canela", asset: "./assets/pets/canela.webp" }),
+        "pet-r17-i2": Object.freeze({ label: "Relâmpago", asset: "./assets/pets/relampago.webp" }),
+        "pet-r17-i5": Object.freeze({ label: "Bambuzinho", asset: "./assets/pets/bambuzinho.webp" }),
+        "pet-r18-i4": Object.freeze({ label: "Tesouro", asset: "./assets/pets/tesouro.webp" }),
+        "pet-r19-i1": Object.freeze({ label: "Azulão", asset: "./assets/pets/azulao.webp" }),
+        "pet-r19-i4": Object.freeze({ label: "Cacau", asset: "./assets/pets/cacau.webp" }),
+        "pet-r20-i2": Object.freeze({ label: "Capitão", asset: "./assets/pets/capitao.webp" }),
+        "pet-r21-i3": Object.freeze({ label: "Jujuba", asset: "./assets/pets/jujuba.webp" }),
+        "pet-r22-i2": Object.freeze({ label: "Farol", asset: "./assets/pets/farol.webp" })
+    });
+
     const pets = Object.freeze(
         petRewards.map((reward, index) => {
             const bonus = petBonusRotation[index % petBonusRotation.length];
+            const visual = petVisualCatalog[reward.petId] || null;
             return Object.freeze({
                 id: reward.petId,
-                label: `Pet ${String(index + 1).padStart(2, "0")}`,
-                asset: null,
+                label: visual?.label || `Pet ${String(index + 1).padStart(2, "0")}`,
+                asset: visual?.asset || null,
                 bonus: Object.freeze({
                     type: bonus.type,
                     percent: bonus.percent,
@@ -720,6 +754,7 @@
         describeRubyShopUnlockRule,
         gameplayRewards,
         crewMembers,
+        petVisualCatalog,
         pets,
         petBonusTotals,
         getPet,
@@ -747,18 +782,25 @@
             itemChest: "./assets/ui/chest-items.webp",
             global: Object.freeze({
                 worldMap: "./assets/global/mapa-mundo.png?v=20260920-1808",
-                worldMapVisual: "./assets/global/mapa_mundial.png?v=20260922-world-map-v1",
+                worldMapVisual: "./assets/global/carta-nautica-01-regioes-01-04.webp?v=20260923-carta-nautica-pages-v1",
+                worldMapCharts: Object.freeze([
+                    Object.freeze({ id: 1, regionIds: Object.freeze([1, 2, 3, 4]), asset: "./assets/global/carta-nautica-01-regioes-01-04.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 2, regionIds: Object.freeze([5, 6, 7, 8]), asset: "./assets/global/carta-nautica-02-regioes-05-08.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 3, regionIds: Object.freeze([9, 10, 11, 12]), asset: "./assets/global/carta-nautica-03-regioes-09-12.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 4, regionIds: Object.freeze([13, 14, 15, 16]), asset: "./assets/global/carta-nautica-04-regioes-13-16.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 6, regionIds: Object.freeze([21, 22]), asset: "./assets/global/carta-nautica-06-regioes-21-22.webp?v=20260923-carta-nautica-pages-v1" })
+                ]),
                 rubyShopMerchantShip: "./assets/global/comercial_ship.webp?v=20260921-1720",
                 victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028",
                 petRescueScreen: "./assets/global/pet_rescue_screen.webp?v=20260922-pet-rescue-v1"
+            }),
+            tavern: Object.freeze({
+                background: "./assets/tavern/tavern-background.webp?v=20260923-tavern-art-v4"
             }),
             islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
             homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2228",
-            regionsMap: "./assets/regions/regions-map-base.webp?v=20260920-0318",
-            regionsMapStatic: "./assets/regions/regions-map-static.png?v=20260920-0318",
-            region1IslandsMapStatic: "./assets/regions/region-1-islands-static.webp?v=20260920-1130",
             region1ChallengeArt: Object.freeze({
                 1: "./assets/regions/region-1/challenges/corsario-enseada-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v4",
                 2: "./assets/regions/region-1/challenges/corsario-enseada-do-saque-challenge-bg.webp?v=20260922-corsario-challenge-v4",
@@ -774,30 +816,30 @@
                 5: "./assets/regions/region-2/challenges/island-05-challenge.webp?v=20260922-birades-challenge"
             }),
             region1Modular: Object.freeze({
-                background: "./assets/regions/region-1/mapa_marítimo_do_corsário.png?v=20260920-1727",
+                background: "./assets/regions/region-1/background.webp?v=20260920-1727",
                 backgrounds: Object.freeze({
-                    1: "./assets/regions/region-1/mapa_marítimo_do_corsário.png?v=20260920-1727"
+                    1: "./assets/regions/region-1/background.webp?v=20260920-1727"
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-01-unlocked.png?v=20260921-issue88",
-                        locked: "./assets/regions/region-1/island-01-locked.png?v=20260921-issue88"
+                        unlocked: "./assets/regions/region-1/island-01-unlocked.webp?v=20260921-issue88",
+                        locked: "./assets/regions/region-1/island-01-locked.webp?v=20260921-issue88"
                     }),
                     2: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-02-unlocked.png?v=20260920-1628",
-                        locked: "./assets/regions/region-1/island-02-locked.png?v=20260920-1628"
+                        unlocked: "./assets/regions/region-1/island-02-unlocked.webp?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-02-locked.webp?v=20260920-1628"
                     }),
                     3: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-03-unlocked.png?v=20260920-1628",
-                        locked: "./assets/regions/region-1/island-03-locked.png?v=20260920-1628"
+                        unlocked: "./assets/regions/region-1/island-03-unlocked.webp?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-03-locked.webp?v=20260920-1628"
                     }),
                     4: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-04-unlocked.png?v=20260920-1628",
-                        locked: "./assets/regions/region-1/island-04-locked.png?v=20260920-1628"
+                        unlocked: "./assets/regions/region-1/island-04-unlocked.webp?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-04-locked.webp?v=20260920-1628"
                     }),
                     5: Object.freeze({
-                        unlocked: "./assets/regions/region-1/island-05-unlocked.png?v=20260920-1628",
-                        locked: "./assets/regions/region-1/island-05-locked.png?v=20260920-1628"
+                        unlocked: "./assets/regions/region-1/island-05-unlocked.webp?v=20260920-1628",
+                        locked: "./assets/regions/region-1/island-05-locked.webp?v=20260920-1628"
                     })
                 })
             }),
@@ -857,31 +899,59 @@
                     })
                 })
             }),
-            region13Modular: Object.freeze({
-                background: "./assets/regions/region-13/background.png?v=20260921-0118",
+            region4Modular: Object.freeze({
+                background: "./assets/regions/region-4/region-04-background-v2.webp?v=20260923-terras-gelidas-bg-v2-corrected-1",
                 backgrounds: Object.freeze({
-                    1: "./assets/regions/region-13/background.png?v=20260921-0118"
+                    1: "./assets/regions/region-4/region-04-background-v2.webp?v=20260923-terras-gelidas-bg-v2-corrected-1"
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-01-unlocked.png?v=20260921-0102",
-                        locked: "./assets/regions/region-13/island-01-locked.png?v=20260921-0102"
+                        unlocked: "./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-porto-v2",
+                        locked: "./assets/regions/region-4/porto-da-geada-locked.webp?v=20260922-terras-gelidas-porto-v2"
                     }),
                     2: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-02-unlocked.png?v=20260921-0102",
-                        locked: "./assets/regions/region-13/island-02-locked.png?v=20260921-0102"
+              unlocked: "./assets/regions/region-4/baia-do-cristal-unlocked.webp?v=20260923-terras-gelidas-baia-v1",
+              locked: "./assets/regions/region-4/baia-do-cristal-locked.webp?v=20260923-terras-gelidas-baia-v1"
+          }),
+                    3: Object.freeze({
+              unlocked: "./assets/regions/region-4/rochedo-boreal-unlocked.webp?v=20260923-terras-gelidas-rochedo-v1",
+              locked: "./assets/regions/region-4/rochedo-boreal-locked.webp?v=20260923-terras-gelidas-rochedo-v1"
+          }),
+                    5: Object.freeze({
+              unlocked: "./assets/regions/region-4/coroa-do-inverno-locked.webp?v=20260923-terras-gelidas-ilha5-v2-swap",
+              locked: "./assets/regions/region-4/coroa-do-inverno-unlocked.webp?v=20260923-terras-gelidas-ilha5-v2-swap"
+          }),
+                    4: Object.freeze({
+              unlocked: "./assets/regions/region-4/island-04-unlocked.webp?v=20260923-terras-gelidas-ilha4-final",
+              locked: "./assets/regions/region-4/island-04-locked.webp?v=20260923-terras-gelidas-ilha4-final"
+          })
+                })
+            }),
+            region13Modular: Object.freeze({
+                background: "./assets/regions/region-13/background.webp?v=20260921-0118",
+                backgrounds: Object.freeze({
+                    1: "./assets/regions/region-13/background.webp?v=20260921-0118"
+                }),
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-13/island-01-unlocked.webp?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-01-locked.webp?v=20260921-0102"
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-13/island-02-unlocked.webp?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-02-locked.webp?v=20260921-0102"
                     }),
                     3: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-03-unlocked.png?v=20260921-0102",
-                        locked: "./assets/regions/region-13/island-03-locked.png?v=20260921-0102"
+                        unlocked: "./assets/regions/region-13/island-03-unlocked.webp?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-03-locked.webp?v=20260921-0102"
                     }),
                     4: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-04-unlocked.png?v=20260921-0102",
-                        locked: "./assets/regions/region-13/island-04-locked.png?v=20260921-0102"
+                        unlocked: "./assets/regions/region-13/island-04-unlocked.webp?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-04-locked.webp?v=20260921-0102"
                     }),
                     5: Object.freeze({
-                        unlocked: "./assets/regions/region-13/island-05-unlocked.png?v=20260921-0102",
-                        locked: "./assets/regions/region-13/island-05-locked.png?v=20260921-0102"
+                        unlocked: "./assets/regions/region-13/island-05-unlocked.webp?v=20260921-0102",
+                        locked: "./assets/regions/region-13/island-05-locked.webp?v=20260921-0102"
                     })
                 })
             }),

@@ -59,9 +59,11 @@
         const screen = document.createElement("section");
         screen.className = "home-screen home-premium";
         screen.setAttribute("aria-label", "Início do Tabuada Quest");
+        screen.style.setProperty("--home-bleed-image", `url("${displayedBackgroundSrc}")`);
 
         screen.innerHTML = `
-            <div class="home-design-stage">
+            <div class="tq-safe-visual-area home-safe-visual-area">
+            <div class="home-design-stage tq-canonical-stage">
                 <div class="home-world" aria-hidden="true">
                     <img class="home-background-image"
                          src="${displayedBackgroundSrc}"
@@ -106,6 +108,9 @@
                 <button class="shipyard-menu-button" type="button" data-action="shipyard" aria-label="Abrir Estaleiro">
                     <span>⛵</span><strong>ESTALEIRO</strong>
                 </button>
+                <button class="tavern-menu-button" type="button" data-action="tavern" aria-label="Abrir Taberna">
+                    <span>🍺</span><strong>TABERNA</strong>
+                </button>
 
                 <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
                     <span style="width:${chestPercent}%"></span>
@@ -139,6 +144,7 @@
                     </div>
                 ` : ""}
 
+            </div>
             </div>
 
             <div class="home-toast" role="status" aria-live="polite"></div>
@@ -202,6 +208,11 @@
                 </section>
             </div>
         `;
+
+        TQ.core.safeViewport.bindCanonicalStage(
+            screen.querySelector(".home-safe-visual-area"),
+            screen.querySelector(".home-design-stage")
+        );
 
         const backgroundImage = screen.querySelector(".home-background-image");
         if (backgroundImage) {
@@ -283,6 +294,11 @@
 
             if (action === "close-sheet") {
                 closeSheets();
+                return;
+            }
+
+            if (action === "tavern") {
+                onNavigate("tavern");
                 return;
             }
 

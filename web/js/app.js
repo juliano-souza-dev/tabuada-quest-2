@@ -266,6 +266,7 @@
 
         const renderers = {
             home: TQ.screens.home.renderHomeScreen,
+            tavern: TQ.screens.tavern.renderTavernScreen,
             crew: TQ.screens.crew.renderCrewScreen,
             collectibles: TQ.screens.collectibles.renderCollectiblesScreen,
             shop: TQ.screens.shop.renderShopScreen,

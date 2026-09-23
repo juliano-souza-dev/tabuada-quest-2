@@ -1,14 +1,14 @@
 @import url("./tokens.css");
-@import url("./base.css?v=20260922-global-home");
-@import url("./screens/auth.css?v=20260922-auth-profile");
-@import url("./screens/home.css?v=20260922-dev-exit");
-@import url("./screens/crew.css?v=20260920-2304");
+@import url("./base.css?v=20260922-safe-viewport-v1");
+@import url("./screens/auth.css?v=20260922-safe-viewport-v1");
+@import url("./screens/home.css?v=20260922-safe-viewport-v1");
+@import url("./screens/crew.css?v=20260923-tavern-calibration-v5");
 @import url("./screens/collectibles.css?v=20260922-collectibles-arrow-mask");
 @import url("./screens/shop.css?v=20260922-0006");
-@import url("./screens/world-map.css?v=20260922-world-map-v1");
+@import url("./screens/world-map.css?v=20260923-nautical-pages-v1");
 @import url("./screens/regions.css?v=20260920-0318");
 
-@import url("./screens/vertical-slice.css?v=20260922-pet-bonus-v2");
+@import url("./screens/vertical-slice.css?v=20260922-safe-viewport-v1");
 
 @import url("./screens/ruby-shop.css?v=20260921-1545");
 
@@ -18,7 +18,7 @@
     position: absolute;
     z-index: 100;
     left: 50%;
-    top: max(10px, env(safe-area-inset-top));
+    top: max(10px, var(--tq-safe-top));
     min-width: 82px;
     min-height: 40px;
     transform: translateX(-50%);
@@ -170,3 +170,29 @@
     cursor: default;
     opacity: .7;
 }
+
+.tavern-screen { position:relative; width:100%; height:100%; overflow:hidden; background:#17100b; }
+.tavern-background { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+
+
+/* PWA install CTA: only visible when the browser exposes the native install prompt. */
+#pwa-install-button {
+    position: fixed;
+    z-index: 10000;
+    left: 50%;
+    bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
+    transform: translateX(-50%);
+    min-width: 210px;
+    min-height: 50px;
+    padding: 0 22px;
+    border: 2px solid rgba(255, 225, 125, .96);
+    border-radius: 999px;
+    color: #fff8dc;
+    background: rgba(27, 75, 69, .96);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, .42);
+    font: 900 15px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: .02em;
+    cursor: pointer;
+}
+#pwa-install-button[hidden] { display: none !important; }
+#pwa-install-button:active { transform: translate(-50%, 2px); }

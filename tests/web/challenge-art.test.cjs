@@ -56,8 +56,8 @@ test("CORSÁRIO não renderiza progresso visual",()=>{
 test("CORSÁRIO calibra conta e respostas nas áreas vazias de cada arte",()=>{
     const expected={
         1:{
-            question:{x:22.5,y:45.2,width:56,height:12},
-            answers:{x:15.8,y:66.6,width:69.4,height:16.5,columnGap:9.6,rowGap:23.5}
+            question:{x:22.7,y:27.0,width:57.9,height:12.9},
+            answers:{x:14,y:64.7,width:72,height:20.9,columnGap:5.8,rowGap:5.8}
         },
         2:{
             question:{x:22,y:32.5,width:56,height:18},
@@ -199,4 +199,107 @@ test("BIRADES publica e mantém os 5 assets jogáveis físicos",()=>{
         assert.ok(size>100_000, `asset BIRADES/Ilha ${islandId} pequeno demais: ${size}`);
         assert.ok(size<700_000, `asset BIRADES/Ilha ${islandId} pesado demais para o limite atual: ${size}`);
     }
+});
+
+
+test("desafio protege o conteúdo até a arte estar realmente pronta",()=>{
+    const source=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    assert.match(source,/is-art-loading/);
+    assert.match(source,/challenge-art-loading/);
+    assert.match(source,/Chegando à ilha/);
+    assert.match(source,/background\.decode/);
+    assert.match(source,/background\.addEventListener\("load"/);
+    assert.match(source,/preloadChallengeArt/);
+    assert.match(source,/isChallengeArtLoaded/);
+    assert.match(source,/artAlreadyLoaded \? "is-art-ready" : "is-art-loading"/);
+    assert.match(source,/if \(!artAlreadyLoaded\) \{\s*armChallengeArtReveal\(screen, art\)/);
+    assert.match(source,/artAlreadyLoaded \? "" :/);
+
+    assert.match(css,/challenge-art-screen\.is-art-loading \.challenge-dynamic-layer/);
+    assert.match(css,/\.challenge-loading-boat/);
+    assert.match(css,/\.challenge-loading-wave/);
+    assert.match(css,/@keyframes challenge-boat-bob/);
+});
+
+test("entrada na Ilha e viagem pré-carregam a arte do desafio",()=>{
+    const islandsSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/islands-screen.js"),
+        "utf8"
+    );
+    const travelSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/travel-screen.js"),
+        "utf8"
+    );
+
+    assert.match(islandsSource,/preloadChallengeArt/);
+    assert.match(travelSource,/preloadChallengeArt/);
+});
+
+
+test("viewport alto mantém bleed visível atrás da arte 9:16",()=>{
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    const challengeBlock=css.slice(
+        css.indexOf(".challenge-art-screen {"),
+        css.indexOf("}",css.indexOf(".challenge-art-screen {"))+1
+    );
+    assert.match(challengeBlock,/isolation:\s*isolate/);
+    assert.match(challengeBlock,/var\(--challenge-bleed-image\)/);
+    assert.match(challengeBlock,/background-size:\s*cover/);
+
+    const challengeBleed=css.slice(
+        css.indexOf(".challenge-art-screen::before"),
+        css.indexOf("}",css.indexOf(".challenge-art-screen::before"))+1
+    );
+    assert.match(challengeBleed,/z-index:\s*1/);
+
+    const challengeStage=css.slice(
+        css.indexOf(".challenge-art-stage {"),
+        css.indexOf("}",css.indexOf(".challenge-art-stage {"))+1
+    );
+    assert.match(challengeStage,/z-index:\s*2/);
+    assert.match(challengeStage,/aspect-ratio:\s*941 \/ 1672/);
+    assert.doesNotMatch(challengeStage,/540px/);
+
+    const challengeSource=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+    assert.match(challengeSource,/tq-safe-visual-area/);
+    assert.match(challengeSource,/bindCanonicalStage/);
+
+    const regionBlock=css.slice(
+        css.indexOf(".region-islands-map-screen {"),
+        css.indexOf("}",css.indexOf(".region-islands-map-screen {"))+1
+    );
+    assert.match(regionBlock,/isolation:\s*isolate/);
+    assert.match(regionBlock,/var\(--region-bleed-image\)/);
+});
+
+
+test("loader do desafio não é rearmado quando a arte já foi carregada",()=>{
+    const source=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+
+    const classDecision=source.indexOf('artAlreadyLoaded ? "is-art-ready" : "is-art-loading"');
+    const guardedReveal=source.indexOf("if (!artAlreadyLoaded) {");
+    const cacheCheck=source.indexOf("loadedChallengeArtUrls.has(art)");
+
+    assert.ok(cacheCheck>=0);
+    assert.ok(classDecision>=0);
+    assert.ok(guardedReveal>=0);
+    assert.ok(cacheCheck<classDecision);
 });

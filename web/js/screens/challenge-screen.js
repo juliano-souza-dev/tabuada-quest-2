@@ -1,5 +1,7 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
+    const loadedChallengeArtUrls = new Set();
+    const challengeArtPreloads = new Map();
 
     const DEFAULT_CHALLENGE_ART_LAYOUT = Object.freeze({
         progress: Object.freeze({ x: 20.5, y: 40.2, width: 59, height: 4.2 }),
@@ -27,10 +29,10 @@
         1: Object.freeze({
             1: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
-                question: Object.freeze({ x: 22.5, y: 45.2, width: 56, height: 12 }),
-                questionOffsetY: -6,
-                answers: Object.freeze({ x: 15.8, y: 66.6, width: 69.4, height: 16.5, columnGap: 9.6, rowGap: 23.5 }),
-                answerOffsetY: -5,
+                question: Object.freeze({ x: 22.7, y: 27.0, width: 57.9, height: 12.9 }),
+                questionOffsetY: 0,
+                answers: Object.freeze({ x: 14, y: 64.7, width: 72, height: 20.9, columnGap: 5.8, rowGap: 5.8 }),
+                answerOffsetY: 0,
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
             }),
@@ -118,6 +120,100 @@
         return regionAssets?.[islandId] || null;
     }
 
+    function isChallengeArtLoaded(sessionOrArt) {
+        const art = typeof sessionOrArt === "string"
+            ? sessionOrArt
+            : getChallengeArt(sessionOrArt);
+        return Boolean(art && loadedChallengeArtUrls.has(art));
+    }
+
+    function preloadChallengeArt(session) {
+        const art = getChallengeArt(session);
+        if (!art) return Promise.resolve(false);
+        if (loadedChallengeArtUrls.has(art)) return Promise.resolve(true);
+        if (challengeArtPreloads.has(art)) return challengeArtPreloads.get(art);
+        if (typeof root.Image !== "function") return Promise.resolve(false);
+
+        const request = new Promise((resolve) => {
+            const image = new root.Image();
+            let settled = false;
+
+            function finish(success) {
+                if (settled) return;
+                settled = true;
+                if (success) loadedChallengeArtUrls.add(art);
+                resolve(success);
+            }
+
+            image.addEventListener("load", () => {
+                if (typeof image.decode === "function") {
+                    image.decode().catch(() => {}).then(() => finish(true));
+                    return;
+                }
+                finish(true);
+            }, { once: true });
+
+            image.addEventListener("error", () => finish(false), { once: true });
+            image.src = art;
+
+            if (image.complete && image.naturalWidth > 0) {
+                if (typeof image.decode === "function") {
+                    image.decode().catch(() => {}).then(() => finish(true));
+                } else {
+                    finish(true);
+                }
+            }
+        }).then((success) => {
+            challengeArtPreloads.delete(art);
+            return success;
+        });
+
+        challengeArtPreloads.set(art, request);
+        return request;
+    }
+
+    function armChallengeArtReveal(screen, art) {
+        const background = screen.querySelector(".challenge-art-background");
+        if (!background) return;
+
+        let revealed = false;
+        let fallbackTimer = null;
+
+        function reveal(success) {
+            if (revealed) return;
+            revealed = true;
+            if (fallbackTimer !== null) root.clearTimeout(fallbackTimer);
+            if (success) loadedChallengeArtUrls.add(art);
+
+            const applyReadyState = () => {
+                screen.classList.remove("is-art-loading");
+                screen.classList.add("is-art-ready");
+            };
+
+            if (typeof root.requestAnimationFrame === "function") {
+                root.requestAnimationFrame(applyReadyState);
+            } else {
+                applyReadyState();
+            }
+        }
+
+        function revealDecoded() {
+            if (typeof background.decode === "function") {
+                background.decode().catch(() => {}).then(() => reveal(true));
+                return;
+            }
+            reveal(true);
+        }
+
+        background.addEventListener("load", revealDecoded, { once: true });
+        background.addEventListener("error", () => reveal(false), { once: true });
+
+        if (background.complete && background.naturalWidth > 0) {
+            revealDecoded();
+        }
+
+        fallbackTimer = root.setTimeout(() => reveal(false), 8000);
+    }
     function getChallengeArtLayout(regionId, islandId) {
         return CHALLENGE_ART_LAYOUTS[Number(regionId)]?.[Number(islandId)]
             || DEFAULT_CHALLENGE_ART_LAYOUT;
@@ -268,12 +364,17 @@
             const artLayout = getChallengeArtLayout(session.regionId, session.islandId);
 
             if (art) {
-                screen.classList.add("challenge-art-screen");
+                const artAlreadyLoaded = isChallengeArtLoaded(art);
+                screen.classList.add(
+                    "challenge-art-screen",
+                    artAlreadyLoaded ? "is-art-ready" : "is-art-loading"
+                );
                 screen.dataset.regionId = String(session.regionId);
                 screen.dataset.islandId = String(session.islandId);
                 screen.style.setProperty("--challenge-bleed-image", `url("${art}")`);
                 screen.innerHTML = `
-                    <main class="challenge-art-stage"
+                    <div class="tq-safe-visual-area">
+                    <main class="challenge-art-stage tq-canonical-stage"
                         data-progress-mask="${artLayout.progressMask ? "true" : "false"}"
                         style="${toLayoutStyle(artLayout)}">
                         <img class="challenge-art-background"
@@ -294,7 +395,30 @@
                             </div>
                         ` : ""}
                     </main>
+                    </div>
+                    ${artAlreadyLoaded ? "" : `
+                    <div class="challenge-art-loading" role="status" aria-live="polite">
+                        <div class="challenge-loading-scene" aria-hidden="true">
+                            <div class="challenge-loading-boat">
+                                <span class="challenge-loading-mast"></span>
+                                <span class="challenge-loading-sail"></span>
+                                <span class="challenge-loading-flag"></span>
+                                <span class="challenge-loading-hull"></span>
+                            </div>
+                            <span class="challenge-loading-wave challenge-loading-wave-a"></span>
+                            <span class="challenge-loading-wave challenge-loading-wave-b"></span>
+                        </div>
+                        <span class="challenge-loading-label">Chegando à ilha...</span>
+                    </div>
+                    `}
                 `;
+                TQ.core.safeViewport.bindCanonicalStage(
+                    screen.querySelector(".tq-safe-visual-area"),
+                    screen.querySelector(".challenge-art-stage")
+                );
+                if (!artAlreadyLoaded) {
+                    armChallengeArtReveal(screen, art);
+                }
             } else {
                 screen.innerHTML = `
                     <header class="slice-header">
@@ -390,6 +514,8 @@
         CHALLENGE_ART_LAYOUTS,
         DEFAULT_CHALLENGE_ART_LAYOUT,
         getChallengeArt,
+        isChallengeArtLoaded,
+        preloadChallengeArt,
         getChallengeArtLayout,
         renderChallengeScreen,
         renderFeedback,

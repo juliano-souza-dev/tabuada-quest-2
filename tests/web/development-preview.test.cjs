@@ -21,9 +21,18 @@ test("preview deriva Regiões implementadas do REGION_VISUAL_CONFIG",()=>{
 
     assert.deepEqual(islands.getImplementedRegionIds(),expected);
     for(const regionId of expected){
-        assert.ok(islands.getRegionVisualConfig(regionId));
-        assert.equal(islands.getDevelopmentRegionStatus(regionId),"completed");
+        const visual=islands.getRegionVisualConfig(regionId);
+        assert.ok(visual);
+        assert.equal(
+            islands.getDevelopmentRegionStatus(regionId),
+            visual.developmentStatus || "completed"
+        );
     }
+});
+
+test("Região 4 permanece em preview enquanto o pacote visual está incompleto",()=>{
+    assert.equal(islands.getDevelopmentRegionStatus(4),"preview");
+    assert.equal(islands.getRegionVisualConfig(4).developmentStatus,"preview");
 });
 
 test("Região sem implementação visual permanece apenas como prévia",()=>{

@@ -173,6 +173,37 @@
                 })
             })
         }),
+        4: Object.freeze({
+            assetKey: "region4Modular",
+            id: "terras-gelidas",
+            backgroundId: 1,
+            islandIds: Object.freeze([1, 2, 3, 4, 5]),
+            worldMapLayout: Object.freeze({ x: 717, y: 1448, width: 200, height: 200 }),
+            slotLayout: Object.freeze({
+                1: Object.freeze({
+                    art: Object.freeze({ x: 510, y: 367, width: 390, height: 390 }),
+                    hitbox: Object.freeze({ x: 530, y: 387, width: 350, height: 350 })
+                }),
+                2: Object.freeze({
+                    art: Object.freeze({ x: 40, y: 363, width: 390, height: 390 }),
+                    hitbox: Object.freeze({ x: 60, y: 383, width: 350, height: 350 })
+                }),
+                3: Object.freeze({
+                    art: Object.freeze({ x: 510, y: 981, width: 390, height: 390 }),
+                    hitbox: Object.freeze({ x: 530, y: 1001, width: 350, height: 350 })
+                }),
+                4: Object.freeze({
+                    art: Object.freeze({ x: 40, y: 982, width: 390, height: 390 }),
+                    hitbox: Object.freeze({ x: 60, y: 1002, width: 350, height: 350 })
+                }),
+                5: Object.freeze({
+                    art: Object.freeze({ x: 279, y: 654, width: 390, height: 390 }),
+                    hitbox: Object.freeze({ x: 299, y: 674, width: 350, height: 350 })
+                })
+            }),
+            hideIslands: false,
+            developmentStatus: "preview"
+        }),
         13: Object.freeze({
             assetKey: "region13Modular",
             id: "obsidiana",
@@ -233,6 +264,8 @@
 
     function getDevelopmentRegionStatus(regionId) {
         const normalizedRegionId = Number(regionId);
+        const visual = getRegionVisualConfig(normalizedRegionId);
+        if (visual?.developmentStatus) return visual.developmentStatus;
         return getImplementedRegionIds().includes(normalizedRegionId)
             ? "completed"
             : "preview";
@@ -265,22 +298,12 @@
     }
 
     function computeRegionStageGeometry(viewportWidth, viewportHeight) {
-        const width = Number(viewportWidth) || 0;
-        const height = Number(viewportHeight) || 0;
-        const scale = Math.min(
-            width / REGION_LAYOUT.viewport.width,
-            height / REGION_LAYOUT.viewport.height
+        return TQ.core.safeViewport.computeFit(
+            viewportWidth,
+            viewportHeight,
+            REGION_LAYOUT.viewport.width,
+            REGION_LAYOUT.viewport.height
         );
-        const renderWidth = REGION_LAYOUT.viewport.width * scale;
-        const renderHeight = REGION_LAYOUT.viewport.height * scale;
-
-        return Object.freeze({
-            scale,
-            renderWidth,
-            renderHeight,
-            offsetX: (width - renderWidth) / 2,
-            offsetY: (height - renderHeight) / 2
-        });
     }
 
     function renderRewardLabels(regionId, islandId) {
@@ -324,7 +347,9 @@
         const visual = getRegionVisualConfig(regionId);
         const entry = visual?.assets?.islands?.[islandId];
         if (!entry) return "";
-        return status === "locked" ? entry.locked : entry.unlocked;
+        return status === "locked"
+            ? (entry.locked || entry.unlocked || "")
+            : (entry.unlocked || "");
     }
 
     function createIslandEntryState(state, regionId, islandId) {
@@ -332,19 +357,11 @@
             || TQ.domain.gameplay.createRegionState(regionId);
         const session = TQ.domain.gameplay.createIslandSession(regionId, islandId);
         const prepared = TQ.domain.gameplay.prepareNextChallenge(session, existingRegionState);
-        const hasTravelPlayed = TQ.domain.playerState.hasPlayedIslandTravel(state, regionId, islandId);
-
-        return hasTravelPlayed
-            ? TQ.domain.playerState.withGameplaySession(
-                state,
-                prepared.session,
-                prepared.regionState
-            )
-            : TQ.domain.playerState.withIslandTravelSession(
-                state,
-                prepared.session,
-                prepared.regionState
-            );
+        return TQ.domain.playerState.withGameplaySession(
+            state,
+            prepared.session,
+            prepared.regionState
+        );
     }
 
     function createDevelopmentIslandEntryState(state, regionId, islandId) {
@@ -436,13 +453,14 @@
 
             const islandAsset = getRegionIslandAsset(regionId, islandId, status);
             const unlockedAsset = assetEntry.unlocked;
+            const usesFallbackLock = status === "locked" && !assetEntry.locked;
 
             return `
-                <div class="region-island-overlay is-${status}${isResume ? " is-resume" : ""}" data-island-ui="${islandId}">
+                <div class="region-island-overlay is-${status}${isResume ? " is-resume" : ""}${usesFallbackLock ? " is-fallback-locked" : ""}" data-island-ui="${islandId}">
                     <div class="region-island-art-shell" style="${rectStyle(layout.art)}">
                         <img class="region-island-art"
                             src="${islandAsset}"
-                            data-fallback-src="${status === "locked" ? unlockedAsset : ""}"
+                            data-fallback-src="${status === "locked" && assetEntry.locked ? unlockedAsset : ""}"
                             alt=""
                             aria-hidden="true">
                         <span class="region-fallback-lock" aria-hidden="true">🔒</span>
@@ -465,7 +483,12 @@
                 data-action="home"
                 aria-label="Voltar para Home">Home</button>
 
-            <div class="region-islands-canonical-stage">
+            <div class="region-assets-loader" role="status" aria-label="Carregando região">
+                <span class="region-assets-loader-hourglass" aria-hidden="true">⌛</span>
+            </div>
+
+            <div class="tq-safe-visual-area">
+            <div class="region-islands-canonical-stage tq-canonical-stage">
                 <img class="region-islands-background"
                     src="${visualPage.background}"
                     alt=""
@@ -509,9 +532,28 @@
                     `}
                 </button>
             </div>
+            </div>
         `;
 
+        const safeArea = screen.querySelector(".tq-safe-visual-area");
         const stage = screen.querySelector(".region-islands-canonical-stage");
+
+        const regionLoader = screen.querySelector(".region-assets-loader");
+        const regionImages = Array.from(stage?.querySelectorAll("img") || []);
+        const waitForImage = (image) => {
+            if (image.complete && image.naturalWidth > 0) return Promise.resolve();
+            return new Promise((resolve) => {
+                const done = () => resolve();
+                image.addEventListener("load", done, { once: true });
+                image.addEventListener("error", done, { once: true });
+            });
+        };
+        Promise.all(regionImages.map(waitForImage)).then(() => {
+            root.requestAnimationFrame(() => {
+                stage?.classList.add("is-assets-ready");
+                regionLoader?.classList.add("is-hidden");
+            });
+        });
 
         screen.addEventListener("error", (event) => {
             const image = event.target.closest?.(".region-island-art");
@@ -523,12 +565,11 @@
             image.closest(".region-island-overlay")?.classList.add("is-fallback-locked");
         }, true);
 
-        function applyStageGeometry() {
-            const geometry = computeRegionStageGeometry(screen.clientWidth, screen.clientHeight);
-            stage.style.left = `${geometry.offsetX}px`;
-            stage.style.top = `${geometry.offsetY}px`;
-            stage.style.transform = `scale(${geometry.scale})`;
-        }
+        TQ.core.safeViewport.bindCanonicalStage(safeArea, stage, {
+            mode: "scale",
+            designWidth: REGION_LAYOUT.viewport.width,
+            designHeight: REGION_LAYOUT.viewport.height
+        });
 
         screen.addEventListener("click", (event) => {
             if (event.target.closest('[data-action="home"]')) {
@@ -542,7 +583,15 @@
             }
 
             if (event.target.closest('[data-action="open-world-map"]')) {
-                TQ.core.worldMap.open({ onNavigate });
+                const loader = document.createElement("div");
+                loader.className = "world-map-transition-loader";
+                loader.setAttribute("role", "status");
+                loader.setAttribute("aria-label", "Carregando Mapa mundo");
+                loader.innerHTML = '<span class="world-map-transition-hourglass" aria-hidden="true">⌛</span>';
+                screen.appendChild(loader);
+                root.requestAnimationFrame(() => {
+                    root.requestAnimationFrame(() => TQ.core.worldMap.open({ onNavigate }));
+                });
                 return;
             }
 
@@ -570,6 +619,8 @@
             const status = TQ.domain.playerState.getIslandStatus(state, regionId, islandId);
             if (status === "locked") return;
 
+            TQ.screens.challenge?.preloadChallengeArt?.({ regionId, islandId });
+
             if (active && active.regionId === regionId && active.islandId === islandId) {
                 onNavigate("challenge");
                 return;
@@ -577,23 +628,6 @@
 
             onStateChange(createIslandEntryState(state, regionId, islandId));
         });
-
-        if (typeof root.ResizeObserver === "function") {
-            const observer = new root.ResizeObserver(() => {
-                if (!screen.isConnected) {
-                    observer.disconnect();
-                    return;
-                }
-                applyStageGeometry();
-            });
-            observer.observe(screen);
-        } else {
-            root.addEventListener("resize", applyStageGeometry, { passive: true, once: true });
-        }
-
-        root.requestAnimationFrame
-            ? root.requestAnimationFrame(applyStageGeometry)
-            : setTimeout(applyStageGeometry, 0);
 
         return screen;
     }

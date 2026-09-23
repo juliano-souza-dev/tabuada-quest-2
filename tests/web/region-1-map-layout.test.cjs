@@ -11,7 +11,7 @@ const content=globalThis.TabuadaQuest.content;
 const islands=globalThis.TabuadaQuest.screens.islands;
 
 test("CORSÁRIO mantém uma única composição de cinco slots",()=>{
-    assert.match(content.assets.region1Modular.background,/mapa_marítimo_do_corsário\.png/);
+    assert.match(content.assets.region1Modular.background,/region-1\/(?:mapa_marítimo_do_corsário\.png|background\.webp)/);
     assert.deepEqual(Object.keys(content.assets.region1Modular.islands),["1","2","3","4","5"]);
     assert.equal(content.assets.region1Modular.backgrounds[2],undefined);
 });
@@ -28,11 +28,11 @@ test("CORSÁRIO publica as cinco Ilhas aprovadas",()=>{
     for(let islandId=1;islandId<=5;islandId++){
         assert.match(
             islands.getRegionIslandAsset(1,islandId,"locked"),
-            new RegExp(`island-0${islandId}-locked\\.png`)
+            new RegExp(`island-0${islandId}-locked\\.(?:png|webp)`)
         );
         assert.match(
             islands.getRegionIslandAsset(1,islandId,"available"),
-            new RegExp(`island-0${islandId}-unlocked\\.png`)
+            new RegExp(`island-0${islandId}-unlocked\\.(?:png|webp)`)
         );
     }
 

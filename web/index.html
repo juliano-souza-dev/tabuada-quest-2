@@ -4,15 +4,27 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#071d2c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="./manifest.webmanifest">
     <title>Tabuada Quest 2.0</title>
-    <link rel="stylesheet" href="./css/app.css?v=20260922-pet-bonus-v2">
+    <script>
+        try {
+            if (window.TabuadaQuestNative) {
+                document.documentElement.classList.add("tq-native-runtime");
+            }
+        } catch (_) {}
+    </script>
+    <link rel="stylesheet" href="./css/app.css?v=20260923-pwa-install-v1">
 </head>
 <body>
+    <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
     <div class="app-stage">
         <main id="app" class="app-viewport" aria-live="polite"></main>
     </div>
 
-    <script src="./js/content/game-content.js?v=20260922-pet-bonus-v1"></script>
+    <script src="./js/content/game-content.js?v=20260923-tavern-art-v4"></script>
     <script src="./js/content/collectibles-assets.js?v=20260922-collectibles-shelf"></script>
     <script src="./js/content/challenge-effects.js?v=20260921-2359"></script>
     <script src="./js/domain/world-structure.js?v=20260921-1020"></script>
@@ -22,27 +34,111 @@
     <script src="./js/domain/player-state.js?v=20260922-pet-bonus-v1"></script>
     <script src="./js/persistence/local-storage.js?v=20260922-dev-exit"></script>
     <script src="./js/core/screen-manager.js?v=20260920-0014"></script>
+    <script src="./js/core/safe-viewport.js?v=20260922-safe-viewport-v1"></script>
     <script src="./js/core/challenge-effect-renderer.js?v=20260921-2214"></script>
     <script src="./js/core/world-map.js?v=20260922-world-map-v1"></script>
     <script src="./js/screens/auth-screen.js?v=20260922-auth-gate"></script>
     <script src="./js/screens/profile-screen.js?v=20260922-profile-setup"></script>
-    <script src="./js/screens/home-screen.js?v=20260922-dev-exit"></script>
-    <script src="./js/screens/crew-screen.js?v=20260920-2304"></script>
+    <script src="./js/screens/home-screen.js?v=20260923-tavern-v1"></script>
+    <script src="./js/screens/tavern-screen.js?v=20260923-tavern-v1"></script>
+    <script src="./js/screens/crew-screen.js?v=20260923-tavern-art-v4"></script>
     <script src="./js/screens/collectibles-screen.js?v=20260922-collected-only"></script>
     <script src="./js/screens/shop-screen.js?v=20260921-2359"></script>
     <script src="./js/screens/items-screen.js?v=20260922-items-frames"></script>
     <script src="./js/screens/ruby-shop-screen.js?v=20260921-1545"></script>
-    <script src="./js/screens/world-map-screen.js?v=20260922-global-home"></script>
+    <script src="./js/screens/world-map-screen.js?v=20260923-nautical-pages-v1"></script>
     <script src="./js/screens/development-regions-screen.js?v=20260922-dev-regions-fix"></script>
     <script src="./js/screens/regions-screen.js?v=20260921-1202"></script>
-    <script src="./js/screens/islands-screen.js?v=20260922-apk-viewport-v1"></script>
+    <script src="./js/screens/islands-screen.js?v=20260923-region-asset-loader-v1"></script>
     <script src="./js/screens/travel-screen.js?v=20260921-1305"></script>
-    <script src="./js/screens/challenge-screen.js?v=20260922-apk-viewport-v1-pr125"></script>
+    <script src="./js/screens/challenge-screen.js?v=20260923-enseada-ruler-v1"></script>
     <script src="./js/screens/special-mission-screen.js?v=20260921-2214"></script>
     <script src="./js/screens/chest-screen.js?v=20260921-2109"></script>
-    <script src="./js/screens/pet-screen.js?v=20260922-pet-bonus-v1"></script>
+    <script src="./js/screens/pet-screen.js?v=20260922-safe-viewport-v1"></script>
     <script src="./js/screens/map-reward-screen.js?v=20260921-2204"></script>
-    <script src="./js/screens/result-screen.js?v=20260922-0142"></script>
-    <script src="./js/app.js?v=20260922-dev-exit"></script>
+    <script src="./js/screens/result-screen.js?v=20260922-safe-viewport-v1"></script>
+    <script src="./js/app.js?v=20260923-tavern-v1"></script>
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+                    const installButton = document.getElementById("pwa-install-button");
+                    let installPrompt = null;
+                    const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches
+                        || window.navigator.standalone === true;
+
+                    const refreshInstallButton = () => {
+                        if (!installButton) return;
+                        installButton.hidden = isStandalone() || !installPrompt;
+                    };
+
+                    window.addEventListener("beforeinstallprompt", (event) => {
+                        event.preventDefault();
+                        installPrompt = event;
+                        refreshInstallButton();
+                    });
+
+                    installButton?.addEventListener("click", async () => {
+                        if (!installPrompt) return;
+                        installButton.hidden = true;
+                        await installPrompt.prompt();
+                        await installPrompt.userChoice.catch(() => null);
+                        installPrompt = null;
+                        refreshInstallButton();
+                    });
+
+                    window.addEventListener("appinstalled", () => {
+                        installPrompt = null;
+                        if (installButton) installButton.hidden = true;
+                    });
+                    refreshInstallButton();
+                    let refreshing = false;
+
+                    navigator.serviceWorker.addEventListener("controllerchange", () => {
+                        if (refreshing) return;
+                        refreshing = true;
+                        location.reload();
+                    });
+
+                    const activateWaitingUpdate = () => {
+                        if (registration.waiting) {
+                            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+                        }
+                    };
+
+                    registration.addEventListener("updatefound", () => {
+                        const worker = registration.installing;
+                        if (!worker) return;
+                        worker.addEventListener("statechange", () => {
+                            if (worker.state === "installed" && navigator.serviceWorker.controller) {
+                                // The new cache finished installing. Activate only now.
+                                activateWaitingUpdate();
+                            }
+                        });
+                    });
+
+                    // GitHub/CDN may keep the page open for hours. Recheck on launch,
+                    // when connectivity returns and periodically while the game is open.
+                    await registration.update().catch(() => {});
+                    activateWaitingUpdate();
+
+                    window.addEventListener("online", () => {
+                        registration.update().then(activateWaitingUpdate).catch(() => {});
+                    });
+                    document.addEventListener("visibilitychange", () => {
+                        if (document.visibilityState === "visible" && navigator.onLine) {
+                            registration.update().then(activateWaitingUpdate).catch(() => {});
+                        }
+                    });
+                    setInterval(() => {
+                        if (navigator.onLine) registration.update().then(activateWaitingUpdate).catch(() => {});
+                    }, 60 * 60 * 1000);
+                } catch (error) {
+                    console.warn("PWA offline indisponível:", error);
+                }
+            });
+        }
+    </script>
 </body>
 </html>
