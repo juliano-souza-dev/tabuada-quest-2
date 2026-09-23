@@ -62,6 +62,14 @@
         screen.style.setProperty("--home-bleed-image", `url("${displayedBackgroundSrc}")`);
 
         screen.innerHTML = `
+            <img
+                class="home-full-bleed-background"
+                src="${displayedBackgroundSrc}"
+                data-default-src="${defaultBackground?.src || displayedBackgroundSrc}"
+                alt=""
+                aria-hidden="true"
+                style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;pointer-events:none;user-select:none;"
+            >
             <div class="tq-safe-visual-area home-safe-visual-area">
             <div class="home-design-stage tq-canonical-stage">
                 <div class="home-world" aria-hidden="true">
@@ -214,15 +222,19 @@
             screen.querySelector(".home-design-stage")
         );
 
-        const backgroundImage = screen.querySelector(".home-background-image");
-        if (backgroundImage) {
+        const backgroundImages = [
+            screen.querySelector(".home-full-bleed-background"),
+            screen.querySelector(".home-background-image")
+        ].filter(Boolean);
+
+        backgroundImages.forEach((backgroundImage) => {
             backgroundImage.addEventListener("error", () => {
                 const fallbackSrc = backgroundImage.dataset.defaultSrc;
                 if (fallbackSrc && !backgroundImage.src.endsWith(fallbackSrc.replace("./", "/"))) {
                     backgroundImage.src = fallbackSrc;
                 }
             }, { once: true });
-        }
+        });
 
         const toast = screen.querySelector(".home-toast");
         let toastTimer = null;
