@@ -110,15 +110,8 @@
                 <button class="art-hotspot hotspot-fashion" type="button" data-action="fashion" aria-label="Abrir Moda"></button>
 
                 <button class="play-slot" type="button" data-action="play" aria-label="Jogar"></button>
-                <button class="crew-menu-button" type="button" data-action="crew" aria-label="Abrir Tripulação">
-                    <span>⚓</span><strong>TRIPULAÇÃO</strong>
-                </button>
-                <button class="shipyard-menu-button" type="button" data-action="shipyard" aria-label="Abrir Estaleiro">
-                    <span>⛵</span><strong>ESTALEIRO</strong>
-                </button>
-                <button class="tavern-menu-button" type="button" data-action="tavern" aria-label="Abrir Taberna">
-                    <span>🍺</span><strong>TABERNA</strong>
-                </button>
+                <button class="art-hotspot hotspot-crew" type="button" data-action="crew" aria-label="Abrir Tripulação"></button>
+                <button class="art-hotspot hotspot-shipyard" type="button" data-action="shipyard" aria-label="Abrir Estaleiro"></button>
 
                 <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
                     <span style="width:${chestPercent}%"></span>
