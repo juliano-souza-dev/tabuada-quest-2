@@ -7,6 +7,10 @@ on:
       - 'web/assets/regions/region-4/file_00000000fa48820e90945503cf3ed97a.png'
       - 'web/assets/regions/region-4/file_0000000067c8820eb893a4b6e412e499.png'
       - 'web/assets/regions/region-4/file_00000000ac28820e9821bdacc1b203f6.png'
+      - 'web/assets/regions/region-4/file_0000000066fc820e8db4e3aeb313bd62.png'
+      - 'web/assets/regions/region-4/file_00000000f1e0820e82ce97ba5cb3b0e9.png'
+      - 'web/assets/regions/region-4/file_0000000007b0820e85f5413aa9513c2d.png'
+      - 'web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png'
       - '.github/workflows/process-region4-islands.yml'
   workflow_dispatch:
 
@@ -40,6 +44,22 @@ jobs:
           if [ -f web/assets/regions/region-4/file_00000000ac28820e9821bdacc1b203f6.png ]; then
             process_asset "web/assets/regions/region-4/file_00000000ac28820e9821bdacc1b203f6.png" "web/assets/regions/region-4/rochedo-boreal-locked.webp"
             rm -f web/assets/regions/region-4/file_00000000ac28820e9821bdacc1b203f6.png
+          fi
+          if [ -f web/assets/regions/region-4/file_0000000066fc820e8db4e3aeb313bd62.png ]; then
+            process_asset "web/assets/regions/region-4/file_0000000066fc820e8db4e3aeb313bd62.png" "web/assets/regions/region-4/fortaleza-da-nevasca-unlocked.webp"
+            rm -f web/assets/regions/region-4/file_0000000066fc820e8db4e3aeb313bd62.png
+          fi
+          if [ -f web/assets/regions/region-4/file_00000000f1e0820e82ce97ba5cb3b0e9.png ]; then
+            process_asset "web/assets/regions/region-4/file_00000000f1e0820e82ce97ba5cb3b0e9.png" "web/assets/regions/region-4/fortaleza-da-nevasca-locked.webp"
+            rm -f web/assets/regions/region-4/file_00000000f1e0820e82ce97ba5cb3b0e9.png
+          fi
+          if [ -f web/assets/regions/region-4/file_0000000007b0820e85f5413aa9513c2d.png ]; then
+            process_asset "web/assets/regions/region-4/file_0000000007b0820e85f5413aa9513c2d.png" "web/assets/regions/region-4/coroa-do-inverno-unlocked.webp"
+            rm -f web/assets/regions/region-4/file_0000000007b0820e85f5413aa9513c2d.png
+          fi
+          if [ -f web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png ]; then
+            process_asset "web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png" "web/assets/regions/region-4/coroa-do-inverno-locked.webp"
+            rm -f web/assets/regions/region-4/file_000000002368820e9115b09e29de5e4b.png
           fi
       - name: Link Region 4 islands
         shell: bash
@@ -76,6 +96,23 @@ jobs:
               if body and not body.endswith(','):
                   body += ','
               body += island3
+          island4='''\n                    4: Object.freeze({
+                        unlocked: "./assets/regions/region-4/fortaleza-da-nevasca-unlocked.webp?v=20260923-terras-gelidas-ilha4-v1",
+                        locked: "./assets/regions/region-4/fortaleza-da-nevasca-locked.webp?v=20260923-terras-gelidas-ilha4-v1"
+                    })'''
+          island5='''\n                    5: Object.freeze({
+                        unlocked: "./assets/regions/region-4/coroa-do-inverno-unlocked.webp?v=20260923-terras-gelidas-ilha5-v1",
+                        locked: "./assets/regions/region-4/coroa-do-inverno-locked.webp?v=20260923-terras-gelidas-ilha5-v1"
+                    })'''
+          for island_id, island_block in ((4,island4),(5,island5)):
+              rx=rf'\n\s*{island_id}:\s*Object\.freeze\(\{{[\s\S]*?\n\s*\}}\)'
+              if re.search(rx,body):
+                  body=re.sub(rx,island_block,body,count=1)
+              else:
+                  body=body.rstrip()
+                  if body and not body.endswith(','):
+                      body += ','
+                  body += island_block
           p.write_text(s[:m.start()]+m.group(1)+body+m.group(3)+s[m.end():])
           PY
       - name: Commit processed assets
