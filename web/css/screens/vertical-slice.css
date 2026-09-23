@@ -1524,3 +1524,38 @@
 @media (prefers-reduced-motion: reduce) {
     .region-transition-hourglass { animation: none; }
 }
+
+
+/* Region asset gate: never expose partially decoded island/background images. */
+.region-islands-canonical-stage {
+    opacity: 0;
+}
+.region-islands-canonical-stage.is-assets-ready {
+    opacity: 1;
+    transition: opacity 140ms ease-out;
+}
+.region-assets-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 120;
+    display: grid;
+    place-items: center;
+    background: #0863a0;
+    pointer-events: auto;
+    transition: opacity 140ms ease-out, visibility 140ms ease-out;
+}
+.region-assets-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.region-assets-loader-hourglass {
+    display: block;
+    font-size: 52px;
+    line-height: 1;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, .38));
+    animation: tq-region-hourglass-spin 900ms linear infinite;
+}
+@keyframes tq-region-hourglass-spin {
+    to { transform: rotate(360deg); }
+}
