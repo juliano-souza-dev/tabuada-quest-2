@@ -286,8 +286,11 @@ Fonte atual:
 
 ```text
 web/js/screens/travel-screen.js
-web/assets/transitions/island-travel.mp4
+web/assets/transitions/el-colombo/el-colombo-ocean-navigation.json
+web/assets/transitions/el-colombo/images/el-colombo.webp
 ```
+
+O MP4 legado foi removido. O renderer não deve recriar fallback global em vídeo.
 
 Persistência atual:
 
@@ -756,10 +759,10 @@ A Home monta os seletores de Molduras e Fundos combinando os itens-base com os i
 Viagem:
 
 ```text
-equippedShip.travelVideo ?? assets.islandTravel
+equippedShip.travelAnimation
 ```
 
-Assim o código já está ligado aos futuros vídeos sem depender deles nesta etapa.
+A viagem não possui MP4 padrão. Falha de animação pode usar apenas fallback visual baseado no asset do próprio navio; ausência de animação/asset segue ao desafio.
 
 
 ## Loja Rubi

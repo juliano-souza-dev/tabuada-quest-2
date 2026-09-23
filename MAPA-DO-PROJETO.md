@@ -637,8 +637,11 @@ Contrato técnico: `agentes/04-desenvolvimento.md`.
 
 ```text
 web/js/screens/travel-screen.js
-web/assets/transitions/island-travel.mp4
+web/assets/transitions/el-colombo/el-colombo-ocean-navigation.json
+web/assets/transitions/el-colombo/images/el-colombo.webp
 ```
+
+O MP4 legado de viagem foi removido. A transição usa a animação do navio equipado e, em falha, somente fallback visual construído com o asset do próprio navio.
 
 Comportamento de produto: `agentes/01-produto.md`.
 
@@ -945,13 +948,13 @@ Home → Estaleiro
 
 A Loja compra. A Home equipa.
 
-Viagem resolve o vídeo pelo navio equipado em:
+Viagem resolve a animação pelo navio equipado em:
 
 ```text
 web/js/screens/travel-screen.js
 ```
 
-Fallback: `TQ.content.assets.islandTravel`.
+Não existe fallback global em MP4.
 
 
 ## Loja Rubi

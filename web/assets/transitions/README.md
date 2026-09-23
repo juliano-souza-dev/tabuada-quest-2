@@ -4,9 +4,9 @@ Assets usados para transições visuais da campanha.
 
 ## Viagem entre Ilhas
 
-A transição principal agora usa **Lottie**. O **El Colombo** é a animação padrão enquanto nenhum outro navio equipado possui uma animação própria.
+A viagem usa animações associadas ao navio equipado. O **El Colombo** possui implementação em Lottie.
 
-Arquivos canônicos:
+Arquivos canônicos do El Colombo:
 
 ```text
 web/assets/transitions/el-colombo/el-colombo-ocean-navigation.json
@@ -22,9 +22,12 @@ Contrato:
 - tela cheia, sem controles;
 - autoplay;
 - ao terminar, seguir automaticamente para o desafio;
-- se o Lottie falhar, tentar o vídeo legado como fallback;
-- se o fallback também falhar, seguir para o desafio sem marcar a viagem como concluída, permitindo nova tentativa futura;
-- um navio equipado pode fornecer `travelAnimation`; enquanto não houver uma animação específica para ele, o fallback legado permanece disponível.
+- navio equipado pode fornecer `travelAnimation`;
+- se o Lottie falhar, usar fallback animado construído com o asset do próprio navio;
+- **não existe fallback em MP4**;
+- se não houver animação nem asset de viagem utilizável, seguir ao desafio sem inventar outro navio.
+
+O antigo `island-travel.mp4` foi removido do repositório e não faz parte do produto.
 
 O estado persistente responsável por impedir repetição é:
 

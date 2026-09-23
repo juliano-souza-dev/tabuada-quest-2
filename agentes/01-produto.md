@@ -717,7 +717,7 @@ Na Home:
 
 Enquanto assets comerciais estiverem `null`, a seleção persiste, mas a Home mantém fallback visual seguro.
 
-O navio equipado define a animação/vídeo de viagem quando `travelVideo` existir. Enquanto for `null`, usa-se o vídeo de viagem padrão.
+O navio equipado define sua animação de viagem por `travelAnimation`. Não existe vídeo de viagem padrão nem fallback global em MP4. Se a animação falhar, pode-se usar somente o asset do próprio navio como fallback visual; sem asset utilizável, segue-se para o desafio.
 
 
 ## Loja Rubi regional
