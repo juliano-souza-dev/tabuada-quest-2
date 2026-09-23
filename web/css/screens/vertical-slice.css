@@ -336,8 +336,7 @@
 }
 
 .island-travel-stage,
-.island-travel-lottie,
-.island-travel-video {
+.island-travel-lottie {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -360,10 +359,6 @@
     height: 100% !important;
 }
 
-.island-travel-video {
-    object-fit: cover;
-    background: #03131f;
-}
 
 .island-travel-colombo-fallback {
     position: absolute;
@@ -426,27 +421,6 @@
     to { transform: translateX(-72px); }
 }
 
-.island-travel-play-button {
-    position: absolute;
-    left: 50%;
-    bottom: max(42px, var(--tq-safe-bottom));
-    z-index: 3;
-    transform: translateX(-50%);
-    min-width: 170px;
-    min-height: 54px;
-    border: 2px solid #f2d27b;
-    border-radius: 999px;
-    padding: 10px 24px;
-    background: rgba(22, 13, 8, .88);
-    color: #fff4ce;
-    font: 900 18px/1 Arial, sans-serif;
-    letter-spacing: .4px;
-    box-shadow: 0 5px 16px rgba(0, 0, 0, .42);
-}
-
-.island-travel-play-button[hidden] {
-    display: none;
-}
 
 .island-travel-fallback {
     position: absolute;

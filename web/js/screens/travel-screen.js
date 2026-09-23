@@ -23,22 +23,16 @@
         ) || null;
 
         const travelAnimation = equippedShip?.travelAnimation || null;
-        const travelVideo = equippedShip?.travelVideo || TQ.content.assets.islandTravel;
         const travelShipAsset = equippedShip?.asset || null;
 
         screen.innerHTML = `
             <div class="island-travel-stage" aria-label="Viajando para ${label}"></div>
-            <button class="island-travel-play-button" type="button" hidden>
-                VIAJAR
-            </button>
             <span class="visually-hidden">Viajando para ${label}</span>
         `;
 
         const stage = screen.querySelector(".island-travel-stage");
-        const playButton = screen.querySelector(".island-travel-play-button");
         let finished = false;
         let animation = null;
-        let video = null;
 
         function disposeAnimation() {
             if (!animation) return;
@@ -90,46 +84,13 @@
             }, 6500);
         }
 
-        function renderVideoFallback() {
-            if (finished || video) return;
-            if (equippedShip?.id === "ship-colombo" && travelShipAsset) {
+        function renderAnimationFallback() {
+            if (finished) return;
+            if (travelShipAsset) {
                 renderColomboFallback();
                 return;
             }
-            disposeAnimation();
-            stage.replaceChildren();
-
-            video = document.createElement("video");
-            video.className = "island-travel-video";
-            video.src = travelVideo;
-            video.autoplay = true;
-            video.muted = true;
-            video.playsInline = true;
-            video.preload = "auto";
-            video.setAttribute("aria-label", `Viajando para ${label}`);
-            stage.appendChild(video);
-
-            video.addEventListener("ended", completeTravel, { once: true });
-            video.addEventListener("error", fallbackToChallenge, { once: true });
-
-            playButton.onclick = () => {
-                playButton.hidden = true;
-                const promise = video.play();
-                if (promise && typeof promise.catch === "function") {
-                    promise.catch(() => {
-                        playButton.hidden = false;
-                    });
-                }
-            };
-
-            root.requestAnimationFrame(() => {
-                const promise = video.play();
-                if (promise && typeof promise.catch === "function") {
-                    promise.catch(() => {
-                        playButton.hidden = false;
-                    });
-                }
-            });
+            fallbackToChallenge();
         }
 
         if (travelAnimation && root.lottie?.loadAnimation) {
@@ -161,13 +122,13 @@
                     } catch (_) {}
                 });
                 animation.addEventListener("complete", completeTravel);
-                animation.addEventListener("data_failed", renderVideoFallback);
-                animation.addEventListener("error", renderVideoFallback);
+                animation.addEventListener("data_failed", renderAnimationFallback);
+                animation.addEventListener("error", renderAnimationFallback);
             } catch (_) {
-                renderVideoFallback();
+                renderAnimationFallback();
             }
         } else {
-            renderVideoFallback();
+            renderAnimationFallback();
         }
 
         return screen;

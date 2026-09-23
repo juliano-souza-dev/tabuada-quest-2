@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-shell-20260923-8";
+const CACHE_VERSION = "tq2-shell-20260923-9";
 const CACHE_PREFIX = "tq2-shell-";
 const SHELL = [
   "./",

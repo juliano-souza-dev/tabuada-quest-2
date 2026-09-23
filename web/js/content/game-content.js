@@ -35,9 +35,9 @@
             Object.freeze({ id: "background-horizonte-celeste", type: "background", label: "Horizonte Celeste", price: 1800, asset: null })
         ]),
         ships: Object.freeze([
-            Object.freeze({ id: "ship-colombo", type: "ship", label: "El Colombo", price: 1000, asset: "./assets/transitions/el-colombo/images/el-colombo.webp", travelAnimation: "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json", travelVideo: null }),
-            Object.freeze({ id: "ship-rosa-intenso", type: "ship", label: "Rosa Intenso", price: 3000, asset: null, travelAnimation: null, travelVideo: null }),
-            Object.freeze({ id: "ship-cristal-queen", type: "ship", label: "Cristal Queen", price: 9000, asset: null, travelAnimation: null, travelVideo: null })
+            Object.freeze({ id: "ship-colombo", type: "ship", label: "El Colombo", price: 1000, asset: "./assets/transitions/el-colombo/images/el-colombo.webp", travelAnimation: "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json" }),
+            Object.freeze({ id: "ship-rosa-intenso", type: "ship", label: "Rosa Intenso", price: 3000, asset: null, travelAnimation: null }),
+            Object.freeze({ id: "ship-cristal-queen", type: "ship", label: "Cristal Queen", price: 9000, asset: null, travelAnimation: null })
         ]),
         get effects() {
             return TQ.effects?.shopCatalog || [];
@@ -798,7 +798,6 @@
                 background: "./assets/tavern/tavern-background.webp?v=20260923-tavern-art-v4"
             }),
             islandTravelAnimation: "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json",
-            islandTravel: "./assets/transitions/island-travel.mp4?v=20260920-1335",
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
             homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260919-2228",
