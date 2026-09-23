@@ -18,7 +18,16 @@ function assertCanonicalRatio(geometry){
     );
 }
 
-test("cover canônico preenche toda a viewport sem deformar",()=>{\n    const geometry=safeViewport.computeFit(393,774,941,1672,"cover");\n    assert.ok(geometry.renderWidth>=393);\n    assert.ok(geometry.renderHeight>=774);\n    assert.ok(geometry.offsetX<=0);\n    assert.ok(geometry.offsetY<=0);\n    assertCanonicalRatio(geometry);\n});\n\ntest("fit canônico usa toda a largura segura de um celular alto sem deformar",()=>{
+test("cover canônico preenche toda a viewport sem deformar",()=>{
+    const geometry=safeViewport.computeFit(393,774,941,1672,"cover");
+    assert.ok(geometry.renderWidth>=393);
+    assert.ok(geometry.renderHeight>=774);
+    assert.ok(geometry.offsetX<=0);
+    assert.ok(geometry.offsetY<=0);
+    assertCanonicalRatio(geometry);
+});
+
+test("fit canônico usa toda a largura segura de um celular alto sem deformar",()=>{
     const geometry=safeViewport.computeFit(393,774);
     assert.equal(geometry.renderWidth,393);
     assert.ok(geometry.renderHeight<774);
@@ -71,7 +80,10 @@ test("fontes de layout usam o contrato compartilhado de safe viewport",()=>{
 
     assert.doesNotMatch(vertical,/56\.2\d*(?:d?vh|vh),\s*540px/);
     assert.doesNotMatch(worldMap,/540px/);
-    assert.match(home,/home-safe-visual-area/);\n    assert.doesNotMatch(home,/object-fit:\\s*fill/);\n    assert.doesNotMatch(worldMap,/object-fit:\\s*fill/);\n    assert.doesNotMatch(vertical,/object-fit:\\s*fill/);
+    assert.match(home,/home-safe-visual-area/);
+    assert.doesNotMatch(home,/object-fit:\\s*fill/);
+    assert.doesNotMatch(worldMap,/object-fit:\\s*fill/);
+    assert.doesNotMatch(vertical,/object-fit:\\s*fill/);
 
     assert.match(activity,/getInsetsIgnoringVisibility/);
     assert.match(activity,/WindowInsets\.Type\.displayCutout/);
