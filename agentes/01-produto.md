@@ -602,10 +602,12 @@ Não existe botão Equipar na Loja.
 ### Estaleiro inicial
 
 ```text
-Colombo        → 1.000 Ouro
+El Colombo     → navio padrão, incluído desde o início
 Rosa Intenso   → 3.000 Ouro
 Cristal Queen  → 9.000 Ouro
 ```
+
+**El Colombo não precisa ser comprado.** Todo jogador começa com `ship-colombo` já possuído e equipado. Ele é a embarcação-base usada na viagem enquanto o jogador não equipa outro navio comprado.
 
 Nesta etapa, os navios possuem apenas nome e preço. Arte e vídeo próprio entram depois.
 
