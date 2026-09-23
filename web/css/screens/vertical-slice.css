@@ -335,11 +335,32 @@
     background: #03131f;
 }
 
+.island-travel-stage,
+.island-travel-lottie,
 .island-travel-video {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
+}
+
+.island-travel-stage {
+    overflow: hidden;
+    background: #03131f;
+}
+
+.island-travel-lottie {
+    display: block;
+    overflow: hidden;
+}
+
+.island-travel-lottie > svg {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.island-travel-video {
     object-fit: cover;
     background: #03131f;
 }
