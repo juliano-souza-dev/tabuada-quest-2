@@ -179,7 +179,29 @@
             backgroundId: 1,
             islandIds: Object.freeze([1, 2, 3, 4, 5]),
             worldMapLayout: Object.freeze({ x: 717, y: 1448, width: 200, height: 200 }),
-            hideIslands: true,
+            slotLayout: Object.freeze({
+                1: Object.freeze({
+                    art: Object.freeze({ x: 620, y: 676, width: 300, height: 300 }),
+                    hitbox: Object.freeze({ x: 635, y: 691, width: 270, height: 270 })
+                }),
+                2: Object.freeze({
+                    art: Object.freeze({ x: 225, y: 832, width: 300, height: 300 }),
+                    hitbox: Object.freeze({ x: 240, y: 847, width: 270, height: 270 })
+                }),
+                3: Object.freeze({
+                    art: Object.freeze({ x: 620, y: 1010, width: 300, height: 300 }),
+                    hitbox: Object.freeze({ x: 635, y: 1025, width: 270, height: 270 })
+                }),
+                4: Object.freeze({
+                    art: Object.freeze({ x: 225, y: 1163, width: 300, height: 300 }),
+                    hitbox: Object.freeze({ x: 240, y: 1178, width: 270, height: 270 })
+                }),
+                5: Object.freeze({
+                    art: Object.freeze({ x: 37, y: 1381, width: 300, height: 270 }),
+                    hitbox: Object.freeze({ x: 52, y: 1396, width: 270, height: 240 })
+                })
+            }),
+            hideIslands: false,
             developmentStatus: "preview"
         }),
         13: Object.freeze({
@@ -325,7 +347,9 @@
         const visual = getRegionVisualConfig(regionId);
         const entry = visual?.assets?.islands?.[islandId];
         if (!entry) return "";
-        return status === "locked" ? entry.locked : entry.unlocked;
+        return status === "locked"
+            ? (entry.locked || entry.unlocked || "")
+            : (entry.unlocked || "");
     }
 
     function createIslandEntryState(state, regionId, islandId) {
@@ -437,13 +461,14 @@
 
             const islandAsset = getRegionIslandAsset(regionId, islandId, status);
             const unlockedAsset = assetEntry.unlocked;
+            const usesFallbackLock = status === "locked" && !assetEntry.locked;
 
             return `
-                <div class="region-island-overlay is-${status}${isResume ? " is-resume" : ""}" data-island-ui="${islandId}">
+                <div class="region-island-overlay is-${status}${isResume ? " is-resume" : ""}${usesFallbackLock ? " is-fallback-locked" : ""}" data-island-ui="${islandId}">
                     <div class="region-island-art-shell" style="${rectStyle(layout.art)}">
                         <img class="region-island-art"
                             src="${islandAsset}"
-                            data-fallback-src="${status === "locked" ? unlockedAsset : ""}"
+                            data-fallback-src="${status === "locked" && assetEntry.locked ? unlockedAsset : ""}"
                             alt=""
                             aria-hidden="true">
                         <span class="region-fallback-lock" aria-hidden="true">🔒</span>

@@ -894,7 +894,16 @@
                 backgrounds: Object.freeze({
                     1: "./assets/regions/region-4/region-04-background-q76.webp?v=20260922-terras-gelidas-bg1"
                 }),
-                islands: Object.freeze({})
+                islands: Object.freeze({
+                    1: Object.freeze({
+                        unlocked: "./assets/regions/region-4/island-01-unlocked.webp?v=20260923-terras-gelidas-i12",
+                        locked: null
+                    }),
+                    2: Object.freeze({
+                        unlocked: "./assets/regions/region-4/island-02-unlocked.webp?v=20260923-terras-gelidas-i12",
+                        locked: null
+                    })
+                })
             }),
             region13Modular: Object.freeze({
                 background: "./assets/regions/region-13/background.webp?v=20260921-0118",

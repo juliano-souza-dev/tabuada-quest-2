@@ -3,7 +3,8 @@ name: Process Region 4 island assets
 on:
   push:
     paths:
-      - "web/assets/regions/region-4/**"
+      - "web/assets/regions/region-4/ChatGPT Image 22 de set. de 2026, 20_59_26 (1).png"
+      - "web/assets/regions/region-4/ChatGPT Image 22 de set. de 2026, 20_59_27 (2).png"
       - ".github/workflows/process-region4-islands.yml"
   workflow_dispatch:
 

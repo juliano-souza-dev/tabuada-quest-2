@@ -74,10 +74,25 @@ Arquivos esperados:
 - `island-04-challenge.webp`
 - `island-05-challenge.webp`
 
+## Assets integrados
+
+### Ilha 1
+- desbloqueada: `island-01-unlocked.webp`
+- bloqueada: pendente
+
+### Ilha 2
+- desbloqueada: `island-02-unlocked.webp`
+- bloqueada: pendente
+
+Os PNGs brutos foram normalizados para 896 × 896 WebP e removidos após validação.
+
 ## Status
 
 - identidade da região: definida
 - posição no Mapa Mundo: Região 4
-- background: em produção
-- ilhas: pendentes
+- background: integrado
+- ilha 1 desbloqueada: integrada
+- ilha 2 desbloqueada: integrada
+- ilhas 3, 4 e 5: pendentes
+- versões locked: pendentes
 - challenges: pendentes
