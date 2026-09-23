@@ -59,13 +59,13 @@ jobs:
 
           process_asset \
             "web/assets/regions/region-4/file_00000000b75c820e856690e1cf04db37.png" \
-            "web/assets/regions/region-4/baia-do-cristal-unlocked.webp"
+            "web/assets/regions/region-4/porto-da-geada-locked.webp"
 
           test -s web/assets/regions/region-4/porto-da-geada-unlocked.webp
-          test -s web/assets/regions/region-4/baia-do-cristal-unlocked.webp
+          test -s web/assets/regions/region-4/porto-da-geada-locked.webp
 
           sed -i 's#./assets/regions/region-4/island-01-unlocked.webp?v=20260923-terras-gelidas-i12#./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-i12-v2#g' web/js/content/game-content.js
-          sed -i 's#./assets/regions/region-4/island-02-unlocked.webp?v=20260923-terras-gelidas-i12#./assets/regions/region-4/baia-do-cristal-unlocked.webp?v=20260922-terras-gelidas-i12-v2#g' web/js/content/game-content.js
+          true # Porto da Geada locked link is maintained in game-content.js
 
       - name: Commit processed assets and links
         shell: bash
