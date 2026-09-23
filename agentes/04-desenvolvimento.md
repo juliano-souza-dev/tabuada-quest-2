@@ -731,7 +731,7 @@ Nenhuma compra altera `homeBackgroundId`, `profileFrameId` ou qualquer futuro ca
 Schema vigente:
 
 ```text
-schemaVersion = 12
+schemaVersion = 17
 ```
 
 Estado:
@@ -740,6 +740,15 @@ Estado:
 shop.purchasedItemIds
 shop.equippedShipId
 ```
+
+Invariante atual de produto:
+
+```text
+ship-colombo ∈ purchasedItemIds
+equippedShipId = ship-colombo
+```
+
+para um estado novo. A migração v16 → v17 adiciona `ship-colombo` automaticamente e o equipa apenas quando não existe outro navio válido já equipado.
 
 Migração v11 → v12 preserva todas as compras e inicia `equippedShipId = null`.
 
