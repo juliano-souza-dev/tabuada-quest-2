@@ -896,11 +896,11 @@
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
-                        unlocked: "./assets/regions/region-4/island-01-unlocked.webp?v=20260923-terras-gelidas-i12",
+                        unlocked: "./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-i12-v2",
                         locked: null
                     }),
                     2: Object.freeze({
-                        unlocked: "./assets/regions/region-4/island-02-unlocked.webp?v=20260923-terras-gelidas-i12",
+                        unlocked: "./assets/regions/region-4/baia-do-cristal-unlocked.webp?v=20260922-terras-gelidas-i12-v2",
                         locked: null
                     })
                 })
