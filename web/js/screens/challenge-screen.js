@@ -27,7 +27,7 @@
         1: Object.freeze({
             1: Object.freeze({
                 progress: Object.freeze({ x: 0, y: 0, width: 0, height: 0 }),
-                question: Object.freeze({ x: 21.5, y: 45.2, width: 57.5, height: 17.4 }),
+                question: Object.freeze({ x: 22.7, y: 27.0, width: 57.9, height: 12.9 }),
                 answers: Object.freeze({ x: 14, y: 64.7, width: 72, height: 20.9, columnGap: 5.8, rowGap: 5.8 }),
                 font: Object.freeze({ progress: 0, question: 8.35, answer: 5.55, feedback: 4.9 }),
                 progressMask: false
