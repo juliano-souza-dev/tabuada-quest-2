@@ -912,8 +912,8 @@
               locked: "./assets/regions/region-4/coroa-do-inverno-locked.webp?v=20260923-terras-gelidas-ilha5-v1"
           }),
                     4: Object.freeze({
-              unlocked: "./assets/regions/region-4/fortaleza-da-nevasca-unlocked.webp?v=20260923-terras-gelidas-ilha4-v1",
-              locked: "./assets/regions/region-4/fortaleza-da-nevasca-locked.webp?v=20260923-terras-gelidas-ilha4-v1"
+              unlocked: "./assets/regions/region-4/island-04-unlocked.webp?v=20260923-terras-gelidas-ilha4-final",
+              locked: "./assets/regions/region-4/island-04-locked.webp?v=20260923-terras-gelidas-ilha4-final"
           })
                 })
             }),
