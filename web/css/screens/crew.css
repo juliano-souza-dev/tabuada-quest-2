@@ -6,194 +6,58 @@
     color: #fff7de;
     background: #17100c;
 }
-
 .crew-tavern-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    user-select: none;
-    pointer-events: none;
-    -webkit-user-drag: none;
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: fill; display: block; pointer-events: none; user-select: none;
 }
-
-.crew-screen::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(180deg, rgba(23, 10, 5, .08) 0%, rgba(18, 9, 5, .16) 55%, rgba(12, 7, 5, .28) 100%);
-    pointer-events: none;
+.crew-art-back {
+    position: absolute; z-index: 4; left: 4.2%; top: 4.1%;
+    width: 17%; height: 9%; border: 0; background: transparent; cursor: pointer;
 }
-
-.crew-header {
-    position: relative;
-    z-index: 2;
-    min-height: 74px;
-    display: grid;
-    grid-template-columns: 48px 1fr auto;
-    align-items: center;
-    gap: 10px;
-    padding: max(10px, env(safe-area-inset-top)) 14px 10px;
-    border-bottom: 2px solid rgba(239, 187, 79, .62);
-    background: rgba(35, 20, 14, .92);
+.crew-bonus-overlay {
+    position: absolute; z-index: 4; left: 29%; top: 17.5%; width: 42%; height: 6%;
+    display: flex; align-items: center; justify-content: center; gap: 3.2%;
+    font-size: clamp(8px, 1.55cqw, 14px); font-weight: 900; text-shadow: 0 1px 3px #32190b;
 }
-
-.crew-header button {
-    width: 42px;
-    height: 42px;
-    border: 2px solid #e6b64d;
-    border-radius: 50%;
-    color: white;
-    background: #6f3a1f;
-    font-size: 1.25rem;
-    font-weight: 900;
+.crew-bonus-overlay span { white-space: nowrap; }
+.crew-slots {
+    position: absolute; z-index: 3; left: 7.5%; right: 7.5%; top: 31.2%; bottom: 13.1%;
+    display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+    column-gap: 1.6%; row-gap: 2.2%;
 }
-
-.crew-header small {
-    display: block;
-    color: #e9bd5e;
-    font-size: .64rem;
-    font-weight: 900;
-    letter-spacing: .13em;
+.crew-slot { position: relative; min-width: 0; min-height: 0; }
+.crew-slot-portrait {
+    position: absolute; left: 5%; right: 5%; top: 2%; bottom: 19%;
+    display: grid; place-items: end center; overflow: hidden; pointer-events: none;
 }
-
-.crew-header h1 {
-    margin: 0;
-    font-size: 1.4rem;
-    line-height: 1;
+.crew-slot-portrait img {
+    width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
+    filter: drop-shadow(0 .35cqw .35cqw rgba(0,0,0,.35));
 }
-
-.crew-gold {
-    padding: 7px 10px;
-    border: 2px solid #e4b548;
-    border-radius: 999px;
-    color: #542b0e;
-    background: #ffd867;
-    font-weight: 1000;
-    white-space: nowrap;
+.crew-slot-footer {
+    position: absolute; left: 4%; right: 4%; bottom: 1%; height: 16%;
+    display: grid; grid-template-columns: 34% 1fr; gap: 4%; align-items: center;
 }
-
-.crew-summary {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    grid-template-columns: 1fr repeat(3, auto);
-    align-items: center;
-    gap: 6px;
-    padding: 9px 12px;
-    border-bottom: 1px solid rgba(255,255,255,.1);
-    background: rgba(12, 9, 8, .72);
+.crew-slot-price {
+    display: flex; align-items: center; justify-content: center;
+    height: 100%; padding-left: 23%;
+    color: #ffe09a; font-size: clamp(7px, 1.55cqw, 14px); font-weight: 1000;
+    text-shadow: 0 1px 2px #351a09;
 }
-
-.crew-summary strong {
-    color: #ffe7a3;
-    font-size: .72rem;
+.crew-slot-footer button {
+    width: 100%; height: 100%; padding: 0 3%; border: 0; border-radius: 999px;
+    color: #fff0c5; background: rgba(22,31,34,.78);
+    font-size: clamp(6px, 1.32cqw, 12px); font-weight: 1000; cursor: pointer;
 }
-
-.crew-summary span {
-    padding: 5px 7px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.09);
-    font-size: .62rem;
-    font-weight: 900;
+.crew-slot-footer button:not(:disabled) {
+    color: #fff6d8; background: rgba(24,112,72,.92);
 }
-
-.crew-list {
-    position: relative;
-    z-index: 2;
-    height: calc(100% - 132px);
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-content: start;
-    gap: 10px;
-    padding: 12px 12px max(18px, env(safe-area-inset-bottom));
+.crew-slot.is-hired .crew-slot-price { opacity: .42; }
+.crew-slot.is-hired .crew-slot-footer button {
+    color: #d9f4df; background: rgba(37,72,57,.82);
 }
-
-.crew-card {
-    position: relative;
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    min-width: 0;
-    padding: 8px;
-    border: 2px solid rgba(228,181,72,.58);
-    border-radius: 18px;
-    background: linear-gradient(180deg, rgba(91,49,28,.96), rgba(39,23,16,.97));
-    box-shadow: 0 8px 18px rgba(0,0,0,.28);
-}
-
-.crew-card.is-hired {
-    border-color: #70d9a1;
-    box-shadow: 0 0 0 2px rgba(112,217,161,.12), 0 8px 18px rgba(0,0,0,.28);
-}
-
-.crew-portrait {
-    display: grid;
-    place-items: end center;
-    min-height: 112px;
-    margin: -4px -4px 3px;
-    border-radius: 14px;
-    background: radial-gradient(circle at 50% 58%, rgba(255,219,132,.24), transparent 58%);
-}
-
-.crew-portrait img {
-    width: min(100%, 128px);
-    aspect-ratio: 1;
-    object-fit: contain;
-}
-
-.crew-info h2 {
-    margin: 2px 0 3px;
-    color: #fff1c8;
-    font-size: .92rem;
-}
-
-.crew-info p { margin: 2px 0; }
-
-.crew-bonus {
-    color: #7fe1ff;
-    font-size: .72rem;
-    font-weight: 1000;
-}
-
-.crew-price {
-    color: #ffd86b;
-    font-size: .68rem;
-    font-weight: 850;
-}
-
-.crew-card > button {
-    width: 100%;
-    min-height: 36px;
-    margin-top: 7px;
-    padding: 6px 5px;
-    border: 0;
-    border-radius: 11px;
-    color: #3a1f0d;
-    background: linear-gradient(180deg, #ffde72, #e6a937);
-    font-size: .62rem;
-    font-weight: 1000;
-}
-
-.crew-card > button:disabled {
-    color: rgba(255,255,255,.78);
-    background: rgba(255,255,255,.14);
-}
-
-.crew-card.is-hired > button:disabled {
-    color: #123a27;
-    background: #74d7a3;
-}
-
-@media (max-width: 350px) {
-    .crew-summary { gap: 3px; }
-    .crew-summary span { padding: 4px; font-size: .53rem; }
-    .crew-list { gap: 7px; padding-inline: 8px; }
-    .crew-card { padding: 6px; }
+.crew-slot-footer button:disabled { cursor: default; }
+@media (max-width: 360px) {
+    .crew-bonus-overlay { gap: 2%; }
+    .crew-slot-footer { grid-template-columns: 32% 1fr; gap: 3%; }
 }
