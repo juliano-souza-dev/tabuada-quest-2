@@ -16,8 +16,8 @@
 }
 .crew-bonus-overlay {
     position: absolute; z-index: 4; left: 29%; top: 17.5%; width: 42%; height: 6%;
-    display: flex; align-items: center; justify-content: center; gap: 3.2%;
-    font-size: clamp(8px, 1.55cqw, 14px); font-weight: 900; text-shadow: 0 1px 3px #32190b;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2%;
+    font-size: clamp(8px, 1.55cqw, 14px); line-height: 1.08; font-weight: 900; text-shadow: 0 1px 3px #32190b;
 }
 .crew-bonus-overlay span { white-space: nowrap; }
 .crew-slots {
