@@ -37,13 +37,14 @@ function legacyV8(){
     };
 }
 
-test("estado inicial v16 usa 22 Regiões de 5 Ilhas",()=>{
+test("estado inicial v17 usa 22 Regiões de 5 Ilhas",()=>{
     const s=d.createInitialState();
-    assert.equal(s.schemaVersion,16);
+    assert.equal(s.schemaVersion,17);
     assert.deepEqual(s.campaign.unlockedRegionIds,[1]);
     assert.equal(Object.keys(s.campaign.regionProgress).length,22);
     assert.equal(s.campaign.regionProgress["22"].islandsTotal,5);
     assert.equal(s.learning.schedulerState,null);
+    assert.deepEqual(s.shop,{purchasedItemIds:["ship-colombo"],equippedShipId:"ship-colombo"});
 });
 
 test("migração v8 traduz R1/I6 para R2/I1 sem perder progresso",()=>{
@@ -56,7 +57,7 @@ test("migração v8 traduz R1/I6 para R2/I1 sem perder progresso",()=>{
     old.campaign.travelPlayedIslandIds=["region-1-island-6"];
 
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,16);
+    assert.equal(m.schemaVersion,17);
     assert.equal(m.campaign.currentRegionId,2);
     assert.equal(m.campaign.currentIslandId,1);
     assert.equal(m.campaign.regionProgress["1"].islandsCompleted,5);
@@ -95,13 +96,13 @@ test("migração v8 converte sessão ativa e une histórico pedagógico",()=>{
     assert.equal(m.learning.schedulerState.recoveryQueue[0].remainingGap,1);
 });
 
-test("migração v7 ainda cria Tripulação e termina em v16",()=>{
+test("migração v7 ainda cria Tripulação e termina em v17",()=>{
     const old=legacyV8();
     old.schemaVersion=7;
     delete old.crew;
     old.wallet.coins=321;
     const m=d.normalizeState(old);
-    assert.equal(m.schemaVersion,16);
+    assert.equal(m.schemaVersion,17);
     assert.equal(m.wallet.coins,321);
     assert.deepEqual(m.crew.hiredIds,[]);
 });
@@ -178,9 +179,9 @@ test("recuperação pedagógica atravessa fronteira visual",()=>{
     assert.equal(d.getIslandStatus(s,2,1),"available");
 });
 
-test("estado inválido volta ao inicial v16",()=>{
+test("estado inválido volta ao inicial v17",()=>{
     const s=d.normalizeState({schemaVersion:999,wallet:{coins:999}});
-    assert.equal(s.schemaVersion,16);
+    assert.equal(s.schemaVersion,17);
     assert.equal(s.wallet.coins,0);
 });
 
@@ -191,7 +192,7 @@ test("migração v9 adiciona estado persistente de Colecionáveis sem perder pro
     delete old.campaign.collectibles;
     old.wallet.coins=432;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,16);
+    assert.equal(migrated.schemaVersion,17);
     assert.deepEqual(migrated.campaign.collectibles,{collectedIds:[],pendingIds:[]});
     assert.equal(migrated.wallet.coins,432);
 });
@@ -212,8 +213,8 @@ test("migração v10 cria estado da Loja v12 sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,16);
-    assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
+    assert.equal(migrated.schemaVersion,17);
+    assert.deepEqual(migrated.shop,{purchasedItemIds:["ship-colombo"],equippedShipId:"ship-colombo"});
     assert.equal(migrated.wallet.coins,9876);
 });
 
@@ -224,13 +225,13 @@ test("migração v10 cria estado da Loja sem perder Ouro",()=>{
     delete old.shop;
     old.wallet.coins=9876;
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,16);
-    assert.deepEqual(migrated.shop,{purchasedItemIds:[],equippedShipId:null});
+    assert.equal(migrated.schemaVersion,17);
+    assert.deepEqual(migrated.shop,{purchasedItemIds:["ship-colombo"],equippedShipId:"ship-colombo"});
     assert.equal(migrated.wallet.coins,9876);
 });
 
 
-test("migração v11 preserva compras e adiciona navio equipado nulo",()=>{
+test("migração v11 termina com El Colombo possuído e equipado",()=>{
     const current=d.createInitialState();
     const old={
         ...current,
@@ -238,31 +239,47 @@ test("migração v11 preserva compras e adiciona navio equipado nulo",()=>{
         shop:{purchasedItemIds:["ship-colombo"]}
     };
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,16);
+    assert.equal(migrated.schemaVersion,17);
     assert.deepEqual(migrated.shop,{
         purchasedItemIds:["ship-colombo"],
-        equippedShipId:null
+        equippedShipId:"ship-colombo"
     });
 });
 
-test("navio só pode ser equipado depois de comprado",()=>{
+test("El Colombo é navio padrão e outros navios só equipam depois da compra",()=>{
     const allowed=["ship-colombo","ship-rosa-intenso"];
     let s=d.createInitialState();
-    s=d.withEquippedShip(s,"ship-colombo",allowed);
-    assert.equal(s.shop.equippedShipId,null);
+    assert.deepEqual(s.shop.purchasedItemIds,["ship-colombo"]);
+    assert.equal(s.shop.equippedShipId,"ship-colombo");
+
+    const invalid=d.withEquippedShip(s,"ship-rosa-intenso",allowed);
+    assert.equal(invalid.shop.equippedShipId,"ship-colombo");
 
     s={
         ...s,
         shop:{
             ...s.shop,
-            purchasedItemIds:["ship-colombo"]
+            purchasedItemIds:["ship-colombo","ship-rosa-intenso"]
         }
     };
-    s=d.withEquippedShip(s,"ship-colombo",allowed);
-    assert.equal(s.shop.equippedShipId,"ship-colombo");
+    s=d.withEquippedShip(s,"ship-rosa-intenso",allowed);
+    assert.equal(s.shop.equippedShipId,"ship-rosa-intenso");
+});
 
-    const invalid=d.withEquippedShip(s,"ship-rosa-intenso",allowed);
-    assert.equal(invalid.shop.equippedShipId,"ship-colombo");
+test("migração v16 concede El Colombo sem substituir outro navio já equipado",()=>{
+    const current=d.createInitialState();
+    const old={
+        ...current,
+        schemaVersion:16,
+        shop:{
+            purchasedItemIds:["ship-rosa-intenso"],
+            equippedShipId:"ship-rosa-intenso"
+        }
+    };
+    const migrated=d.normalizeState(old);
+    assert.equal(migrated.schemaVersion,17);
+    assert.deepEqual(migrated.shop.purchasedItemIds,["ship-colombo","ship-rosa-intenso"]);
+    assert.equal(migrated.shop.equippedShipId,"ship-rosa-intenso");
 });
 
 
@@ -272,7 +289,7 @@ test("migração v12 adiciona pedidos da Loja Rubi sem perder carteira",()=>{
     delete old.rubyShop;
     old.wallet={coins:321,gems:87};
     const migrated=d.normalizeState(old);
-    assert.equal(migrated.schemaVersion,16);
+    assert.equal(migrated.schemaVersion,17);
     assert.equal(migrated.wallet.coins,321);
     assert.equal(migrated.wallet.gems,87);
     assert.deepEqual(migrated.rubyShop,{orders:[]});
@@ -338,7 +355,7 @@ test("inventário de Efeitos nasce vazio e separado da Loja",()=>{
     });
 });
 
-test("migração v13 cria inventário e chega ao schema v16",()=>{
+test("migração v13 cria inventário e chega ao schema v17",()=>{
     const current=d.createInitialState();
     const old={
         ...current,
@@ -352,7 +369,7 @@ test("migração v13 cria inventário e chega ao schema v16",()=>{
 
     const migrated=d.normalizeState(old);
 
-    assert.equal(migrated.schemaVersion,16);
+    assert.equal(migrated.schemaVersion,17);
     assert.deepEqual(migrated.inventory.items,["effect-correct-brilho-capitao"]);
     assert.deepEqual(migrated.inventory.equipped,{
         correctEffectId:null,
@@ -415,7 +432,7 @@ test("migração v14 adiciona Molduras compradas ao inventário",()=>{
 
     const migrated=d.normalizeState(old);
 
-    assert.equal(migrated.schemaVersion,16);
+    assert.equal(migrated.schemaVersion,17);
     assert.deepEqual(migrated.inventory.items,[effectId,frameId]);
     assert.equal(migrated.inventory.equipped.correctEffectId,effectId);
 });
@@ -434,7 +451,7 @@ test("Moldura comprada entra no inventário mas não equipa automaticamente",()=
 
 test("novo perfil começa limpo, marcado como criado e vincula identidade",()=>{
     const s=d.createFreshProfile("Alana","maya","firebase-uid-123",["luna","maya","sofia"]);
-    assert.equal(s.schemaVersion,16);
+    assert.equal(s.schemaVersion,17);
     assert.equal(s.player.profileCreated,true);
     assert.equal(s.player.displayName,"Alana");
     assert.equal(s.player.avatarId,"maya");

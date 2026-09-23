@@ -3,9 +3,10 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 16;
+    const STATE_VERSION = 17;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
+    const DEFAULT_SHIP_ID = "ship-colombo";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
     const ISLANDS_PER_REGION = world.ISLANDS_PER_REGION;
     const LEGACY_TOTAL_REGIONS = 11;
@@ -90,7 +91,7 @@
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
             crew: { hiredIds: [] },
-            shop: { purchasedItemIds: [], equippedShipId: null },
+            shop: { purchasedItemIds: [DEFAULT_SHIP_ID], equippedShipId: DEFAULT_SHIP_ID },
             inventory: {
                 items: [],
                 equipped: {
@@ -508,11 +509,33 @@
                 : "";
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 16,
                 player: {
                     ...existingPlayer,
                     profileCreated: existingPlayer.profileCreated === true
                         || (existingName.length > 0 && existingName !== "Explorador")
+                }
+            };
+        }
+
+        if (migrated.schemaVersion === 16) {
+            const existingShop = isObject(migrated.shop) ? migrated.shop : {};
+            const purchasedItemIds = Array.isArray(existingShop.purchasedItemIds)
+                ? existingShop.purchasedItemIds.filter((id) => typeof id === "string")
+                : [];
+            const withDefaultShip = Array.from(new Set([DEFAULT_SHIP_ID, ...purchasedItemIds]));
+            const currentEquipped = typeof existingShop.equippedShipId === "string"
+                && withDefaultShip.includes(existingShop.equippedShipId)
+                    ? existingShop.equippedShipId
+                    : DEFAULT_SHIP_ID;
+
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                shop: {
+                    ...existingShop,
+                    purchasedItemIds: withDefaultShip,
+                    equippedShipId: currentEquipped
                 }
             };
         }
@@ -667,10 +690,9 @@
             && Array.isArray(value.shop.purchasedItemIds)
             && value.shop.purchasedItemIds.every((id) => typeof id === "string")
             && new Set(value.shop.purchasedItemIds).size === value.shop.purchasedItemIds.length
-            && (value.shop.equippedShipId === null || (
-                typeof value.shop.equippedShipId === "string"
-                && value.shop.purchasedItemIds.includes(value.shop.equippedShipId)
-            ))
+            && value.shop.purchasedItemIds.includes(DEFAULT_SHIP_ID)
+            && typeof value.shop.equippedShipId === "string"
+            && value.shop.purchasedItemIds.includes(value.shop.equippedShipId)
             && validInventoryState(value.inventory, value.shop.purchasedItemIds)
             && validRubyShopState(value.rubyShop)
             && isObject(value.campaign)

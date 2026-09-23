@@ -16,6 +16,9 @@ test("Estaleiro possui os três navios oficiais e El Colombo já tem arte + anim
         [["El Colombo",1000],["Rosa Intenso",3000],["Cristal Queen",9000]]
     );
     const [colombo,...pendingShips]=TQ.content.shopCatalog.ships;
+    const initial=d.createInitialState();
+    assert.ok(initial.shop.purchasedItemIds.includes(colombo.id));
+    assert.equal(initial.shop.equippedShipId,colombo.id);
     assert.equal(colombo.asset,"./assets/transitions/el-colombo/images/el-colombo.webp");
     assert.equal(colombo.travelAnimation,"./assets/transitions/el-colombo/el-colombo-ocean-navigation.json");
     assert.equal(Object.prototype.hasOwnProperty.call(colombo,"travelVideo"),false);
@@ -26,27 +29,27 @@ test("Estaleiro possui os três navios oficiais e El Colombo já tem arte + anim
     }
 });
 
-test("compra de navio desconta Ouro uma única vez e não equipa nada",()=>{
+test("El Colombo já vem comprado e outro navio comprado não equipa automaticamente",()=>{
     let s=d.createInitialState();
     s={...s,wallet:{...s.wallet,coins:5000}};
-    const ship=TQ.content.shopCatalog.ships[0];
+    const ship=TQ.content.shopCatalog.ships[1];
     s=d.purchaseShopItem(s,ship);
-    assert.equal(s.wallet.coins,4000);
-    assert.deepEqual(s.shop.purchasedItemIds,[ship.id]);
-    assert.equal(s.shop.equippedShipId,null);
+    assert.equal(s.wallet.coins,2000);
+    assert.deepEqual(s.shop.purchasedItemIds,["ship-colombo",ship.id]);
+    assert.equal(s.shop.equippedShipId,"ship-colombo");
     assert.equal(Object.prototype.hasOwnProperty.call(s.shop,"equippedItemIds"),false);
     const again=d.purchaseShopItem(s,ship);
-    assert.equal(again.wallet.coins,4000);
-    assert.deepEqual(again.shop.purchasedItemIds,[ship.id]);
+    assert.equal(again.wallet.coins,2000);
+    assert.deepEqual(again.shop.purchasedItemIds,["ship-colombo",ship.id]);
 });
 
-test("Ouro insuficiente não compra item",()=>{
+test("Ouro insuficiente não compra navio adicional",()=>{
     let s=d.createInitialState();
-    s={...s,wallet:{...s.wallet,coins:999}};
-    const ship=TQ.content.shopCatalog.ships[0];
+    s={...s,wallet:{...s.wallet,coins:2999}};
+    const ship=TQ.content.shopCatalog.ships[1];
     const next=d.purchaseShopItem(s,ship);
-    assert.equal(next.wallet.coins,999);
-    assert.deepEqual(next.shop.purchasedItemIds,[]);
+    assert.equal(next.wallet.coins,2999);
+    assert.deepEqual(next.shop.purchasedItemIds,["ship-colombo"]);
 });
 
 test("Loja possui cinco Molduras com preços balanceados e sem arte",()=>{
@@ -87,7 +90,7 @@ test("compras de Moldura e Fundo usam a mesma carteira e continuam sem equipar",
     s=d.purchaseShopItem(s,frame);
     s=d.purchaseShopItem(s,background);
     assert.equal(s.wallet.coins,1350);
-    assert.deepEqual(s.shop.purchasedItemIds,[frame.id,background.id]);
+    assert.deepEqual(s.shop.purchasedItemIds,["ship-colombo",frame.id,background.id]);
     assert.ok(s.inventory.items.includes(frame.id));
     assert.equal(s.inventory.items.includes(background.id),false);
     assert.equal(s.player.profileFrameId,TQ.content.defaultProfileFrameId);
@@ -95,13 +98,13 @@ test("compras de Moldura e Fundo usam a mesma carteira e continuam sem equipar",
 });
 
 
-test("comprar navio não equipa automaticamente, mas Home pode equipar depois",()=>{
+test("comprar navio adicional não equipa automaticamente, mas Home pode equipar depois",()=>{
     let s=d.createInitialState();
     s={...s,wallet:{...s.wallet,coins:5000}};
-    const ship=TQ.content.shopCatalog.ships[0];
+    const ship=TQ.content.shopCatalog.ships[1];
 
     s=d.purchaseShopItem(s,ship);
-    assert.equal(s.shop.equippedShipId,null);
+    assert.equal(s.shop.equippedShipId,"ship-colombo");
 
     s=d.withEquippedShip(
         s,
@@ -111,11 +114,11 @@ test("comprar navio não equipa automaticamente, mas Home pode equipar depois",(
     assert.equal(s.shop.equippedShipId,ship.id);
 });
 
-test("navio não comprado nunca pode virar navio equipado",()=>{
+test("navio não comprado nunca pode substituir o Colombo padrão",()=>{
     let s=d.createInitialState();
     const ids=TQ.content.shopCatalog.ships.map((item)=>item.id);
     s=d.withEquippedShip(s,ids[2],ids);
-    assert.equal(s.shop.equippedShipId,null);
+    assert.equal(s.shop.equippedShipId,"ship-colombo");
 });
 
 

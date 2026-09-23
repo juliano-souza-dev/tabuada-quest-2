@@ -17,13 +17,16 @@
 
         const identity = TQ.content.getIslandIdentity(active.regionId, active.islandId);
         const label = identity ? identity.label : `Ilha ${active.islandId}`;
+        const defaultShip = TQ.content.shopCatalog.ships.find(
+            (item) => item.id === "ship-colombo"
+        ) || null;
         const equippedShip = TQ.content.shopCatalog.ships.find(
             (item) => item.id === state.shop.equippedShipId
                 && state.shop.purchasedItemIds.includes(item.id)
-        ) || null;
+        ) || defaultShip;
 
-        const travelAnimation = equippedShip?.travelAnimation || null;
-        const travelShipAsset = equippedShip?.asset || null;
+        const travelAnimation = equippedShip?.travelAnimation || defaultShip?.travelAnimation || null;
+        const travelShipAsset = equippedShip?.asset || defaultShip?.asset || null;
 
         screen.innerHTML = `
             <div class="island-travel-stage" aria-label="Viajando para ${label}"></div>
