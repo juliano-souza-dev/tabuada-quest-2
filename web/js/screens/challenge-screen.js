@@ -179,6 +179,11 @@
         const colombo = TQ.content.shopCatalog?.ships?.find((item) => item.id === "ship-colombo") || null;
         const animationUrl = colombo?.travelAnimation;
         const shipAsset = colombo?.asset;
+        const travelBackground = colombo?.travelBackground;
+        if (travelBackground) {
+            host.classList.add("has-travel-background");
+            host.style.backgroundImage = `url("${travelBackground}")`;
+        }
         let animation = null;
         let disposed = false;
 
@@ -204,7 +209,7 @@
                     path: resolvedAnimationUrl.href,
                     assetsPath: new URL("./images/", resolvedAnimationUrl).href,
                     rendererSettings: {
-                        preserveAspectRatio: "xMidYMid slice",
+                        preserveAspectRatio: "xMidYMid meet",
                         progressiveLoad: true
                     }
                 });
