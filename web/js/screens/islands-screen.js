@@ -373,7 +373,9 @@
         );
         const prepared = TQ.domain.gameplay.prepareNextChallenge(session, regionState);
 
-        return TQ.domain.playerState.withGameplaySession(
+        // O modo DEV precisa exercitar a mesma transição visual do jogo real.
+        // O estado continua volátil, então repetir o teste não altera o progresso real.
+        return TQ.domain.playerState.withIslandTravelSession(
             state,
             prepared.session,
             prepared.regionState

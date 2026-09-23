@@ -84,13 +84,13 @@ test("DEV Regiões é um destino válido do estado de navegação",()=>{
 });
 
 
-test("Ilha aberta pelo DEV inicia desafio sem exigir desbloqueio da campanha",()=>{
+test("Ilha aberta pelo DEV passa pela viagem sem exigir desbloqueio da campanha",()=>{
     const initial=playerState.createInitialState();
     const snapshot=JSON.stringify(initial);
 
     const next=islands.createDevelopmentIslandEntryState(initial,2,5);
 
-    assert.equal(next.ui.lastScreen,"challenge");
+    assert.equal(next.ui.lastScreen,"travel");
     assert.equal(next.learning.activeSession.regionId,2);
     assert.equal(next.learning.activeSession.islandId,5);
     assert.ok(next.learning.activeSession.currentChallenge);
@@ -115,6 +115,7 @@ test("fluxo DEV usa estado volátil e não salva partida de teste no progresso r
     assert.match(app,/screenId === "home"/);
 
     assert.match(islandsSource,/createDevelopmentIslandEntryState/);
+    assert.match(islandsSource,/withIslandTravelSession/);
     assert.match(islandsSource,/if \(developmentMode\) \{/);
     assert.match(islandsSource,/onDevelopmentIslandOpen\(regionId, islandId\)/);
     assert.match(islandsSource,/if \(previewMode\) return;/);
