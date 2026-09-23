@@ -782,7 +782,14 @@
             itemChest: "./assets/ui/chest-items.webp",
             global: Object.freeze({
                 worldMap: "./assets/global/mapa-mundo.png?v=20260920-1808",
-                worldMapVisual: "./assets/global/carta-nautica-01.webp?v=20260923-carta-nautica-01-v1",
+                worldMapVisual: "./assets/global/carta-nautica-01-regioes-01-04.webp?v=20260923-carta-nautica-pages-v1",
+                worldMapCharts: Object.freeze([
+                    Object.freeze({ id: 1, regionIds: Object.freeze([1, 2, 3, 4]), asset: "./assets/global/carta-nautica-01-regioes-01-04.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 2, regionIds: Object.freeze([5, 6, 7, 8]), asset: "./assets/global/carta-nautica-02-regioes-05-08.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 3, regionIds: Object.freeze([9, 10, 11, 12]), asset: "./assets/global/carta-nautica-03-regioes-09-12.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 4, regionIds: Object.freeze([13, 14, 15, 16]), asset: "./assets/global/carta-nautica-04-regioes-13-16.webp?v=20260923-carta-nautica-pages-v1" }),
+                    Object.freeze({ id: 6, regionIds: Object.freeze([21, 22]), asset: "./assets/global/carta-nautica-06-regioes-21-22.webp?v=20260923-carta-nautica-pages-v1" })
+                ]),
                 rubyShopMerchantShip: "./assets/global/comercial_ship.webp?v=20260921-1720",
                 victoryScreen: "./assets/global/gb_win.webp?v=20260921-2028",
                 petRescueScreen: "./assets/global/pet_rescue_screen.webp?v=20260922-pet-rescue-v1"
