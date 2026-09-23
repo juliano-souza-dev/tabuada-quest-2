@@ -21,7 +21,7 @@ test("Região 4 usa o background oficial de Terras Gélidas",()=>{
 
     const assets=TQ.content.assets.region4Modular;
     assert.ok(assets);
-    assert.match(assets.background,/region-4\/region-04-background-q76\.webp/);
+    assert.match(assets.background,/region-4\/region-04-background-v2\.webp/);
 
     const clean=assets.background.split("?")[0].replace(/^\.\//,"");
     assert.equal(fs.existsSync(path.join(__dirname,"../../web",clean)),true);
@@ -81,11 +81,11 @@ test("Ilhas 1, 2 e 3 de Terras Gélidas estão ligadas aos pares WebP otimizados
 
 test("slots de Terras Gélidas seguem os cinco redemoinhos do background",()=>{
     const visual=TQ.screens.islands.getRegionVisualConfig(4);
-    assert.deepEqual(visual.slotLayout[1].art,{x:535,y:591,width:470,height:470});
-    assert.deepEqual(visual.slotLayout[2].art,{x:140,y:747,width:470,height:470});
-    assert.deepEqual(visual.slotLayout[3].art,{x:535,y:925,width:470,height:470});
-    assert.deepEqual(visual.slotLayout[4].art,{x:140,y:1078,width:470,height:470});
-    assert.deepEqual(visual.slotLayout[5].art,{x:-48,y:1304,width:470,height:423});
+    assert.deepEqual(visual.slotLayout[1].art,{x:510,y:367,width:390,height:390});
+    assert.deepEqual(visual.slotLayout[2].art,{x:40,y:363,width:390,height:390});
+    assert.deepEqual(visual.slotLayout[3].art,{x:510,y:981,width:390,height:390});
+    assert.deepEqual(visual.slotLayout[4].art,{x:40,y:982,width:390,height:390});
+    assert.deepEqual(visual.slotLayout[5].art,{x:279,y:654,width:390,height:390});
 });
 
 test("asset locked dedicado é usado quando a arte bloqueada existe",()=>{
