@@ -214,19 +214,24 @@ test("desafio protege o conteúdo até a arte estar realmente pronta",()=>{
 
     assert.match(source,/is-art-loading/);
     assert.match(source,/challenge-art-loading/);
-    assert.match(source,/Chegando à ilha/);
+    assert.match(source,/mountChallengeArtLoadingAnimation/);
+    assert.match(source,/ship-colombo/);
+    assert.match(source,/challenge-art-loading-animation/);
+    assert.doesNotMatch(source,/Chegando à ilha/);
     assert.match(source,/background\.decode/);
     assert.match(source,/background\.addEventListener\("load"/);
     assert.match(source,/preloadChallengeArt/);
     assert.match(source,/isChallengeArtLoaded/);
     assert.match(source,/artAlreadyLoaded \? "is-art-ready" : "is-art-loading"/);
-    assert.match(source,/if \(!artAlreadyLoaded\) \{\s*armChallengeArtReveal\(screen, art\)/);
+    assert.match(source,/if \(!artAlreadyLoaded\) \{\s*const disposeLoader = mountChallengeArtLoadingAnimation\(screen\);\s*armChallengeArtReveal\(screen, art, disposeLoader\)/);
     assert.match(source,/artAlreadyLoaded \? "" :/);
 
     assert.match(css,/challenge-art-screen\.is-art-loading \.challenge-dynamic-layer/);
-    assert.match(css,/\.challenge-loading-boat/);
-    assert.match(css,/\.challenge-loading-wave/);
-    assert.match(css,/@keyframes challenge-boat-bob/);
+    assert.match(css,/\.challenge-art-loading-animation/);
+    assert.match(css,/\.challenge-loading-colombo-fallback/);
+    assert.match(css,/@keyframes challenge-colombo-sail/);
+    assert.doesNotMatch(css,/\.challenge-loading-boat/);
+    assert.doesNotMatch(css,/\.challenge-loading-wave/);
 });
 
 test("entrada na Ilha e viagem pré-carregam a arte do desafio",()=>{

@@ -172,7 +172,63 @@
         return request;
     }
 
-    function armChallengeArtReveal(screen, art) {
+    function mountChallengeArtLoadingAnimation(screen) {
+        const host = screen.querySelector(".challenge-art-loading-animation");
+        if (!host) return () => {};
+
+        const colombo = TQ.content.shopCatalog?.ships?.find((item) => item.id === "ship-colombo") || null;
+        const animationUrl = colombo?.travelAnimation;
+        const shipAsset = colombo?.asset;
+        let animation = null;
+        let disposed = false;
+
+        function renderAssetFallback() {
+            if (disposed || !shipAsset) return;
+            host.replaceChildren();
+            const image = document.createElement("img");
+            image.className = "challenge-loading-colombo-fallback";
+            image.src = shipAsset;
+            image.alt = "";
+            image.setAttribute("aria-hidden", "true");
+            host.appendChild(image);
+        }
+
+        if (animationUrl && root.lottie?.loadAnimation) {
+            try {
+                const resolvedAnimationUrl = new URL(animationUrl, document.baseURI);
+                animation = root.lottie.loadAnimation({
+                    container: host,
+                    renderer: "svg",
+                    loop: true,
+                    autoplay: true,
+                    path: resolvedAnimationUrl.href,
+                    assetsPath: new URL("./images/", resolvedAnimationUrl).href,
+                    rendererSettings: {
+                        preserveAspectRatio: "xMidYMid slice",
+                        progressiveLoad: true
+                    }
+                });
+                animation.addEventListener("data_failed", renderAssetFallback);
+                animation.addEventListener("error", renderAssetFallback);
+            } catch (_) {
+                renderAssetFallback();
+            }
+        } else {
+            renderAssetFallback();
+        }
+
+        return () => {
+            if (disposed) return;
+            disposed = true;
+            if (animation) {
+                try { animation.destroy(); } catch (_) {}
+                animation = null;
+            }
+            host.replaceChildren();
+        };
+    }
+
+    function armChallengeArtReveal(screen, art, disposeLoader = () => {}) {
         const background = screen.querySelector(".challenge-art-background");
         if (!background) return;
 
@@ -183,6 +239,7 @@
             if (revealed) return;
             revealed = true;
             if (fallbackTimer !== null) root.clearTimeout(fallbackTimer);
+            disposeLoader();
             if (success) loadedChallengeArtUrls.add(art);
 
             const applyReadyState = () => {
@@ -398,17 +455,8 @@
                     </div>
                     ${artAlreadyLoaded ? "" : `
                     <div class="challenge-art-loading" role="status" aria-live="polite">
-                        <div class="challenge-loading-scene" aria-hidden="true">
-                            <div class="challenge-loading-boat">
-                                <span class="challenge-loading-mast"></span>
-                                <span class="challenge-loading-sail"></span>
-                                <span class="challenge-loading-flag"></span>
-                                <span class="challenge-loading-hull"></span>
-                            </div>
-                            <span class="challenge-loading-wave challenge-loading-wave-a"></span>
-                            <span class="challenge-loading-wave challenge-loading-wave-b"></span>
-                        </div>
-                        <span class="challenge-loading-label">Chegando à ilha...</span>
+                        <div class="challenge-art-loading-animation" aria-hidden="true"></div>
+                        <span class="visually-hidden">Carregando desafio</span>
                     </div>
                     `}
                 `;
@@ -417,7 +465,8 @@
                     screen.querySelector(".challenge-art-stage")
                 );
                 if (!artAlreadyLoaded) {
-                    armChallengeArtReveal(screen, art);
+                    const disposeLoader = mountChallengeArtLoadingAnimation(screen);
+                    armChallengeArtReveal(screen, art, disposeLoader);
                 }
             } else {
                 screen.innerHTML = `
