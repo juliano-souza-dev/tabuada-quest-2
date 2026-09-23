@@ -5,30 +5,29 @@
     overflow: hidden;
     isolation: isolate;
     background-color: var(--navy-900);
-    background-image:
-        linear-gradient(rgba(5, 25, 37, .22), rgba(5, 25, 37, .22)),
-        var(--home-bleed-image);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-}
-
-.home-screen::before {
-    content: "";
-    position: absolute;
-    inset: -4%;
-    z-index: 0;
     background-image: var(--home-bleed-image);
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
-    filter: blur(18px) brightness(.72) saturate(.9);
-    transform: scale(1.06);
-    pointer-events: none;
+}
+
+/*
+ * Full bleed visual:
+ * the canonical 941x1672 stage stays untouched for pixel alignment,
+ * while the same selected background covers every spare pixel around it.
+ * Safe-area insets still protect interactive content on installed devices.
+ */
+.home-screen::before {
+    content: none;
 }
 
 .home-safe-visual-area {
     z-index: 1;
+    background-color: transparent;
+    background-image: var(--home-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .home-design-stage {
@@ -592,26 +591,13 @@
 }
 
 
-/* PWA instalada: o layout canônico continua sem distorção.
-   As sobras de telas mais altas viram extensão visual do cenário,
-   em vez de faixas sólidas acima/abaixo do jogo. */
-html.tq-pwa-runtime .home-screen {
+/* PWA instalada: o cenário também sangra até as bordas da viewport.
+   Apenas os controles respeitam a safe area; não há letterbox visual. */
+html.tq-pwa-runtime .home-screen,
+html.tq-pwa-runtime .home-safe-visual-area {
     background-color: #0b2b3d;
     background-image: var(--home-bleed-image);
     background-position: center;
     background-size: cover;
-}
-
-html.tq-pwa-runtime .home-screen::before {
-    inset: -8%;
-    background-image: var(--home-bleed-image);
-    background-position: center;
-    background-size: cover;
-    filter: blur(12px) brightness(.96) saturate(1.08);
-    transform: scale(1.08);
-    opacity: 1;
-}
-
-html.tq-pwa-runtime .home-safe-visual-area {
-    background: transparent;
+    background-repeat: no-repeat;
 }
