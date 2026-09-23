@@ -46,7 +46,7 @@
         screen.setAttribute("aria-label", "Taberna da Tripulação");
 
         screen.innerHTML = `
-            <div class="crew-tavern-bg" aria-hidden="true"></div>
+            <img class="crew-tavern-bg" src="${TQ.content.assets.tavern.background}" alt="" aria-hidden="true">
             <header class="crew-header">
                 <button type="button" data-action="back" aria-label="Voltar">←</button>
                 <div>
