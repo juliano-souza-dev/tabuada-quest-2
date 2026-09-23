@@ -10,18 +10,24 @@
 .crew-tavern-bg {
     position: absolute;
     inset: 0;
-    background:
-        radial-gradient(circle at 20% 18%, rgba(255, 196, 92, .16), transparent 26%),
-        radial-gradient(circle at 78% 32%, rgba(205, 93, 42, .14), transparent 28%),
-        linear-gradient(180deg, #3a2116 0%, #21140f 48%, #120c0a 100%);
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
 }
 
-.crew-tavern-bg::after {
+.crew-screen::before {
     content: "";
     position: absolute;
     inset: 0;
-    opacity: .23;
-    background: repeating-linear-gradient(90deg, transparent 0 58px, rgba(255,255,255,.05) 59px 61px);
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(23, 10, 5, .08) 0%, rgba(18, 9, 5, .16) 55%, rgba(12, 7, 5, .28) 100%);
+    pointer-events: none;
 }
 
 .crew-header {
