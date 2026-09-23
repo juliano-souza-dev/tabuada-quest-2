@@ -135,6 +135,12 @@
             onNavigate("challenge");
         }
 
+        function restoreStaticBackground() {
+            if (!travelBackground) return;
+            stage.classList.add("has-travel-background");
+            stage.style.backgroundImage = `url("${travelBackground}")`;
+        }
+
         function renderColomboFallback() {
             if (finished || !travelShipAsset) {
                 fallbackToChallenge();
@@ -143,6 +149,7 @@
 
             disposeAnimation();
             stage.replaceChildren();
+            restoreStaticBackground();
 
             const fallback = document.createElement("div");
             fallback.className = "island-travel-colombo-fallback";
@@ -169,6 +176,7 @@
 
             disposeAnimation();
             stage.replaceChildren();
+            restoreStaticBackground();
 
             const lottieContainer = document.createElement("div");
             lottieContainer.className = "island-travel-lottie";
@@ -238,23 +246,77 @@
                 app.canvas.setAttribute("aria-hidden", "true");
                 stage.appendChild(app.canvas);
 
-                const texture = await PIXI.Assets.load(travelShipAsset);
+                const [texture, backgroundTexture] = await Promise.all([
+                    PIXI.Assets.load(travelShipAsset),
+                    travelBackground ? PIXI.Assets.load(travelBackground) : Promise.resolve(null)
+                ]);
                 if (finished) {
                     app.destroy(true, { children: true, texture: false, textureSource: false });
                     return;
                 }
 
+                const backgroundLayer = new PIXI.Container();
+                const waterLayer = new PIXI.Container();
                 const travelLayer = new PIXI.Container();
                 const floatLayer = new PIXI.Container();
                 const wakeLayer = new PIXI.Container();
                 const bowLayer = new PIXI.Container();
                 const ship = new PIXI.Sprite(texture);
 
+                let backgroundSprite = null;
+                let backgroundBreathTween = null;
+                let backgroundDriftTween = null;
+
+                if (backgroundTexture) {
+                    backgroundSprite = new PIXI.Sprite(backgroundTexture);
+                    backgroundSprite.anchor.set(0.5);
+
+                    const coverScale = Math.max(
+                        app.screen.width / Math.max(backgroundTexture.width, 1),
+                        app.screen.height / Math.max(backgroundTexture.height, 1)
+                    ) * 1.035;
+
+                    backgroundSprite.scale.set(coverScale);
+                    backgroundSprite.position.set(app.screen.width / 2, app.screen.height / 2);
+                    backgroundLayer.addChild(backgroundSprite);
+
+                    stage.style.backgroundImage = "none";
+
+                    backgroundBreathTween = gsap.to(backgroundSprite.scale, {
+                        x: coverScale * 1.012,
+                        y: coverScale * 1.012,
+                        duration: 3.8,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut"
+                    });
+
+                    backgroundDriftTween = gsap.to(backgroundSprite.position, {
+                        x: app.screen.width / 2 - Math.max(3, app.screen.width * 0.006),
+                        y: app.screen.height / 2 + Math.max(2, app.screen.height * 0.003),
+                        duration: 4.6,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut"
+                    });
+                }
+
+                const waveBands = [
+                    { graphic: new PIXI.Graphics(), y: 0.58, amp: 2.4, length: 72, speed: 1.15, alpha: 0.12, width: 1.2 },
+                    { graphic: new PIXI.Graphics(), y: 0.68, amp: 3.8, length: 108, speed: 0.78, alpha: 0.10, width: 1.5 },
+                    { graphic: new PIXI.Graphics(), y: 0.79, amp: 5.2, length: 146, speed: 0.52, alpha: 0.08, width: 1.8 }
+                ];
+
+                waveBands.forEach((band) => waterLayer.addChild(band.graphic));
+
                 ship.anchor.set(0.5);
                 floatLayer.addChild(ship);
                 travelLayer.addChild(wakeLayer);
                 travelLayer.addChild(floatLayer);
                 travelLayer.addChild(bowLayer);
+
+                app.stage.addChild(backgroundLayer);
+                app.stage.addChild(waterLayer);
                 app.stage.addChild(travelLayer);
 
                 const maxShipWidth = Math.min(app.screen.width * 0.72, 620);
@@ -276,6 +338,34 @@
                 const particles = [];
                 let wakeAccumulator = 0;
                 let bowAccumulator = 0;
+                let waveTime = 0;
+
+                function redrawWaterBands(dt) {
+                    waveTime += dt;
+
+                    waveBands.forEach((band, bandIndex) => {
+                        const graphic = band.graphic;
+                        const baseY = app.screen.height * band.y;
+                        const phase = waveTime * band.speed * Math.PI * 2 + bandIndex * 1.7;
+
+                        graphic.clear();
+                        graphic.moveTo(-12, baseY);
+
+                        for (let x = -12; x <= app.screen.width + 12; x += 12) {
+                            const y =
+                                baseY
+                                + Math.sin((x / band.length) * Math.PI * 2 + phase) * band.amp
+                                + Math.sin((x / (band.length * 0.47)) * Math.PI * 2 - phase * 0.63) * band.amp * 0.28;
+                            graphic.lineTo(x, y);
+                        }
+
+                        graphic.stroke({
+                            width: band.width,
+                            color: 0xdaf8ff,
+                            alpha: band.alpha
+                        });
+                    });
+                }
 
                 function spawnFoam(layer, x, y, direction, scale = 1) {
                     if (particles.length >= 72) {
@@ -308,6 +398,7 @@
                     const dt = Math.min(ticker.deltaMS / 1000, 0.05);
                     wakeAccumulator += dt;
                     bowAccumulator += dt;
+                    redrawWaterBands(dt);
 
                     if (wakeAccumulator >= 0.075) {
                         wakeAccumulator = 0;
@@ -387,6 +478,8 @@
                         bobTween.kill();
                         rollTween.kill();
                         breatheTween.kill();
+                        if (backgroundBreathTween) backgroundBreathTween.kill();
+                        if (backgroundDriftTween) backgroundDriftTween.kill();
                         app.ticker.remove(tickerHandler);
                         particles.splice(0).forEach((particle) => {
                             try { particle.graphic.destroy(); } catch (_) {}
