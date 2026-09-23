@@ -890,9 +890,9 @@
                 })
             }),
             region4Modular: Object.freeze({
-                background: "./assets/regions/region-4/region-04-background-v2.webp?v=20260923-terras-gelidas-bg-v2-live",
+                background: "./assets/regions/region-4/region-04-background-v2.webp?v=20260923-terras-gelidas-bg-v2-corrected-1",
                 backgrounds: Object.freeze({
-                    1: "./assets/regions/region-4/region-04-background-v2.webp?v=20260923-terras-gelidas-bg-v2-live"
+                    1: "./assets/regions/region-4/region-04-background-v2.webp?v=20260923-terras-gelidas-bg-v2-corrected-1"
                 }),
                 islands: Object.freeze({
                     1: Object.freeze({
