@@ -233,3 +233,20 @@
     overflow: hidden;
     pointer-events: auto;
 }
+
+
+/* Global transition gate: old screen stays mounted while the next screen assets decode/load. */
+.tq-screen-transition-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 20000;
+    overflow: hidden;
+    pointer-events: auto;
+}
+.tq-screen-preparing {
+    position: absolute !important;
+    inset: 0;
+    z-index: -1 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
