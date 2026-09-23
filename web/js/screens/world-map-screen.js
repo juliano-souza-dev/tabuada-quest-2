@@ -109,7 +109,8 @@
         const regionsLayer = screen.querySelector(".world-map-regions");
         const prevButton = screen.querySelector('[data-action="previous-chart"]');
         const nextButton = screen.querySelector('[data-action="next-chart"]');
-        const pageCount = screen.querySelector(".world-map-page-count");\n        TQ.core.oceanLoader?.mount(screen.querySelector(".world-map-page-loader .tq-ocean-loader-host"));
+        const pageCount = screen.querySelector(".world-map-page-count");
+        TQ.core.oceanLoader?.mount(screen.querySelector(".world-map-page-loader .tq-ocean-loader-host"));
 
         function renderHotspots(chart) {
             regionsLayer.innerHTML = chart.regionIds.map((regionId) => {
