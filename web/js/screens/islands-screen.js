@@ -181,24 +181,24 @@
             worldMapLayout: Object.freeze({ x: 717, y: 1448, width: 200, height: 200 }),
             slotLayout: Object.freeze({
                 1: Object.freeze({
-                    art: Object.freeze({ x: 585, y: 641, width: 370, height: 370 }),
-                    hitbox: Object.freeze({ x: 603, y: 659, width: 334, height: 334 })
+                    art: Object.freeze({ x: 535, y: 591, width: 470, height: 470 }),
+                    hitbox: Object.freeze({ x: 558, y: 614, width: 424, height: 424 })
                 }),
                 2: Object.freeze({
-                    art: Object.freeze({ x: 190, y: 797, width: 370, height: 370 }),
-                    hitbox: Object.freeze({ x: 208, y: 815, width: 334, height: 334 })
+                    art: Object.freeze({ x: 140, y: 747, width: 470, height: 470 }),
+                    hitbox: Object.freeze({ x: 163, y: 770, width: 424, height: 424 })
                 }),
                 3: Object.freeze({
-                    art: Object.freeze({ x: 585, y: 975, width: 370, height: 370 }),
-                    hitbox: Object.freeze({ x: 603, y: 993, width: 334, height: 334 })
+                    art: Object.freeze({ x: 535, y: 925, width: 470, height: 470 }),
+                    hitbox: Object.freeze({ x: 558, y: 948, width: 424, height: 424 })
                 }),
                 4: Object.freeze({
-                    art: Object.freeze({ x: 190, y: 1128, width: 370, height: 370 }),
-                    hitbox: Object.freeze({ x: 208, y: 1146, width: 334, height: 334 })
+                    art: Object.freeze({ x: 140, y: 1078, width: 470, height: 470 }),
+                    hitbox: Object.freeze({ x: 163, y: 1101, width: 424, height: 424 })
                 }),
                 5: Object.freeze({
-                    art: Object.freeze({ x: 2, y: 1349, width: 370, height: 333 }),
-                    hitbox: Object.freeze({ x: 20, y: 1367, width: 334, height: 297 })
+                    art: Object.freeze({ x: -48, y: 1304, width: 470, height: 423 }),
+                    hitbox: Object.freeze({ x: -25, y: 1327, width: 424, height: 377 })
                 })
             }),
             hideIslands: false,
