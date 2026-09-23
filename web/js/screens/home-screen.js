@@ -79,6 +79,11 @@
                          alt="">
                 </div>
 
+                <img class="home-header-name"
+                     src="./assets/ui/header_name.webp?v=20260923-header-v1"
+                     alt=""
+                     aria-hidden="true">
+
                 <img class="home-art-overlay"
                      src="${TQ.content.assets.homeOverlay}"
                      alt=""
