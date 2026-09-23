@@ -898,7 +898,11 @@
                     1: Object.freeze({
                         unlocked: "./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-porto-v2",
                         locked: "./assets/regions/region-4/porto-da-geada-locked.webp?v=20260922-terras-gelidas-porto-v2"
-                    })
+                    }),
+                    2: Object.freeze({
+              unlocked: "./assets/regions/region-4/baia-do-cristal-unlocked.webp?v=20260923-terras-gelidas-baia-v1",
+              locked: "./assets/regions/region-4/baia-do-cristal-locked.webp?v=20260923-terras-gelidas-baia-v1"
+          })
                 })
             }),
             region13Modular: Object.freeze({
