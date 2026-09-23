@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-shell-20260923-4";
+const CACHE_VERSION = "tq2-shell-20260923-5";
 const CACHE_PREFIX = "tq2-shell-";
 const SHELL = [
   "./",
@@ -6,6 +6,9 @@ const SHELL = [
   "./manifest.webmanifest",
   "./assets/pwa/icon-192.svg",
   "./assets/pwa/icon-512.svg",
+  "./vendor/lottie.min.js",
+  "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json",
+  "./assets/transitions/el-colombo/images/el-colombo.webp",
   "./css/app.css",
   "./js/app.js"
 ];
