@@ -3,7 +3,7 @@
 
     const CANONICAL_VIEWPORT = Object.freeze({ width: 941, height: 1672 });
 
-    function computeFit(viewportWidth, viewportHeight, designWidth = 941, designHeight = 1672) {
+    function computeFit(viewportWidth, viewportHeight, designWidth = 941, designHeight = 1672, fit = "contain") {
         const width = Math.max(0, Number(viewportWidth) || 0);
         const height = Math.max(0, Number(viewportHeight) || 0);
         const sourceWidth = Math.max(1, Number(designWidth) || CANONICAL_VIEWPORT.width);
@@ -19,7 +19,7 @@
             });
         }
 
-        const scale = Math.min(width / sourceWidth, height / sourceHeight);
+        const scale = fit === "cover" ? Math.max(width / sourceWidth, height / sourceHeight) : Math.min(width / sourceWidth, height / sourceHeight);
         const renderWidth = sourceWidth * scale;
         const renderHeight = sourceHeight * scale;
 
@@ -38,6 +38,7 @@
         const designWidth = Number(options.designWidth) || CANONICAL_VIEWPORT.width;
         const designHeight = Number(options.designHeight) || CANONICAL_VIEWPORT.height;
         const mode = options.mode === "scale" ? "scale" : "size";
+        const fit = options.fit === "cover" ? "cover" : "contain";
         let observer = null;
         let disposed = false;
 
@@ -49,7 +50,8 @@
                 safeArea.clientWidth,
                 safeArea.clientHeight,
                 designWidth,
-                designHeight
+                designHeight,
+                fit
             );
 
             if (!geometry.scale) return;
