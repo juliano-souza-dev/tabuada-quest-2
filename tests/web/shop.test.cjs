@@ -10,13 +10,18 @@ require("../../web/js/domain/player-state.js");
 const TQ=global.TabuadaQuest;
 const d=TQ.domain.playerState;
 
-test("Estaleiro possui os três navios oficiais com preços aprovados e sem arte",()=>{
+test("Estaleiro possui os três navios oficiais e El Colombo já tem arte + animação",()=>{
     assert.deepEqual(
         TQ.content.shopCatalog.ships.map((item)=>[item.label,item.price]),
-        [["Colombo",1000],["Rosa Intenso",3000],["Cristal Queen",9000]]
+        [["El Colombo",1000],["Rosa Intenso",3000],["Cristal Queen",9000]]
     );
-    for(const ship of TQ.content.shopCatalog.ships){
+    const [colombo,...pendingShips]=TQ.content.shopCatalog.ships;
+    assert.equal(colombo.asset,"./assets/transitions/el-colombo/images/el-colombo.webp");
+    assert.equal(colombo.travelAnimation,"./assets/transitions/el-colombo/el-colombo-ocean-navigation.json");
+    assert.equal(colombo.travelVideo,null);
+    for(const ship of pendingShips){
         assert.equal(ship.asset,null);
+        assert.equal(ship.travelAnimation,null);
         assert.equal(ship.travelVideo,null);
     }
 });
