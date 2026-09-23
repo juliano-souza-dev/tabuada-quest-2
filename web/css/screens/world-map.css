@@ -56,27 +56,25 @@
 .world-map-page-nav {
     position: absolute;
     z-index: 8;
-    top: 48%;
-    width: 9.4%;
+    top: 50%;
+    width: 7%;
     aspect-ratio: 1;
     display: grid;
     place-items: center;
-    padding: 0 0 .7cqw;
-    border: .42cqw solid rgba(244, 211, 119, .92);
+    padding: 0;
+    border: 0;
+    color: rgba(255, 247, 222, .9);
+    background: rgba(16, 24, 27, .32);
     border-radius: 50%;
-    color: #fff7de;
-    background: rgba(45, 27, 16, .78);
-    box-shadow: 0 .6cqw 1.4cqw rgba(0,0,0,.4);
-    font-size: 7cqw;
-    font-weight: 900;
+    font-size: 5cqw;
     line-height: 1;
     transform: translateY(-50%);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
 
-.world-map-page-prev { left: 2.4%; }
-.world-map-page-next { right: 2.4%; }
+.world-map-page-prev { left: 1.2%; }
+.world-map-page-next { right: 1.2%; }
 
 .world-map-page-nav:disabled {
     opacity: .28;
@@ -84,22 +82,7 @@
 }
 
 .world-map-page-count {
-    position: absolute;
-    z-index: 8;
-    left: 50%;
-    bottom: 2.4%;
-    min-width: 13%;
-    transform: translateX(-50%);
-    padding: 1.2cqw 2.2cqw;
-    border: .34cqw solid rgba(244, 211, 119, .84);
-    border-radius: 999px;
-    color: #fff3c5;
-    background: rgba(42, 24, 13, .78);
-    box-shadow: 0 .45cqw 1cqw rgba(0,0,0,.35);
-    text-align: center;
-    font-size: 2.7cqw;
-    font-weight: 950;
-    letter-spacing: .08em;
+    display: none;
 }
 
 .world-map-page-loader {
@@ -167,32 +150,24 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-.world-map-region-hotspot:hover,
+.world-map-region-hotspot:hover {
+    outline: 0;
+    background: transparent;
+}
+
 .world-map-region-hotspot:focus-visible {
-    outline: .8cqw solid rgba(255, 236, 139, .95);
-    outline-offset: -.8cqw;
-    background: rgba(255, 237, 144, .06);
+    outline: .35cqw solid rgba(255, 236, 139, .72);
+    outline-offset: -.35cqw;
+    background: transparent;
 }
 
 .world-map-region-hotspot.is-locked {
     cursor: default;
-    background: rgba(5, 17, 24, .16);
+    background: transparent;
 }
 
 .world-map-region-lock {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    display: grid;
-    place-items: center;
-    width: 11cqw;
-    height: 11cqw;
-    transform: translate(-50%, -50%);
-    border: .45cqw solid rgba(243, 214, 134, .92);
-    border-radius: 50%;
-    background: rgba(19, 20, 23, .8);
-    box-shadow: 0 .75cqw 1.6cqw rgba(0, 0, 0, .42);
-    font-size: 5.4cqw;
+    display: none;
 }
 
 .development-regions-screen {
