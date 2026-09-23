@@ -308,3 +308,14 @@ test("loader do desafio não é rearmado quando a arte já foi carregada",()=>{
     assert.ok(guardedReveal>=0);
     assert.ok(cacheCheck<classDecision);
 });
+
+
+test("loader do desafio compõe o Colombo sobre o background real",()=>{
+    const source=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/challenge-screen.js"),
+        "utf8"
+    );
+    assert.match(source,/travelBackground/);
+    assert.match(source,/host\.style\.backgroundImage/);
+    assert.match(source,/preserveAspectRatio:\s*"xMidYMid meet"/);
+});
