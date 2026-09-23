@@ -1,0 +1,44 @@
+name: Process Tavern Assets
+
+on:
+  push:
+    paths:
+      - 'web/assets/tavern/*.png'
+      - '.github/workflows/process-tavern-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install WebP tools
+        run: sudo apt-get update && sudo apt-get install -y webp
+      - name: Optimize Tavern background
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR="web/assets/tavern"
+          DST="$DIR/tavern-background.webp"
+          mapfile -t PNGS < <(find "$DIR" -maxdepth 1 -type f -iname '*.png' -print)
+          if [ "${#PNGS[@]}" -eq 0 ]; then exit 0; fi
+          if [ "${#PNGS[@]}" -ne 1 ]; then
+            echo "Expected exactly one Tavern PNG upload, found ${#PNGS[@]}"
+            exit 1
+          fi
+          SRC="${PNGS[0]}"
+          cwebp -quiet -q 86 -m 6 -sharp_yuv -mt "$SRC" -o "$DST"
+          test -s "$DST"
+          rm -f "$SRC"
+      - name: Commit optimized asset
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A web/assets/tavern
+          git diff --cached --quiet && exit 0
+          git commit -m "assets: optimize Tavern background"
+          git push
