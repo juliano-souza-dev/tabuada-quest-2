@@ -159,6 +159,8 @@
 
             const nextChart = availableCharts[nextIndex];
             screen.classList.add("is-map-loading");
+            const loaderStartedAt = performance.now();
+            const MIN_LOADER_MS = 900;
 
             const preload = new Image();
             preload.onload = () => {
@@ -168,9 +170,12 @@
                 renderHotspots(nextChart);
                 updateNavigation();
 
-                root.requestAnimationFrame(() => {
-                    root.requestAnimationFrame(revealLoadedChart);
-                });
+                const elapsed = performance.now() - loaderStartedAt;
+                root.setTimeout(() => {
+                    root.requestAnimationFrame(() => {
+                        root.requestAnimationFrame(revealLoadedChart);
+                    });
+                }, Math.max(0, MIN_LOADER_MS - elapsed));
             };
             preload.onerror = revealLoadedChart;
             preload.src = nextChart.asset;
@@ -235,11 +240,11 @@
             TQ.core.oceanLoader?.mount(loader.querySelector(".tq-ocean-loader-host"));
 
             const selected = TQ.domain.playerState.selectRegion(state, regionId);
-            root.requestAnimationFrame(() => {
+            root.setTimeout(() => {
                 root.requestAnimationFrame(() => {
                     onStateChange(TQ.domain.playerState.withLastScreen(selected, "islands"));
                 });
-            });
+            }, 900);
         });
 
         return screen;
