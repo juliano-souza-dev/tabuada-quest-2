@@ -3,8 +3,8 @@ name: Process Region 4 island assets
 on:
   push:
     paths:
-      - "web/assets/regions/region-4/ChatGPT Image 22 de set. de 2026, 20_59_26 (1).png"
-      - "web/assets/regions/region-4/ChatGPT Image 22 de set. de 2026, 20_59_27 (2).png"
+      - "web/assets/regions/region-4/file_00000000a91c820e95b4a9b70844352e.png"
+      - "web/assets/regions/region-4/file_00000000b75c820e856690e1cf04db37.png"
       - ".github/workflows/process-region4-islands.yml"
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y imagemagick webp
 
-      - name: Normalize and optimize unlocked islands
+      - name: Normalize and optimize Region 4 islands
         shell: bash
         run: |
           set -euo pipefail
@@ -31,51 +31,53 @@ jobs:
           process_asset() {
             src="$1"
             dst="$2"
-
-            if [ ! -f "$src" ]; then
-              echo "Source already processed: $src"
-              return 0
-            fi
-
+            test -f "$src"
             before_bytes="$(stat -c%s "$src")"
             before_dims="$(identify -format '%wx%h' "$src")"
             tmp="$(mktemp --suffix=.png)"
 
-            convert "$src"               -colorspace sRGB               -filter Lanczos               -resize '896x896>'               -unsharp 0x0.45+0.45+0.015               -strip               "$tmp"
+            convert "$src" \
+              -colorspace sRGB \
+              -filter Lanczos \
+              -resize '896x896>' \
+              -unsharp 0x0.45+0.45+0.015 \
+              -strip "$tmp"
 
-            cwebp               -quiet               -q 92               -alpha_q 100               -m 6               -sharp_yuv               "$tmp"               -o "$dst"
-
+            cwebp -quiet -q 90 -alpha_q 100 -m 6 -sharp_yuv "$tmp" -o "$dst"
             test -s "$dst"
 
             after_bytes="$(stat -c%s "$dst")"
             after_dims="$(identify -format '%wx%h' "$dst")"
-
-            echo "$(basename "$src"): $before_dims / $before_bytes bytes -> $(basename "$dst"): $after_dims / $after_bytes bytes"
+            echo "$(basename "$src"): $before_dims / $before_bytes -> $(basename "$dst"): $after_dims / $after_bytes"
 
             rm -f "$tmp" "$src"
           }
 
-          process_asset             "web/assets/regions/region-4/ChatGPT Image 22 de set. de 2026, 20_59_26 (1).png"             "web/assets/regions/region-4/island-01-unlocked.webp"
+          process_asset \
+            "web/assets/regions/region-4/file_00000000a91c820e95b4a9b70844352e.png" \
+            "web/assets/regions/region-4/porto-da-geada-unlocked.webp"
 
-          process_asset             "web/assets/regions/region-4/ChatGPT Image 22 de set. de 2026, 20_59_27 (2).png"             "web/assets/regions/region-4/island-02-unlocked.webp"
+          process_asset \
+            "web/assets/regions/region-4/file_00000000b75c820e856690e1cf04db37.png" \
+            "web/assets/regions/region-4/baia-do-cristal-unlocked.webp"
 
-          test -s web/assets/regions/region-4/island-01-unlocked.webp
-          test -s web/assets/regions/region-4/island-02-unlocked.webp
+          test -s web/assets/regions/region-4/porto-da-geada-unlocked.webp
+          test -s web/assets/regions/region-4/baia-do-cristal-unlocked.webp
 
-      - name: Commit processed assets
+          sed -i 's#./assets/regions/region-4/island-01-unlocked.webp?v=20260923-terras-gelidas-i12#./assets/regions/region-4/porto-da-geada-unlocked.webp?v=20260922-terras-gelidas-i12-v2#g' web/js/content/game-content.js
+          sed -i 's#./assets/regions/region-4/island-02-unlocked.webp?v=20260923-terras-gelidas-i12#./assets/regions/region-4/baia-do-cristal-unlocked.webp?v=20260922-terras-gelidas-i12-v2#g' web/js/content/game-content.js
+
+      - name: Commit processed assets and links
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add -A web/assets/regions/region-4
-
+          git add -A web/assets/regions/region-4 web/js/content/game-content.js
           if git diff --cached --quiet; then
             echo "Nothing to commit."
             exit 0
           fi
-
-          git commit -m "assets: optimize Region 4 islands 1 and 2"
+          git commit -m "assets: replace and optimize Region 4 islands 1 and 2"
           git pull --rebase origin main
           git push
