@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#071d2c">
+    <meta name="theme-color" content="#071d2c">\n    <meta name="mobile-web-app-capable" content="yes">\n    <meta name="apple-mobile-web-app-capable" content="yes">\n    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n    <link rel="manifest" href="./manifest.webmanifest">
     <title>Tabuada Quest 2.0</title>
     <script>
         try {
@@ -53,5 +53,13 @@
     <script src="./js/screens/map-reward-screen.js?v=20260921-2204"></script>
     <script src="./js/screens/result-screen.js?v=20260922-safe-viewport-v1"></script>
     <script src="./js/app.js?v=20260923-tavern-v1"></script>
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./sw.js", { scope: "./" })
+                    .catch((error) => console.warn("PWA offline indisponível:", error));
+            });
+        }
+    </script>
 </body>
 </html>
