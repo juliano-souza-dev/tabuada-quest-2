@@ -37,3 +37,29 @@ test("modo DEV também passa pela tela de viagem para permitir validar o El Colo
     assert.match(source,/function createDevelopmentIslandEntryState/);
     assert.match(source,/withIslandTravelSession/);
 });
+
+
+test("El Colombo resolve assets explicitamente e nunca cai no vídeo rosa legado",()=>{
+    const source=fs.readFileSync(
+        path.join(__dirname,"../../web/js/screens/travel-screen.js"),
+        "utf8"
+    );
+
+    assert.match(source,/assetsPath/);
+    assert.match(source,/new URL\("\.\/images\/", resolvedAnimationUrl\)/);
+    assert.match(source,/goToAndPlay\(0, true\)/);
+    assert.match(source,/ship-colombo/);
+    assert.match(source,/renderColomboFallback/);
+    assert.match(source,/island-travel-colombo-fallback/);
+});
+
+test("fallback visual do El Colombo usa o asset correto e anima a travessia",()=>{
+    const css=fs.readFileSync(
+        path.join(__dirname,"../../web/css/screens/vertical-slice.css"),
+        "utf8"
+    );
+
+    assert.match(css,/\.island-travel-colombo-ship/);
+    assert.match(css,/@keyframes tq-colombo-sail/);
+    assert.match(css,/animation:\s*tq-colombo-sail 6s/);
+});

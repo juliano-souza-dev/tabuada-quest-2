@@ -22,9 +22,9 @@
                 && state.shop.purchasedItemIds.includes(item.id)
         ) || null;
 
-        const travelAnimation = equippedShip?.travelAnimation
-            || (!equippedShip ? TQ.content.assets.islandTravelAnimation : null);
+        const travelAnimation = equippedShip?.travelAnimation || null;
         const travelVideo = equippedShip?.travelVideo || TQ.content.assets.islandTravel;
+        const travelShipAsset = equippedShip?.asset || null;
 
         screen.innerHTML = `
             <div class="island-travel-stage" aria-label="Viajando para ${label}"></div>
@@ -68,8 +68,34 @@
             onNavigate("challenge");
         }
 
+        function renderColomboFallback() {
+            if (finished || !travelShipAsset) return;
+            disposeAnimation();
+            stage.replaceChildren();
+
+            const fallback = document.createElement("div");
+            fallback.className = "island-travel-colombo-fallback";
+            fallback.innerHTML = `
+                <div class="island-travel-colombo-sky" aria-hidden="true"></div>
+                <div class="island-travel-colombo-ocean" aria-hidden="true"></div>
+                <div class="island-travel-colombo-waves" aria-hidden="true"></div>
+                <img class="island-travel-colombo-ship" src="${travelShipAsset}" alt="">
+            `;
+            stage.appendChild(fallback);
+
+            const ship = fallback.querySelector(".island-travel-colombo-ship");
+            ship.addEventListener("animationend", completeTravel, { once: true });
+            root.setTimeout(() => {
+                if (!finished) completeTravel();
+            }, 6500);
+        }
+
         function renderVideoFallback() {
             if (finished || video) return;
+            if (equippedShip?.id === "ship-colombo" && travelShipAsset) {
+                renderColomboFallback();
+                return;
+            }
             disposeAnimation();
             stage.replaceChildren();
 
@@ -113,16 +139,26 @@
             stage.appendChild(lottieContainer);
 
             try {
+                const resolvedAnimationUrl = new URL(travelAnimation, document.baseURI);
+                const assetsPath = new URL("./images/", resolvedAnimationUrl).href;
                 animation = root.lottie.loadAnimation({
                     container: lottieContainer,
                     renderer: "svg",
                     loop: false,
                     autoplay: true,
-                    path: travelAnimation,
+                    path: resolvedAnimationUrl.href,
+                    assetsPath,
                     rendererSettings: {
                         preserveAspectRatio: "xMidYMid slice",
                         progressiveLoad: true
                     }
+                });
+                animation.addEventListener("DOMLoaded", () => {
+                    try {
+                        animation.setDirection(1);
+                        animation.setSpeed(1);
+                        animation.goToAndPlay(0, true);
+                    } catch (_) {}
                 });
                 animation.addEventListener("complete", completeTravel);
                 animation.addEventListener("data_failed", renderVideoFallback);
