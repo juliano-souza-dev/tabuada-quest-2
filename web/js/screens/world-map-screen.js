@@ -98,7 +98,7 @@
                 <div class="world-map-page-count" aria-live="polite"></div>
 
                 <div class="world-map-page-loader" role="status" aria-label="Carregando carta náutica">
-                    <span class="world-map-page-hourglass" aria-hidden="true">⌛</span>
+                    <div class="tq-ocean-loader-host"></div>
                 </div>
             </main>
             </div>
@@ -109,7 +109,7 @@
         const regionsLayer = screen.querySelector(".world-map-regions");
         const prevButton = screen.querySelector('[data-action="previous-chart"]');
         const nextButton = screen.querySelector('[data-action="next-chart"]');
-        const pageCount = screen.querySelector(".world-map-page-count");
+        const pageCount = screen.querySelector(".world-map-page-count");\n        TQ.core.oceanLoader?.mount(screen.querySelector(".world-map-page-loader .tq-ocean-loader-host"));
 
         function renderHotspots(chart) {
             regionsLayer.innerHTML = chart.regionIds.map((regionId) => {
@@ -229,8 +229,9 @@
             loader.className = "region-transition-loader";
             loader.setAttribute("role", "status");
             loader.setAttribute("aria-label", "Carregando Região");
-            loader.innerHTML = '<span class="region-transition-hourglass" aria-hidden="true">⌛</span>';
+            loader.innerHTML = '<div class="tq-ocean-loader-host"></div>';
             screen.appendChild(loader);
+            TQ.core.oceanLoader?.mount(loader.querySelector(".tq-ocean-loader-host"));
 
             const selected = TQ.domain.playerState.selectRegion(state, regionId);
             root.requestAnimationFrame(() => {
