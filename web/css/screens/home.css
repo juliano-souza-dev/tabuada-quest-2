@@ -667,3 +667,11 @@ html.tq-pwa-runtime .home-safe-visual-area {
 .home-screen .pet-dynamic-count {
     display: none !important;
 }
+
+
+/* DEV Home · interactive functions stay above visual assets
+   Visual layers can be freely stacked in the editor, but menu/function
+   hitboxes must remain clickable above them. */
+.home-design-stage [data-tq-dev-kind="function"] {
+    z-index: 1000 !important;
+}
