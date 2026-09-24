@@ -802,6 +802,10 @@
         if (!TQ.content.development?.shortcutsEnabled) return;
 
         const screenRoot = appRoot.firstElementChild || appRoot;
+        await TQ.dev?.assetUploader?.restoreLocalLayers?.({
+            screenId,
+            screenRoot
+        });
         TQ.dev?.sceneEditor?.mount(appRoot, {
             screenId,
             screenRoot
