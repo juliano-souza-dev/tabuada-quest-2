@@ -217,13 +217,6 @@
     text-shadow: 0 1px 2px #0c4773;
 }
 
-.hud-wallet-slot {
-    position: absolute;
-    z-index: 10;
-    inset: 0;
-    pointer-events: none;
-}
-
 .wallet-value {
     position: absolute;
     display: flex;
@@ -630,12 +623,6 @@
 
 
 /* Ajustes consolidados do layout UX copiado em 2026-09-24. */
-.hud-wallet-slot {
-    translate: 3px -2px;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
 .play-slot {
     translate: 17px -34px;
     scale: 0.8738225629791895 1;
