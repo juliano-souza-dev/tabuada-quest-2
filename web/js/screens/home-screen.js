@@ -88,8 +88,8 @@
                      alt=""
                      aria-hidden="true">
 
-                <button class="profile-slot" type="button" data-action="items" data-tq-asset-id="home.player.portrait" data-tq-asset-role="object" data-tq-asset-label="Retrato do jogador" data-tq-dev-id="home.player.portrait" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Retrato do jogador" data-tq-dev-action="items" aria-label="Abrir Baú de Itens">
-                    <img class="profile-slot-avatar" src="${avatarSrc}" alt="Avatar do jogador">
+                <button class="profile-slot" type="button" data-action="items" data-tq-asset-id="home.player.portrait" data-tq-asset-role="function" data-tq-asset-label="Avatar do jogador" data-tq-dev-id="home.player.portrait" data-tq-dev-kind="function" data-tq-dev-role="button" data-tq-dev-label="Avatar do jogador · abrir itens" data-tq-dev-action="items" aria-label="Abrir Baú de Itens pelo avatar">
+                    <img class="profile-slot-avatar" src="${avatarSrc}" alt="Avatar do jogador" draggable="false">
                 </button>
 
                 <div class="hud-level-slot" data-tq-asset-id="home.level.badge" data-tq-asset-role="object" data-tq-asset-label="Placa de nível" data-tq-dev-id="home.level.badge" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Placa de nível" aria-label="Nível ${currentLevel}"><img src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
@@ -117,34 +117,6 @@
                 <button class="art-hotspot hotspot-collection" type="button" data-action="collection" data-tq-dev-id="home.action.collection" data-tq-dev-kind="function" data-tq-dev-label="Abrir Colecionáveis" data-tq-dev-action="collection" aria-label="Colecionáveis"></button>
                 <button class="art-hotspot hotspot-items" type="button" data-action="items" data-tq-dev-id="home.action.items" data-tq-dev-kind="function" data-tq-dev-label="Abrir Itens" data-tq-dev-action="items" aria-label="Itens"></button>
 
-                ${TQ.content.development?.shortcutsEnabled ? `
-                    <div class="development-shortcuts" aria-label="Atalhos de desenvolvimento">
-                        <button class="development-regions-shortcut"
-                            type="button"
-                            data-action="development-regions"
-                            aria-label="Abrir lista de Regiões para desenvolvimento">
-                            DEV · REGIÕES
-                        </button>
-                        <button class="development-regions-shortcut"
-                            type="button"
-                            data-action="dev-add-gold"
-                            aria-label="Adicionar mil moedas de ouro">
-                            +1000 OURO
-                        </button>
-                        <button class="development-regions-shortcut"
-                            type="button"
-                            data-action="dev-level-up"
-                            aria-label="Aumentar um nível">
-                            +1 NÍVEL
-                        </button>
-                        <button class="development-exit-shortcut"
-                            type="button"
-                            data-action="exit-session"
-                            aria-label="Sair e limpar a sessão local de testes">
-                            SAIR
-                        </button>
-                    </div>
-                ` : ""}
 
             </div>
             </div>
