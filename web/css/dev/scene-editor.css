@@ -291,3 +291,17 @@
 [data-tq-dev-layered="true"] {
     z-index: var(--tq-dev-z, 0) !important;
 }
+
+
+.tq-scene-dev-layer-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.tq-scene-dev-layer-heading span {
+    color: #95e5bc;
+    font-size: 10px;
+    font-weight: 900;
+}
