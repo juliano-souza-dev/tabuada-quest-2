@@ -47,7 +47,7 @@ test("status automático de desenvolvimento não depende do estado persistente d
 });
 
 
-test("atalho temporário de desenvolvimento mantém acesso à lista sem asset",()=>{
+test("ferramentas de desenvolvimento não dependem mais de atalho visual na Home",()=>{
     assert.equal(global.TabuadaQuest.content.development.shortcutsEnabled,true);
 
     const home=fs.readFileSync(
@@ -67,14 +67,13 @@ test("atalho temporário de desenvolvimento mantém acesso à lista sem asset",(
         "utf8"
     );
 
-    assert.match(home,/data-action="development-regions"/);
+    assert.doesNotMatch(home,/data-action="development-regions"/);
     assert.match(app,/"development-regions": TQ\.screens\.developmentRegions\.renderDevelopmentRegionsScreen/);
     assert.match(developmentScreen,/Acesso de desenvolvimento/);
     assert.match(developmentScreen,/onPreviewRegionChange/);
     assert.match(developmentScreen,/onNavigate\("islands"\)/);
     assert.match(islandsScreen,/previewMode \? "development-regions" : "regions"/);
 });
-
 
 test("DEV Regiões é um destino válido do estado de navegação",()=>{
     const initial=playerState.createInitialState();
