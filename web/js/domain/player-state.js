@@ -3,7 +3,7 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 20;
+    const STATE_VERSION = 21;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_SHIP_ID = "ship-colombo";
     const DEFAULT_FRAME_ID = "frame-chaves-tesouro-tropical";
@@ -84,7 +84,7 @@
             player: {
                 id: "local-player",
                 displayName: "Explorador",
-                avatarId: "luna",
+                avatarId: "sofia",
                 frameId: DEFAULT_FRAME_ID,
                 profileCreated: false
             },
@@ -587,6 +587,16 @@
                 schemaVersion: STATE_VERSION,
                 player: { ...player, frameId: selected },
                 shop: { ...existingShop, purchasedItemIds: Array.from(new Set([DEFAULT_FRAME_ID, ...migratedPurchases])) }
+            };
+        }
+        if (migrated.schemaVersion === 20) {
+            const existingPlayer = isObject(migrated.player) ? migrated.player : {};
+            const validAvatarIds = new Set(["sofia"]);
+            const avatarId = validAvatarIds.has(existingPlayer.avatarId) ? existingPlayer.avatarId : "sofia";
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: { ...existingPlayer, avatarId }
             };
         }
         return migrated;
