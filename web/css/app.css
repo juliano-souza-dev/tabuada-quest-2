@@ -1,7 +1,7 @@
 @import url("./tokens.css");
 @import url("./base.css?v=20260922-safe-viewport-v1");
 @import url("./screens/auth.css?v=20260922-safe-viewport-v1");
-@import url("./screens/home.css?v=20260923-nameplate-v4");
+@import url("./screens/home.css?v=20260924-global-editor-v5");
 @import url("./screens/crew.css?v=20260923-tavern-calibration-v5");
 @import url("./screens/collectibles.css?v=20260922-collectibles-arrow-mask");
 @import url("./screens/items.css?v=20260924-inventory-art-v1");
@@ -12,7 +12,7 @@
 @import url("./screens/vertical-slice.css?v=20260923-colombo-bg-direction-v1");
 
 @import url("./screens/ruby-shop.css?v=20260921-1545");
-@import url("./dev/scene-editor.css?v=20260924-scene-editor-v4");
+@import url("./dev/scene-editor.css?v=20260924-global-editor-v5");
 
 
 /* Retorno global temporário para a Home nas telas de navegação do mundo. */
