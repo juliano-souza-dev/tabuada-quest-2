@@ -7,6 +7,19 @@
         Object.freeze({ id: "pirate-port", label: "Porto pirata", src: "./assets/backgrounds/home-pirate-port.webp" })
     ]);
 
+    const levelBadges = Object.freeze([
+        "./assets/ui/niveis/tabuada_quest_nivel_01.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_02.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_03.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_04.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_05.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_06.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_07.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_08.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_09.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_10.webp"
+    ]);
+
     const frames = Object.freeze([
         Object.freeze({ id: "frame-mapa-coracao-rubi", type: "frame", label: "Mapa do Coração Rubi", price: 800, asset: "./assets/ui/plaquinhas/mapa_do_coracao_rubi.webp" }),
         Object.freeze({ id: "frame-rosas-capita", type: "frame", label: "Rosas da Capitã", price: 800, asset: "./assets/ui/plaquinhas/rosas_da_capita.webp" }),
@@ -27,6 +40,7 @@
             Object.freeze({ id: "effects", label: "Efeitos" })
         ]),
         frames,
+        levelBadges,
         backgrounds: Object.freeze([
             Object.freeze({ id: "background-enseada-dourada", type: "background", label: "Enseada Dourada", price: 400, asset: null }),
             Object.freeze({ id: "background-porto-esmeralda", type: "background", label: "Porto Esmeralda", price: 650, asset: null }),
