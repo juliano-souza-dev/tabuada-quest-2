@@ -115,6 +115,14 @@
 .tq-dev-scene-editing [data-tq-dev-id] {
     pointer-events: auto !important;
     cursor: move !important;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.tq-dev-scene-editing [data-tq-dev-id] img {
+    -webkit-user-drag: none;
+    user-select: none;
 }
 
 [data-tq-dev-adjusted="true"] {
@@ -182,6 +190,7 @@
     width: 12px;
     height: 12px;
     pointer-events: auto;
+    touch-action: none;
     border: 2px solid #082738;
     border-radius: 50%;
     background: #fff06a;
@@ -196,6 +205,14 @@
 .tq-scene-dev-selection [data-dev-handle="s"]  { left: calc(50% - 6px); bottom: -7px; cursor: ns-resize; }
 .tq-scene-dev-selection [data-dev-handle="sw"] { left: -7px; bottom: -7px; cursor: nesw-resize; }
 .tq-scene-dev-selection [data-dev-handle="w"]  { left: -7px; top: calc(50% - 6px); cursor: ew-resize; }
+
+.tq-scene-dev-selection--compact [data-dev-handle] {
+    display: none;
+}
+
+.tq-scene-dev-selection--compact [data-dev-handle="se"] {
+    display: block;
+}
 
 @media (max-width: 620px) {
     .tq-scene-dev {
