@@ -75,13 +75,40 @@ img {
     }
 
     html:not(.tq-native-runtime) .app-viewport {
+        --tq-preview-status-height: 28px;
         width: min(430px, calc((100dvh - 40px) * 941 / 1672));
         height: auto;
         aspect-ratio: 941 / 1672;
         max-height: calc(100dvh - 40px);
+        padding-top: var(--tq-preview-status-height);
         border: 1px solid var(--line);
         border-radius: 32px;
         box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+    }
+
+    html:not(.tq-native-runtime) .app-viewport::before {
+        content: "10:20   ◉  Wi-Fi  ▮▮▮";
+        position: absolute;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--tq-preview-status-height);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 12px;
+        box-sizing: border-box;
+        font: 700 10px/1 system-ui, sans-serif;
+        letter-spacing: .02em;
+        color: rgba(255,255,255,.94);
+        background: #071d29;
+        pointer-events: none;
+    }
+
+    html:not(.tq-native-runtime) .app-viewport > section {
+        height: 100%;
+        min-height: 0;
     }
 }
 
