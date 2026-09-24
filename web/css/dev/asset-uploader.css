@@ -159,3 +159,46 @@
         max-height: 70vh;
     }
 }
+
+
+.tq-asset-upload-dev-local {
+    min-width: 0;
+    margin: 0;
+    padding: 9px;
+    display: grid;
+    gap: 8px;
+    border: 1px solid rgba(149,229,188,.34);
+    border-radius: 10px;
+    background: rgba(24,80,64,.12);
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+
+.tq-asset-upload-dev-local legend {
+    padding: 0 5px;
+    color: #95e5bc;
+    font-weight: 900;
+}
+
+.tq-asset-upload-dev-local strong {
+    overflow: hidden;
+    color: #fff8df;
+    font-size: 11px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.tq-asset-upload-dev-local small {
+    color: #bed3da;
+    line-height: 1.35;
+}
+
+.tq-asset-upload-dev-local.is-dragging {
+    border-color: #95e5bc;
+    background: rgba(45,132,101,.24);
+    transform: translateY(-1px);
+}
+
+.tq-asset-upload-dev-drop-hint {
+    text-align: center;
+    opacity: .8;
+}
