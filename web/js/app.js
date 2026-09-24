@@ -4,9 +4,6 @@
     if (!TQ || !appRoot) return;
 
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
-    let developmentState = null;
-    let developmentMode = false;
-    let developmentRegionId = null;
     let worldMapPreviewRegionId = null;
     let rewardReturnScreen = null;
     let worldMapReturnScreen = "home";
@@ -44,7 +41,7 @@
         }
     }
 
-    function resetDevelopmentSession() {
+    function resetSession() {
         const status = syncStatus();
 
         if (status.native) {
@@ -54,9 +51,6 @@
 
         TQ.persistence.localStorage.clearLocalState(root.localStorage);
         state = TQ.domain.playerState.createInitialState();
-        developmentState = null;
-        developmentMode = false;
-        developmentRegionId = null;
         worldMapPreviewRegionId = null;
         rewardReturnScreen = null;
         worldMapReturnScreen = "home";
@@ -120,12 +114,6 @@
     });
 
     function save(nextState) {
-        if (developmentMode) {
-            developmentState = nextState;
-            render();
-            return;
-        }
-
         state = TQ.persistence.localStorage.saveState(root.localStorage, nextState);
         render();
     }
@@ -141,72 +129,13 @@
         worldMapPreviewRegionId = normalizePreviewRegionId(regionId);
     }
 
-    function setDevelopmentRegion(regionId) {
-        developmentRegionId = normalizePreviewRegionId(regionId);
-    }
-
-    function openDevelopmentIsland(regionId, islandId) {
-        if (!developmentMode) return;
-
-        const normalizedRegionId = normalizePreviewRegionId(regionId);
-        const normalizedIslandId = Number(islandId);
-        if (!normalizedRegionId
-            || !Number.isInteger(normalizedIslandId)
-            || normalizedIslandId < 1
-            || normalizedIslandId > 5) return;
-
-        developmentRegionId = normalizedRegionId;
-        const baseState = developmentState || state;
-        developmentState = TQ.screens.islands.createDevelopmentIslandEntryState(
-            baseState,
-            normalizedRegionId,
-            normalizedIslandId
-        );
-        render();
-    }
-
     function navigate(screenId, options = {}) {
-        if (screenId === "development-regions") {
-            developmentMode = true;
-            developmentState = TQ.domain.playerState.withLastScreen(
-                developmentState || state,
-                "development-regions"
-            );
-            render();
-            return;
-        }
-
-        if (developmentMode) {
-            if (screenId === "home") {
-                developmentMode = false;
-                developmentState = null;
-                developmentRegionId = null;
-                worldMapPreviewRegionId = null;
-                state = TQ.persistence.localStorage.saveState(
-                    root.localStorage,
-                    TQ.domain.playerState.withLastScreen(state, "home")
-                );
-                render();
-                return;
-            }
-
-            const developmentTarget = screenId === "regions"
-                ? "development-regions"
-                : screenId;
-            developmentState = TQ.domain.playerState.withLastScreen(
-                developmentState || state,
-                developmentTarget
-            );
-            render();
-            return;
-        }
-
         if (["world-map", "regions"].includes(screenId)) {
             worldMapReturnScreen = options.returnScreen
                 || (state.ui.lastScreen === "islands" ? "islands" : "home");
         }
 
-        if (!["world-map", "development-regions", "islands"].includes(screenId)) {
+        if (!["world-map", "islands"].includes(screenId)) {
             worldMapPreviewRegionId = null;
         }
 
@@ -224,9 +153,7 @@
     }
 
     function render() {
-        const renderState = developmentMode && developmentState
-            ? developmentState
-            : state;
+        const renderState = state;
         const status = syncStatus();
 
         if (status.native && !status.authenticated) {
@@ -274,7 +201,6 @@
             "ruby-shop": TQ.screens.rubyShop.renderRubyShopScreen,
             "world-map": TQ.screens.worldMap.renderWorldMapScreen,
             regions: TQ.screens.worldMap.renderWorldMapScreen,
-            "development-regions": TQ.screens.developmentRegions.renderDevelopmentRegionsScreen,
             islands: TQ.screens.islands.renderIslandsScreen,
             travel: TQ.screens.travel.renderIslandTravelScreen,
             challenge: TQ.screens.challenge.renderChallengeScreen,
@@ -290,13 +216,11 @@
             state: renderState,
             onStateChange: save,
             onNavigate: navigate,
-            onExitSession: resetDevelopmentSession,
+            onExitSession: resetSession,
             rewardReturnScreen,
             worldMapReturnScreen,
-            previewRegionId: developmentMode ? developmentRegionId : worldMapPreviewRegionId,
-            onPreviewRegionChange: developmentMode ? setDevelopmentRegion : setWorldMapPreviewRegion,
-            developmentMode,
-            onDevelopmentIslandOpen: openDevelopmentIsland
+            previewRegionId: worldMapPreviewRegionId,
+            onPreviewRegionChange: setWorldMapPreviewRegion
         });
     }
 
