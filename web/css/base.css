@@ -3,10 +3,10 @@
     --tq-native-safe-right: 0px;
     --tq-native-safe-bottom: 0px;
     --tq-native-safe-left: 0px;
-    --tq-safe-top: max(env(safe-area-inset-top, 0px), var(--tq-native-safe-top));
-    --tq-safe-right: max(env(safe-area-inset-right, 0px), var(--tq-native-safe-right));
-    --tq-safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--tq-native-safe-bottom));
-    --tq-safe-left: max(env(safe-area-inset-left, 0px), var(--tq-native-safe-left));
+    --tq-safe-top: env(safe-area-inset-top, 0px);
+    --tq-safe-right: env(safe-area-inset-right, 0px);
+    --tq-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --tq-safe-left: env(safe-area-inset-left, 0px);
 }
 
 * {
