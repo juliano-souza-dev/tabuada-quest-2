@@ -3,11 +3,11 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 18;
+    const STATE_VERSION = 19;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const DEFAULT_SHIP_ID = "ship-colombo";
-    const DEFAULT_NAMEPLATE_ID = "nameplate-wood";
+    const DEFAULT_NAMEPLATE_ID = "nameplate-caveira-mar-roxo";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
     const ISLANDS_PER_REGION = world.ISLANDS_PER_REGION;
     const LEGACY_TOTAL_REGIONS = 11;
@@ -93,7 +93,7 @@
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
             crew: { hiredIds: [] },
-            shop: { purchasedItemIds: [DEFAULT_SHIP_ID], equippedShipId: DEFAULT_SHIP_ID },
+            shop: { purchasedItemIds: [DEFAULT_SHIP_ID, DEFAULT_NAMEPLATE_ID], equippedShipId: DEFAULT_SHIP_ID },
             inventory: {
                 items: [],
                 equipped: {
@@ -546,8 +546,33 @@
             const existingPlayer = isObject(migrated.player) ? migrated.player : {};
             migrated = {
                 ...migrated,
+                schemaVersion: 18,
+                player: { ...existingPlayer, nameplateId: "nameplate-wood" }
+            };
+        }
+
+        if (migrated.schemaVersion === 18) {
+            const existingPlayer = isObject(migrated.player) ? migrated.player : {};
+            const existingShop = isObject(migrated.shop) ? migrated.shop : {};
+            const purchasedItemIds = Array.isArray(existingShop.purchasedItemIds)
+                ? existingShop.purchasedItemIds.filter((id) => typeof id === "string")
+                : [];
+            const withDefaultNameplate = Array.from(new Set([DEFAULT_NAMEPLATE_ID, ...purchasedItemIds]));
+            const legacyNameplate = existingPlayer.nameplateId === "nameplate-wood";
+
+            migrated = {
+                ...migrated,
                 schemaVersion: STATE_VERSION,
-                player: { ...existingPlayer, nameplateId: DEFAULT_NAMEPLATE_ID }
+                player: {
+                    ...existingPlayer,
+                    nameplateId: legacyNameplate || typeof existingPlayer.nameplateId !== "string"
+                        ? DEFAULT_NAMEPLATE_ID
+                        : existingPlayer.nameplateId
+                },
+                shop: {
+                    ...existingShop,
+                    purchasedItemIds: withDefaultNameplate
+                }
             };
         }
 
