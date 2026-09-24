@@ -69,7 +69,6 @@
     top: -40px;
     width: 100%;
     aspect-ratio: 900 / 447;
-    height: calc(100% - 5px);
     transform: translateX(-50%);
     pointer-events: none;
 }
