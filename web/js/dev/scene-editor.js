@@ -43,6 +43,7 @@
         element.style.setProperty("--tq-dev-y", y + "px");
         element.style.setProperty("--tq-dev-sx", String(sx));
         element.style.setProperty("--tq-dev-sy", String(sy));
+        element.setAttribute("data-tq-dev-adjusted", "true");
     }
 
     function clearGeometry(element) {
@@ -50,6 +51,7 @@
         element.style.removeProperty("--tq-dev-y");
         element.style.removeProperty("--tq-dev-sx");
         element.style.removeProperty("--tq-dev-sy");
+        element.removeAttribute("data-tq-dev-adjusted");
     }
 
     function collectNodes(appRoot) {
