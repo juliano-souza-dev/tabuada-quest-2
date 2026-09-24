@@ -492,6 +492,13 @@
             <div class="tq-safe-visual-area">
             <div class="region-islands-canonical-stage tq-canonical-stage">
                 <img class="region-islands-background"
+                    data-tq-asset-id="islands.region.background"
+                    data-tq-asset-role="background"
+                    data-tq-asset-label="Background da região"
+                    data-tq-dev-id="islands.region.background"
+                    data-tq-dev-kind="background"
+                    data-tq-dev-role="background"
+                    data-tq-dev-label="Background da região"
                     src="${visualPage.background}"
                     alt=""
                     aria-hidden="true">
