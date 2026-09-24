@@ -113,14 +113,11 @@
 }
 
 .tq-dev-scene-editing [data-tq-dev-id] {
-    translate: var(--tq-dev-x, 0px) var(--tq-dev-y, 0px);
-    scale: var(--tq-dev-sx, 1) var(--tq-dev-sy, 1);
-    transform-origin: top left;
     pointer-events: auto !important;
     cursor: move !important;
 }
 
-[data-tq-dev-id] {
+[data-tq-dev-adjusted="true"] {
     translate: var(--tq-dev-x, 0px) var(--tq-dev-y, 0px);
     scale: var(--tq-dev-sx, 1) var(--tq-dev-sy, 1);
     transform-origin: top left;
