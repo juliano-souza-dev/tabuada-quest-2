@@ -555,7 +555,10 @@
             developmentMode,
             onDevelopmentIslandOpen: openDevelopmentIsland
         });
-        if (TQ.content.development?.shortcutsEnabled) mountParallaxPrototype();
+        if (TQ.content.development?.shortcutsEnabled) {
+            mountParallaxPrototype();
+            TQ.dev?.sceneEditor?.mount(appRoot, { screenId: renderState.ui.lastScreen || "home" });
+        }
     }
 
     render();
