@@ -367,7 +367,10 @@
                 </div>
                 <label class="tq-scene-dev-check"><input data-dev-lock type="checkbox" checked> Manter proporção</label>
                 <div class="tq-scene-dev-layer-tools">
-                    <strong>Camada visual</strong>
+                    <div class="tq-scene-dev-layer-heading">
+                        <strong>Camada visual</strong>
+                        <span data-dev-layer-value></span>
+                    </div>
                     <div class="tq-scene-dev-actions">
                         <button type="button" data-dev-layer-back>↧ Fundo</button>
                         <button type="button" data-dev-layer-down>↓ Recuar</button>
@@ -414,6 +417,7 @@
         const inputSx = host.querySelector("[data-dev-sx]");
         const inputSy = host.querySelector("[data-dev-sy]");
         const lockRatio = host.querySelector("[data-dev-lock]");
+        const layerValue = host.querySelector("[data-dev-layer-value]");
         const layerBackButton = host.querySelector("[data-dev-layer-back]");
         const layerDownButton = host.querySelector("[data-dev-layer-down]");
         const layerUpButton = host.querySelector("[data-dev-layer-up]");
@@ -506,6 +510,7 @@
                 action.textContent = "";
                 [inputX, inputY, inputSx, inputSy].forEach((input) => input.value = "");
                 layerButtons.forEach((button) => button.disabled = true);
+                layerValue.textContent = "";
                 return;
             }
             const geometry = readGeometry(selected.element);
@@ -518,6 +523,7 @@
             inputSy.value = Math.round(geometry.sy * 10000) / 100;
             const layerable = isLayerableVisual(selected);
             layerButtons.forEach((button) => button.disabled = !layerable);
+            layerValue.textContent = layerable ? "z " + readLayer(selected.element) : "protegido";
         }
 
         function updateOverlay() {
@@ -728,10 +734,16 @@
             scheduleOverlay();
         }
 
-        function visualLayerValues() {
-            return nodes
-                .filter((node) => isLayerableVisual(node) && !isDeleted(node.element))
-                .map((node) => readLayer(node.element));
+        function layerPeers(node) {
+            if (!node?.element?.parentElement) return [];
+
+            const parent = node.element.parentElement;
+            return nodes.filter((candidate) =>
+                candidate !== node
+                && isLayerableVisual(candidate)
+                && !isDeleted(candidate.element)
+                && candidate.element.parentElement === parent
+            );
         }
 
         function changeSelectedLayer(actionName) {
@@ -741,24 +753,50 @@
                 return;
             }
 
-            const values = visualLayerValues();
+            const peers = layerPeers(selected);
+            if (!peers.length) {
+                status.textContent = "Não há outra camada visual nesse grupo";
+                return;
+            }
+
             const current = readLayer(selected.element);
-            const lowest = values.length ? Math.min(...values) : 0;
-            const highest = values.length ? Math.max(...values) : 0;
-            let target = current;
+            const byLayer = peers
+                .map((node) => ({ node, z: readLayer(node.element) }))
+                .sort((a, b) => a.z - b.z);
 
-            if (actionName === "back") target = Math.max(0, lowest - 1);
-            if (actionName === "down") target = Math.max(0, current - 1);
-            if (actionName === "up") target = Math.min(9999, current + 1);
-            if (actionName === "front") target = Math.min(9999, highest + 1);
+            let targetEntry = null;
 
-            pushHistory();
-            applyLayer(selected.element, target);
+            if (actionName === "back") {
+                targetEntry = byLayer[0];
+            } else if (actionName === "front") {
+                targetEntry = byLayer[byLayer.length - 1];
+            } else if (actionName === "down") {
+                targetEntry = [...byLayer]
+                    .reverse()
+                    .find((entry) => entry.z < current) || byLayer[0];
+            } else if (actionName === "up") {
+                targetEntry = byLayer
+                    .find((entry) => entry.z > current) || byLayer[byLayer.length - 1];
+            }
+
+            if (!targetEntry) return;
+
+            const targetZ = targetEntry.z;
+            if (targetZ === current) {
+                const delta = actionName === "back" || actionName === "down" ? -1 : 1;
+                pushHistory();
+                applyLayer(selected.element, clamp(current + delta, 0, 9999));
+            } else {
+                pushHistory();
+                applyLayer(selected.element, targetZ);
+                applyLayer(targetEntry.node.element, current);
+            }
+
             persist(
                 actionName === "back" ? "Enviado para o fundo"
                 : actionName === "front" ? "Trazido para a frente"
-                : actionName === "down" ? "Recuou uma camada"
-                : "Avançou uma camada"
+                : actionName === "down" ? "Recuou para a camada anterior"
+                : "Avançou para a próxima camada"
             );
             refreshInspector();
             scheduleOverlay();
