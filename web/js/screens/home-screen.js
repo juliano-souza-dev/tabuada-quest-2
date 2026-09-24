@@ -94,10 +94,8 @@
 
                 <div class="hud-level-slot" data-tq-asset-id="home.level.badge" data-tq-asset-role="object" data-tq-asset-label="Placa de nível" data-tq-dev-id="home.level.badge" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Placa de nível" aria-label="Nível ${currentLevel}"><img src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
 
-                <div class="hud-wallet-slot" data-tq-dev-ignore>
-                    <span class="wallet-value coins" data-tq-dev-id="home.wallet.coins" data-tq-dev-kind="dynamicText" data-tq-dev-label="Ouro" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
-                    <span class="wallet-value gems" data-tq-dev-id="home.wallet.gems" data-tq-dev-kind="dynamicText" data-tq-dev-label="Gemas" aria-label="${state.wallet.gems} gemas">${state.wallet.gems}</span>
-                </div>
+                <span class="wallet-value coins" data-tq-dev-id="home.wallet.coins" data-tq-dev-kind="dynamicText" data-tq-dev-label="Ouro" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
+                <span class="wallet-value gems" data-tq-dev-id="home.wallet.gems" data-tq-dev-kind="dynamicText" data-tq-dev-label="Gemas" aria-label="${state.wallet.gems} gemas">${state.wallet.gems}</span>
 
                 <img class="home-hero-character"
                      data-tq-asset-id="home.hero" data-tq-asset-role="object" data-tq-asset-label="Personagem" data-tq-dev-id="home.hero" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Personagem"
