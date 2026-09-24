@@ -1,8 +1,8 @@
-name: Web Preview DEV
+name: Web Pages PROD + DEV
 
 on:
   push:
-    branches: [develop]
+    branches: [main, develop]
     paths:
       - "web/**"
       - ".github/workflows/web-preview-pages.yml"
@@ -24,29 +24,32 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout develop
+      - name: Checkout production
         uses: actions/checkout@v6
+        with:
+          ref: main
+          path: prod
 
-      - name: Prepare isolated DEV site
+      - name: Checkout development
+        uses: actions/checkout@v6
+        with:
+          ref: develop
+          path: dev
+
+      - name: Compose Pages site
         run: |
           mkdir -p _site/develop
-          cp -R web/. _site/develop/
-          cat > _site/index.html <<'EOF'
-          <!doctype html>
-          <html lang="pt-BR">
-          <head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=./develop/"><title>Tabuada Quest DEV</title></head>
-          <body><a href="./develop/">Abrir Tabuada Quest DEV</a></body>
-          </html>
-          EOF
+          cp -R prod/web/. _site/
+          cp -R dev/web/. _site/develop/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload DEV Pages artifact
+      - name: Upload combined site
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./_site
 
-      - name: Deploy DEV
+      - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
