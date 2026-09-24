@@ -45,7 +45,6 @@
         const displayedBackgroundSrc = background.src || defaultBackground?.src || "";
         const totals = TQ.content.campaignTotals;
 
-        const xpPercent = clampPercent((state.progression.xpCurrent / state.progression.xpRequired) * 100);
         const chestCount = Math.min(state.campaign.claimedChestIds.length, totals.chests);
         const chestPercent = clampPercent((chestCount / totals.chests) * 100);
         const petCount = Math.min(state.campaign.petsRescuedIds.length, totals.pets);
@@ -89,11 +88,6 @@
 
                 <div class="hud-level-slot" aria-label="Nível ${state.progression.level}">${state.progression.level}</div>
 
-                <div class="hud-xp-slot" aria-label="Experiência ${state.progression.xpCurrent} de ${state.progression.xpRequired}">
-                    <span class="hud-xp-fill" style="width:${xpPercent}%"></span>
-                    <b>${state.progression.xpCurrent}/${state.progression.xpRequired}</b>
-                </div>
-
                 <div class="hud-wallet-slot">
                     <span class="wallet-value coins" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
                     <span class="wallet-value gems" aria-label="${state.wallet.gems} gemas">${state.wallet.gems}</span>
@@ -109,11 +103,6 @@
                 <button class="play-slot" type="button" data-action="play" aria-label="Jogar"></button>
                 <button class="art-hotspot hotspot-crew" type="button" data-action="crew" aria-label="Abrir Tripulação"></button>
                 <button class="art-hotspot hotspot-shipyard" type="button" data-action="shipyard" aria-label="Abrir Estaleiro"></button>
-
-                <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
-                    <span style="width:${chestPercent}%"></span>
-                    <b>${chestCount}/${totals.chests}</b>
-                </div>
 
                 <div class="pet-dynamic-count">${petCount}/${totals.pets}</div>
 
