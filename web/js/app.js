@@ -365,7 +365,7 @@
             effects.push(fx); persistEffects(); region.remove(); region=null; animation?.cancel(); animation=null; draftData=null; renderEffect(fx); refreshSaved(); savedSelect.value=fx.id;
         };
         host.querySelector("[data-fx-new]").onclick = () => clearRegion();
-        host.querySelector("[data-fx-delete]").onclick = () => { const id=savedSelect.value;if(!id)return;effects=effects.filter(f=>f.id!==id);persistEffects();const savedRegion=stage.querySelector('[data-fx-id="'+id+'"]');savedRegion?._fxAnimation?.cancel();savedRegion?.remove();refreshSaved(); };
+        host.querySelector("[data-fx-delete]").onclick = () => { const id=savedSelect.value;if(!id)return;effects=effects.filter(f=>f.id!==id);persistEffects();const savedRegion=activeRoot.querySelector('[data-fx-id="'+id+'"]');savedRegion?._fxAnimation?.cancel();savedRegion?.remove();refreshSaved(); };
         host.querySelector("[data-fx-load]").onclick = () => { const fx=effects.find(f=>f.id===savedSelect.value);if(!fx)return;host.querySelector("[data-fx-asset]").value=fx.assetId;host.querySelector("[data-fx-mode]").value=fx.mode||"alternate";host.querySelector("[data-fx-direction]").value=fx.direction||(fx.axis==="y"?"up":"left");host.querySelector("[data-fx-distance]").value=fx.distance;host.querySelector("[data-fx-duration]").value=fx.duration;syncModeUi(); };
 
         host.querySelector(".tq-parallax-dev-toggle").onclick = () => panel.hidden = !panel.hidden;
