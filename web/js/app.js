@@ -248,17 +248,20 @@
         let region = null;
         let animation = null;
         let draftData = null;
-        const storageKey = "tq2.dev.parallax.effects.v2";
-        const legacyStorageKey = "tq2.dev.parallax.effects.v1";
-        const activeBackgroundId = state?.ui?.homeBackgroundId || TQ.content.defaultHomeBackgroundId || "default";
-        const activeBackground = TQ.screens?.home?.resolveHomeBackground?.(activeBackgroundId);
-        const activeBackgroundLabel = activeBackground?.label || activeBackgroundId;
-        host.querySelector("[data-fx-background]").textContent = activeBackgroundLabel;
+        const storageKey = "tq2.dev.parallax.effects.v3";
+        const legacyStorageKey = "tq2.dev.parallax.effects.v2";
+        const activeBackgroundId = activeScreenId;
+        const activeBackgroundLabel = activeScreenId;
+        host.querySelector("[data-fx-background]").textContent = activeScreenId;
         let effects = (() => { try {
             const current = JSON.parse(root.localStorage.getItem(storageKey) || "[]");
             if (current.length) return current;
             const legacy = JSON.parse(root.localStorage.getItem(legacyStorageKey) || "[]");
-            return legacy.map((fx) => ({ ...fx, backgroundId: activeBackgroundId, backgroundLabel: activeBackgroundLabel }));
+            return legacy.map((fx) => ({
+                ...fx,
+                backgroundId: "home",
+                backgroundLabel: "home"
+            }));
         } catch (_) { return []; } })();
         effects = effects.map((fx) => ({
             ...fx,
@@ -271,7 +274,7 @@
         const refreshSaved = () => {
             savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.filter((fx) => fx.backgroundId === activeBackgroundId).map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+(fx.mode === "continuous" ? "contínuo "+fx.direction : "vai e volta")+'</option>').join("");
         };
-        const selectedAsset = () => appRoot.querySelector(`[data-tq-asset-id="${host.querySelector("[data-fx-asset]").value}"]`);
+        const selectedAsset = () => assetById.get(host.querySelector("[data-fx-asset]").value) || null;
         const clearRegion = () => {
             animation?.cancel(); animation = null;
             region?.remove(); region = null;
