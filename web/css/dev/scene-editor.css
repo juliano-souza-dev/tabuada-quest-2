@@ -262,3 +262,8 @@
         max-height: 70vh;
     }
 }
+
+
+[data-tq-dev-deleted="true"] {
+    display: none !important;
+}
