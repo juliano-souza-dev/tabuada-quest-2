@@ -267,3 +267,27 @@
 [data-tq-dev-deleted="true"] {
     display: none !important;
 }
+
+
+.tq-scene-dev-layer-tools {
+    display: grid;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid rgba(229, 189, 84, .28);
+    border-radius: 10px;
+    background: rgba(255,255,255,.035);
+}
+
+.tq-scene-dev-layer-tools > strong {
+    color: #ffe18a;
+    font-size: 11px;
+}
+
+.tq-scene-dev-layer-tools button:disabled {
+    opacity: .38;
+    cursor: not-allowed;
+}
+
+[data-tq-dev-layered="true"] {
+    z-index: var(--tq-dev-z, 0) !important;
+}
