@@ -233,6 +233,7 @@
 
     function shouldAutoMap(element, screenRoot) {
         if (!(element instanceof Element)) return false;
+        if (element.hasAttribute("data-tq-dev-ignore")) return false;
         if (element.matches("script, style, template, source")) return false;
         if (element.closest(".tq-scene-dev, .tq-scene-dev-selection, .tq-parallax-dev")) return false;
         if (element.hasAttribute("data-tq-dev-id")) return true;
