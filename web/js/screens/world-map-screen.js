@@ -107,34 +107,6 @@
         const stage = screen.querySelector(".world-map-stage");
         const art = screen.querySelector(".world-map-art");
         const regionsLayer = screen.querySelector(".world-map-regions");
-        const parallaxMedia = root.matchMedia?.("(prefers-reduced-motion: reduce)");
-        let parallaxFrame = 0;
-
-        function applyParallax(clientX, clientY) {
-            if (parallaxMedia?.matches) return;
-            const rect = stage.getBoundingClientRect();
-            if (!rect.width || !rect.height) return;
-            const x = Math.max(-1, Math.min(1, ((clientX - rect.left) / rect.width - .5) * 2));
-            const y = Math.max(-1, Math.min(1, ((clientY - rect.top) / rect.height - .5) * 2));
-            root.cancelAnimationFrame(parallaxFrame);
-            parallaxFrame = root.requestAnimationFrame(() => {
-                stage.style.setProperty("--map-parallax-x", `${x}`);
-                stage.style.setProperty("--map-parallax-y", `${y}`);
-            });
-        }
-
-        function resetParallax() {
-            stage.style.setProperty("--map-parallax-x", "0");
-            stage.style.setProperty("--map-parallax-y", "0");
-        }
-
-        stage.addEventListener("pointermove", (event) => {
-            if (event.pointerType === "touch") return;
-            applyParallax(event.clientX, event.clientY);
-        }, { passive: true });
-        stage.addEventListener("pointerleave", resetParallax, { passive: true });
-        stage.addEventListener("pointercancel", resetParallax, { passive: true });
-        parallaxMedia?.addEventListener?.("change", resetParallax);
         const prevButton = screen.querySelector('[data-action="previous-chart"]');
         const nextButton = screen.querySelector('[data-action="next-chart"]');
         const pageCount = screen.querySelector(".world-map-page-count");
