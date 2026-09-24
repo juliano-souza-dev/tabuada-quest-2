@@ -4,18 +4,18 @@ name: Android Debug APK
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main, develop]
+    paths:
+      - "app/**"
+      - "web/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - ".github/workflows/android-debug.yml"
   pull_request:
     branches: [main]
     paths:
       - "app/**"
-      - "*.gradle.kts"
-      - "gradle.properties"
-      - ".github/workflows/android-debug.yml"
-  push:
-    branches: [main]
-    paths:
-      - "app/**"
-      - "web/**"
       - "*.gradle.kts"
       - "gradle.properties"
       - ".github/workflows/android-debug.yml"
