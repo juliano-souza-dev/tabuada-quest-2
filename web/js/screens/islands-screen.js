@@ -572,9 +572,9 @@
                 const bandBottom = height * 0.97;
                 const bandHeight = 18;
                 for (let y = bandTop, index = 0; y < bandBottom; y += bandHeight, index += 1) {
-                    const waveX = Math.sin(t * 0.72 + index * 0.58) * 3.2;
-                    const waveY = Math.sin(t * 0.48 + index * 0.41) * 1.15;
-                    context.globalAlpha = 0.34;
+                    const waveX = Math.sin(t * 1.05 + index * 0.58) * 9.5;
+                    const waveY = Math.sin(t * 0.72 + index * 0.41) * 3.2;
+                    context.globalAlpha = 0.62;
                     context.drawImage(
                         backgroundImage,
                         0, y, width, Math.min(bandHeight + 2, height - y),
