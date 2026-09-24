@@ -1,6 +1,6 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STORAGE_KEY = "tq2.dev.scene-layout.v1";
+    const STORAGE_KEY = "tq2.dev.scene-layout.v2";
     let activeCleanup = null;
 
     function readStore() {
@@ -19,6 +19,8 @@
     }
 
     function number(value, fallback) {
+        if (value === null || value === undefined) return fallback;
+        if (typeof value === "string" && value.trim() === "") return fallback;
         const parsed = Number(value);
         return Number.isFinite(parsed) ? parsed : fallback;
     }
@@ -27,22 +29,27 @@
         return Math.min(max, Math.max(min, value));
     }
 
+    function positiveScale(value, fallback = 1) {
+        const parsed = number(value, fallback);
+        return parsed > 0 ? parsed : fallback;
+    }
+
     function readGeometry(element) {
         const x = Number.parseFloat(element.style.getPropertyValue("--tq-dev-x"));
         const y = Number.parseFloat(element.style.getPropertyValue("--tq-dev-y"));
         return {
             x: Number.isFinite(x) ? x : 0,
             y: Number.isFinite(y) ? y : 0,
-            sx: number(element.style.getPropertyValue("--tq-dev-sx"), 1),
-            sy: number(element.style.getPropertyValue("--tq-dev-sy"), 1)
+            sx: positiveScale(element.style.getPropertyValue("--tq-dev-sx"), 1),
+            sy: positiveScale(element.style.getPropertyValue("--tq-dev-sy"), 1)
         };
     }
 
     function applyGeometry(element, geometry) {
         const x = number(geometry?.x, 0);
         const y = number(geometry?.y, 0);
-        const sx = Math.max(.05, number(geometry?.sx, 1));
-        const sy = Math.max(.05, number(geometry?.sy, 1));
+        const sx = Math.max(.05, positiveScale(geometry?.sx, 1));
+        const sy = Math.max(.05, positiveScale(geometry?.sy, 1));
         element.style.setProperty("--tq-dev-x", x + "px");
         element.style.setProperty("--tq-dev-y", y + "px");
         element.style.setProperty("--tq-dev-sx", String(sx));
@@ -58,27 +65,144 @@
         element.removeAttribute("data-tq-dev-adjusted");
     }
 
-    function collectNodes(appRoot) {
+    function normalizedToken(value, fallback = "item") {
+        const token = String(value || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+        return token || fallback;
+    }
+
+    function inferKind(element) {
+        const explicit = element.dataset.tqDevKind;
+        if (explicit) return explicit;
+
+        const className = typeof element.className === "string" ? element.className.toLowerCase() : "";
+        if (className.includes("background") || className.includes("backdrop")) return "background";
+        if (className.includes("overlay")) return "overlay";
+        if (
+            element.matches("button, a, input, select, textarea, [role='button'], [data-action]")
+        ) return "function";
+        if (element.matches("h1, h2, h3, h4, h5, h6, p, span, strong, b, small, label")) {
+            return "dynamicText";
+        }
+        if (element.matches("img, picture, svg, canvas, video")) return "asset";
+        return "container";
+    }
+
+    function inferLabel(element) {
+        const explicit = element.dataset.tqDevLabel || element.dataset.tqAssetLabel;
+        if (explicit) return explicit;
+
+        const action = element.dataset.action || element.getAttribute("aria-label");
+        if (action) return String(action).trim().slice(0, 72);
+
+        const alt = element.getAttribute("alt");
+        if (alt) return alt.trim().slice(0, 72);
+
+        if (element.id) return "#" + element.id;
+
+        const text = (element.textContent || "").replace(/\s+/g, " ").trim();
+        if (text && text.length <= 72) return text;
+
+        const usefulClass = [...element.classList].find((name) =>
+            !name.startsWith("tq-dev-")
+            && name !== "tq-screen-preparing"
+            && !name.startsWith("is-")
+        );
+        if (usefulClass) return "." + usefulClass;
+
+        return element.tagName.toLowerCase();
+    }
+
+    function pathSegment(element) {
+        const tag = element.tagName.toLowerCase();
+        const action = element.dataset.action;
+        if (action) return tag + "[action-" + normalizedToken(action) + "]";
+
+        if (element.id) return tag + "#" + normalizedToken(element.id);
+
+        const usefulClasses = [...element.classList]
+            .filter((name) => !name.startsWith("tq-dev-") && name !== "tq-screen-preparing")
+            .slice(0, 2)
+            .map((name) => normalizedToken(name));
+
+        const siblings = element.parentElement
+            ? [...element.parentElement.children].filter((candidate) => candidate.tagName === element.tagName)
+            : [];
+        const position = Math.max(1, siblings.indexOf(element) + 1);
+        return tag + (usefulClasses.length ? "." + usefulClasses.join(".") : "") + ":" + position;
+    }
+
+    function generatedId(element, screenRoot, screenId) {
+        const parts = [];
+        let cursor = element;
+        while (cursor && cursor !== screenRoot && parts.length < 8) {
+            parts.push(pathSegment(cursor));
+            cursor = cursor.parentElement;
+        }
+        parts.reverse();
+        return normalizedToken(screenId, "screen") + ".auto." + parts.join(">");
+    }
+
+    function shouldAutoMap(element, screenRoot) {
+        if (!(element instanceof Element)) return false;
+        if (element.matches("script, style, template, source")) return false;
+        if (element.closest(".tq-scene-dev, .tq-scene-dev-selection, .tq-parallax-dev")) return false;
+        if (element.hasAttribute("data-tq-dev-id")) return true;
+        if (element === screenRoot) return true;
+
+        if (element.matches(
+            "img, picture, svg, canvas, video, button, a, input, select, textarea, label, " +
+            "h1, h2, h3, h4, h5, h6, p, span, strong, b, small, [role='button'], [data-action]"
+        )) return true;
+
+        const className = typeof element.className === "string" ? element.className.toLowerCase() : "";
+        if (/(screen|stage|panel|card|slot|bar|overlay|background|hero|map|board|modal|sheet|dialog|hud|nav|menu|art|frame|reward|pet|chest|island|region)/.test(className)) {
+            return true;
+        }
+
+        return element.parentElement === screenRoot;
+    }
+
+    function collectNodes(screenRoot, screenId) {
         const seen = new Set();
-        return [...appRoot.querySelectorAll("[data-tq-dev-id]")]
-            .filter((element) => {
-                const id = element.dataset.tqDevId;
-                if (!id || seen.has(id)) return false;
+        const candidates = [screenRoot, ...screenRoot.querySelectorAll("*")]
+            .filter((element) => shouldAutoMap(element, screenRoot));
+
+        return candidates
+            .map((element) => {
+                const explicitId = element.dataset.tqDevId;
+                const id = explicitId || generatedId(element, screenRoot, screenId);
+                if (!id || seen.has(id)) return null;
                 seen.add(id);
-                return true;
+
+                if (!explicitId) {
+                    element.dataset.tqDevId = id;
+                    element.dataset.tqDevGenerated = "true";
+                    element.dataset.tqDevKind = inferKind(element);
+                    element.dataset.tqDevLabel = inferLabel(element);
+                }
+
+                return {
+                    id,
+                    kind: inferKind(element),
+                    label: inferLabel(element),
+                    role: element.dataset.tqDevRole || element.dataset.tqAssetRole || element.tagName.toLowerCase(),
+                    action: element.dataset.tqDevAction || element.dataset.action || "",
+                    generated: !explicitId,
+                    element
+                };
             })
-            .map((element) => ({
-                id: element.dataset.tqDevId,
-                kind: element.dataset.tqDevKind || "asset",
-                label: element.dataset.tqDevLabel || element.dataset.tqAssetLabel || element.dataset.tqDevId,
-                role: element.dataset.tqDevRole || element.dataset.tqAssetRole || "",
-                action: element.dataset.tqDevAction || element.dataset.action || "",
-                element
-            }));
+            .filter(Boolean);
     }
 
     function stageScale(element) {
-        const stage = element.closest(".tq-canonical-stage");
+        const stage = element.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
+            || element.closest("section")
+            || element.parentElement;
         if (!stage) return { x: 1, y: 1 };
         const rect = stage.getBoundingClientRect();
         return {
@@ -93,7 +217,8 @@
             function: "Função",
             dynamicText: "Texto dinâmico",
             overlay: "Overlay",
-            background: "Fundo"
+            background: "Fundo",
+            container: "Container"
         })[kind] || kind;
     }
 
@@ -102,7 +227,10 @@
         activeCleanup = null;
 
         const screenId = String(options.screenId || "screen");
-        const nodes = collectNodes(appRoot);
+        const screenRoot = options.screenRoot instanceof Element
+            ? options.screenRoot
+            : appRoot.firstElementChild || appRoot;
+        const nodes = collectNodes(screenRoot, screenId);
         if (!nodes.length) return;
 
         let store = readStore();
@@ -129,6 +257,7 @@
                         <option value="dynamicText">Textos</option>
                         <option value="overlay">Overlays</option>
                         <option value="background">Fundos</option>
+                        <option value="container">Containers</option>
                     </select>
                 </label>
                 <label>Elemento
@@ -222,7 +351,13 @@
 
         function refreshList() {
             const available = filteredNodes();
-            nodeSelect.innerHTML = available.map((node) => `<option value="${node.id}">${node.label} · ${kindLabel(node.kind)}</option>`).join("");
+            const options = available.map((node) => {
+                const option = document.createElement("option");
+                option.value = node.id;
+                option.textContent = node.label + " · " + kindLabel(node.kind);
+                return option;
+            });
+            nodeSelect.replaceChildren(...options);
             if (selected && available.some((node) => node.id === selected.id)) {
                 nodeSelect.value = selected.id;
             } else if (available.length) {
@@ -291,7 +426,8 @@
             event.stopPropagation();
 
             const rect = node.element.getBoundingClientRect();
-            const stage = node.element.closest(".tq-canonical-stage");
+            const stage = node.element.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
+                || screenRoot;
             const pointerTarget = event.target instanceof Element
                 && typeof event.target.setPointerCapture === "function"
                     ? event.target
@@ -450,7 +586,7 @@
         }
 
         function interceptClick(event) {
-            if (!opened || !appRoot.contains(event.target)) return;
+            if (!opened || !screenRoot.contains(event.target)) return;
             const element = event.target.closest?.("[data-tq-dev-id]");
             if (element) {
                 const node = nodeById.get(element.dataset.tqDevId);
@@ -532,8 +668,8 @@
             }
         });
 
-        appRoot.addEventListener("pointerdown", onPointerDown, true);
-        appRoot.addEventListener("click", interceptClick, true);
+        screenRoot.addEventListener("pointerdown", onPointerDown, true);
+        screenRoot.addEventListener("click", interceptClick, true);
         overlay.addEventListener("pointerdown", onHandleDown);
         root.addEventListener("pointermove", onPointerMove, true);
         root.addEventListener("pointerup", onPointerUp, true);
@@ -548,8 +684,8 @@
             if (raf) root.cancelAnimationFrame(raf);
             appRoot.classList.remove("tq-dev-scene-editing");
             document.body.classList.remove("tq-dev-scene-editing-active");
-            appRoot.removeEventListener("pointerdown", onPointerDown, true);
-            appRoot.removeEventListener("click", interceptClick, true);
+            screenRoot.removeEventListener("pointerdown", onPointerDown, true);
+            screenRoot.removeEventListener("click", interceptClick, true);
             root.removeEventListener("pointermove", onPointerMove, true);
             root.removeEventListener("pointerup", onPointerUp, true);
             root.removeEventListener("pointercancel", onPointerUp, true);
