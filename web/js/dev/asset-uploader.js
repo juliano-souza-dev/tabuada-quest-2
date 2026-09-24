@@ -222,10 +222,8 @@
         }
 
         function openExternal(url) {
-            const opened = root.open(url, "_blank", "noopener,noreferrer");
-            if (!opened) {
-                root.location.href = url;
-            }
+            const opened = root.open(url, "_blank");
+            if (opened) opened.opener = null;
         }
 
         host.querySelector(".tq-asset-upload-dev-toggle").addEventListener("click", () => {
