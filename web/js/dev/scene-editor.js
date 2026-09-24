@@ -24,9 +24,11 @@
     }
 
     function readGeometry(element) {
+        const x = Number.parseFloat(element.style.getPropertyValue("--tq-dev-x"));
+        const y = Number.parseFloat(element.style.getPropertyValue("--tq-dev-y"));
         return {
-            x: number(element.style.getPropertyValue("--tq-dev-x"), 0),
-            y: number(element.style.getPropertyValue("--tq-dev-y"), 0),
+            x: Number.isFinite(x) ? x : 0,
+            y: Number.isFinite(y) ? y : 0,
             sx: number(element.style.getPropertyValue("--tq-dev-sx"), 1),
             sy: number(element.style.getPropertyValue("--tq-dev-sy"), 1)
         };
@@ -37,8 +39,8 @@
         const y = number(geometry?.y, 0);
         const sx = Math.max(.05, number(geometry?.sx, 1));
         const sy = Math.max(.05, number(geometry?.sy, 1));
-        element.style.setProperty("--tq-dev-x", String(x));
-        element.style.setProperty("--tq-dev-y", String(y));
+        element.style.setProperty("--tq-dev-x", x + "px");
+        element.style.setProperty("--tq-dev-y", y + "px");
         element.style.setProperty("--tq-dev-sx", String(sx));
         element.style.setProperty("--tq-dev-sy", String(sy));
     }
