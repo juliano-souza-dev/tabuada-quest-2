@@ -158,6 +158,7 @@
             <button type="button" class="tq-parallax-dev-toggle">FX</button>
             <section class="tq-parallax-dev-panel" hidden>
                 <strong>Parallax · protótipo</strong>
+                <div class="tq-parallax-background-context">Fundo atual: <b data-fx-background></b></div>
                 <select data-fx-asset>${assets.map((asset) => `<option value="${asset.dataset.tqAssetId}">${asset.dataset.tqAssetLabel || asset.dataset.tqAssetId} · ${asset.dataset.tqAssetRole}</option>`).join("")}</select>
                 <button type="button" data-fx-select>Desenhar área</button>
                 <label>Direção <select data-fx-axis><option value="x">Horizontal</option><option value="y">Vertical</option></select></label>
@@ -175,13 +176,23 @@
         let region = null;
         let animation = null;
         let draftData = null;
-        const storageKey = "tq2.dev.parallax.effects.v1";
-        let effects = (() => { try { return JSON.parse(root.localStorage.getItem(storageKey) || "[]"); } catch (_) { return []; } })();
+        const storageKey = "tq2.dev.parallax.effects.v2";
+        const legacyStorageKey = "tq2.dev.parallax.effects.v1";
+        const activeBackgroundId = state?.ui?.homeBackgroundId || TQ.content.defaultHomeBackgroundId || "default";
+        const activeBackground = TQ.screens?.home?.resolveHomeBackground?.(activeBackgroundId);
+        const activeBackgroundLabel = activeBackground?.label || activeBackgroundId;
+        host.querySelector("[data-fx-background]").textContent = activeBackgroundLabel;
+        let effects = (() => { try {
+            const current = JSON.parse(root.localStorage.getItem(storageKey) || "[]");
+            if (current.length) return current;
+            const legacy = JSON.parse(root.localStorage.getItem(legacyStorageKey) || "[]");
+            return legacy.map((fx) => ({ ...fx, backgroundId: activeBackgroundId, backgroundLabel: activeBackgroundLabel }));
+        } catch (_) { return []; } })();
 
         const persistEffects = () => root.localStorage.setItem(storageKey, JSON.stringify(effects));
         const savedSelect = host.querySelector("[data-fx-saved]");
         const refreshSaved = () => {
-            savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+fx.axis+' · '+fx.distance+'px</option>').join("");
+            savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.filter((fx) => fx.backgroundId === activeBackgroundId).map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+fx.axis+' · '+fx.distance+'px</option>').join("");
         };
         const selectedAsset = () => appRoot.querySelector(`[data-tq-asset-id="${host.querySelector("[data-fx-asset]").value}"]`);
         const clearRegion = () => {
@@ -213,11 +224,11 @@
             const poly=fx.points.map(p=>(((p.x-r.x)/r.w)*100).toFixed(2)+"% "+(((p.y-r.y)/r.h)*100).toFixed(2)+"%").join(","); el.style.clipPath="polygon("+poly+")"; el.style.webkitClipPath=el.style.clipPath;
             const clone=asset.cloneNode(false); clone.removeAttribute("data-tq-asset-id"); clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx.axis,fx.distance,fx.duration); return el;
         };
-        effects.forEach((fx)=>renderEffect(fx)); refreshSaved();
+        effects.filter((fx) => fx.backgroundId === activeBackgroundId).forEach((fx)=>renderEffect(fx)); refreshSaved(); persistEffects();
 
         host.querySelector("[data-fx-save]").onclick = () => {
             if (!draftData || !region) return;
-            const fx={...draftData,id:"fx_"+Date.now(),axis:host.querySelector("[data-fx-axis]").value,distance:Number(host.querySelector("[data-fx-distance]").value),duration:Number(host.querySelector("[data-fx-duration]").value)};
+            const fx={...draftData,id:"fx_"+Date.now(),backgroundId:activeBackgroundId,backgroundLabel:activeBackgroundLabel,axis:host.querySelector("[data-fx-axis]").value,distance:Number(host.querySelector("[data-fx-distance]").value),duration:Number(host.querySelector("[data-fx-duration]").value)};
             effects.push(fx); persistEffects(); region.remove(); region=null; animation?.cancel(); animation=null; draftData=null; renderEffect(fx); refreshSaved(); savedSelect.value=fx.id;
         };
         host.querySelector("[data-fx-new]").onclick = () => clearRegion();
