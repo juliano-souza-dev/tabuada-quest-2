@@ -200,7 +200,10 @@
         width: calc(100vw - 78px);
     }
 
-    .tq-scene-dev-panel {
+    .tq-scene-dev-panel,
+    .tq-settings-dev-panel,
+    .tq-asset-upload-dev-panel,
+    .tq-parallax-dev-panel {
         top: auto;
         left: 8px;
         right: 70px;
