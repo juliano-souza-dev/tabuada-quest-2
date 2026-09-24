@@ -135,23 +135,6 @@
                 <button class="art-hotspot hotspot-pets" type="button" data-action="pets" aria-label="Pets"></button>
                 <button class="art-hotspot hotspot-items" type="button" data-action="items" aria-label="Baú de itens"></button>
 
-                ${TQ.content.development?.shortcutsEnabled ? `
-                    <div class="development-shortcuts" aria-label="Atalhos de desenvolvimento">
-                        <button class="development-regions-shortcut"
-                            type="button"
-                            data-action="development-regions"
-                            aria-label="Abrir lista de Regiões para desenvolvimento">
-                            DEV · REGIÕES
-                        </button>
-                        <button class="development-exit-shortcut"
-                            type="button"
-                            data-action="exit-session"
-                            aria-label="Sair e limpar a sessão local de testes">
-                            SAIR
-                        </button>
-                    </div>
-                ` : ""}
-
             </div>
             </div>
 
@@ -336,11 +319,6 @@
 
             if (action === "regions") {
                 onNavigate("regions");
-                return;
-            }
-
-            if (action === "development-regions") {
-                onNavigate("development-regions");
                 return;
             }
 
