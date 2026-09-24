@@ -570,3 +570,9 @@ html.tq-pwa-runtime .home-safe-visual-area {
     background-size: cover;
     background-repeat: no-repeat;
 }
+
+/* Progress counters are intentionally hidden on the Home artwork. */
+.home-screen .hud-xp-slot,
+.home-screen .reward-dynamic-bar {
+    display: none !important;
+}
