@@ -69,6 +69,12 @@
             </nav>
 
             <main class="shop-content">
+                <section data-shop-panel="nameplates" hidden>
+                    <p class="shop-intro">Compre plaquinhas para personalizar o nome na Home.</p>
+                    <div class="shop-item-list">
+                        ${catalog.nameplates.filter((item) => !item.isDefault).map((item) => renderStoreItem(item, state)).join("")}
+                    </div>
+                </section>
                 <section data-shop-panel="frames" hidden>
                     <p class="shop-intro">As artes entram na etapa visual. Por enquanto, o catálogo mostra apenas os nomes.</p>
                     <div class="shop-item-list">
