@@ -202,3 +202,20 @@
     text-align: center;
     opacity: .8;
 }
+
+
+.tq-dev-local-live-asset {
+    position: absolute;
+    z-index: 500 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,.28));
+}
+
+.tq-dev-scene-editing .tq-dev-local-live-asset {
+    cursor: move !important;
+}
