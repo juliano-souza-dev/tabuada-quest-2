@@ -742,6 +742,16 @@
 
         refreshList();
 
+        const initialSelectedId = String(options.initialSelectedId || "");
+        if (initialSelectedId && nodeById.has(initialSelectedId)) {
+            filterSelect.value = "all";
+            refreshList();
+            selectNode(nodeById.get(initialSelectedId));
+        }
+        if (options.initialOpen) {
+            setOpened(true);
+        }
+
         activeCleanup = () => {
             if (raf) root.cancelAnimationFrame(raf);
             appRoot.classList.remove("tq-dev-scene-editing");
