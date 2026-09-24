@@ -108,9 +108,9 @@
 .profile-slot {
     position: absolute;
     z-index: 13;
-    left: 8.4%;
-    top: 39.5%;
-    width: 20.5%;
+    left: 8.9%;
+    top: 4.7%;
+    width: 19.6%;
     aspect-ratio: 1;
     padding: 0;
     border: 0;
@@ -127,6 +127,8 @@
     border-radius: 50%;
     object-fit: cover;
     object-position: center 18%;
+    transform: scale(1.42);
+    transform-origin: 50% 24%;
 }
 
 .hud-name-slot {
