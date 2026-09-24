@@ -935,19 +935,28 @@
             refreshInspector();
             scheduleOverlay();
         });
-        host.querySelector("[data-dev-reset-screen]").addEventListener("click", () => {
+        host.querySelector("[data-dev-reset-screen]").addEventListener("click", async () => {
             pushHistory();
+            status.textContent = "Limpando dados locais...";
+
             nodes.forEach((node) => {
                 clearGeometry(node.element);
                 clearLayer(node.element);
                 setDeleted(node.element, false);
             });
+
             store = readStore();
             delete store.screens[screenId];
             writeStore(store);
-            status.textContent = "Tela resetada";
-            refreshInspector();
-            scheduleOverlay();
+
+            try {
+                await TQ.dev?.assetUploader?.clearLocalLayersForScreen?.(screenId, screenRoot);
+            } catch (error) {
+                console.warn("Falha ao limpar assets locais antes do reset:", error);
+            }
+
+            status.textContent = "Recarregando versão da web...";
+            root.setTimeout(() => root.location.reload(), 80);
         });
         host.querySelector("[data-dev-copy]").addEventListener("click", async () => {
             const payload = JSON.stringify({ screen: screenId, nodes: snapshot() }, null, 2);
