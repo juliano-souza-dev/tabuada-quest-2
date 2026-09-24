@@ -766,7 +766,7 @@
         defaultFrameId: "frame-chaves-tesouro-tropical",
         assets: Object.freeze({
             avatars: Object.freeze({
-                sofia: "./assets/avatars/file_00000000ce64820eb9d4a24f128c9ce0.png"
+                sofia: "./assets/avatars/avatar-sofia-pirata-rosto.png"
             }),
             homeHeroes: Object.freeze({
                 sofia: "./assets/avatars/avatar-sofia-pirata.webp"
