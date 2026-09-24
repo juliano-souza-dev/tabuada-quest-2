@@ -167,21 +167,10 @@
         }
 
         return `
-                <section class="items-panel-section" aria-label="Placas">
-                    ${ownedNameplates.length
-                        ? ownedNameplates.map((item) =>
-                            renderNameplateCard(item, state.player.nameplateId)
-                        ).join("")
-                        : renderEmpty("Nenhuma Placa disponível ainda.")}
-                </section>
-            `;
-        }
-
-        return `
             <section class="items-panel-section" aria-label="Molduras">
                 ${ownedFrames.length
                     ? ownedFrames.map((frame) =>
-                        renderFrameCard(frame, state.player.profileFrameId)
+                        renderFrameCard(frame, state.player.frameId)
                     ).join("")
                     : renderEmpty("Nenhuma Moldura disponível ainda.")}
             </section>
