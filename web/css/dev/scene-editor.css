@@ -1,7 +1,7 @@
 .tq-scene-dev {
     position: fixed;
     right: 16px;
-    bottom: 76px;
+    bottom: 80px;
     left: auto;
     z-index: 100004;
     display: flex;
@@ -239,7 +239,7 @@
 @media (max-width: 620px) {
     .tq-scene-dev {
         right: 8px;
-        bottom: 68px;
+        bottom: 72px;
         left: auto;
     }
 
