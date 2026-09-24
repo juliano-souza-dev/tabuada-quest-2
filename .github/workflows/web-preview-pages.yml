@@ -1,8 +1,8 @@
-name: Web Preview
+name: Web Pages PROD + DEV
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - "web/**"
       - ".github/workflows/web-preview-pages.yml"
@@ -24,17 +24,32 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
+      - name: Checkout production
         uses: actions/checkout@v6
+        with:
+          ref: main
+          path: prod
+
+      - name: Checkout development
+        uses: actions/checkout@v6
+        with:
+          ref: develop
+          path: dev
+
+      - name: Compose Pages site
+        run: |
+          mkdir -p _site/develop
+          cp -R prod/web/. _site/
+          cp -R dev/web/. _site/develop/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload web preview
+      - name: Upload combined site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./web
+          path: ./_site
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
