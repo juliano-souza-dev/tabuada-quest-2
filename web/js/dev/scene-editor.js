@@ -339,7 +339,10 @@
             <section class="tq-scene-dev-panel" hidden>
                 <header>
                     <strong>UX · Editor visual</strong>
-                    <span data-dev-status>Pronto</span>
+                    <div class="tq-scene-dev-header-actions">
+                        <span data-dev-status>Pronto</span>
+                        <button type="button" class="tq-scene-dev-collapse" data-dev-collapse aria-label="Recolher editor">Recolher</button>
+                    </div>
                 </header>
                 <label>Mostrar
                     <select data-dev-filter>
@@ -391,6 +394,14 @@
                 </div>
                 <small>Arraste qualquer item mapeado. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais. Page Up/Page Down muda a camada; com Shift envia direto para frente/fundo. Funções são protegidas.</small>
             </section>
+            <div class="tq-scene-dev-compact" data-dev-compact hidden>
+                <button type="button" class="tq-scene-dev-compact-current" data-dev-compact-adjust aria-label="Abrir ajustes do elemento selecionado">
+                    <span data-dev-compact-name>Nenhum selecionado</span>
+                    <small>Ajustar</small>
+                </button>
+                <button type="button" data-dev-compact-undo aria-label="Desfazer última alteração" title="Desfazer">↶</button>
+                <button type="button" data-dev-compact-close aria-label="Sair do editor visual" title="Fechar editor">×</button>
+            </div>
         `;
         document.body.appendChild(host);
 
@@ -410,6 +421,12 @@
         const filterSelect = host.querySelector("[data-dev-filter]");
         const nodeSelect = host.querySelector("[data-dev-node]");
         const status = host.querySelector("[data-dev-status]");
+        const compactBar = host.querySelector("[data-dev-compact]");
+        const compactName = host.querySelector("[data-dev-compact-name]");
+        const compactAdjustButton = host.querySelector("[data-dev-compact-adjust]");
+        const compactUndoButton = host.querySelector("[data-dev-compact-undo]");
+        const compactCloseButton = host.querySelector("[data-dev-compact-close]");
+        const collapseButton = host.querySelector("[data-dev-collapse]");
         const name = host.querySelector("[data-dev-name]");
         const type = host.querySelector("[data-dev-type]");
         const action = host.querySelector("[data-dev-action]");
@@ -429,7 +446,9 @@
             layerUpButton,
             layerFrontButton
         ];
+        const mobileEditorQuery = root.matchMedia("(max-width: 620px)");
         let opened = false;
+        let collapsed = false;
         let selected = null;
         let interaction = null;
         let history = [];
@@ -449,6 +468,7 @@
         function pushHistory() {
             history.push(snapshot());
             if (history.length > 30) history.shift();
+            syncEditorChrome();
         }
 
         function persist(message = "Salvo") {
@@ -512,6 +532,7 @@
                 [inputX, inputY, inputSx, inputSy].forEach((input) => input.value = "");
                 layerButtons.forEach((button) => button.disabled = true);
                 layerValue.textContent = "";
+                syncEditorChrome();
                 return;
             }
             const geometry = readGeometry(selected.element);
@@ -525,6 +546,7 @@
             const layerable = isLayerableVisual(selected);
             layerButtons.forEach((button) => button.disabled = !layerable);
             layerValue.textContent = layerable ? "z " + readLayer(selected.element) : "protegido";
+            syncEditorChrome();
         }
 
         function updateOverlay() {
@@ -546,6 +568,37 @@
         function scheduleOverlay() {
             if (raf) return;
             raf = root.requestAnimationFrame(updateOverlay);
+        }
+
+        function isMobileEditor() {
+            return mobileEditorQuery.matches;
+        }
+
+        function syncEditorChrome() {
+            const compactVisible = opened && collapsed && isMobileEditor();
+            panel.hidden = !opened || compactVisible;
+            compactBar.hidden = !compactVisible;
+            compactName.textContent = selected?.label || "Nenhum selecionado";
+            compactUndoButton.disabled = history.length === 0;
+            host.classList.toggle("tq-scene-dev--collapsed", compactVisible);
+        }
+
+        function setCollapsed(nextCollapsed) {
+            collapsed = Boolean(nextCollapsed && opened && isMobileEditor());
+            syncEditorChrome();
+            scheduleOverlay();
+        }
+
+        function undoLastChange() {
+            const previous = history.pop();
+            if (previous) applySnapshot(previous);
+            else syncEditorChrome();
+        }
+
+        function onMobileEditorChange() {
+            if (!isMobileEditor()) collapsed = false;
+            syncEditorChrome();
+            scheduleOverlay();
         }
 
         function selectNode(node) {
@@ -892,13 +945,14 @@
 
         function setOpened(nextOpened) {
             opened = nextOpened;
+            collapsed = false;
             if (opened) {
                 closeOtherToolPanels();
                 announceToolOpen();
             }
-            panel.hidden = !opened;
             appRoot.classList.toggle("tq-dev-scene-editing", opened);
             document.body.classList.toggle("tq-dev-scene-editing-active", opened);
+            syncEditorChrome();
             if (!opened) overlay.hidden = true;
             else {
                 if (!selected && nodes.length) selectNode(nodes[0]);
@@ -914,17 +968,21 @@
 
         host.querySelector(".tq-scene-dev-toggle").addEventListener("click", () => setOpened(!opened));
         filterSelect.addEventListener("change", refreshList);
-        nodeSelect.addEventListener("change", () => selectNode(nodeById.get(nodeSelect.value) || null));
+        nodeSelect.addEventListener("change", () => {
+            selectNode(nodeById.get(nodeSelect.value) || null);
+            if (selected && isMobileEditor()) setCollapsed(true);
+        });
+        collapseButton.addEventListener("click", () => setCollapsed(true));
+        compactAdjustButton.addEventListener("click", () => setCollapsed(false));
+        compactUndoButton.addEventListener("click", undoLastChange);
+        compactCloseButton.addEventListener("click", () => setOpened(false));
         [inputX, inputY, inputSx, inputSy].forEach((input) => input.addEventListener("change", setFromInspector));
         layerBackButton.addEventListener("click", () => changeSelectedLayer("back"));
         layerDownButton.addEventListener("click", () => changeSelectedLayer("down"));
         layerUpButton.addEventListener("click", () => changeSelectedLayer("up"));
         layerFrontButton.addEventListener("click", () => changeSelectedLayer("front"));
 
-        host.querySelector("[data-dev-undo]").addEventListener("click", () => {
-            const previous = history.pop();
-            if (previous) applySnapshot(previous);
-        });
+        host.querySelector("[data-dev-undo]").addEventListener("click", undoLastChange);
         host.querySelector("[data-dev-reset]").addEventListener("click", () => {
             if (!selected) return;
             pushHistory();
@@ -983,6 +1041,11 @@
         root.addEventListener("resize", scheduleOverlay);
         root.addEventListener("scroll", scheduleOverlay, true);
         document.addEventListener("keydown", onKeyDown);
+        if (typeof mobileEditorQuery.addEventListener === "function") {
+            mobileEditorQuery.addEventListener("change", onMobileEditorChange);
+        } else {
+            mobileEditorQuery.addListener?.(onMobileEditorChange);
+        }
 
         refreshList();
 
@@ -1009,6 +1072,11 @@
             root.removeEventListener("scroll", scheduleOverlay, true);
             root.removeEventListener("tq:dev-tool-activate", onDevToolActivate);
             document.removeEventListener("keydown", onKeyDown);
+            if (typeof mobileEditorQuery.removeEventListener === "function") {
+                mobileEditorQuery.removeEventListener("change", onMobileEditorChange);
+            } else {
+                mobileEditorQuery.removeListener?.(onMobileEditorChange);
+            }
             host.remove();
             overlay.removeEventListener("pointerdown", onSelectionOverlayDown);
             overlay.remove();
