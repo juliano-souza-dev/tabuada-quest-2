@@ -377,8 +377,11 @@
         host.querySelector("[data-fx-select]").onclick = () => {
             clearRegion();
             const asset = selectedAsset();
-            if (!(asset instanceof HTMLImageElement)) return;
-            const assetRect = asset.getBoundingClientRect();
+            const visual = visualElement(asset);
+            if (!(visual instanceof Element)) return;
+            stage = resolveStage(visual);
+            const assetRect = visual.getBoundingClientRect();
+            if (!assetRect.width || !assetRect.height) return;
             let points = [];
             let drawing = false;
 
@@ -432,8 +435,7 @@
                         const polygon = points.map((p) => (((p.x-minX)/width)*100).toFixed(2)+"% "+(((p.y-minY)/height)*100).toFixed(2)+"%").join(",");
                         region.style.clipPath = "polygon("+polygon+")";
                         region.style.webkitClipPath = "polygon("+polygon+")";
-                        const clone = asset.cloneNode(false);
-                        clone.removeAttribute("data-tq-asset-id");
+                        const clone = stripCloneIdentity(visual.cloneNode(true));
                         clone.style.position="absolute";
                         clone.style.width=(assetRect.width/width*100)+"%";
                         clone.style.height=(assetRect.height/height*100)+"%";
@@ -443,7 +445,7 @@
                         clone.style.pointerEvents="none";
                         region.appendChild(clone);
                         stage.appendChild(region);
-                        draftData = { assetId: asset.dataset.tqAssetId, assetLabel: asset.dataset.tqAssetLabel || asset.dataset.tqAssetId, bounds: { x:(minX-assetRect.left)/assetRect.width, y:(minY-assetRect.top)/assetRect.height, w:width/assetRect.width, h:height/assetRect.height }, points: points.map(p=>({x:(p.x-assetRect.left)/assetRect.width,y:(p.y-assetRect.top)/assetRect.height})) };
+                        draftData = { assetId: asset.dataset.tqFxId, assetLabel: asset.dataset.tqAssetLabel || asset.dataset.tqDevLabel || asset.getAttribute("alt") || asset.getAttribute("aria-label") || asset.dataset.tqFxId, bounds: { x:(minX-assetRect.left)/assetRect.width, y:(minY-assetRect.top)/assetRect.height, w:width/assetRect.width, h:height/assetRect.height }, points: points.map(p=>({x:(p.x-assetRect.left)/assetRect.width,y:(p.y-assetRect.top)/assetRect.height})) };
                         apply();
                     }
                 }
@@ -563,11 +565,12 @@
 
         if (!TQ.content.development?.shortcutsEnabled) return;
 
-        mountParallaxPrototype();
+        const screenRoot = appRoot.firstElementChild || appRoot;
         TQ.dev?.sceneEditor?.mount(appRoot, {
             screenId,
-            screenRoot: appRoot.firstElementChild || appRoot
+            screenRoot
         });
+        mountParallaxPrototype(screenId, screenRoot);
     }
 
     async function render() {
