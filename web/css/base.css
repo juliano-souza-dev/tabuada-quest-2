@@ -75,19 +75,35 @@ img {
     }
 
     html:not(.tq-native-runtime) .app-viewport {
-        --tq-preview-status-height: 28px;
-        width: min(430px, calc((100dvh - 40px) * 941 / 1672));
+        /*
+         * DEV device preset: Samsung Galaxy A16 / A16 5G.
+         * Hardware display: 1080 × 2340. A 3x logical viewport maps to 360 × 780 CSS px.
+         * The frame scales down only when the desktop window is shorter than the device.
+         */
+        --tq-device-width: 360;
+        --tq-device-height: 780;
+        --tq-preview-status-height: 24px;
+        --tq-preview-navigation-height: 24px;
+        --tq-safe-top: var(--tq-preview-status-height);
+        --tq-safe-bottom: var(--tq-preview-navigation-height);
+
+        width: min(
+            360px,
+            calc((100dvh - 40px) * var(--tq-device-width) / var(--tq-device-height))
+        );
         height: auto;
-        aspect-ratio: 941 / 1672;
+        aspect-ratio: 360 / 780;
         max-height: calc(100dvh - 40px);
-        padding-top: var(--tq-preview-status-height);
-        border: 1px solid var(--line);
-        border-radius: 32px;
-        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+        padding: 0;
+        border: 2px solid rgba(255,255,255,.18);
+        border-radius: 28px;
+        box-shadow:
+            0 30px 90px rgba(0, 0, 0, 0.46),
+            0 0 0 5px rgba(5, 14, 20, .92);
     }
 
     html:not(.tq-native-runtime) .app-viewport::before {
-        content: "10:20   ◉  Wi-Fi  ▮▮▮";
+        content: "10:20                                  ◉  Wi-Fi  ▮▮▮";
         position: absolute;
         z-index: 1000;
         top: 0;
@@ -96,13 +112,31 @@ img {
         height: var(--tq-preview-status-height);
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        padding: 0 12px;
+        justify-content: center;
+        padding: 0 8px;
         box-sizing: border-box;
-        font: 700 10px/1 system-ui, sans-serif;
-        letter-spacing: .02em;
+        overflow: hidden;
+        font: 700 9px/1 system-ui, sans-serif;
+        letter-spacing: .01em;
+        white-space: pre;
         color: rgba(255,255,255,.94);
-        background: #071d29;
+        background:
+            radial-gradient(circle at 50% 0, #02080c 0 8px, transparent 9px),
+            rgba(7, 29, 41, .96);
+        pointer-events: none;
+    }
+
+    html:not(.tq-native-runtime) .app-viewport::after {
+        content: "";
+        position: absolute;
+        z-index: 1000;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: var(--tq-preview-navigation-height);
+        background:
+            linear-gradient(rgba(7,29,41,.94), rgba(7,29,41,.94)),
+            #071d29;
         pointer-events: none;
     }
 
