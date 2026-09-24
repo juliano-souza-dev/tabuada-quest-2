@@ -23,6 +23,10 @@
         return Number.isFinite(parsed) ? parsed : fallback;
     }
 
+    function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+    }
+
     function readGeometry(element) {
         const x = Number.parseFloat(element.style.getPropertyValue("--tq-dev-x"));
         const y = Number.parseFloat(element.style.getPropertyValue("--tq-dev-y"));
@@ -254,6 +258,7 @@
             }
             const rect = selected.element.getBoundingClientRect();
             overlay.hidden = false;
+            overlay.classList.toggle("tq-scene-dev-selection--compact", rect.width < 72 || rect.height < 72);
             overlay.style.left = rect.left + "px";
             overlay.style.top = rect.top + "px";
             overlay.style.width = rect.width + "px";
@@ -284,14 +289,29 @@
             selectNode(node);
             event.preventDefault();
             event.stopPropagation();
+
             const rect = node.element.getBoundingClientRect();
+            const stage = node.element.closest(".tq-canonical-stage");
+            const pointerTarget = event.target instanceof Element
+                && typeof event.target.setPointerCapture === "function"
+                    ? event.target
+                    : null;
+
+            try {
+                pointerTarget?.setPointerCapture(event.pointerId);
+            } catch (_) {}
+
             interaction = {
+                node,
                 mode,
                 handle,
                 pointerId: event.pointerId,
+                pointerTarget,
                 startX: event.clientX,
                 startY: event.clientY,
                 rect,
+                stageRect: stage?.getBoundingClientRect() || null,
+                scale: stageScale(node.element),
                 geometry: readGeometry(node.element),
                 changed: false
             };
@@ -313,32 +333,65 @@
         }
 
         function onPointerMove(event) {
-            if (!interaction || !selected || event.pointerId !== interaction.pointerId) return;
-            const dx = event.clientX - interaction.startX;
-            const dy = event.clientY - interaction.startY;
-            const scale = stageScale(selected.element);
-            if (!interaction.changed && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
+            if (!interaction || event.pointerId !== interaction.pointerId) return;
+
+            const node = interaction.node;
+            if (!node?.element?.isConnected) {
+                interaction = null;
+                return;
+            }
+            if (selected !== node) selectNode(node);
+
+            const rawDx = event.clientX - interaction.startX;
+            const rawDy = event.clientY - interaction.startY;
+            let dx = rawDx;
+            let dy = rawDy;
+
+            if (interaction.mode === "move" && interaction.stageRect) {
+                const bounds = interaction.stageRect;
+                const visibleX = Math.min(24, Math.max(8, interaction.rect.width * .2));
+                const visibleY = Math.min(24, Math.max(8, interaction.rect.height * .2));
+
+                dx = clamp(
+                    rawDx,
+                    bounds.left + visibleX - interaction.rect.right,
+                    bounds.right - visibleX - interaction.rect.left
+                );
+                dy = clamp(
+                    rawDy,
+                    bounds.top + visibleY - interaction.rect.bottom,
+                    bounds.bottom - visibleY - interaction.rect.top
+                );
+            }
+
+            if (!interaction.changed && (Math.abs(rawDx) > 2 || Math.abs(rawDy) > 2)) {
                 pushHistory();
                 interaction.changed = true;
             }
             if (!interaction.changed) return;
 
+            const scale = interaction.scale || { x: 1, y: 1 };
+            const scaleX = Math.abs(scale.x) > .0001 ? scale.x : 1;
+            const scaleY = Math.abs(scale.y) > .0001 ? scale.y : 1;
+
             if (interaction.mode === "move") {
-                applyGeometry(selected.element, {
+                applyGeometry(node.element, {
                     ...interaction.geometry,
-                    x: interaction.geometry.x + dx / scale.x,
-                    y: interaction.geometry.y + dy / scale.y
+                    x: interaction.geometry.x + dx / scaleX,
+                    y: interaction.geometry.y + dy / scaleY
                 });
             } else {
                 const handle = interaction.handle;
                 let width = interaction.rect.width;
                 let height = interaction.rect.height;
-                if (handle.includes("e")) width += dx;
-                if (handle.includes("w")) width -= dx;
-                if (handle.includes("s")) height += dy;
-                if (handle.includes("n")) height -= dy;
-                width = Math.max(20, width);
-                height = Math.max(20, height);
+                if (handle.includes("e")) width += rawDx;
+                if (handle.includes("w")) width -= rawDx;
+                if (handle.includes("s")) height += rawDy;
+                if (handle.includes("n")) height -= rawDy;
+
+                const minimumRenderedSize = node.kind === "dynamicText" ? 18 : 28;
+                width = Math.max(minimumRenderedSize, width);
+                height = Math.max(minimumRenderedSize, height);
 
                 if (lockRatio.checked && handle.length === 2) {
                     const ratio = interaction.rect.width / Math.max(1, interaction.rect.height);
@@ -348,17 +401,19 @@
                     else width = height * ratio;
                 }
 
-                const sx = Math.max(.05, interaction.geometry.sx * (width / interaction.rect.width));
-                const sy = Math.max(.05, interaction.geometry.sy * (height / interaction.rect.height));
-                const moveX = handle.includes("w") ? (interaction.rect.width - width) / scale.x : 0;
-                const moveY = handle.includes("n") ? (interaction.rect.height - height) / scale.y : 0;
-                applyGeometry(selected.element, {
+                const sx = Math.max(.05, interaction.geometry.sx * (width / Math.max(1, interaction.rect.width)));
+                const sy = Math.max(.05, interaction.geometry.sy * (height / Math.max(1, interaction.rect.height)));
+                const moveX = handle.includes("w") ? (interaction.rect.width - width) / scaleX : 0;
+                const moveY = handle.includes("n") ? (interaction.rect.height - height) / scaleY : 0;
+
+                applyGeometry(node.element, {
                     x: interaction.geometry.x + moveX,
                     y: interaction.geometry.y + moveY,
                     sx,
                     sy
                 });
             }
+
             refreshInspector();
             scheduleOverlay();
         }
@@ -366,7 +421,15 @@
         function onPointerUp(event) {
             if (!interaction || event.pointerId !== interaction.pointerId) return;
             const changed = interaction.changed;
+            const pointerTarget = interaction.pointerTarget;
             interaction = null;
+
+            try {
+                if (pointerTarget?.hasPointerCapture?.(event.pointerId)) {
+                    pointerTarget.releasePointerCapture(event.pointerId);
+                }
+            } catch (_) {}
+
             if (changed) persist();
         }
 
