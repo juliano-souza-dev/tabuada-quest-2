@@ -653,8 +653,25 @@
             scheduleOverlay();
         }
 
+        function closeOtherToolPanels() {
+            document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel").forEach((candidate) => {
+                if (candidate !== panel) candidate.hidden = true;
+            });
+        }
+
+        function announceToolOpen() {
+            root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
+                detail: { tool: "ux" }
+            }));
+        }
+
+
         function setOpened(nextOpened) {
             opened = nextOpened;
+            if (opened) {
+                closeOtherToolPanels();
+                announceToolOpen();
+            }
             panel.hidden = !opened;
             appRoot.classList.toggle("tq-dev-scene-editing", opened);
             document.body.classList.toggle("tq-dev-scene-editing-active", opened);
@@ -664,6 +681,12 @@
                 scheduleOverlay();
             }
         }
+
+        function onDevToolActivate(event) {
+            if (event.detail?.tool !== "ux" && opened) setOpened(false);
+        }
+
+        root.addEventListener("tq:dev-tool-activate", onDevToolActivate);
 
         host.querySelector(".tq-scene-dev-toggle").addEventListener("click", () => setOpened(!opened));
         filterSelect.addEventListener("change", refreshList);
@@ -730,6 +753,7 @@
             root.removeEventListener("pointercancel", onPointerUp, true);
             root.removeEventListener("resize", scheduleOverlay);
             root.removeEventListener("scroll", scheduleOverlay, true);
+            root.removeEventListener("tq:dev-tool-activate", onDevToolActivate);
             document.removeEventListener("keydown", onKeyDown);
             host.remove();
             overlay.removeEventListener("pointerdown", onSelectionOverlayDown);
