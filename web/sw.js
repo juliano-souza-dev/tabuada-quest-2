@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-shell-20260923-17";
+const CACHE_VERSION = "tq2-shell-20260924-18";
 const CACHE_PREFIX = "tq2-shell-";
 const SHELL = [
   "./",
@@ -10,8 +10,11 @@ const SHELL = [
   "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json",
   "./assets/transitions/el-colombo/images/el-colombo.webp",
   "./assets/transitions/el-colombo/images/ocean-background.webp",
+  "./assets/ui/inventory/bau_de_itens.webp",
   "./css/app.css",
-  "./js/app.js"
+  "./css/screens/items.css",
+  "./js/app.js",
+  "./js/screens/items-screen.js"
 ];
 
 self.addEventListener("install", (event) => {
