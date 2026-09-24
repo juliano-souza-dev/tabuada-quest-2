@@ -320,11 +320,11 @@
     text-shadow: 0 1px 2px #071b49;
 }
 
-.hotspot-regions { left: 1.2%; top: 73.8%; width: 18.5%; height: 10.8%; }
-.hotspot-daily { left: 20.3%; top: 73.8%; width: 18.5%; height: 10.8%; }
-.hotspot-shop { left: 40.5%; top: 73.8%; width: 18.5%; height: 10.8%; }
-.hotspot-collection { left: 60.2%; top: 73.8%; width: 18.5%; height: 10.8%; }
-.hotspot-chests { right: 1.2%; top: 73.8%; width: 18.5%; height: 10.8%; }
+.hotspot-regions { left: 1.0%; top: 75.0%; width: 18.3%; height: 9.0%; }
+.hotspot-daily { left: 20.6%; top: 75.0%; width: 18.3%; height: 9.0%; }
+.hotspot-shop { left: 40.6%; top: 75.0%; width: 18.3%; height: 9.0%; }
+.hotspot-collection { left: 60.4%; top: 75.0%; width: 18.3%; height: 9.0%; }
+.hotspot-chests { right: 1.0%; top: 75.0%; width: 18.3%; height: 9.0%; }
 .hotspot-pets { left: 2.4%; bottom: 2.0%; width: 48%; height: 15.2%; }
 .hotspot-items { right: 2.4%; bottom: 2.0%; width: 47%; height: 15.2%; }
 
