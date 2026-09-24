@@ -113,6 +113,42 @@
         return Boolean(node) && ["asset", "overlay", "background"].includes(node.kind);
     }
 
+    function isLayerableVisual(node) {
+        return Boolean(node) && ["asset", "overlay", "background"].includes(node.kind);
+    }
+
+    function hasLayerOverride(element) {
+        return element?.getAttribute("data-tq-dev-layered") === "true";
+    }
+
+    function readLayer(element) {
+        if (!(element instanceof Element)) return 0;
+
+        if (hasLayerOverride(element)) {
+            const explicit = Number.parseInt(
+                element.style.getPropertyValue("--tq-dev-z"),
+                10
+            );
+            if (Number.isFinite(explicit)) return explicit;
+        }
+
+        const computed = Number.parseInt(root.getComputedStyle(element).zIndex, 10);
+        return Number.isFinite(computed) ? computed : 0;
+    }
+
+    function applyLayer(element, value) {
+        if (!(element instanceof Element)) return;
+        const z = Math.round(clamp(number(value, 0), 0, 9999));
+        element.style.setProperty("--tq-dev-z", String(z));
+        element.setAttribute("data-tq-dev-layered", "true");
+    }
+
+    function clearLayer(element) {
+        if (!(element instanceof Element)) return;
+        element.style.removeProperty("--tq-dev-z");
+        element.removeAttribute("data-tq-dev-layered");
+    }
+
     function normalizedToken(value, fallback = "item") {
         const token = String(value || "")
             .normalize("NFD")
@@ -287,6 +323,11 @@
             if (!saved[node.id]) return;
             applyGeometry(node.element, saved[node.id]);
             setDeleted(node.element, Boolean(saved[node.id].deleted));
+            if (Number.isFinite(Number(saved[node.id].z))) {
+                applyLayer(node.element, saved[node.id].z);
+            } else {
+                clearLayer(node.element);
+            }
         });
 
         const nodeById = new Map(nodes.map((node) => [node.id, node]));
@@ -325,6 +366,17 @@
                     <label>Altura % <input data-dev-sy type="number" min="5" step="1"></label>
                 </div>
                 <label class="tq-scene-dev-check"><input data-dev-lock type="checkbox" checked> Manter proporção</label>
+                <div class="tq-scene-dev-layer-tools">
+                    <strong>Camada visual</strong>
+                    <div class="tq-scene-dev-actions">
+                        <button type="button" data-dev-layer-back>↧ Fundo</button>
+                        <button type="button" data-dev-layer-down>↓ Recuar</button>
+                    </div>
+                    <div class="tq-scene-dev-actions">
+                        <button type="button" data-dev-layer-up>↑ Avançar</button>
+                        <button type="button" data-dev-layer-front>↥ Frente</button>
+                    </div>
+                </div>
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-undo>↶ Desfazer</button>
                     <button type="button" data-dev-reset>Resetar item</button>
@@ -333,7 +385,7 @@
                     <button type="button" data-dev-copy>Copiar layout</button>
                     <button type="button" data-dev-reset-screen>Resetar tela</button>
                 </div>
-                <small>Arraste qualquer item mapeado. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais; funções são protegidas.</small>
+                <small>Arraste qualquer item mapeado. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais. Page Up/Page Down muda a camada; com Shift envia direto para frente/fundo. Funções são protegidas.</small>
             </section>
         `;
         document.body.appendChild(host);
@@ -362,6 +414,16 @@
         const inputSx = host.querySelector("[data-dev-sx]");
         const inputSy = host.querySelector("[data-dev-sy]");
         const lockRatio = host.querySelector("[data-dev-lock]");
+        const layerBackButton = host.querySelector("[data-dev-layer-back]");
+        const layerDownButton = host.querySelector("[data-dev-layer-down]");
+        const layerUpButton = host.querySelector("[data-dev-layer-up]");
+        const layerFrontButton = host.querySelector("[data-dev-layer-front]");
+        const layerButtons = [
+            layerBackButton,
+            layerDownButton,
+            layerUpButton,
+            layerFrontButton
+        ];
         let opened = false;
         let selected = null;
         let interaction = null;
@@ -373,7 +435,8 @@
                 node.id,
                 {
                     ...readGeometry(node.element),
-                    ...(isDeleted(node.element) ? { deleted: true } : {})
+                    ...(isDeleted(node.element) ? { deleted: true } : {}),
+                    ...(hasLayerOverride(node.element) ? { z: readLayer(node.element) } : {})
                 }
             ]));
         }
@@ -396,8 +459,11 @@
                 if (geometry) {
                     applyGeometry(node.element, geometry);
                     setDeleted(node.element, Boolean(geometry.deleted));
+                    if (Number.isFinite(Number(geometry.z))) applyLayer(node.element, geometry.z);
+                    else clearLayer(node.element);
                 } else {
                     clearGeometry(node.element);
+                    clearLayer(node.element);
                     setDeleted(node.element, false);
                 }
             });
@@ -439,6 +505,7 @@
                 type.textContent = "";
                 action.textContent = "";
                 [inputX, inputY, inputSx, inputSy].forEach((input) => input.value = "");
+                layerButtons.forEach((button) => button.disabled = true);
                 return;
             }
             const geometry = readGeometry(selected.element);
@@ -449,6 +516,8 @@
             inputY.value = Math.round(geometry.y * 100) / 100;
             inputSx.value = Math.round(geometry.sx * 10000) / 100;
             inputSy.value = Math.round(geometry.sy * 10000) / 100;
+            const layerable = isLayerableVisual(selected);
+            layerButtons.forEach((button) => button.disabled = !layerable);
         }
 
         function updateOverlay() {
@@ -659,6 +728,42 @@
             scheduleOverlay();
         }
 
+        function visualLayerValues() {
+            return nodes
+                .filter((node) => isLayerableVisual(node) && !isDeleted(node.element))
+                .map((node) => readLayer(node.element));
+        }
+
+        function changeSelectedLayer(actionName) {
+            if (!selected) return;
+            if (!isLayerableVisual(selected)) {
+                status.textContent = "Funções e textos não mudam de camada";
+                return;
+            }
+
+            const values = visualLayerValues();
+            const current = readLayer(selected.element);
+            const lowest = values.length ? Math.min(...values) : 0;
+            const highest = values.length ? Math.max(...values) : 0;
+            let target = current;
+
+            if (actionName === "back") target = Math.max(0, lowest - 1);
+            if (actionName === "down") target = Math.max(0, current - 1);
+            if (actionName === "up") target = Math.min(9999, current + 1);
+            if (actionName === "front") target = Math.min(9999, highest + 1);
+
+            pushHistory();
+            applyLayer(selected.element, target);
+            persist(
+                actionName === "back" ? "Enviado para o fundo"
+                : actionName === "front" ? "Trazido para a frente"
+                : actionName === "down" ? "Recuou uma camada"
+                : "Avançou uma camada"
+            );
+            refreshInspector();
+            scheduleOverlay();
+        }
+
         function interceptClick(event) {
             if (!opened || !screenRoot.contains(event.target)) return;
             const element = event.target.closest?.("[data-tq-dev-id]");
@@ -678,6 +783,18 @@
                 || event.target instanceof HTMLTextAreaElement
                 || event.target?.isContentEditable
             ) return;
+
+            if (event.key === "PageDown") {
+                event.preventDefault();
+                changeSelectedLayer(event.shiftKey ? "back" : "down");
+                return;
+            }
+
+            if (event.key === "PageUp") {
+                event.preventDefault();
+                changeSelectedLayer(event.shiftKey ? "front" : "up");
+                return;
+            }
 
             if (event.key === "Delete") {
                 event.preventDefault();
@@ -760,6 +877,11 @@
         filterSelect.addEventListener("change", refreshList);
         nodeSelect.addEventListener("change", () => selectNode(nodeById.get(nodeSelect.value) || null));
         [inputX, inputY, inputSx, inputSy].forEach((input) => input.addEventListener("change", setFromInspector));
+        layerBackButton.addEventListener("click", () => changeSelectedLayer("back"));
+        layerDownButton.addEventListener("click", () => changeSelectedLayer("down"));
+        layerUpButton.addEventListener("click", () => changeSelectedLayer("up"));
+        layerFrontButton.addEventListener("click", () => changeSelectedLayer("front"));
+
         host.querySelector("[data-dev-undo]").addEventListener("click", () => {
             const previous = history.pop();
             if (previous) applySnapshot(previous);
@@ -768,6 +890,7 @@
             if (!selected) return;
             pushHistory();
             clearGeometry(selected.element);
+            clearLayer(selected.element);
             setDeleted(selected.element, false);
             persist();
             refreshInspector();
@@ -777,6 +900,7 @@
             pushHistory();
             nodes.forEach((node) => {
                 clearGeometry(node.element);
+                clearLayer(node.element);
                 setDeleted(node.element, false);
             });
             store = readStore();
