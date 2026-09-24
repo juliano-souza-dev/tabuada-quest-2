@@ -181,10 +181,19 @@
 .tq-scene-dev-selection {
     position: fixed;
     z-index: 100003;
-    pointer-events: none;
+    pointer-events: auto;
     border: 2px solid #fff06a;
     box-sizing: border-box;
     filter: drop-shadow(0 0 5px rgba(0,0,0,.65));
+}
+
+.tq-scene-dev-selection-move-surface {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    cursor: move;
+    touch-action: none;
+    background: transparent;
 }
 
 .tq-scene-dev-selection[hidden] {
@@ -193,6 +202,10 @@
 
 .tq-scene-dev-selection-label {
     position: absolute;
+    z-index: 2;
+    pointer-events: auto;
+    cursor: move;
+    touch-action: none;
     left: -2px;
     bottom: calc(100% + 5px);
     max-width: 230px;
@@ -209,6 +222,7 @@
 
 .tq-scene-dev-selection [data-dev-handle] {
     position: absolute;
+    z-index: 3;
     width: 12px;
     height: 12px;
     pointer-events: auto;
