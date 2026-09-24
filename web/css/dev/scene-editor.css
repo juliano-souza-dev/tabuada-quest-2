@@ -299,7 +299,7 @@
         bottom: max(8px, var(--tq-safe-bottom, 0px));
         z-index: 100005;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 46px 46px;
+        grid-template-columns: minmax(0, 1fr) 46px 46px 46px;
         gap: 6px;
         min-height: 52px;
         padding: 6px;
