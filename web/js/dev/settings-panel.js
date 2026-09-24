@@ -414,6 +414,14 @@
 
         host.querySelector(".tq-settings-dev-toggle").onclick = () => {
             panelOpen = panel.hidden;
+            if (panelOpen) {
+                document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel").forEach((candidate) => {
+                    if (candidate !== panel) candidate.hidden = true;
+                });
+                root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
+                    detail: { tool: "settings" }
+                }));
+            }
             panel.hidden = !panelOpen;
             if (panelOpen) sync();
         };
