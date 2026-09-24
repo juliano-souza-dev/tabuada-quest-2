@@ -145,6 +145,108 @@
         render();
     }
 
+    function mountParallaxPrototype() {
+        document.querySelector(".tq-parallax-dev")?.remove();
+        const stage = appRoot.querySelector(".tq-canonical-stage");
+        if (!stage) return;
+        const assets = [...appRoot.querySelectorAll("[data-tq-asset-id]")];
+        if (!assets.length) return;
+
+        const host = document.createElement("aside");
+        host.className = "tq-parallax-dev";
+        host.innerHTML = `
+            <button type="button" class="tq-parallax-dev-toggle">FX</button>
+            <section class="tq-parallax-dev-panel" hidden>
+                <strong>Parallax · protótipo</strong>
+                <select data-fx-asset>${assets.map((asset) => `<option value="${asset.dataset.tqAssetId}">${asset.dataset.tqAssetLabel || asset.dataset.tqAssetId} · ${asset.dataset.tqAssetRole}</option>`).join("")}</select>
+                <button type="button" data-fx-select>Desenhar área</button>
+                <label>Direção <select data-fx-axis><option value="x">Horizontal</option><option value="y">Vertical</option></select></label>
+                <label>Distância <input data-fx-distance type="range" min="1" max="60" value="14"></label>
+                <label>Velocidade <input data-fx-duration type="range" min="1" max="12" step=".25" value="5"></label>
+                <div class="tq-parallax-dev-actions"><button type="button" data-fx-play>▶ Aplicar</button><button type="button" data-fx-clear>Limpar</button></div>
+                <small>Selecione um asset mapeado, desenhe a região e ajuste em tempo real.</small>
+            </section>`;
+        document.body.appendChild(host);
+        const panel = host.querySelector(".tq-parallax-dev-panel");
+        let draft = null;
+        let region = null;
+        let animation = null;
+
+        const selectedAsset = () => appRoot.querySelector(`[data-tq-asset-id="${host.querySelector("[data-fx-asset]").value}"]`);
+        const clearRegion = () => {
+            animation?.cancel(); animation = null;
+            region?.remove(); region = null;
+            draft?.remove(); draft = null;
+        };
+        const apply = () => {
+            if (!region) return;
+            animation?.cancel();
+            const axis = host.querySelector("[data-fx-axis]").value;
+            const distance = Number(host.querySelector("[data-fx-distance]").value);
+            const duration = Number(host.querySelector("[data-fx-duration]").value) * 1000;
+            animation = region.querySelector("img").animate(
+                axis === "x" ? [{ transform: `translateX(-${distance}px) scale(1.08)` }, { transform: `translateX(${distance}px) scale(1.08)` }]
+                             : [{ transform: `translateY(-${distance}px) scale(1.08)` }, { transform: `translateY(${distance}px) scale(1.08)` }],
+                { duration, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
+            );
+        };
+
+        host.querySelector(".tq-parallax-dev-toggle").onclick = () => panel.hidden = !panel.hidden;
+        host.querySelector("[data-fx-clear]").onclick = clearRegion;
+        host.querySelector("[data-fx-play]").onclick = apply;
+        host.querySelectorAll("input, select[data-fx-axis]").forEach((control) => control.addEventListener("input", apply));
+        host.querySelector("[data-fx-select]").onclick = () => {
+            clearRegion();
+            const asset = selectedAsset();
+            if (!(asset instanceof HTMLImageElement)) return;
+            const assetRect = asset.getBoundingClientRect();
+            let start = null;
+            const down = (event) => {
+                if (event.clientX < assetRect.left || event.clientX > assetRect.right || event.clientY < assetRect.top || event.clientY > assetRect.bottom) return;
+                start = { x: event.clientX, y: event.clientY };
+                draft = document.createElement("div");
+                draft.className = "tq-parallax-draft";
+                document.body.appendChild(draft);
+                event.preventDefault();
+            };
+            const move = (event) => {
+                if (!start || !draft) return;
+                const x = Math.max(assetRect.left, Math.min(event.clientX, assetRect.right));
+                const y = Math.max(assetRect.top, Math.min(event.clientY, assetRect.bottom));
+                const left = Math.min(start.x, x), top = Math.min(start.y, y);
+                draft.style.cssText = `left:${left}px;top:${top}px;width:${Math.abs(x-start.x)}px;height:${Math.abs(y-start.y)}px`;
+            };
+            const up = (event) => {
+                if (!start || !draft) return cleanup();
+                const r = draft.getBoundingClientRect();
+                if (r.width > 8 && r.height > 8) {
+                    region = document.createElement("div");
+                    region.className = "tq-parallax-region";
+                    const stageRect = stage.getBoundingClientRect();
+                    region.style.left = ((r.left-stageRect.left)/stageRect.width*100)+"%";
+                    region.style.top = ((r.top-stageRect.top)/stageRect.height*100)+"%";
+                    region.style.width = (r.width/stageRect.width*100)+"%";
+                    region.style.height = (r.height/stageRect.height*100)+"%";
+                    const clone = asset.cloneNode(false);
+                    clone.removeAttribute("data-tq-asset-id");
+                    clone.style.position="absolute";
+                    clone.style.width=(assetRect.width/r.width*100)+"%";
+                    clone.style.height=(assetRect.height/r.height*100)+"%";
+                    clone.style.left=(-((r.left-assetRect.left)/r.width)*100)+"%";
+                    clone.style.top=(-((r.top-assetRect.top)/r.height)*100)+"%";
+                    clone.style.maxWidth="none";
+                    clone.style.pointerEvents="none";
+                    region.appendChild(clone);
+                    stage.appendChild(region);
+                    apply();
+                }
+                draft.remove(); draft=null; start=null; cleanup();
+            };
+            const cleanup = () => { root.removeEventListener("pointerdown",down,true);root.removeEventListener("pointermove",move,true);root.removeEventListener("pointerup",up,true); };
+            root.addEventListener("pointerdown",down,true);root.addEventListener("pointermove",move,true);root.addEventListener("pointerup",up,true);
+        };
+    }
+
     function normalizePreviewRegionId(regionId) {
         const normalized = Number(regionId);
         return Number.isInteger(normalized) && normalized >= 1 && normalized <= 22
@@ -313,6 +415,7 @@
             developmentMode,
             onDevelopmentIslandOpen: openDevelopmentIsland
         });
+        if (TQ.content.development?.shortcutsEnabled) mountParallaxPrototype();
     }
 
     render();
