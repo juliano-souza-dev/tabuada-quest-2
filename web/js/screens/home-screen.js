@@ -37,6 +37,9 @@
         const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
         const profileFrame = resolveProfileFrame(state.player.profileFrameId);
+        const nameplate = TQ.content.nameplates.find((item) => item.id === state.player.nameplateId)
+            || TQ.content.nameplates.find((item) => item.id === TQ.content.defaultNameplateId)
+            || TQ.content.nameplates[0];
         const purchasedIds = new Set(state.shop.purchasedItemIds);
         const ownedBackgrounds = [
             ...TQ.content.homeBackgrounds,
@@ -79,10 +82,10 @@
                          alt="">
                 </div>
 
-                <img class="home-header-name"
-                     src="./assets/ui/header_name.webp?v=20260923-header-v1"
-                     alt=""
-                     aria-hidden="true">
+                <div class="home-nameplate" aria-label="Plaquinha do jogador">
+                    <img class="home-nameplate-art" src="${nameplate.asset}" alt="" aria-hidden="true">
+                    <span class="home-nameplate-text">${state.player.displayName}</span>
+                </div>
 
                 <img class="home-art-overlay"
                      src="${TQ.content.assets.homeOverlay}"
@@ -94,7 +97,6 @@
                     ${profileFrame.src ? `<img class="profile-slot-frame" src="${profileFrame.src}" alt="" aria-hidden="true">` : ""}
                 </button>
 
-                <div class="hud-name-slot">${state.player.displayName}</div>
                 <div class="hud-level-slot" aria-label="Nível ${state.progression.level}">${state.progression.level}</div>
 
                 <div class="hud-xp-slot" aria-label="Experiência ${state.progression.xpCurrent} de ${state.progression.xpRequired}">
