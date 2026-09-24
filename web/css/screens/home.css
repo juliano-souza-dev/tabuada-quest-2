@@ -328,16 +328,16 @@
 .hotspot-collection,
 .hotspot-chests {
     top: auto;
-    bottom: 0.2%;
-    width: 19.4%;
-    height: 12.8%;
+    bottom: 0;
+    width: 20%;
+    height: 11.6%;
 }
 
-.hotspot-regions { left: 0.2%; }
-.hotspot-daily { left: 20.1%; }
-.hotspot-shop { left: 40.2%; }
-.hotspot-collection { left: 60.3%; }
-.hotspot-chests { right: 0.2%; }
+.hotspot-regions { left: 0; }
+.hotspot-daily { left: 20%; }
+.hotspot-shop { left: 40%; }
+.hotspot-collection { left: 60%; }
+.hotspot-chests { left: 80%; }
 .hotspot-pets { left: 2.4%; bottom: 2.0%; width: 48%; height: 15.2%; }
 .hotspot-items { right: 2.4%; bottom: 2.0%; width: 47%; height: 15.2%; }
 
@@ -587,5 +587,9 @@ html.tq-pwa-runtime .home-safe-visual-area {
 /* Progress counters are intentionally hidden on the Home artwork. */
 .home-screen .hud-xp-slot,
 .home-screen .reward-dynamic-bar {
+    display: none !important;
+}
+
+.home-screen .pet-dynamic-count {
     display: none !important;
 }
