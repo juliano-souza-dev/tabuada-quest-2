@@ -5,16 +5,18 @@ const path=require("node:path");
 
 const read=(relative)=>fs.readFileSync(path.join(__dirname,"../../",relative),"utf8");
 
-test("Home mostra SAIR ao lado de DEV REGIÕES no modo de desenvolvimento",()=>{
+test("Home remove atalhos legados e SAIR fica na barra lateral DEV",()=>{
     const home=read("web/js/screens/home-screen.js");
-    const css=read("web/css/screens/home.css");
+    const app=read("web/js/app.js");
+    const css=read("web/css/app.css");
 
-    assert.match(home,/class="development-shortcuts"/);
-    assert.match(home,/data-action="development-regions"/);
-    assert.match(home,/data-action="exit-session"/);
-    assert.match(home,/>\s*SAIR\s*<\/button>/);
-    assert.match(css,/\.development-shortcuts\s*\{/);
-    assert.match(css,/display:\s*flex/);
+    assert.doesNotMatch(home,/class="development-shortcuts"/);
+    assert.doesNotMatch(home,/data-action="dev-add-gold"/);
+    assert.doesNotMatch(home,/data-action="dev-level-up"/);
+    assert.match(app,/function mountDevelopmentExit\(\)/);
+    assert.match(app,/className = "tq-exit-dev"/);
+    assert.match(app,/SAIR/);
+    assert.match(css,/\.tq-exit-dev\s*\{/);
 });
 
 test("SAIR executa reset local completo sem apagar dados de outros apps",()=>{
