@@ -108,9 +108,7 @@
                 <button class="art-hotspot hotspot-daily" type="button" data-action="daily" aria-label="Recompensa diária"></button>
                 <button class="art-hotspot hotspot-shop" type="button" data-action="shop" aria-label="Loja"></button>
                 <button class="art-hotspot hotspot-collection" type="button" data-action="collection" aria-label="Colecionáveis"></button>
-                <button class="art-hotspot hotspot-chests" type="button" data-action="chests" aria-label="Baús"></button>
-                <button class="art-hotspot hotspot-pets" type="button" data-action="pets" aria-label="Pets"></button>
-                <button class="art-hotspot hotspot-items" type="button" data-action="items" aria-label="Baú de itens"></button>
+                <button class="art-hotspot hotspot-items" type="button" data-action="items" aria-label="Itens"></button>
 
                 ${TQ.content.development?.shortcutsEnabled ? `
                     <div class="development-shortcuts" aria-label="Atalhos de desenvolvimento">
