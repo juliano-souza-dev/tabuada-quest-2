@@ -326,7 +326,7 @@
 .hotspot-daily,
 .hotspot-shop,
 .hotspot-collection,
-.hotspot-chests {
+.hotspot-items {
     top: auto;
     bottom: 0;
     width: 20%;
@@ -337,9 +337,7 @@
 .hotspot-daily { left: 20%; }
 .hotspot-shop { left: 40%; }
 .hotspot-collection { left: 60%; }
-.hotspot-chests { left: 80%; }
-.hotspot-pets { left: 2.4%; bottom: 2.0%; width: 48%; height: 15.2%; }
-.hotspot-items { right: 2.4%; bottom: 2.0%; width: 47%; height: 15.2%; }
+.hotspot-items { left: 80%; }
 
 .home-toast {
     position: absolute;
