@@ -33,6 +33,19 @@
     position: absolute;
     aspect-ratio: 941 / 1672;
     overflow: hidden;
+    --map-parallax-x: 0;
+    --map-parallax-y: 0;
+}
+
+.world-map-stage::after {
+    content: "";
+    position: absolute;
+    inset: -3%;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 45%, transparent 48%, rgba(0, 20, 30, .14) 100%);
+    transform: translate3d(calc(var(--map-parallax-x) * -0.35%), calc(var(--map-parallax-y) * -0.35%), 0);
+    transition: transform 90ms linear;
 }
 
 .world-map-art {
@@ -44,6 +57,9 @@
     user-select: none;
     pointer-events: none;
     -webkit-user-drag: none;
+    transform: scale(1.035) translate3d(calc(var(--map-parallax-x) * -0.7%), calc(var(--map-parallax-y) * -0.7%), 0);
+    transition: transform 90ms linear;
+    will-change: transform;
 }
 
 
@@ -51,6 +67,9 @@
     position: absolute;
     inset: 0;
     z-index: 3;
+    transform: translate3d(calc(var(--map-parallax-x) * 0.55%), calc(var(--map-parallax-y) * 0.55%), 0);
+    transition: transform 90ms linear;
+    will-change: transform;
 }
 
 .world-map-page-nav {
@@ -306,4 +325,14 @@
     font-size: 1.6rem;
     font-weight: 900;
     text-align: center;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .world-map-art,
+    .world-map-regions,
+    .world-map-stage::after {
+        transform: none;
+        transition: none;
+    }
 }
