@@ -1,0 +1,210 @@
+.collectibles-screen {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: #fff7de;
+    background: #2a160b;
+}
+
+.collectibles-artboard {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.collectibles-background {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: fill;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+.collectibles-grid {
+    position: absolute;
+    z-index: 2;
+    left: 16.7%;
+    top: 31.55%;
+    width: 65.9%;
+    height: 43.65%;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    column-gap: 1.65%;
+    row-gap: 2.15%;
+    pointer-events: none;
+}
+
+.collectible-slot {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: visible;
+    padding: 7%;
+}
+
+.collectible-slot img {
+    width: 88%;
+    height: 88%;
+    max-width: none;
+    object-fit: contain;
+    transform: translateZ(0);
+    transition: opacity 140ms ease, filter 140ms ease, transform 140ms ease;
+}
+
+.collectible-slot.is-collected img {
+    opacity: 1;
+    filter:
+        drop-shadow(0 2px 2px rgba(34, 14, 4, .58))
+        drop-shadow(0 0 5px rgba(255, 215, 112, .20));
+}
+
+.collectible-slot.is-empty {
+    visibility: hidden;
+}
+
+.collectibles-hotspot {
+    position: absolute;
+    z-index: 5;
+    display: block;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 14%;
+    color: transparent;
+    background: transparent;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.collectibles-hotspot:focus-visible {
+    outline: 3px solid rgba(255, 239, 150, .95);
+    outline-offset: 2px;
+    background: rgba(255, 234, 135, .10);
+}
+
+.collectibles-home-hotspot {
+    left: 2.6%;
+    top: 3.7%;
+    width: 18.2%;
+    height: 8.1%;
+}
+
+.collectibles-page-hotspot {
+    top: 47.05%;
+    width: 10.7%;
+    height: 11.1%;
+}
+
+.collectibles-page-previous {
+    left: 2.7%;
+}
+
+.collectibles-page-next {
+    right: 2.7%;
+}
+
+.collectibles-page-hotspot:active:not(:disabled) {
+    transform: scale(.95);
+}
+
+.collectibles-page-hotspot:disabled {
+    cursor: default;
+}
+
+/*
+ * Máscara de indisponibilidade calculada sobre a arte-base 941×1672.
+ *
+ * Hotspot esquerdo:
+ * x=25.407, y=786.676, w=100.687, h=185.592.
+ * Silhueta dourada medida na imagem:
+ * (76,838) (27,887) (27,890) (78,941) (81,939)
+ * (81,912) (61,889) (81,868) (81,839) (79,841).
+ *
+ * Hotspot direito:
+ * x=814.906, y=786.676, w=100.687, h=185.592.
+ * Silhueta dourada medida na imagem:
+ * (861,838) (860,869) (879,890) (860,913)
+ * (860,941) (864,943) (914,889).
+ *
+ * Os pontos abaixo são essas coordenadas normalizadas dentro de cada hotspot.
+ * Assim somente o glifo dourado da seta recebe sombra; madeira e parafusos
+ * permanecem exatamente como estão na arte.
+ */
+.collectibles-page-hotspot:disabled::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(38, 22, 11, .68);
+    pointer-events: none;
+}
+
+.collectibles-page-previous:disabled::after {
+    -webkit-clip-path: polygon(
+        50.25% 27.65%,
+        1.58% 54.06%,
+        1.58% 55.67%,
+        52.23% 83.15%,
+        55.21% 82.07%,
+        55.21% 67.53%,
+        35.35% 55.13%,
+        55.21% 43.82%,
+        55.21% 28.19%,
+        53.23% 29.27%
+    );
+    clip-path: polygon(
+        50.25% 27.65%,
+        1.58% 54.06%,
+        1.58% 55.67%,
+        52.23% 83.15%,
+        55.21% 82.07%,
+        55.21% 67.53%,
+        35.35% 55.13%,
+        55.21% 43.82%,
+        55.21% 28.19%,
+        53.23% 29.27%
+    );
+}
+
+.collectibles-page-next:disabled::after {
+    -webkit-clip-path: polygon(
+        45.78% 27.65%,
+        44.79% 44.36%,
+        63.66% 55.67%,
+        44.79% 68.07%,
+        44.79% 83.15%,
+        48.76% 84.23%,
+        98.42% 55.13%
+    );
+    clip-path: polygon(
+        45.78% 27.65%,
+        44.79% 44.36%,
+        63.66% 55.67%,
+        44.79% 68.07%,
+        44.79% 83.15%,
+        48.76% 84.23%,
+        98.42% 55.13%
+    );
+}
+
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}

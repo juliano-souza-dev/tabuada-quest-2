@@ -1,0 +1,587 @@
+.home-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    background-color: var(--navy-900);
+    background-image: var(--home-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/*
+ * Full bleed visual:
+ * the canonical 941x1672 stage stays untouched for pixel alignment,
+ * while the same selected background covers every spare pixel around it.
+ * Safe-area insets still protect interactive content on installed devices.
+ */
+.home-screen::before {
+    content: none;
+}
+
+.home-safe-visual-area {
+    z-index: 1;
+    background-color: transparent;
+    background-image: var(--home-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.home-design-stage {
+    position: absolute;
+    aspect-ratio: 941 / 1672;
+    overflow: hidden;
+    container-type: inline-size;
+}
+
+.home-world {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #0b2b3d;
+}
+
+.home-background-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.home-world::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(0, 25, 36, 0.02), rgba(0, 25, 36, 0.05));
+}
+
+
+.home-nameplate {
+    position: absolute;
+    z-index: 12;
+    left: 50%;
+    top: -80px;
+    width: 100%;
+    aspect-ratio: 900 / 447;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+.home-nameplate-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: screen;
+}
+.home-nameplate-text {
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    top: 48%;
+    transform: translateY(-50%);
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #4b230d;
+    font: 900 clamp(12px, 3.4cqw, 24px)/1 system-ui, sans-serif;
+    text-shadow: 0 1px 0 rgba(255,218,135,.7);
+}
+
+.home-art-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+}
+
+.profile-slot {
+    position: absolute;
+    z-index: 10;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.profile-slot.is-simple {
+    left: 6.4457%;
+    top: 2.6376%;
+    width: 14.2%;
+}
+
+.profile-slot.has-frame {
+    left: 2.6071%;
+    top: .4361%;
+    width: 22%;
+}
+
+.profile-slot-avatar {
+    position: absolute;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 18%;
+    background: #4ac9e7;
+}
+
+.profile-slot.is-simple .profile-slot-avatar {
+    inset: 5%;
+    width: 90%;
+    height: 90%;
+}
+
+.profile-slot.has-frame .profile-slot-avatar {
+    inset: 22%;
+    width: 56%;
+    height: 56%;
+}
+
+.profile-slot-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.hud-name-slot {
+    position: absolute;
+    z-index: 10;
+    left: 20.7076%;
+    top: 5.2306%;
+    width: 21.5%;
+    color: #5c2c13;
+    font-size: clamp(.6rem, 1.9vh, .86rem);
+    font-weight: 950;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 1px rgba(255,255,255,.55);
+}
+
+.hud-level-slot {
+    position: absolute;
+    z-index: 10;
+    left: 43.3614%;
+    top: 3.2222%;
+    width: 10.1%;
+    height: 4.6%;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: clamp(.72rem, 2.35vh, 1.02rem);
+    font-weight: 1000;
+    text-align: center;
+    text-shadow: 0 1px 2px #073d68;
+}
+
+.hud-xp-slot {
+    position: absolute;
+    z-index: 10;
+    left: 54.8538%;
+    top: 4.8376%;
+    width: 17.4%;
+    height: 1.85%;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(17, 77, 124, .78);
+}
+
+.hud-xp-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #17d6dd, #2aaff4);
+}
+
+.hud-xp-slot b {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: clamp(.38rem, 1.28vh, .58rem);
+    line-height: 1;
+    text-shadow: 0 1px 2px #0c4773;
+}
+
+.hud-wallet-slot {
+    position: absolute;
+    z-index: 10;
+    inset: 0;
+    pointer-events: none;
+}
+
+.wallet-value {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6e3b13;
+    font-size: clamp(.52rem, 1.72vh, .78rem);
+    font-weight: 1000;
+    white-space: nowrap;
+}
+
+.wallet-value.coins {
+    left: 81.1152%;
+    top: 4.3237%;
+    width: 11.8%;
+    height: 2.9%;
+}
+
+.wallet-value.gems {
+    left: 81.1152%;
+    top: 7.4376%;
+    width: 11.8%;
+    height: 2.9%;
+    color: #0e5f87;
+}
+
+.home-hero-character {
+    position: absolute;
+    z-index: 7;
+    left: 50%;
+    top: auto;
+    bottom: 35.0%;
+    width: 36%;
+    height: 32.0%;
+    transform: translateX(-50%);
+    object-fit: contain;
+    object-position: center bottom;
+    filter: drop-shadow(0 1.1vh 1vh rgba(0,0,0,.32));
+}
+
+.play-slot {
+    position: absolute;
+    z-index: 12;
+    left: 31%;
+    top: 52.6%;
+    width: 38%;
+    height: 6.2%;
+    border: 0;
+    background: transparent;
+}
+
+.hotspot-crew { left: 28.5%; top: 61.0%; width: 34.5%; height: 5.8%; }
+.hotspot-shipyard { left: 58.0%; top: 61.0%; width: 34.5%; height: 5.8%; }
+
+.art-hotspot {
+    position: absolute;
+    z-index: 13;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.hotspot-background { left: 2.1%; top: 36.3%; width: 17%; height: 10.8%; }
+.hotspot-fashion { right: 2.1%; top: 36.3%; width: 17%; height: 10.8%; }
+
+.reward-dynamic-bar {
+    position: absolute;
+    z-index: 12;
+    left: 22.2924%;
+    top: 70.3431%;
+    width: 40.1%;
+    height: 2.05%;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(52, 24, 13, .94);
+}
+
+.reward-dynamic-bar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, #34daf5, #0b99d9);
+}
+
+.reward-dynamic-bar b {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: clamp(.44rem, 1.6vh, .72rem);
+    line-height: 1;
+    text-shadow: 0 1px 2px #1a0c07;
+}
+
+.pet-dynamic-count {
+    position: absolute;
+    z-index: 12;
+    left: 26.9614%;
+    top: 93.1486%;
+    width: 18.8%;
+    height: 2.4%;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    color: white;
+    background: #173f91;
+    font-size: clamp(.42rem, 1.35vh, .65rem);
+    font-weight: 950;
+    text-shadow: 0 1px 2px #071b49;
+}
+
+.hotspot-regions { left: 2.3%; top: 72.2%; width: 17.4%; height: 10.3%; }
+.hotspot-daily { left: 20.8%; top: 72.2%; width: 17.4%; height: 10.3%; }
+.hotspot-shop { left: 39.5%; top: 72.2%; width: 17.4%; height: 10.3%; }
+.hotspot-collection { left: 58.2%; top: 72.2%; width: 17.4%; height: 10.3%; }
+.hotspot-chests { right: 2.3%; top: 72.2%; width: 17.4%; height: 10.3%; }
+.hotspot-pets { left: 2.4%; bottom: 2.0%; width: 48%; height: 15.2%; }
+.hotspot-items { right: 2.4%; bottom: 2.0%; width: 47%; height: 15.2%; }
+
+.home-toast {
+    position: absolute;
+    z-index: 50;
+    left: 50%;
+    bottom: max(18px, var(--tq-safe-bottom));
+    max-width: calc(100% - 30px);
+    padding: 9px 13px;
+    border: 2px solid #e4b645;
+    border-radius: 14px;
+    color: white;
+    background: rgba(17, 35, 62, .96);
+    font-size: .74rem;
+    text-align: center;
+    transform: translate(-50%, 8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 160ms ease;
+}
+
+.home-toast.is-visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+.personalization-sheet[hidden] {
+    display: none;
+}
+
+.personalization-sheet {
+    position: absolute;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    align-items: end;
+}
+
+.sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgba(2, 14, 23, .62);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+.sheet-panel {
+    position: relative;
+    z-index: 1;
+    max-height: 58%;
+    overflow: auto;
+    padding: 12px 10px max(14px, var(--tq-safe-bottom));
+    border: 3px solid #e0ae3b;
+    border-bottom: 0;
+    border-radius: 24px 24px 0 0;
+    background: linear-gradient(180deg, #214f7b, #0b2b46);
+    box-shadow: 0 -10px 28px rgba(0,0,0,.38);
+}
+
+.sheet-panel header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.sheet-panel header strong {
+    color: #ffe59a;
+    font-size: 1rem;
+}
+
+.sheet-panel header button {
+    width: 36px;
+    min-height: 36px;
+    border: 2px solid #e0ae3b;
+    border-radius: 50%;
+    color: white;
+    background: #75401e;
+    font-size: 1.2rem;
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.choice-card {
+    min-height: 0;
+    padding: 7px;
+    border: 2px solid rgba(255,255,255,.2);
+    border-radius: 15px;
+    color: white;
+    background: rgba(255,255,255,.08);
+}
+
+.choice-card.is-selected {
+    border-color: #ffd85b;
+    box-shadow: 0 0 0 2px rgba(255,216,91,.18);
+}
+
+.choice-card > strong {
+    display: block;
+    margin-top: 5px;
+    font-size: .68rem;
+}
+
+.background-thumb {
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: 9px;
+    background-position: center;
+    background-size: cover;
+}
+
+.frame-thumb {
+    position: relative;
+    width: 82px;
+    height: 82px;
+    display: block;
+    margin: 0 auto;
+}
+
+.frame-thumb-avatar {
+    position: absolute;
+    inset: 14px;
+    width: calc(100% - 28px);
+    height: calc(100% - 28px);
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+.frame-thumb-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.frame-thumb-simple {
+    position: absolute;
+    inset: 7px;
+    border: 4px solid #e2aa39;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px rgba(255, 245, 205, .8);
+}
+
+@media (max-width: 360px), (max-height: 650px) {
+    .hud-name-slot {
+        font-size: .66rem;
+    }
+
+    .hud-level-slot {
+        font-size: .42rem;
+    }
+
+    .home-hero-character {
+        width: 32%;
+    }
+
+    .play-slot {
+        font-size: 1.15rem;
+    }
+
+}
+
+
+.background-thumb.is-pending,
+.asset-pending-card,
+.asset-pending-label {
+    display: grid;
+    place-items: center;
+    min-height: 64px;
+    border-radius: 12px;
+    color: rgba(255,255,255,.72);
+    background: rgba(255,255,255,.06);
+    font-size: .62rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.asset-pending-card {
+    font-size: 1.35rem;
+}
+
+.personalization-empty {
+    margin: 12px 4px 4px;
+    color: rgba(255,255,255,.76);
+    font-size: .72rem;
+    line-height: 1.45;
+}
+
+
+/* Atalhos temporários usados apenas durante o desenvolvimento local. */
+.development-shortcuts {
+    position: absolute;
+    z-index: 60;
+    right: 8px;
+    bottom: max(8px, var(--tq-safe-bottom));
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.development-regions-shortcut,
+.development-exit-shortcut {
+    min-height: 30px;
+    padding: 5px 9px;
+    border: 1px solid rgba(255, 230, 150, .78);
+    border-radius: 999px;
+    color: #fff3c4;
+    background: rgba(10, 31, 43, .82);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .28);
+    font: 900 10px/1 Arial, sans-serif;
+    letter-spacing: .04em;
+    cursor: pointer;
+}
+
+.development-exit-shortcut {
+    border-color: rgba(255, 171, 142, .9);
+    color: #ffe0d4;
+    background: rgba(105, 31, 24, .88);
+}
+
+.development-regions-shortcut:active,
+.development-exit-shortcut:active {
+    transform: translateY(1px);
+}
+
+
+/* PWA instalada: o cenário também sangra até as bordas da viewport.
+   Apenas os controles respeitam a safe area; não há letterbox visual. */
+html.tq-pwa-runtime .home-screen,
+html.tq-pwa-runtime .home-safe-visual-area {
+    background-color: #0b2b3d;
+    background-image: var(--home-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}

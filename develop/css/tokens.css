@@ -1,0 +1,21 @@
+:root {
+    --ink-950: #03131e;
+    --navy-900: #071d2c;
+    --navy-800: #0b2d40;
+    --navy-700: #11445a;
+    --turquoise-500: #25c9c1;
+    --turquoise-300: #7ce9df;
+    --coral-500: #ff7d66;
+    --gold-500: #f7c85d;
+    --gold-300: #ffe59a;
+    --lilac-500: #9274e8;
+    --cream-100: #fff8e9;
+    --glass: rgba(4, 25, 37, 0.74);
+    --glass-soft: rgba(255, 255, 255, 0.10);
+    --line: rgba(255, 255, 255, 0.18);
+    --shadow: 0 16px 40px rgba(0, 0, 0, 0.30);
+    --radius-xl: 28px;
+    --radius-lg: 20px;
+    --radius-md: 15px;
+    --touch-min: 48px;
+}

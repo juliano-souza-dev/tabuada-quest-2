@@ -1,0 +1,1556 @@
+.slice-screen {
+    width: 100%;
+    min-height: 100%;
+    overflow-y: auto;
+    background: #0c2735;
+    color: #fff;
+    padding: max(18px, var(--tq-safe-top)) max(18px, var(--tq-safe-right)) max(24px, var(--tq-safe-bottom)) max(18px, var(--tq-safe-left));
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.slice-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.slice-header h1,
+.slice-header small {
+    margin: 0;
+}
+
+.slice-header button,
+.slice-screen button {
+    min-height: 48px;
+    border: 2px solid currentColor;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.slice-content {
+    width: min(100%, 520px);
+    margin: 0 auto;
+}
+
+.slice-intro {
+    margin-bottom: 18px;
+}
+
+.island-text-list,
+.answer-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.slice-choice {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+}
+
+.slice-choice:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.challenge-content {
+    display: grid;
+    place-items: center;
+    min-height: 65vh;
+}
+
+.challenge-card,
+.result-card {
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+}
+
+.math-question {
+    font-size: clamp(42px, 12vw, 72px);
+    font-weight: 900;
+    margin: 32px 0;
+}
+
+.answer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.answer-button {
+    font-size: 26px !important;
+    min-height: 72px !important;
+}
+
+.challenge-progress {
+    opacity: .85;
+}
+
+.feedback-card h2 {
+    font-size: 30px;
+}
+
+.result-stats {
+    display: grid;
+    gap: 10px;
+    margin: 24px 0;
+    text-align: left;
+}
+
+.result-stats div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.result-stats dt,
+.result-stats dd {
+    margin: 0;
+}
+
+.result-card > button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.island-copy {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.island-number {
+    font-size: 12px;
+    opacity: .72;
+    text-transform: uppercase;
+}
+
+.island-name {
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.island-challenge-type,
+.island-reward-labels {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: .82;
+}
+
+
+.island-text-button.is-completed .island-name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+
+/* Telas visuais de Região: malha canônica compartilhada com dados dinâmicos sobrepostos. */
+.region-islands-map-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    background-color: #0863a0;
+    background-image: var(--region-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.region-islands-map-screen::before {
+    content: "";
+    position: absolute;
+    inset: -3%;
+    z-index: 1;
+    background-image: var(--region-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: blur(18px) brightness(.74) saturate(.9);
+    transform: scale(1.06);
+    pointer-events: none;
+}
+
+.region-islands-map-screen > .tq-safe-visual-area {
+    z-index: 2;
+}
+
+.region-islands-canonical-stage {
+    position: absolute;
+    z-index: 2;
+    width: 941px;
+    height: 1672px;
+    transform-origin: 0 0;
+    overflow: hidden;
+}
+
+.region-islands-background {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    width: 941px;
+    height: 1672px;
+    max-width: none;
+    object-fit: fill;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.region-island-art-shell {
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.global-world-map-button {
+    position: absolute;
+    z-index: 8;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.global-world-map-asset {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 7px 8px rgba(24, 11, 3, .38));
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+.global-world-map-button:hover .global-world-map-asset,
+.global-world-map-button:focus-visible .global-world-map-asset {
+    transform: scale(1.04);
+    filter:
+        drop-shadow(0 7px 8px rgba(24, 11, 3, .38))
+        drop-shadow(0 0 7px rgba(255, 225, 135, .42));
+}
+
+.global-world-map-button:active .global-world-map-asset {
+    transform: scale(.97);
+}
+
+.global-world-map-button:focus-visible {
+    outline: 5px solid rgba(255, 239, 122, .98);
+    outline-offset: 2px;
+    border-radius: 24px;
+}
+
+.region-island-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.region-fallback-lock {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    font-size: 56px;
+    line-height: 1;
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .85));
+}
+
+.region-island-overlay.is-fallback-locked .region-island-art {
+    filter: brightness(.38) saturate(.42);
+}
+
+.region-island-overlay.is-fallback-locked .region-fallback-lock {
+    display: grid;
+}
+
+
+.region-island-overlay.is-locked 
+
+.region-island-overlay.is-completed 
+
+.region-island-overlay.is-resume 
+
+.region-back-hitbox,
+.region-island-hitbox {
+    position: absolute;
+    z-index: 9;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.region-island-hitbox[aria-disabled="true"] {
+    cursor: default;
+}
+
+.region-back-hitbox:focus-visible,
+.region-island-hitbox:focus-visible {
+    outline: 5px solid rgba(255, 239, 122, .98);
+    outline-offset: -5px;
+    border-radius: 20px;
+}
+
+
+/* Viagem entre Ilhas: reproduzida somente na primeira entrada de cada Ilha. */
+.island-travel-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #03131f;
+}
+
+.island-travel-stage,
+.island-travel-lottie {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.island-travel-stage {
+    overflow: hidden;
+    background: #03131f;
+}
+
+.island-travel-lottie {
+    display: block;
+    overflow: hidden;
+}
+
+.island-travel-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none;
+    z-index: 2;
+}
+
+.island-travel-lottie > svg {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+.island-travel-stage.has-travel-background,
+.island-travel-colombo-fallback,
+.challenge-art-loading-animation.has-travel-background {
+    background-color: #062839;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.island-travel-colombo-fallback {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.island-travel-colombo-ship {
+    position: absolute;
+    z-index: 2;
+    left: 100%;
+    top: 50%;
+    width: min(72vw, 620px);
+    max-height: 64%;
+    object-fit: contain;
+    transform: translate(12%, -50%) rotate(-1deg);
+    filter: drop-shadow(0 18px 16px rgba(0,0,0,.34));
+    animation: tq-colombo-sail 6s ease-in-out forwards;
+}
+
+@keyframes tq-colombo-sail {
+    0% { transform: translate(12%, -48%) rotate(-2deg); }
+    18% { transform: translate(-38%, -54%) rotate(1.4deg); }
+    45% { transform: translate(-92%, -48%) rotate(-1.2deg); }
+    72% { transform: translate(-148%, -53%) rotate(1.2deg); }
+    100% { transform: translate(-225%, -49%) rotate(0deg); }
+}
+
+
+.island-travel-fallback {
+    position: absolute;
+    inset: 0;
+    background: #03131f;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+
+/* CORSÁRIO 2: o texto repousa sobre a placa desenhada no próprio asset. */
+.region-islands-map-screen[data-region-page="corsario-2"] 
+
+
+/* Preview textual temporário acessado pelo Mapa Mundo. */
+.island-text-button.is-preview {
+    cursor: default;
+}
+
+.region-text-map-preview {
+    margin-top: 18px;
+    padding: 14px;
+    border: 2px solid rgba(226, 184, 92, .55);
+    border-radius: 16px;
+    background: rgba(39, 24, 16, .86);
+}
+
+.region-text-map-preview h2 {
+    margin: 0 0 10px;
+    color: #ffe29a;
+    font-size: .92rem;
+}
+
+.region-text-map-list {
+    display: grid;
+    gap: 7px;
+}
+
+.region-text-map-list span {
+    display: block;
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .08);
+    color: #fff7df;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+
+/* Efeitos de feedback desacoplados da tela de desafio. */
+.challenge-effect {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.challenge-effect-text {
+    font-weight: 950;
+    line-height: 1;
+}
+
+.challenge-effect-detail {
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.challenge-effect-reward {
+    font-size: .82em;
+    font-weight: 900;
+    opacity: .92;
+}
+
+.challenge-effect[data-effect-id="effect-correct-default"] {
+    animation: tq-effect-correct-default var(--challenge-effect-duration, 680ms) ease-out both;
+}
+
+.challenge-effect[data-effect-id="effect-wrong-default"] {
+    animation: tq-effect-wrong-default var(--challenge-effect-duration, 520ms) ease-out both;
+}
+
+@keyframes tq-effect-correct-default {
+    0% {
+        opacity: 0;
+        transform: scale(.72) translateY(8%);
+    }
+    38% {
+        opacity: 1;
+        transform: scale(1.12) translateY(-2%);
+    }
+    68% {
+        transform: scale(.97) translateY(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes tq-effect-wrong-default {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    16% {
+        opacity: 1;
+        transform: translateX(-3%);
+    }
+    34% {
+        transform: translateX(3%);
+    }
+    52% {
+        transform: translateX(-2%);
+    }
+    70% {
+        transform: translateX(1%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.feedback-card .challenge-effect {
+    position: relative;
+    min-height: 132px;
+    color: #fff4d0;
+}
+
+.feedback-card .challenge-effect-text {
+    font-size: clamp(2rem, 9vw, 3.5rem);
+}
+
+.feedback-card .challenge-effect-detail {
+    font-size: 1.25rem;
+}
+
+.feedback-card .challenge-effect-reward {
+    color: #ffe18a;
+}
+
+.special-mission-callout {
+    margin: 18px 0;
+    padding: 14px;
+    border: 2px solid #e6b64d;
+    border-radius: 16px;
+    background: rgba(93, 57, 18, .36);
+}
+
+.special-mission-callout button,
+.special-mission-entry {
+    width: 100%;
+}
+
+
+/* Tela de desafio imersiva: a arte é fixa; progresso, conta e respostas são dados dinâmicos. */
+.challenge-art-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 0;
+    background-color: #061722;
+    background-image:
+        linear-gradient(rgba(6, 23, 34, .38), rgba(6, 23, 34, .38)),
+        var(--challenge-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.challenge-art-screen::before {
+    content: "";
+    position: absolute;
+    inset: -4%;
+    z-index: 1;
+    background-image: var(--challenge-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: blur(20px) brightness(.62) saturate(.82);
+    transform: scale(1.08);
+    pointer-events: none;
+}
+
+.challenge-art-screen > .tq-safe-visual-area {
+    z-index: 2;
+}
+
+.challenge-art-stage {
+    position: absolute;
+    z-index: 2;
+    aspect-ratio: 941 / 1672;
+    container-type: inline-size;
+}
+
+.challenge-art-background {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.challenge-art-background,
+.challenge-dynamic-layer,
+.challenge-art-back-hitbox {
+    transition: opacity 180ms ease;
+}
+
+.challenge-art-screen.is-art-loading .challenge-art-background,
+.challenge-art-screen.is-art-loading .challenge-dynamic-layer,
+.challenge-art-screen.is-art-loading .challenge-art-back-hitbox {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none !important;
+}
+
+.challenge-art-screen.is-art-ready .challenge-art-background,
+.challenge-art-screen.is-art-ready .challenge-dynamic-layer,
+.challenge-art-screen.is-art-ready .challenge-art-back-hitbox {
+    opacity: 1;
+    visibility: visible;
+}
+
+.challenge-art-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 18px;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 38%, rgba(53, 151, 176, .22), transparent 33%),
+        linear-gradient(180deg, #06212d 0%, #073647 58%, #075269 100%);
+    color: #fff2c5;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 220ms ease, visibility 0s linear 220ms;
+}
+
+.challenge-art-screen.is-art-ready .challenge-art-loading {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.challenge-art-loading-animation {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background-color: #062839;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.challenge-art-loading-animation > svg {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.challenge-loading-colombo-fallback {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    width: min(76cqw, 520px);
+    max-height: 66%;
+    object-fit: contain;
+    transform: translate(12%, -50%);
+    filter: drop-shadow(0 18px 16px rgba(0, 0, 0, .34));
+    animation: challenge-colombo-sail 5.6s ease-in-out infinite;
+}
+
+@keyframes challenge-colombo-sail {
+    0% { transform: translate(12%, -49%) rotate(-2deg); }
+    22% { transform: translate(-42%, -54%) rotate(1deg); }
+    50% { transform: translate(-98%, -49%) rotate(-1deg); }
+    78% { transform: translate(-158%, -53%) rotate(1deg); }
+    100% { transform: translate(-225%, -49%) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .challenge-loading-colombo-fallback {
+        animation: none;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.challenge-art-back-hitbox {
+    position: absolute;
+    z-index: 5;
+    left: 4%;
+    top: 2%;
+    width: 28%;
+    height: 8%;
+    border: 0 !important;
+    background: transparent !important;
+    color: transparent;
+    padding: 0 !important;
+}
+
+.challenge-dynamic-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    font-family: Arial, sans-serif;
+}
+
+.challenge-art-progress {
+    position: absolute;
+    left: var(--challenge-progress-x, 20.5%);
+    top: var(--challenge-progress-y, 40.2%);
+    width: var(--challenge-progress-w, 59%);
+    height: var(--challenge-progress-h, 4.2%);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 0 4%;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #fff4d0;
+    font-size: var(--challenge-progress-font, 3.15cqw);
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, .92);
+}
+
+.challenge-art-stage[data-progress-mask="true"] .challenge-art-progress {
+    border: 2px solid rgba(163, 101, 38, .92);
+    background:
+        linear-gradient(180deg, rgba(45, 27, 17, .99), rgba(8, 8, 8, .99));
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, .42),
+        0 2px 4px rgba(0, 0, 0, .28);
+}
+
+.challenge-art-progress::before {
+    content: "";
+    position: absolute;
+    left: 1.89%;
+    top: 50%;
+    width: 94.17%;
+    height: 24%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #20bc54, #72ef80);
+    box-shadow: 0 0 7px rgba(69, 232, 106, .5);
+    transform: translateY(-50%) scaleX(var(--challenge-progress-ratio, 0));
+    transform-origin: left center;
+    transition: transform 180ms ease;
+}
+
+.challenge-art-progress > span {
+    position: relative;
+    z-index: 1;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+
+/* Região 1: os novos fundos não possuem área visual de progresso.
+   O progresso continua existindo na sessão, mas não é renderizado no challenge. */
+.challenge-art-screen[data-region-id="1"] .challenge-art-progress {
+    display: none;
+}
+
+.challenge-art-screen[data-region-id="1"] .challenge-art-progress::before {
+    display: none;
+}
+
+.challenge-art-question {
+    position: absolute;
+    left: var(--challenge-question-x, 14.5%);
+    top: var(--challenge-question-y, 44.6%);
+    width: var(--challenge-question-w, 71%);
+    height: var(--challenge-question-h, 16.5%);
+    display: grid;
+    place-items: center;
+    padding: 2%;
+    box-sizing: border-box;
+    color: #2b1608;
+    font-size: var(--challenge-question-font, 8.6cqw);
+    line-height: 1;
+    font-weight: 950;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+.challenge-art-question .tabuada-pergunta-numero {
+    transform: translate(
+        var(--tabuada-pergunta-offset-x, 0),
+        var(--tabuada-pergunta-offset-y, 0)
+    );
+}
+
+.challenge-art-answers {
+    position: absolute;
+    left: var(--challenge-answers-x, 17%);
+    top: var(--challenge-answers-y, 63%);
+    width: var(--challenge-answers-w, 66%);
+    height: var(--challenge-answers-h, 16.5%);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    column-gap: var(--challenge-answer-column-gap, 5.5%);
+    row-gap: var(--challenge-answer-row-gap, 8%);
+    pointer-events: auto;
+}
+
+.challenge-art-answer {
+    width: 100%;
+    height: 100%;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #fff5d2;
+    font-size: var(--challenge-answer-font, 5.7cqw) !important;
+    line-height: 1;
+    font-weight: 950 !important;
+    text-align: center;
+    text-shadow: 0 3px 3px rgba(0, 0, 0, .86);
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+.tabuada-opcao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.tabuada-opcao .numero {
+    transform: translate(
+        var(--tabuada-opcao-numero-offset-x, 0),
+        var(--tabuada-opcao-numero-offset-y, 0)
+    );
+    line-height: 1;
+    pointer-events: none;
+}
+
+.challenge-art-answer:hover,
+.challenge-art-answer:focus-visible {
+    transform: scale(1.045);
+    filter: brightness(1.18);
+    outline: 4px solid rgba(255, 239, 122, .95);
+    outline-offset: -4px;
+}
+
+.challenge-art-answer:active {
+    transform: scale(.96);
+}
+
+.challenge-art-feedback {
+    font-size: var(--challenge-feedback-font, 5.1cqw);
+    line-height: 1.15;
+}
+
+.challenge-feedback-layer .challenge-effect {
+    position: absolute;
+    left: var(--challenge-question-x, 14.5%);
+    top: var(--challenge-question-y, 44.6%);
+    width: var(--challenge-question-w, 71%);
+    height: var(--challenge-question-h, 16.5%);
+    padding: 2% 5%;
+    color: #2b1608;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+.challenge-feedback-layer .challenge-effect-text {
+    font-size: var(--challenge-feedback-font, 5.1cqw);
+}
+
+.challenge-feedback-layer.is-correct .challenge-effect-text {
+    font-size: calc(var(--challenge-feedback-font, 5.1cqw) * 1.18);
+}
+
+.challenge-feedback-layer .challenge-effect-detail {
+    font-size: calc(var(--challenge-feedback-font, 5.1cqw) * .78);
+}
+
+.challenge-feedback-layer .challenge-effect-reward {
+    font-size: calc(var(--challenge-feedback-font, 5.1cqw) * .68);
+}
+
+.challenge-feedback-continue,
+.challenge-prepare-layer > button {
+    position: absolute;
+    left: 31%;
+    top: 67%;
+    width: 38%;
+    min-height: 54px !important;
+    pointer-events: auto;
+    border: 2px solid #f6d17b !important;
+    border-radius: 14px !important;
+    background: rgba(56,28,9,.92) !important;
+    color: #fff2c8;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.challenge-complete-layer .challenge-art-question {
+    font-size: 6.3cqw;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .challenge-art-answer {
+        transition: none;
+    }
+
+    .challenge-effect[data-effect-id] {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* Tela de conclusão visual: asset global com todos os dados sobrepostos dinamicamente. */
+.result-art-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 0;
+    background-color: #55b9e8;
+    background-image: var(--result-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: #2d1608;
+}
+
+.result-art-screen::before {
+    content: "";
+    position: absolute;
+    inset: -4%;
+    z-index: 0;
+    background-image: var(--result-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: blur(18px) brightness(.78) saturate(.9);
+    transform: scale(1.07);
+    pointer-events: none;
+}
+
+.result-art-screen > .tq-safe-visual-area {
+    z-index: 1;
+}
+
+.result-art-stage {
+    position: absolute;
+    aspect-ratio: 941 / 1672;
+    container-type: inline-size;
+    overflow: hidden;
+}
+
+.result-art-background {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.result-art-dynamic-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    font-family: Arial, sans-serif;
+}
+
+.result-art-title {
+    position: absolute;
+    left: 17%;
+    top: 26.1%;
+    width: 66%;
+    height: 5.6%;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 1% 3%;
+    color: #3a1d08;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+.result-art-title small {
+    margin: 0;
+    font-size: 3.7cqw;
+    line-height: 1;
+    font-weight: 950;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.result-art-stats {
+    position: absolute;
+    left: 28.5%;
+    top: 36.1%;
+    width: 50%;
+    height: 20.7%;
+    margin: 0;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    color: #4a2a11;
+}
+
+.result-art-stats > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2cqw;
+    min-width: 0;
+}
+
+.result-art-stats dt,
+.result-art-stats dd {
+    margin: 0;
+}
+
+.result-art-stats dt {
+    overflow: hidden;
+    font-size: 3.05cqw;
+    line-height: 1.05;
+    font-weight: 800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.result-art-stats dd {
+    font-size: 3.45cqw;
+    line-height: 1;
+    font-weight: 950;
+    text-align: right;
+}
+
+.result-art-reward-zone {
+    position: absolute;
+    left: 17.1%;
+    top: 58.2%;
+    width: 65.8%;
+    height: 13.7%;
+    box-sizing: border-box;
+    color: #fff3c5;
+    text-align: center;
+    pointer-events: none;
+}
+
+.result-art-reward-zone h2 {
+    position: absolute;
+    left: 0;
+    top: 6%;
+    width: 100%;
+    margin: 0;
+    font-size: 3.15cqw;
+    line-height: 1;
+    font-weight: 950;
+    text-shadow: 0 2px 3px rgba(35, 12, 2, .95);
+}
+
+.result-art-structural-rewards {
+    position: absolute;
+    left: 3%;
+    top: 27%;
+    width: 30%;
+    height: 61%;
+    display: grid;
+    align-content: center;
+    gap: .8cqw;
+}
+
+.result-art-numeric-rewards {
+    position: absolute;
+    right: 3%;
+    top: 23%;
+    width: 31%;
+    height: 66%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: .75cqw;
+}
+
+.result-art-reward-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 4.15cqw;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: .65cqw 1cqw;
+    border: .28cqw solid rgba(248, 202, 86, .92);
+    border-radius: 999px;
+    background: rgba(58, 27, 7, .84);
+    box-shadow: 0 .45cqw 1.1cqw rgba(0, 0, 0, .3);
+    color: #fff4ca;
+    font-size: 2.35cqw;
+    line-height: 1.05;
+    font-weight: 900;
+    text-align: center;
+    text-shadow: 0 .35cqw .45cqw rgba(0, 0, 0, .85);
+}
+
+.result-art-reward-chip small {
+    margin-left: .55cqw;
+    font-size: 2.1cqw;
+    opacity: .88;
+}
+
+.result-art-special-mission {
+    position: absolute;
+    z-index: 4;
+    left: 23%;
+    top: 69%;
+    width: 54%;
+    height: 3.2%;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 2% !important;
+    border: .3cqw solid rgba(255, 220, 113, .96) !important;
+    border-radius: 999px !important;
+    background: rgba(54, 25, 7, .88) !important;
+    color: #fff2bf !important;
+    box-shadow: 0 .55cqw 1.2cqw rgba(0, 0, 0, .28);
+    font-size: 2.65cqw !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    cursor: pointer;
+}
+
+.result-art-action {
+    position: absolute;
+    z-index: 5;
+    left: 18.2%;
+    width: 63.6%;
+    height: 6.45%;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 4% !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    font-size: 4.05cqw !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    cursor: pointer;
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+.result-art-action-primary {
+    top: 73.15%;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    padding: 0 !important;
+    text-align: center;
+    color: #4a2508 !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+}
+
+.result-art-action-secondary {
+    top: 81.05%;
+    color: #fff8df !important;
+    text-shadow: 0 .45cqw .55cqw rgba(0, 45, 82, .75);
+}
+
+.result-art-action:hover,
+.result-art-action:focus-visible,
+.result-art-special-mission:hover,
+.result-art-special-mission:focus-visible {
+    transform: scale(1.025);
+    filter: brightness(1.08);
+}
+
+.result-art-action:focus-visible,
+.result-art-special-mission:focus-visible {
+    outline: .75cqw solid rgba(255, 248, 164, .98) !important;
+    outline-offset: -.45cqw;
+}
+
+.result-art-action:active,
+.result-art-special-mission:active {
+    transform: scale(.97);
+}
+
+@media (max-width: 340px) {
+    .result-art-stats dt {
+        font-size: 2.8cqw;
+    }
+
+    .result-art-reward-chip {
+        font-size: 2.35cqw;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .result-art-action,
+    .result-art-special-mission {
+        transition: none;
+    }
+}
+
+
+/* Interlúdio de fragmento de mapa após a tela de resultado. */
+.map-reward-card {
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+}
+
+.map-reward-card h1,
+.map-reward-card p {
+    margin: 0;
+}
+
+.map-reward-icon {
+    font-size: 64px;
+    line-height: 1;
+}
+
+.map-fragment-progress {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    width: min(100%, 300px);
+    margin: 6px auto 4px;
+}
+
+.map-fragment-slot {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border: 2px solid rgba(255, 229, 149, .5);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .08);
+    font-size: 30px;
+}
+
+.map-fragment-slot.is-collected {
+    border-color: #f3ca63;
+    background: rgba(243, 202, 99, .2);
+}
+
+.map-reward-card > button {
+    width: 100%;
+}
+
+
+/* Resgate global de PET: arte fixa; PET e bônus são dados dinâmicos. */
+.pet-rescue-art-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 0;
+    background-color: #2b160b;
+    background-image: var(--pet-rescue-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: #fff6dc;
+}
+
+.pet-rescue-art-screen::before {
+    content: "";
+    position: absolute;
+    inset: -4%;
+    z-index: 0;
+    background-image: var(--pet-rescue-bleed-image);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: blur(18px) brightness(.68) saturate(.85);
+    transform: scale(1.07);
+    pointer-events: none;
+}
+
+.pet-rescue-art-screen > .tq-safe-visual-area {
+    z-index: 1;
+}
+
+.pet-rescue-stage {
+    position: absolute;
+    aspect-ratio: 941 / 1672;
+    container-type: inline-size;
+    overflow: hidden;
+}
+
+.pet-rescue-background {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: fill;
+    user-select: none;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.pet-rescue-dynamic-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    font-family: Arial, sans-serif;
+}
+
+.pet-rescue-pet {
+    position: absolute;
+    z-index: 2;
+    left: 26%;
+    top: 20.2%;
+    width: 48%;
+    height: 31.5%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center bottom;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter:
+        drop-shadow(0 7px 7px rgba(55, 24, 5, .56))
+        drop-shadow(0 0 10px rgba(255, 221, 91, .28));
+}
+
+.pet-rescue-bonus {
+    position: absolute;
+    z-index: 3;
+    left: 11.7%;
+    top: 72.9%;
+    width: 76.6%;
+    height: 8.6%;
+    display: grid;
+    place-content: center;
+    gap: 3cqw;
+    box-sizing: border-box;
+    padding: 1.5% 5%;
+    color: #fff5d8;
+    line-height: 1.08;
+    text-align: center;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, .82);
+    pointer-events: none;
+}
+
+.pet-rescue-bonus-intro {
+    display: block;
+    font-size: 3.25cqw;
+    font-weight: 800;
+}
+
+.pet-rescue-bonus-value {
+    display: block;
+    color: #ffe28a;
+    font-size: 5.1cqw;
+    line-height: 1;
+    font-weight: 950;
+    letter-spacing: .01em;
+}
+
+.pet-rescue-continue {
+    position: absolute;
+    z-index: 4;
+    left: 18.1%;
+    top: 84.1%;
+    width: 63.8%;
+    height: 8.9%;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    outline: 0;
+    background: transparent !important;
+    color: transparent !important;
+    box-shadow: none !important;
+    appearance: none;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pet-rescue-continue:focus-visible {
+    outline: 4px solid rgba(255, 247, 180, .98) !important;
+    outline-offset: -4px;
+}
+
+.pet-rescue-continue:active {
+    transform: scale(.985);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .pet-rescue-pet {
+        animation: pet-rescue-arrival 420ms cubic-bezier(.2, .82, .24, 1.15) both;
+    }
+
+    @keyframes pet-rescue-arrival {
+        0% {
+            opacity: 0;
+            transform: translateY(12%) scale(.76);
+        }
+        72% {
+            opacity: 1;
+            transform: translateY(-2%) scale(1.04);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}
+
+
+/* Mascara a troca para o Mapa Mundo até a próxima tela assumir a viewport. */
+.world-map-transition-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    background: rgba(4, 24, 42, .96);
+    pointer-events: all;
+}
+
+.world-map-transition-hourglass {
+    display: block;
+    font-size: clamp(64px, 20vw, 118px);
+    line-height: 1;
+    transform-origin: 50% 50%;
+    animation: world-map-hourglass-spin 1s ease-in-out infinite;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .35));
+}
+
+@keyframes world-map-hourglass-spin {
+    0% { transform: rotate(0deg) scale(.96); }
+    50% { transform: rotate(180deg) scale(1.04); }
+    100% { transform: rotate(360deg) scale(.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .world-map-transition-hourglass {
+        animation: none;
+    }
+}
+
+
+/* Mantém a transição coberta enquanto a Região monta background e ilhas. */
+.region-transition-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    background: rgba(4, 24, 42, .96);
+    pointer-events: all;
+}
+
+.region-transition-hourglass {
+    display: block;
+    font-size: clamp(64px, 20vw, 118px);
+    line-height: 1;
+    transform-origin: 50% 50%;
+    animation: region-hourglass-spin 1s ease-in-out infinite;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .35));
+}
+
+@keyframes region-hourglass-spin {
+    0% { transform: rotate(0deg) scale(.96); }
+    50% { transform: rotate(180deg) scale(1.04); }
+    100% { transform: rotate(360deg) scale(.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .region-transition-hourglass { animation: none; }
+}
+
+
+/* Region asset gate: never expose partially decoded island/background images. */
+.region-islands-canonical-stage {
+    opacity: 0;
+}
+.region-islands-canonical-stage.is-assets-ready {
+    opacity: 1;
+    transition: opacity 140ms ease-out;
+}
+.region-assets-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 120;
+    display: grid;
+    place-items: center;
+    background: #0863a0;
+    pointer-events: auto;
+    transition: opacity 140ms ease-out, visibility 140ms ease-out;
+}
+.region-assets-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.region-assets-loader-hourglass {
+    display: block;
+    font-size: 52px;
+    line-height: 1;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, .38));
+    animation: tq-region-hourglass-spin 900ms linear infinite;
+}
+@keyframes tq-region-hourglass-spin {
+    to { transform: rotate(360deg); }
+}

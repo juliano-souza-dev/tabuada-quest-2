@@ -1,0 +1,130 @@
+@import url("./tokens.css");
+@import url("./base.css?v=20260922-safe-viewport-v1");
+@import url("./screens/auth.css?v=20260922-safe-viewport-v1");
+@import url("./screens/home.css?v=20260923-nameplate-v4");
+@import url("./screens/crew.css?v=20260923-tavern-calibration-v5");
+@import url("./screens/collectibles.css?v=20260922-collectibles-arrow-mask");
+@import url("./screens/items.css?v=20260924-inventory-art-v1");
+@import url("./screens/shop.css?v=20260922-0006");
+@import url("./screens/world-map.css?v=20260923-nautical-pages-v1");
+@import url("./screens/regions.css?v=20260920-0318");
+
+@import url("./screens/vertical-slice.css?v=20260923-colombo-bg-direction-v1");
+
+@import url("./screens/ruby-shop.css?v=20260921-1545");
+
+
+/* Retorno global temporário para a Home nas telas de navegação do mundo. */
+.global-home-button {
+    position: absolute;
+    z-index: 100;
+    left: 50%;
+    top: max(10px, var(--tq-safe-top));
+    min-width: 82px;
+    min-height: 40px;
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    padding: 7px 15px;
+    border: 2px solid rgba(242, 206, 112, .92);
+    border-radius: 999px;
+    color: #fff7de;
+    background: rgba(12, 31, 42, .88);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .34);
+    font: 900 13px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: .04em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.global-home-button:hover,
+.global-home-button:focus-visible {
+    background: rgba(71, 47, 27, .96);
+    outline: 3px solid rgba(255, 238, 145, .72);
+    outline-offset: 2px;
+}
+
+.global-home-button:active {
+    transform: translate(-50%, 2px);
+}
+
+
+.tavern-screen { position:relative; width:100%; height:100%; overflow:hidden; background:#17100b; }
+.tavern-background { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+
+
+/* PWA install CTA: only visible when the browser exposes the native install prompt. */
+#pwa-install-button {
+    position: fixed;
+    z-index: 10000;
+    left: 50%;
+    bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
+    transform: translateX(-50%);
+    min-width: 210px;
+    min-height: 50px;
+    padding: 0 22px;
+    border: 2px solid rgba(255, 225, 125, .96);
+    border-radius: 999px;
+    color: #fff8dc;
+    background: rgba(27, 75, 69, .96);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, .42);
+    font: 900 15px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: .02em;
+    cursor: pointer;
+}
+#pwa-install-button[hidden] { display: none !important; }
+#pwa-install-button:active { transform: translate(-50%, 2px); }
+
+
+/* Reusable animated ocean loader */
+.tq-ocean-loader-host {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #7ec8e3;
+}
+.tq-ocean-loader-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.tq-ocean-loader-label {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: max(7%, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    padding: .55em 1em;
+    border-radius: 999px;
+    color: #fff7de;
+    background: rgba(7,29,44,.72);
+    font: 900 clamp(11px, 2.8cqw, 18px)/1 system-ui, sans-serif;
+    letter-spacing: .04em;
+    text-shadow: 0 1px 2px rgba(0,0,0,.45);
+}
+.region-transition-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    overflow: hidden;
+    pointer-events: auto;
+}
+
+
+/* Global transition gate: old screen stays mounted while the next screen assets decode/load. */
+.tq-screen-transition-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 20000;
+    overflow: hidden;
+    pointer-events: auto;
+}
+.tq-screen-preparing {
+    position: absolute !important;
+    inset: 0;
+    z-index: -1 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
