@@ -1573,3 +1573,18 @@
 @keyframes tq-region-hourglass-spin {
     to { transform: rotate(360deg); }
 }
+
+
+/* DEV calibration · challenge · 2026-09-24
+   Persisted from the visual scene editor export. */
+.challenge-art-screen {
+    translate: -5px 0;
+}
+
+.challenge-art-back-hitbox {
+    translate: -13px -6px;
+}
+
+.challenge-feedback-layer .challenge-feedback-continue {
+    translate: 7px -52px;
+}
