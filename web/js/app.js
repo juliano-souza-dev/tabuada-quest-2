@@ -83,6 +83,23 @@
         render();
     }
 
+    function mountDevelopmentExit() {
+        document.querySelector(".tq-exit-dev")?.remove();
+
+        const host = document.createElement("aside");
+        host.className = "tq-exit-dev";
+        host.innerHTML = `
+            <button
+                type="button"
+                class="tq-exit-dev-toggle"
+                aria-label="Sair e limpar a sessão local de testes">
+                SAIR
+            </button>
+        `;
+        document.body.appendChild(host);
+        host.querySelector(".tq-exit-dev-toggle").addEventListener("click", resetDevelopmentSession);
+    }
+
     function signOut() {
         TQ.persistence.localStorage.signOut();
         authBusy = false;
@@ -679,6 +696,7 @@
             onOpenRegion: openSettingsRegion,
             onOpenIsland: openSettingsIsland
         });
+        mountDevelopmentExit();
     }
 
     async function render() {
