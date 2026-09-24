@@ -163,33 +163,66 @@
                 <label>Direção <select data-fx-axis><option value="x">Horizontal</option><option value="y">Vertical</option></select></label>
                 <label>Distância <input data-fx-distance type="range" min="1" max="60" value="14"></label>
                 <label>Velocidade <input data-fx-duration type="range" min="1" max="12" step=".25" value="5"></label>
-                <div class="tq-parallax-dev-actions"><button type="button" data-fx-play>▶ Aplicar</button><button type="button" data-fx-clear>Limpar</button></div>
-                <small>Selecione um asset mapeado, desenhe a região e ajuste em tempo real.</small>
+                <div class="tq-parallax-dev-actions"><button type="button" data-fx-save>💾 Salvar efeito</button><button type="button" data-fx-new>＋ Novo efeito</button></div>
+                <div class="tq-parallax-dev-actions"><button type="button" data-fx-play>▶ Aplicar</button><button type="button" data-fx-clear>Excluir rascunho</button></div>
+                <label>Efeitos salvos <select data-fx-saved><option value="">Nenhum</option></select></label>
+                <div class="tq-parallax-dev-actions"><button type="button" data-fx-load>Editar</button><button type="button" data-fx-delete>Excluir salvo</button></div>
+                <small>Os efeitos salvos persistem no navegador e podem coexistir no mesmo asset.</small>
             </section>`;
         document.body.appendChild(host);
         const panel = host.querySelector(".tq-parallax-dev-panel");
         let draft = null;
         let region = null;
         let animation = null;
+        let draftData = null;
+        const storageKey = "tq2.dev.parallax.effects.v1";
+        let effects = (() => { try { return JSON.parse(root.localStorage.getItem(storageKey) || "[]"); } catch (_) { return []; } })();
 
+        const persistEffects = () => root.localStorage.setItem(storageKey, JSON.stringify(effects));
+        const savedSelect = host.querySelector("[data-fx-saved]");
+        const refreshSaved = () => {
+            savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+fx.axis+' · '+fx.distance+'px</option>').join("");
+        };
         const selectedAsset = () => appRoot.querySelector(`[data-tq-asset-id="${host.querySelector("[data-fx-asset]").value}"]`);
         const clearRegion = () => {
             animation?.cancel(); animation = null;
             region?.remove(); region = null;
             draft?.remove(); draft = null;
         };
+        const animateRegion = (target, axis, distance, duration) => target.querySelector("img").animate(
+            axis === "x" ? [{ transform: "translateX(-"+distance+"px) scale(1.08)" }, { transform: "translateX("+distance+"px) scale(1.08)" }]
+                         : [{ transform: "translateY(-"+distance+"px) scale(1.08)" }, { transform: "translateY("+distance+"px) scale(1.08)" }],
+            { duration: duration * 1000, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
+        );
         const apply = () => {
             if (!region) return;
             animation?.cancel();
             const axis = host.querySelector("[data-fx-axis]").value;
             const distance = Number(host.querySelector("[data-fx-distance]").value);
             const duration = Number(host.querySelector("[data-fx-duration]").value) * 1000;
-            animation = region.querySelector("img").animate(
-                axis === "x" ? [{ transform: `translateX(-${distance}px) scale(1.08)` }, { transform: `translateX(${distance}px) scale(1.08)` }]
-                             : [{ transform: `translateY(-${distance}px) scale(1.08)` }, { transform: `translateY(${distance}px) scale(1.08)` }],
-                { duration, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
-            );
+            animation = animateRegion(region, axis, distance, duration / 1000);
         };
+
+        const renderEffect = (fx, editable = false) => {
+            const asset = appRoot.querySelector('[data-tq-asset-id="'+fx.assetId+'"]');
+            if (!(asset instanceof HTMLImageElement)) return null;
+            const assetRect = asset.getBoundingClientRect(), stageRect = stage.getBoundingClientRect();
+            const r = fx.bounds;
+            const el = document.createElement("div"); el.className = "tq-parallax-region" + (editable ? " is-editing" : ""); el.dataset.fxId = fx.id;
+            el.style.left=((assetRect.left-stageRect.left+r.x*assetRect.width)/stageRect.width*100)+"%"; el.style.top=((assetRect.top-stageRect.top+r.y*assetRect.height)/stageRect.height*100)+"%"; el.style.width=(r.w*assetRect.width/stageRect.width*100)+"%"; el.style.height=(r.h*assetRect.height/stageRect.height*100)+"%";
+            const poly=fx.points.map(p=>(((p.x-r.x)/r.w)*100).toFixed(2)+"% "+(((p.y-r.y)/r.h)*100).toFixed(2)+"%").join(","); el.style.clipPath="polygon("+poly+")"; el.style.webkitClipPath=el.style.clipPath;
+            const clone=asset.cloneNode(false); clone.removeAttribute("data-tq-asset-id"); clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx.axis,fx.distance,fx.duration); return el;
+        };
+        effects.forEach((fx)=>renderEffect(fx)); refreshSaved();
+
+        host.querySelector("[data-fx-save]").onclick = () => {
+            if (!draftData || !region) return;
+            const fx={...draftData,id:"fx_"+Date.now(),axis:host.querySelector("[data-fx-axis]").value,distance:Number(host.querySelector("[data-fx-distance]").value),duration:Number(host.querySelector("[data-fx-duration]").value)};
+            effects.push(fx); persistEffects(); region.remove(); region=null; animation?.cancel(); animation=null; draftData=null; renderEffect(fx); refreshSaved(); savedSelect.value=fx.id;
+        };
+        host.querySelector("[data-fx-new]").onclick = () => clearRegion();
+        host.querySelector("[data-fx-delete]").onclick = () => { const id=savedSelect.value;if(!id)return;effects=effects.filter(f=>f.id!==id);persistEffects();stage.querySelector('[data-fx-id="'+id+'"]')?.remove();refreshSaved(); };
+        host.querySelector("[data-fx-load]").onclick = () => { const fx=effects.find(f=>f.id===savedSelect.value);if(!fx)return;host.querySelector("[data-fx-asset]").value=fx.assetId;host.querySelector("[data-fx-axis]").value=fx.axis;host.querySelector("[data-fx-distance]").value=fx.distance;host.querySelector("[data-fx-duration]").value=fx.duration; };
 
         host.querySelector(".tq-parallax-dev-toggle").onclick = () => panel.hidden = !panel.hidden;
         host.querySelector("[data-fx-clear]").onclick = clearRegion;
@@ -264,6 +297,7 @@
                         clone.style.pointerEvents="none";
                         region.appendChild(clone);
                         stage.appendChild(region);
+                        draftData = { assetId: asset.dataset.tqAssetId, assetLabel: asset.dataset.tqAssetLabel || asset.dataset.tqAssetId, bounds: { x:(minX-assetRect.left)/assetRect.width, y:(minY-assetRect.top)/assetRect.height, w:width/assetRect.width, h:height/assetRect.height }, points: points.map(p=>({x:(p.x-assetRect.left)/assetRect.width,y:(p.y-assetRect.top)/assetRect.height})) };
                         apply();
                     }
                 }
