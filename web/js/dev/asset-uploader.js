@@ -5,6 +5,9 @@
     const DEFAULT_BRANCH = "develop";
     const DEFAULT_ROOT_PATH = "web/assets";
 
+    const originalVisualState = new WeakMap();
+    const localPreviewUrls = new Map();
+
     const COMMON_FOLDERS = Object.freeze([
         { value: "web/assets", label: "Assets · raiz" },
         { value: "web/assets/ui", label: "UI" },
@@ -107,11 +110,136 @@
         return index > 0 ? clean.slice(0, index) : clean;
     }
 
+    function selectedAssetElement() {
+        return document.querySelector('[data-tq-dev-selected="true"]');
+    }
+
     function selectedAssetFolder(rootPath) {
-        const selected = document.querySelector('[data-tq-dev-selected="true"]');
+        const selected = selectedAssetElement();
         const rawUrl = assetUrlFromElement(selected);
         const repositoryPath = repositoryAssetPathFromUrl(rawUrl, rootPath);
         return repositoryPath ? folderOf(repositoryPath) : "";
+    }
+
+    function assetPreviewKey(element) {
+        if (!(element instanceof Element)) return "";
+        return element.dataset.tqAssetId
+            || element.dataset.tqDevId
+            || element.getAttribute("id")
+            || "";
+    }
+
+    function visualTargets(element) {
+        if (!(element instanceof Element)) return [];
+
+        if (element instanceof HTMLImageElement) return [{ element, kind: "image" }];
+
+        const image = element.querySelector("img");
+        if (image instanceof HTMLImageElement) return [{ element: image, kind: "image" }];
+
+        const style = root.getComputedStyle(element);
+        if (style.backgroundImage && style.backgroundImage !== "none") {
+            return [{ element, kind: "background" }];
+        }
+
+        return [];
+    }
+
+    function rememberOriginal(target) {
+        if (originalVisualState.has(target.element)) return;
+
+        if (target.kind === "image") {
+            originalVisualState.set(target.element, {
+                kind: "image",
+                src: target.element.getAttribute("src") || ""
+            });
+            return;
+        }
+
+        originalVisualState.set(target.element, {
+            kind: "background",
+            backgroundImage: target.element.style.backgroundImage || ""
+        });
+    }
+
+    function applyPreviewUrl(element, url) {
+        const targets = visualTargets(element);
+        if (!targets.length) return false;
+
+        targets.forEach((target) => {
+            rememberOriginal(target);
+            if (target.kind === "image") {
+                target.element.src = url;
+            } else {
+                target.element.style.backgroundImage = 'url("' + url.replace(/"/g, "%22") + '")';
+            }
+            target.element.dataset.tqLocalPreview = "true";
+        });
+
+        return true;
+    }
+
+    function applyLocalFilePreview(file) {
+        const selected = selectedAssetElement();
+        if (!(selected instanceof Element)) {
+            return { ok: false, message: "Selecione primeiro um asset no UX." };
+        }
+
+        const key = assetPreviewKey(selected);
+        if (!key) {
+            return { ok: false, message: "Esse item não possui um ID de asset utilizável." };
+        }
+
+        const previousUrl = localPreviewUrls.get(key);
+        if (previousUrl) URL.revokeObjectURL(previousUrl);
+
+        const url = URL.createObjectURL(file);
+        const applied = applyPreviewUrl(selected, url);
+        if (!applied) {
+            URL.revokeObjectURL(url);
+            return { ok: false, message: "O item selecionado não possui imagem/background para prévia." };
+        }
+
+        localPreviewUrls.set(key, url);
+        return { ok: true, key, url };
+    }
+
+    function restoreSelectedPreview() {
+        const selected = selectedAssetElement();
+        if (!(selected instanceof Element)) {
+            return { ok: false, message: "Selecione primeiro um asset no UX." };
+        }
+
+        const targets = visualTargets(selected);
+        if (!targets.length) {
+            return { ok: false, message: "O item selecionado não possui imagem/background para restaurar." };
+        }
+
+        let restored = false;
+        targets.forEach((target) => {
+            const original = originalVisualState.get(target.element);
+            if (!original) return;
+
+            if (original.kind === "image") {
+                target.element.setAttribute("src", original.src);
+            } else {
+                target.element.style.backgroundImage = original.backgroundImage;
+            }
+            delete target.element.dataset.tqLocalPreview;
+            originalVisualState.delete(target.element);
+            restored = true;
+        });
+
+        const key = assetPreviewKey(selected);
+        const url = localPreviewUrls.get(key);
+        if (url) {
+            URL.revokeObjectURL(url);
+            localPreviewUrls.delete(key);
+        }
+
+        return restored
+            ? { ok: true }
+            : { ok: false, message: "Esse item ainda não tem uma prévia local aplicada." };
     }
 
     function buildUploadUrl(repository, branch, folder) {
@@ -181,6 +309,22 @@
                     Usar pasta do item selecionado
                 </button>
 
+                <fieldset class="tq-asset-upload-dev-local" data-upload-local-drop>
+                    <legend>Prévia local · tempo real</legend>
+                    <input
+                        data-upload-local-file
+                        type="file"
+                        accept=".webp,.png,.jpg,.jpeg,.gif,.svg,image/webp,image/png,image/jpeg,image/gif,image/svg+xml"
+                        hidden>
+                    <strong data-upload-local-name>Nenhum arquivo local</strong>
+                    <small>Escolha uma imagem do computador e ela entra imediatamente no item selecionado no UX. Não faz upload.</small>
+                    <div class="tq-asset-upload-dev-actions">
+                        <button type="button" class="is-primary" data-upload-local-open>🖼 Escolher arquivo</button>
+                        <button type="button" data-upload-local-restore>↩ Restaurar</button>
+                    </div>
+                    <small class="tq-asset-upload-dev-drop-hint">Você também pode arrastar a imagem para esta área.</small>
+                </fieldset>
+
                 <div class="tq-asset-upload-dev-actions">
                     <button type="button" class="is-primary" data-upload-open>
                         ⬆ Subir arquivo
@@ -204,6 +348,9 @@
         const customRow = host.querySelector("[data-upload-custom-row]");
         const customInput = host.querySelector("[data-upload-custom]");
         const selectedLabel = host.querySelector("[data-upload-selected]");
+        const localFileInput = host.querySelector("[data-upload-local-file]");
+        const localFileName = host.querySelector("[data-upload-local-name]");
+        const localDrop = host.querySelector("[data-upload-local-drop]");
 
         function currentFolder() {
             if (folderSelect.value === "__custom__") {
@@ -270,6 +417,59 @@
             openExternal(buildFolderUrl(repository, branch, folder));
         });
 
+        function handleLocalFile(file) {
+            if (!(file instanceof File)) return;
+
+            if (!file.type.startsWith("image/") && !/\.(webp|png|jpe?g|gif|svg)$/i.test(file.name)) {
+                status.textContent = "Formato de imagem não suportado";
+                return;
+            }
+
+            const result = applyLocalFilePreview(file);
+            if (!result.ok) {
+                status.textContent = result.message;
+                return;
+            }
+
+            localFileName.textContent = file.name;
+            status.textContent = "Prévia aplicada em tempo real";
+        }
+
+        host.querySelector("[data-upload-local-open]").addEventListener("click", () => {
+            localFileInput.value = "";
+            localFileInput.click();
+        });
+
+        localFileInput.addEventListener("change", () => {
+            handleLocalFile(localFileInput.files?.[0]);
+        });
+
+        host.querySelector("[data-upload-local-restore]").addEventListener("click", () => {
+            const result = restoreSelectedPreview();
+            status.textContent = result.ok ? "Asset original restaurado" : result.message;
+            if (result.ok) localFileName.textContent = "Nenhum arquivo local";
+        });
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+            localDrop.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                localDrop.classList.add("is-dragging");
+            });
+        });
+
+        ["dragleave", "drop"].forEach((eventName) => {
+            localDrop.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                localDrop.classList.remove("is-dragging");
+            });
+        });
+
+        localDrop.addEventListener("drop", (event) => {
+            handleLocalFile(event.dataTransfer?.files?.[0]);
+        });
+
         syncCustomVisibility();
     }
 
@@ -278,6 +478,8 @@
         mount,
         normalizeAssetFolder,
         repositoryAssetPathFromUrl,
-        buildUploadUrl
+        buildUploadUrl,
+        applyLocalFilePreview,
+        restoreSelectedPreview
     });
 })(globalThis);
