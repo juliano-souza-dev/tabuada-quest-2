@@ -7,6 +7,10 @@
         Object.freeze({ id: "pirate-port", label: "Porto pirata", src: "./assets/backgrounds/home-pirate-port.webp" })
     ]);
 
+    const nameplates = Object.freeze([
+        Object.freeze({ id: "nameplate-wood", label: "Madeira", asset: "./assets/ui/header_name.webp?v=20260923-header-v1", isDefault: true })
+    ]);
+
     const profileFrames = Object.freeze([
         Object.freeze({ id: "simple", label: "Simples", src: null, isDefault: true }),
         Object.freeze({ id: "pirate-treasure", label: "Tesouro pirata", src: "./assets/frames/profile-frame-pirate-treasure.webp" }),
@@ -745,6 +749,7 @@
         getIslandPrimaryReward,
         homeBackgrounds,
         profileFrames,
+        nameplates,
         shopCatalog,
         getShopItem,
         rubyShopCatalog,
@@ -764,6 +769,7 @@
         getChestKit,
         defaultHomeBackgroundId: "pirate-main",
         defaultProfileFrameId: "simple",
+        defaultNameplateId: "nameplate-wood",
         assets: Object.freeze({
             avatars: Object.freeze({
                 luna: "./assets/avatars/avatar-luna-visual-base.webp",
