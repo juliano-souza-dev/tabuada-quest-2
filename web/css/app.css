@@ -1,7 +1,7 @@
 @import url("./tokens.css");
 @import url("./base.css?v=20260922-safe-viewport-v1");
 @import url("./screens/auth.css?v=20260922-safe-viewport-v1");
-@import url("./screens/home.css?v=20260924-global-editor-v6");
+@import url("./screens/home.css?v=20260924-global-editor-v7");
 @import url("./screens/crew.css?v=20260923-tavern-calibration-v5");
 @import url("./screens/collectibles.css?v=20260922-collectibles-arrow-mask");
 @import url("./screens/items.css?v=20260924-inventory-art-v1");
@@ -131,6 +131,10 @@
     pointer-events: none !important;
 }
 
+.tq-exit-dev{position:fixed;right:16px;bottom:208px;z-index:100008;display:flex;flex-direction:column;align-items:flex-end;font:600 12px/1.25 Arial,sans-serif;color:#fff}
+.tq-exit-dev-toggle{width:54px;height:54px;border:2px solid #e5bd54;border-radius:50%;background:#4f211c;color:#ffe5cf;font-weight:900;letter-spacing:.02em;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.tq-exit-dev-toggle:hover,.tq-exit-dev-toggle:focus-visible{background:#6d2a22;outline:2px solid rgba(255,225,138,.8);outline-offset:2px}
+.tq-exit-dev-toggle:active{transform:translateY(1px)}
 .tq-parallax-dev{position:fixed;right:16px;bottom:16px;z-index:100000;display:flex;flex-direction:column;align-items:flex-end;font:600 12px/1.25 Arial,sans-serif;color:#fff}
 .tq-parallax-dev-toggle{order:2;width:54px;height:54px;border:2px solid #e5bd54;border-radius:50%;background:#082738;color:#ffe18a;font-weight:900}
 .tq-parallax-dev-panel{order:1;width:280px;margin:0 0 8px;padding:12px;display:grid;gap:9px;border:1px solid #d7b554;border-radius:12px;background:rgba(5,29,41,.97);box-shadow:0 12px 32px rgba(0,0,0,.35)}
@@ -146,4 +150,4 @@
 
 .tq-parallax-lasso{position:fixed;inset:0;width:100vw;height:100vh;z-index:100001;pointer-events:none;overflow:visible}
 .tq-parallax-lasso-shape{fill:rgba(255,240,106,.14);stroke:#fff06a;stroke-width:2;stroke-dasharray:7 5;vector-effect:non-scaling-stroke}
-@media (max-width:620px){.tq-parallax-dev{right:8px;bottom:8px}}
+@media (max-width:620px){.tq-parallax-dev{right:8px;bottom:8px}.tq-exit-dev{right:8px;bottom:200px}}
