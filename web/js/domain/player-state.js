@@ -313,7 +313,7 @@
 
         if (migrated.schemaVersion === 3) {
             const player = isObject(migrated.player) ? migrated.player : {};
-            migrated = { ...migrated, schemaVersion: 4, player: { ...player, profileFrameId: player.profileFrameId === "tide-wheel" ? "tide-wheel" : DEFAULT_PROFILE_FRAME_ID } };
+            migrated = { ...migrated, schemaVersion: 4, player: { ...player, profileFrameId: player.profileFrameId === "tide-wheel" ? "tide-wheel" : "simple" } };
         }
 
         if (migrated.schemaVersion === 4) {
