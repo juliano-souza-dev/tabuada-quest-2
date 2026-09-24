@@ -146,12 +146,75 @@
         render();
     }
 
-    function mountParallaxPrototype() {
+    function mountParallaxPrototype(screenId, screenRoot) {
         document.querySelector(".tq-parallax-dev")?.remove();
-        const stage = appRoot.querySelector(".tq-canonical-stage");
-        if (!stage) return;
-        const assets = [...appRoot.querySelectorAll("[data-tq-asset-id]")];
-        if (!assets.length) return;
+
+        const activeRoot = screenRoot instanceof Element
+            ? screenRoot
+            : appRoot.firstElementChild || appRoot;
+        const activeScreenId = String(screenId || "screen");
+
+        const explicitAssets = [...activeRoot.querySelectorAll("[data-tq-asset-id]")];
+        const looseImages = [...activeRoot.querySelectorAll("img")]
+            .filter((image) => !image.closest("[data-tq-asset-id]"));
+        const backgroundAssets = [...activeRoot.querySelectorAll("*")]
+            .filter((element) => {
+                if (element.closest(".tq-parallax-region, .tq-parallax-dev")) return false;
+                const backgroundImage = root.getComputedStyle(element).backgroundImage;
+                return backgroundImage && backgroundImage !== "none";
+            })
+            .filter((element) => !explicitAssets.includes(element));
+
+        const assets = [...new Set([...explicitAssets, ...looseImages, ...backgroundAssets])];
+        if (!assets.length) assets.push(activeRoot);
+
+        const assetEntries = assets.map((asset, index) => {
+            const id = asset.dataset.tqAssetId
+                || asset.dataset.tqDevId
+                || activeScreenId + ".fx.asset-" + (index + 1);
+            const label = asset.dataset.tqAssetLabel
+                || asset.dataset.tqDevLabel
+                || asset.getAttribute("alt")
+                || asset.getAttribute("aria-label")
+                || (asset === activeRoot ? "Tela inteira" : id);
+            asset.dataset.tqFxId = id;
+            return { id, label, asset };
+        });
+        const assetById = new Map(assetEntries.map((entry) => [entry.id, entry.asset]));
+
+        const visualElement = (asset) => {
+            if (!(asset instanceof Element)) return null;
+            if (asset instanceof HTMLImageElement) return asset;
+            const backgroundImage = root.getComputedStyle(asset).backgroundImage;
+            if (backgroundImage && backgroundImage !== "none") return asset;
+            return asset.querySelector("img") || asset;
+        };
+
+        const resolveStage = (asset) => {
+            const stage = asset?.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
+                || activeRoot;
+            if (root.getComputedStyle(stage).position === "static") {
+                stage.style.position = "relative";
+            }
+            return stage;
+        };
+
+        const stripCloneIdentity = (clone) => {
+            clone.removeAttribute("id");
+            clone.removeAttribute("data-tq-asset-id");
+            clone.removeAttribute("data-tq-dev-id");
+            clone.removeAttribute("data-tq-fx-id");
+            clone.querySelectorAll?.("[id]").forEach((node) => node.removeAttribute("id"));
+            clone.querySelectorAll?.("[data-tq-asset-id],[data-tq-dev-id],[data-tq-fx-id]").forEach((node) => {
+                node.removeAttribute("data-tq-asset-id");
+                node.removeAttribute("data-tq-dev-id");
+                node.removeAttribute("data-tq-fx-id");
+            });
+            clone.dataset.fxPrimary = "true";
+            return clone;
+        };
+
+        let stage = resolveStage(assetEntries[0]?.asset || activeRoot);
 
         const host = document.createElement("aside");
         host.className = "tq-parallax-dev";
