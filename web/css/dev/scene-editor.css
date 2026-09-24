@@ -77,6 +77,23 @@
     padding: 6px 8px;
 }
 
+.tq-scene-dev-panel select {
+    color-scheme: dark;
+    color: #fff8df;
+    background: #102f3f;
+    border-color: rgba(229, 189, 84, .58);
+}
+
+.tq-scene-dev-panel select option {
+    color: #fff8df;
+    background: #102f3f;
+}
+
+.tq-scene-dev-panel select:focus {
+    outline: 2px solid #e5bd54;
+    outline-offset: 1px;
+}
+
 .tq-scene-dev-panel button {
     padding: 6px 8px;
     cursor: pointer;
@@ -221,8 +238,9 @@
 
 @media (max-width: 620px) {
     .tq-scene-dev {
-        left: 8px;
-        bottom: 8px;
+        right: 8px;
+        bottom: 68px;
+        left: auto;
     }
 
     .tq-scene-dev-panel {
