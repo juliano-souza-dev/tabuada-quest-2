@@ -399,6 +399,7 @@
                     <span data-dev-compact-name>Nenhum selecionado</span>
                     <small>Ajustar</small>
                 </button>
+                <button type="button" data-dev-compact-save aria-label="Salvar item e selecionar outro" title="Salvar e próximo">✓</button>
                 <button type="button" data-dev-compact-undo aria-label="Desfazer última alteração" title="Desfazer">↶</button>
                 <button type="button" data-dev-compact-close aria-label="Sair do editor visual" title="Fechar editor">×</button>
             </div>
@@ -424,6 +425,7 @@
         const compactBar = host.querySelector("[data-dev-compact]");
         const compactName = host.querySelector("[data-dev-compact-name]");
         const compactAdjustButton = host.querySelector("[data-dev-compact-adjust]");
+        const compactSaveButton = host.querySelector("[data-dev-compact-save]");
         const compactUndoButton = host.querySelector("[data-dev-compact-undo]");
         const compactCloseButton = host.querySelector("[data-dev-compact-close]");
         const collapseButton = host.querySelector("[data-dev-collapse]");
@@ -578,7 +580,8 @@
             const compactVisible = opened && collapsed && isMobileEditor();
             panel.hidden = !opened || compactVisible;
             compactBar.hidden = !compactVisible;
-            compactName.textContent = selected?.label || "Nenhum selecionado";
+            compactName.textContent = selected?.label || "Toque no próximo elemento";
+            compactSaveButton.disabled = !selected;
             compactUndoButton.disabled = history.length === 0;
             host.classList.toggle("tq-scene-dev--collapsed", compactVisible);
         }
@@ -587,6 +590,22 @@
             collapsed = Boolean(nextCollapsed && opened && isMobileEditor());
             syncEditorChrome();
             scheduleOverlay();
+        }
+
+        function saveAndSelectNext() {
+            if (!selected) return;
+
+            persist("Salvo · selecione outro elemento");
+            selected.element.removeAttribute("data-tq-dev-selected");
+            selected = null;
+            overlay.hidden = true;
+
+            if (isMobileEditor()) {
+                collapsed = true;
+            }
+
+            refreshInspector();
+            syncEditorChrome();
         }
 
         function undoLastChange() {
@@ -974,6 +993,7 @@
         });
         collapseButton.addEventListener("click", () => setCollapsed(true));
         compactAdjustButton.addEventListener("click", () => setCollapsed(false));
+        compactSaveButton.addEventListener("click", saveAndSelectNext);
         compactUndoButton.addEventListener("click", undoLastChange);
         compactCloseButton.addEventListener("click", () => setOpened(false));
         [inputX, inputY, inputSx, inputSy].forEach((input) => input.addEventListener("change", setFromInspector));
