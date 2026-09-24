@@ -9,23 +9,6 @@
         return item ? { id: item.id, label: item.label, src: item.asset, isShopItem: true } : null;
     }
 
-    function normalizeShopFrame(item) {
-        return item ? { id: item.id, label: item.label, src: item.asset, isShopItem: true } : null;
-    }
-
-    function resolveHomeBackground(backgroundId) {
-        return TQ.content.homeBackgrounds.find((item) => item.id === backgroundId)
-            || normalizeShopBackground(TQ.content.shopCatalog.backgrounds.find((item) => item.id === backgroundId))
-            || TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)
-            || TQ.content.homeBackgrounds[0];
-    }
-
-    function resolveProfileFrame(frameId) {
-        return TQ.content.profileFrames.find((item) => item.id === frameId)
-            || normalizeShopFrame(TQ.content.shopCatalog.frames.find((item) => item.id === frameId))
-            || TQ.content.profileFrames.find((item) => item.id === TQ.content.defaultProfileFrameId)
-            || TQ.content.profileFrames[0];
-    }
 
     function clampPercent(value) {
         return Math.max(0, Math.min(100, value));
@@ -36,7 +19,6 @@
         const avatarSrc = TQ.content.assets.avatars[avatarId];
         const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
-        const profileFrame = resolveProfileFrame(state.player.profileFrameId);
         const nameplate = TQ.content.nameplates.find((item) => item.id === state.player.nameplateId)
             || TQ.content.nameplates.find((item) => item.id === TQ.content.defaultNameplateId)
             || TQ.content.nameplates[0];
@@ -92,9 +74,8 @@
                      alt=""
                      aria-hidden="true">
 
-                <button class="profile-slot ${profileFrame.src ? "has-frame" : "is-simple"}" type="button" data-action="items" aria-label="Abrir Baú de Itens para trocar moldura">
-                    <img class="profile-slot-avatar" src="${avatarSrc}" alt="">
-                    ${profileFrame.src ? `<img class="profile-slot-frame" src="${profileFrame.src}" alt="" aria-hidden="true">` : ""}
+                <button class="profile-slot" type="button" data-action="items" aria-label="Abrir Baú de Itens">
+                    <img class="profile-slot-avatar" src="${avatarSrc}" alt="Avatar do jogador">
                 </button>
 
                 <div class="hud-level-slot" aria-label="Nível ${state.progression.level}">${state.progression.level}</div>
@@ -376,7 +357,6 @@
     TQ.screens = TQ.screens || {};
     TQ.screens.home = Object.freeze({
         renderHomeScreen,
-        resolveHomeBackground,
-        resolveProfileFrame
+        resolveHomeBackground
     });
 })(globalThis);
