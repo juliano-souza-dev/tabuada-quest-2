@@ -9,6 +9,13 @@
         return item ? { id: item.id, label: item.label, src: item.asset, isShopItem: true } : null;
     }
 
+    function resolveHomeBackground(backgroundId) {
+        return TQ.content.homeBackgrounds.find((item) => item.id === backgroundId)
+            || normalizeShopBackground(TQ.content.shopCatalog.backgrounds.find((item) => item.id === backgroundId))
+            || TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)
+            || TQ.content.homeBackgrounds[0];
+    }
+
 
     function clampPercent(value) {
         return Math.max(0, Math.min(100, value));
