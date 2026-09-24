@@ -540,6 +540,60 @@
         const safeArea = screen.querySelector(".tq-safe-visual-area");
         const stage = screen.querySelector(".region-islands-canonical-stage");
 
+        // Region 1 parallax test: move layered island art at different depths while the chart background stays stable.
+        if (regionId === 1 && stage) {
+            const parallaxLayers = Array.from(stage.querySelectorAll(".region-island-art-shell"));
+            let targetX = 0;
+            let targetY = 0;
+            let currentX = 0;
+            let currentY = 0;
+            let parallaxFrame = 0;
+
+            parallaxLayers.forEach((layer, index) => {
+                layer.dataset.parallaxDepth = String(0.35 + (index * 0.16));
+                layer.style.willChange = "transform";
+            });
+
+            const renderParallax = () => {
+                currentX += (targetX - currentX) * 0.09;
+                currentY += (targetY - currentY) * 0.09;
+                parallaxLayers.forEach((layer) => {
+                    const depth = Number(layer.dataset.parallaxDepth) || 0.35;
+                    layer.style.transform = `translate3d(${currentX * depth}px, ${currentY * depth}px, 0)`;
+                });
+                if (Math.abs(targetX - currentX) > 0.02 || Math.abs(targetY - currentY) > 0.02) {
+                    parallaxFrame = root.requestAnimationFrame(renderParallax);
+                } else {
+                    parallaxFrame = 0;
+                }
+            };
+
+            const setParallaxTarget = (clientX, clientY) => {
+                const rect = stage.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+                const nx = ((clientX - rect.left) / rect.width - 0.5) * 2;
+                const ny = ((clientY - rect.top) / rect.height - 0.5) * 2;
+                targetX = Math.max(-1, Math.min(1, nx)) * 9;
+                targetY = Math.max(-1, Math.min(1, ny)) * 7;
+                if (!parallaxFrame) parallaxFrame = root.requestAnimationFrame(renderParallax);
+            };
+
+            stage.addEventListener("pointermove", (event) => {
+                if (event.pointerType === "mouse") setParallaxTarget(event.clientX, event.clientY);
+            }, { passive: true });
+
+            stage.addEventListener("touchmove", (event) => {
+                const touch = event.touches?.[0];
+                if (touch) setParallaxTarget(touch.clientX, touch.clientY);
+            }, { passive: true });
+
+            stage.addEventListener("pointerleave", () => {
+                targetX = 0;
+                targetY = 0;
+                if (!parallaxFrame) parallaxFrame = root.requestAnimationFrame(renderParallax);
+            }, { passive: true });
+        }
+
         const regionLoader = screen.querySelector(".region-assets-loader");
         const regionImages = Array.from(stage?.querySelectorAll("img") || []);
         const waitForImage = (image) => {
