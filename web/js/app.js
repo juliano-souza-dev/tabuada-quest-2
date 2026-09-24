@@ -161,8 +161,9 @@
                 <div class="tq-parallax-background-context">Fundo atual: <b data-fx-background></b></div>
                 <select data-fx-asset>${assets.map((asset) => `<option value="${asset.dataset.tqAssetId}">${asset.dataset.tqAssetLabel || asset.dataset.tqAssetId} · ${asset.dataset.tqAssetRole}</option>`).join("")}</select>
                 <button type="button" data-fx-select>Desenhar área</button>
-                <label>Direção <select data-fx-axis><option value="x">Horizontal</option><option value="y">Vertical</option></select></label>
-                <label>Distância <input data-fx-distance type="range" min="1" max="60" value="14"></label>
+                <label>Movimento <select data-fx-mode><option value="alternate">Vai e volta</option><option value="continuous">Contínuo</option></select></label>
+                <label>Direção <select data-fx-direction><option value="left">← Esquerda</option><option value="right">→ Direita</option><option value="up">↑ Cima</option><option value="down">↓ Baixo</option></select></label>
+                <label data-fx-distance-row>Distância <input data-fx-distance type="range" min="1" max="60" value="14"></label>
                 <label>Velocidade <input data-fx-duration type="range" min="1" max="12" step=".25" value="5"></label>
                 <div class="tq-parallax-dev-actions"><button type="button" data-fx-save>💾 Salvar efeito</button><button type="button" data-fx-new>＋ Novo efeito</button></div>
                 <div class="tq-parallax-dev-actions"><button type="button" data-fx-play>▶ Aplicar</button><button type="button" data-fx-clear>Excluir rascunho</button></div>
@@ -188,11 +189,16 @@
             const legacy = JSON.parse(root.localStorage.getItem(legacyStorageKey) || "[]");
             return legacy.map((fx) => ({ ...fx, backgroundId: activeBackgroundId, backgroundLabel: activeBackgroundLabel }));
         } catch (_) { return []; } })();
+        effects = effects.map((fx) => ({
+            ...fx,
+            mode: fx.mode || "alternate",
+            direction: fx.direction || (fx.axis === "y" ? "up" : "left")
+        }));
 
         const persistEffects = () => root.localStorage.setItem(storageKey, JSON.stringify(effects));
         const savedSelect = host.querySelector("[data-fx-saved]");
         const refreshSaved = () => {
-            savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.filter((fx) => fx.backgroundId === activeBackgroundId).map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+fx.axis+' · '+fx.distance+'px</option>').join("");
+            savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.filter((fx) => fx.backgroundId === activeBackgroundId).map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+(fx.mode === "continuous" ? "contínuo "+fx.direction : "vai e volta")+'</option>').join("");
         };
         const selectedAsset = () => appRoot.querySelector(`[data-tq-asset-id="${host.querySelector("[data-fx-asset]").value}"]`);
         const clearRegion = () => {
@@ -200,18 +206,68 @@
             region?.remove(); region = null;
             draft?.remove(); draft = null;
         };
-        const animateRegion = (target, axis, distance, duration) => target.querySelector("img").animate(
-            axis === "x" ? [{ transform: "translateX(-"+distance+"px) scale(1.08)" }, { transform: "translateX("+distance+"px) scale(1.08)" }]
-                         : [{ transform: "translateY(-"+distance+"px) scale(1.08)" }, { transform: "translateY("+distance+"px) scale(1.08)" }],
-            { duration: duration * 1000, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
-        );
+        const animateRegion = (target, config) => {
+            target.querySelectorAll("[data-fx-loop-copy]").forEach((copy) => copy.remove());
+            const primary = target.querySelector("img");
+            if (!primary) return { cancel() {} };
+            const mode = config.mode || "alternate";
+            const direction = config.direction || (config.axis === "y" ? "up" : "left");
+            const axis = ["up", "down"].includes(direction) ? "y" : "x";
+            const durationMs = Math.max(.25, Number(config.duration) || 5) * 1000;
+
+            if (mode !== "continuous") {
+                const distance = Math.max(1, Number(config.distance) || 14);
+                const player = primary.animate(
+                    axis === "x"
+                        ? [{ transform: "translateX(-"+distance+"px) scale(1.08)" }, { transform: "translateX("+distance+"px) scale(1.08)" }]
+                        : [{ transform: "translateY(-"+distance+"px) scale(1.08)" }, { transform: "translateY("+distance+"px) scale(1.08)" }],
+                    { duration: durationMs, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
+                );
+                return { cancel: () => player.cancel() };
+            }
+
+            const loopCopy = primary.cloneNode(false);
+            loopCopy.dataset.fxLoopCopy = "true";
+            const baseLeft = Number.parseFloat(primary.style.left) || 0;
+            const baseTop = Number.parseFloat(primary.style.top) || 0;
+            const forward = direction === "left" || direction === "up" ? -1 : 1;
+            if (axis === "x") loopCopy.style.left = (baseLeft - forward * 100) + "%";
+            else loopCopy.style.top = (baseTop - forward * 100) + "%";
+            target.appendChild(loopCopy);
+
+            const span = axis === "x" ? target.clientWidth : target.clientHeight;
+            const delta = forward * span;
+            const frames = axis === "x"
+                ? [{ transform: "translateX(0)" }, { transform: "translateX("+delta+"px)" }]
+                : [{ transform: "translateY(0)" }, { transform: "translateY("+delta+"px)" }];
+            const options = { duration: durationMs, iterations: Infinity, easing: "linear" };
+            const players = [primary.animate(frames, options), loopCopy.animate(frames, options)];
+            return {
+                cancel() {
+                    players.forEach((player) => player.cancel());
+                    loopCopy.remove();
+                }
+            };
+        };
+        const syncModeUi = () => {
+            const continuous = host.querySelector("[data-fx-mode]").value === "continuous";
+            host.querySelector("[data-fx-distance]").disabled = continuous;
+            host.querySelector("[data-fx-distance-row]").style.opacity = continuous ? ".45" : "1";
+        };
+        const currentEffectConfig = () => {
+            const direction = host.querySelector("[data-fx-direction]").value;
+            return {
+                mode: host.querySelector("[data-fx-mode]").value,
+                direction,
+                axis: ["up", "down"].includes(direction) ? "y" : "x",
+                distance: Number(host.querySelector("[data-fx-distance]").value),
+                duration: Number(host.querySelector("[data-fx-duration]").value)
+            };
+        };
         const apply = () => {
             if (!region) return;
             animation?.cancel();
-            const axis = host.querySelector("[data-fx-axis]").value;
-            const distance = Number(host.querySelector("[data-fx-distance]").value);
-            const duration = Number(host.querySelector("[data-fx-duration]").value) * 1000;
-            animation = animateRegion(region, axis, distance, duration / 1000);
+            animation = animateRegion(region, currentEffectConfig());
         };
 
         const renderEffect = (fx, editable = false) => {
@@ -222,23 +278,25 @@
             const el = document.createElement("div"); el.className = "tq-parallax-region" + (editable ? " is-editing" : ""); el.dataset.fxId = fx.id;
             el.style.left=((assetRect.left-stageRect.left+r.x*assetRect.width)/stageRect.width*100)+"%"; el.style.top=((assetRect.top-stageRect.top+r.y*assetRect.height)/stageRect.height*100)+"%"; el.style.width=(r.w*assetRect.width/stageRect.width*100)+"%"; el.style.height=(r.h*assetRect.height/stageRect.height*100)+"%";
             const poly=fx.points.map(p=>(((p.x-r.x)/r.w)*100).toFixed(2)+"% "+(((p.y-r.y)/r.h)*100).toFixed(2)+"%").join(","); el.style.clipPath="polygon("+poly+")"; el.style.webkitClipPath=el.style.clipPath;
-            const clone=asset.cloneNode(false); clone.removeAttribute("data-tq-asset-id"); clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx.axis,fx.distance,fx.duration); return el;
+            const clone=asset.cloneNode(false); clone.removeAttribute("data-tq-asset-id"); clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx); return el;
         };
         effects.filter((fx) => fx.backgroundId === activeBackgroundId).forEach((fx)=>renderEffect(fx)); refreshSaved(); persistEffects();
 
         host.querySelector("[data-fx-save]").onclick = () => {
             if (!draftData || !region) return;
-            const fx={...draftData,id:"fx_"+Date.now(),backgroundId:activeBackgroundId,backgroundLabel:activeBackgroundLabel,axis:host.querySelector("[data-fx-axis]").value,distance:Number(host.querySelector("[data-fx-distance]").value),duration:Number(host.querySelector("[data-fx-duration]").value)};
+            const fx={...draftData,id:"fx_"+Date.now(),backgroundId:activeBackgroundId,backgroundLabel:activeBackgroundLabel,...currentEffectConfig()};
             effects.push(fx); persistEffects(); region.remove(); region=null; animation?.cancel(); animation=null; draftData=null; renderEffect(fx); refreshSaved(); savedSelect.value=fx.id;
         };
         host.querySelector("[data-fx-new]").onclick = () => clearRegion();
         host.querySelector("[data-fx-delete]").onclick = () => { const id=savedSelect.value;if(!id)return;effects=effects.filter(f=>f.id!==id);persistEffects();stage.querySelector('[data-fx-id="'+id+'"]')?.remove();refreshSaved(); };
-        host.querySelector("[data-fx-load]").onclick = () => { const fx=effects.find(f=>f.id===savedSelect.value);if(!fx)return;host.querySelector("[data-fx-asset]").value=fx.assetId;host.querySelector("[data-fx-axis]").value=fx.axis;host.querySelector("[data-fx-distance]").value=fx.distance;host.querySelector("[data-fx-duration]").value=fx.duration; };
+        host.querySelector("[data-fx-load]").onclick = () => { const fx=effects.find(f=>f.id===savedSelect.value);if(!fx)return;host.querySelector("[data-fx-asset]").value=fx.assetId;host.querySelector("[data-fx-mode]").value=fx.mode||"alternate";host.querySelector("[data-fx-direction]").value=fx.direction||(fx.axis==="y"?"up":"left");host.querySelector("[data-fx-distance]").value=fx.distance;host.querySelector("[data-fx-duration]").value=fx.duration;syncModeUi(); };
 
         host.querySelector(".tq-parallax-dev-toggle").onclick = () => panel.hidden = !panel.hidden;
         host.querySelector("[data-fx-clear]").onclick = clearRegion;
         host.querySelector("[data-fx-play]").onclick = apply;
-        host.querySelectorAll("input, select[data-fx-axis]").forEach((control) => control.addEventListener("input", apply));
+        host.querySelector("[data-fx-mode]").addEventListener("input", () => { syncModeUi(); apply(); });
+        host.querySelectorAll("input, select[data-fx-direction]").forEach((control) => control.addEventListener("input", apply));
+        syncModeUi();
         host.querySelector("[data-fx-select]").onclick = () => {
             clearRegion();
             const asset = selectedAsset();
