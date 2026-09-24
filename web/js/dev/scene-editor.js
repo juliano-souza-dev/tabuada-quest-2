@@ -273,10 +273,10 @@
         const host = document.createElement("aside");
         host.className = "tq-scene-dev";
         host.innerHTML = `
-            <button type="button" class="tq-scene-dev-toggle">DEV</button>
+            <button type="button" class="tq-scene-dev-toggle">UX</button>
             <section class="tq-scene-dev-panel" hidden>
                 <header>
-                    <strong>Editor visual</strong>
+                    <strong>UX · Editor visual</strong>
                     <span data-dev-status>Pronto</span>
                 </header>
                 <label>Mostrar
