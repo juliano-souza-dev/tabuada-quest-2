@@ -60,6 +60,7 @@
         screen.innerHTML = `
             <img
                 class="home-full-bleed-background"
+                data-tq-asset-id="home.background.bleed" data-tq-asset-role="background" data-tq-asset-label="Fundo externo da Home"
                 src="${displayedBackgroundSrc}"
                 data-default-src="${defaultBackground?.src || displayedBackgroundSrc}"
                 alt=""
@@ -70,26 +71,28 @@
             <div class="home-design-stage tq-canonical-stage">
                 <div class="home-world" aria-hidden="true">
                     <img class="home-background-image"
+                         data-tq-asset-id="home.background.main" data-tq-asset-role="background" data-tq-asset-label="Background principal"
                          src="${displayedBackgroundSrc}"
                          data-default-src="${defaultBackground?.src || displayedBackgroundSrc}"
                          alt="">
                 </div>
 
-                <div class="home-frame" aria-label="Moldura do jogador">
+                <div class="home-frame" aria-label="Moldura do jogador" data-tq-asset-id="home.player.frame" data-tq-asset-role="object" data-tq-asset-label="Moldura do jogador">
                     <img class="home-frame-art" src="${frame.asset}" alt="" aria-hidden="true">
                     <span class="home-frame-text">${state.player.displayName}</span>
                 </div>
 
                 <img class="home-art-overlay"
+                     data-tq-asset-id="home.art.overlay" data-tq-asset-role="overlay" data-tq-asset-label="Arte sobreposta da Home"
                      src="${TQ.content.assets.homeOverlay}"
                      alt=""
                      aria-hidden="true">
 
-                <button class="profile-slot" type="button" data-action="items" aria-label="Abrir Baú de Itens">
+                <button class="profile-slot" type="button" data-action="items" data-tq-asset-id="home.player.portrait" data-tq-asset-role="object" data-tq-asset-label="Retrato do jogador" aria-label="Abrir Baú de Itens">
                     <img class="profile-slot-avatar" src="${avatarSrc}" alt="Avatar do jogador">
                 </button>
 
-                <div class="hud-level-slot" aria-label="Nível ${currentLevel}"><img src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
+                <div class="hud-level-slot" data-tq-asset-id="home.level.badge" data-tq-asset-role="object" data-tq-asset-label="Placa de nível" aria-label="Nível ${currentLevel}"><img src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
 
                 <div class="hud-wallet-slot">
                     <span class="wallet-value coins" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
@@ -97,6 +100,7 @@
                 </div>
 
                 <img class="home-hero-character"
+                     data-tq-asset-id="home.hero" data-tq-asset-role="object" data-tq-asset-label="Personagem"
                      src="${heroSrc}"
                      alt="Avatar selecionado em traje de aventura pirata">
 
