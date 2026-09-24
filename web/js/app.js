@@ -592,7 +592,18 @@
             }
         });
 
-        host.querySelector(".tq-parallax-dev-toggle").onclick = () => panel.hidden = !panel.hidden;
+        host.querySelector(".tq-parallax-dev-toggle").onclick = () => {
+            const opening = panel.hidden;
+            if (opening) {
+                document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel").forEach((candidate) => {
+                    if (candidate !== panel) candidate.hidden = true;
+                });
+                root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
+                    detail: { tool: "fx" }
+                }));
+            }
+            panel.hidden = !opening;
+        };
         host.querySelector("[data-fx-clear]").onclick = clearRegion;
         host.querySelector("[data-fx-play]").onclick = apply;
         host.querySelector("[data-fx-mode]").addEventListener("input", () => { syncModeUi(); apply(); });
