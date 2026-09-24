@@ -232,13 +232,19 @@
         render();
     }
 
-    function mountParallaxPrototype(screenId, screenRoot) {
+    function mountParallaxPrototype(screenId, screenRoot, scope = {}) {
         document.querySelector(".tq-parallax-dev")?.remove();
 
         const activeRoot = screenRoot instanceof Element
             ? screenRoot
             : appRoot.firstElementChild || appRoot;
         const activeScreenId = String(screenId || "screen");
+        const activeRegionId = activeScreenId === "islands"
+            ? (Number(scope.regionId) || null)
+            : null;
+        const activeScopeLabel = activeRegionId
+            ? activeScreenId + " · Região " + activeRegionId
+            : activeScreenId;
 
         const explicitAssets = [...activeRoot.querySelectorAll("[data-tq-asset-id]")];
         const looseImages = [...activeRoot.querySelectorAll("img")]
@@ -354,6 +360,9 @@
                 <div class="tq-parallax-dev-actions"><button type="button" data-fx-play>▶ Aplicar</button><button type="button" data-fx-clear>Excluir rascunho</button></div>
                 <label>Efeitos salvos <select data-fx-saved><option value="">Nenhum</option></select></label>
                 <div class="tq-parallax-dev-actions"><button type="button" data-fx-load>Editar</button><button type="button" data-fx-delete>Excluir salvo</button></div>
+                <div class="tq-parallax-dev-actions"><button type="button" data-fx-export>📤 Exportar</button><button type="button" data-fx-import>📥 Importar</button></div>
+                <input type="file" data-fx-import-file accept=".json,application/json,text/json" hidden>
+                <small>Escopo atual: <b data-fx-scope></b></small>
                 <small>Os efeitos salvos persistem no navegador e podem coexistir no mesmo asset.</small>
             </section>`;
         document.body.appendChild(host);
@@ -373,7 +382,8 @@
         const legacyStorageKey = "tq2.dev.parallax.effects.v3";
         const activeBackgroundId = activeScreenId;
         const activeBackgroundLabel = activeScreenId;
-        host.querySelector("[data-fx-background]").textContent = activeScreenId;
+        host.querySelector("[data-fx-background]").textContent = activeScopeLabel;
+        host.querySelector("[data-fx-scope]").textContent = activeScopeLabel;
         let effects = (() => { try {
             const current = JSON.parse(root.localStorage.getItem(storageKey) || "[]");
             if (current.length) return current;
@@ -388,9 +398,38 @@
         }));
 
         const persistEffects = () => root.localStorage.setItem(storageKey, JSON.stringify(effects));
+        const isActiveScope = (fx) => {
+            if (fx.backgroundId !== activeBackgroundId) return false;
+            if (activeBackgroundId !== "islands") return true;
+            return Number(fx.regionId) === Number(activeRegionId);
+        };
+        const normalizeImportedEffect = (fx) => {
+            if (!fx || typeof fx !== "object") return null;
+            const normalized = { ...fx };
+
+            if (
+                normalized.backgroundId === "islands"
+                && String(normalized.assetId || "").includes("region-islands-background")
+            ) {
+                normalized.assetId = "islands.region.background";
+                normalized.assetLabel = normalized.assetLabel || "Background da região";
+            }
+
+            if (normalized.backgroundId === "islands" && !Number(normalized.regionId)) {
+                if (!activeRegionId) return null;
+                normalized.regionId = activeRegionId;
+            }
+
+            if (normalized.backgroundId !== "islands") {
+                delete normalized.regionId;
+            }
+
+            normalized.id = String(normalized.id || ("fx_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8)));
+            return normalized;
+        };
         const savedSelect = host.querySelector("[data-fx-saved]");
         const refreshSaved = () => {
-            savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.filter((fx) => fx.backgroundId === activeBackgroundId).map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+(fx.mode === "continuous" ? "contínuo "+fx.direction : "vai e volta")+'</option>').join("");
+            savedSelect.innerHTML = '<option value="">Selecione...</option>' + effects.filter(isActiveScope).map((fx, i) => '<option value="'+fx.id+'">'+(i+1)+'. '+fx.assetLabel+' · '+(fx.mode === "continuous" ? "contínuo "+fx.direction : "vai e volta")+'</option>').join("");
         };
         const selectedAsset = () => assetById.get(host.querySelector("[data-fx-asset]").value) || null;
         const clearRegion = () => {
@@ -475,16 +514,83 @@
             const poly=fx.points.map(p=>(((p.x-r.x)/r.w)*100).toFixed(2)+"% "+(((p.y-r.y)/r.h)*100).toFixed(2)+"%").join(","); el.style.clipPath="polygon("+poly+")"; el.style.webkitClipPath=el.style.clipPath;
             const clone=cloneVisualLayer(visual); if (!clone) return null; clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; clone.style.margin="0"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx); return el;
         };
-        effects.filter((fx) => fx.backgroundId === activeBackgroundId).forEach((fx)=>renderEffect(fx)); refreshSaved(); persistEffects();
+        effects.filter(isActiveScope).forEach((fx)=>renderEffect(fx)); refreshSaved(); persistEffects();
 
         host.querySelector("[data-fx-save]").onclick = () => {
             if (!draftData || !region) return;
-            const fx={...draftData,id:"fx_"+Date.now(),backgroundId:activeBackgroundId,backgroundLabel:activeBackgroundLabel,...currentEffectConfig()};
+            const fx={...draftData,id:"fx_"+Date.now(),backgroundId:activeBackgroundId,backgroundLabel:activeBackgroundLabel,regionId:activeRegionId||undefined,...currentEffectConfig()};
             effects.push(fx); persistEffects(); region.remove(); region=null; animation?.cancel(); animation=null; draftData=null; renderEffect(fx); refreshSaved(); savedSelect.value=fx.id;
         };
         host.querySelector("[data-fx-new]").onclick = () => clearRegion();
         host.querySelector("[data-fx-delete]").onclick = () => { const id=savedSelect.value;if(!id)return;effects=effects.filter(f=>f.id!==id);persistEffects();const savedRegion=activeRoot.querySelector('[data-fx-id="'+id+'"]');savedRegion?._fxAnimation?.cancel();savedRegion?.remove();refreshSaved(); };
         host.querySelector("[data-fx-load]").onclick = () => { const fx=effects.find(f=>f.id===savedSelect.value);if(!fx)return;host.querySelector("[data-fx-asset]").value=fx.assetId;host.querySelector("[data-fx-mode]").value=fx.mode||"alternate";host.querySelector("[data-fx-direction]").value=fx.direction||(fx.axis==="y"?"up":"left");host.querySelector("[data-fx-distance]").value=fx.distance;host.querySelector("[data-fx-duration]").value=fx.duration;syncModeUi(); };
+
+        const importFile = host.querySelector("[data-fx-import-file]");
+        host.querySelector("[data-fx-export]").onclick = () => {
+            const payload = {
+                version: 5,
+                exportedAt: new Date().toISOString(),
+                effects
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = "tabuada-quest-parallax-effects.json";
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 0);
+        };
+        host.querySelector("[data-fx-import]").onclick = () => {
+            importFile.value = "";
+            importFile.click();
+        };
+        importFile.addEventListener("change", async () => {
+            const file = importFile.files?.[0];
+            if (!file) return;
+
+            try {
+                const parsed = JSON.parse(await file.text());
+                const incoming = Array.isArray(parsed)
+                    ? parsed
+                    : (Array.isArray(parsed?.effects) ? parsed.effects : []);
+
+                if (!incoming.length) {
+                    root.alert("Nenhum efeito de parallax encontrado nesse arquivo.");
+                    return;
+                }
+
+                let skipped = 0;
+                const normalizedIncoming = incoming.map((fx) => {
+                    const normalized = normalizeImportedEffect(fx);
+                    if (!normalized) skipped += 1;
+                    return normalized;
+                }).filter(Boolean);
+
+                const incomingIds = new Set(normalizedIncoming.map((fx) => fx.id));
+                effects = [
+                    ...effects.filter((fx) => !incomingIds.has(fx.id)),
+                    ...normalizedIncoming
+                ];
+                persistEffects();
+
+                activeRoot.querySelectorAll(".tq-parallax-region").forEach((node) => {
+                    node._fxAnimation?.cancel?.();
+                    node.remove();
+                });
+                effects.filter(isActiveScope).forEach((fx) => renderEffect(fx));
+                refreshSaved();
+
+                const suffix = skipped
+                    ? " " + skipped + " efeito(s) antigo(s) de Ilhas ficaram sem região. Abra a região correta e importe novamente."
+                    : "";
+                root.alert(normalizedIncoming.length + " efeito(s) importado(s)." + suffix);
+            } catch (error) {
+                console.error("Falha ao importar parallax:", error);
+                root.alert("Não foi possível importar esse JSON de parallax.");
+            }
+        });
 
         host.querySelector(".tq-parallax-dev-toggle").onclick = () => panel.hidden = !panel.hidden;
         host.querySelector("[data-fx-clear]").onclick = clearRegion;
@@ -689,7 +795,9 @@
             screenId,
             screenRoot
         });
-        mountParallaxPrototype(screenId, screenRoot);
+        mountParallaxPrototype(screenId, screenRoot, {
+            regionId: context.state?.campaign?.currentRegionId
+        });
         TQ.dev?.settingsPanel?.mount({
             getState: () => state,
             onCommit: commitSettingsState,
