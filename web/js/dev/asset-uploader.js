@@ -4,6 +4,10 @@
     const DEFAULT_REPOSITORY = "juliano-souza-dev/tabuada-quest-2";
     const DEFAULT_BRANCH = "develop";
     const DEFAULT_ROOT_PATH = "web/assets";
+    const LOCAL_DB_NAME = "tq2-dev-local-assets";
+    const LOCAL_DB_VERSION = 1;
+    const LOCAL_LAYER_STORE = "layers";
+    const runtimeObjectUrls = new Map();
 
     const COMMON_FOLDERS = Object.freeze([
         { value: "web/assets", label: "Assets · raiz" },
@@ -183,6 +187,166 @@
             .slice(0, 42) || "asset";
     }
 
+    function openLocalAssetDb() {
+        if (!root.indexedDB) {
+            return Promise.reject(new Error("IndexedDB não disponível"));
+        }
+
+        return new Promise((resolve, reject) => {
+            const request = root.indexedDB.open(LOCAL_DB_NAME, LOCAL_DB_VERSION);
+
+            request.onupgradeneeded = () => {
+                const db = request.result;
+                const store = db.objectStoreNames.contains(LOCAL_LAYER_STORE)
+                    ? request.transaction.objectStore(LOCAL_LAYER_STORE)
+                    : db.createObjectStore(LOCAL_LAYER_STORE, { keyPath: "id" });
+
+                if (!store.indexNames.contains("screenId")) {
+                    store.createIndex("screenId", "screenId", { unique: false });
+                }
+            };
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error || new Error("Falha ao abrir IndexedDB"));
+        });
+    }
+
+    function transactionDone(transaction) {
+        return new Promise((resolve, reject) => {
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error("Falha no IndexedDB"));
+            transaction.onabort = () => reject(transaction.error || new Error("Operação cancelada no IndexedDB"));
+        });
+    }
+
+    async function saveLocalLayerRecord(record) {
+        const db = await openLocalAssetDb();
+        try {
+            const transaction = db.transaction(LOCAL_LAYER_STORE, "readwrite");
+            transaction.objectStore(LOCAL_LAYER_STORE).put(record);
+            await transactionDone(transaction);
+        } finally {
+            db.close();
+        }
+    }
+
+    async function deleteLocalLayerRecord(id) {
+        if (!id) return;
+        const db = await openLocalAssetDb();
+        try {
+            const transaction = db.transaction(LOCAL_LAYER_STORE, "readwrite");
+            transaction.objectStore(LOCAL_LAYER_STORE).delete(String(id));
+            await transactionDone(transaction);
+        } finally {
+            db.close();
+        }
+    }
+
+    async function readLocalLayerRecords(screenId) {
+        const db = await openLocalAssetDb();
+        try {
+            const transaction = db.transaction(LOCAL_LAYER_STORE, "readonly");
+            const store = transaction.objectStore(LOCAL_LAYER_STORE);
+            const index = store.index("screenId");
+            const request = index.getAll(String(screenId || "screen"));
+
+            const records = await new Promise((resolve, reject) => {
+                request.onsuccess = () => resolve(Array.isArray(request.result) ? request.result : []);
+                request.onerror = () => reject(request.error || new Error("Falha ao ler assets locais"));
+            });
+
+            await transactionDone(transaction);
+            return records;
+        } finally {
+            db.close();
+        }
+    }
+
+    function releaseRuntimeUrl(id) {
+        const current = runtimeObjectUrls.get(String(id));
+        if (!current) return;
+        URL.revokeObjectURL(current);
+        runtimeObjectUrls.delete(String(id));
+    }
+
+    function localLayerStage(screenRoot) {
+        if (!(screenRoot instanceof Element)) return null;
+        return screenRoot.querySelector(".tq-canonical-stage")
+            || screenRoot.querySelector(".tq-safe-visual-area")
+            || screenRoot;
+    }
+
+    function createLocalLayerElement(record) {
+        releaseRuntimeUrl(record.id);
+        const objectUrl = URL.createObjectURL(record.blob);
+        runtimeObjectUrls.set(String(record.id), objectUrl);
+
+        const image = document.createElement("img");
+        image.className = "tq-dev-local-live-asset";
+        image.dataset.tqDevId = record.id;
+        image.dataset.tqDevKind = "asset";
+        image.dataset.tqDevRole = "object";
+        image.dataset.tqDevLabel = "Local · " + record.fileName;
+        image.dataset.tqAssetId = record.id;
+        image.dataset.tqAssetRole = "object";
+        image.dataset.tqAssetLabel = "Local · " + record.fileName;
+        image.dataset.tqLocalFile = record.fileName;
+        image.dataset.tqLocalPersisted = "true";
+        image.dataset.tqLocalScreen = record.screenId;
+        image.src = objectUrl;
+        image.alt = "";
+        image.draggable = false;
+
+        image.style.position = "absolute";
+        image.style.left = "30%";
+        image.style.top = "28%";
+        image.style.width = "40%";
+        image.style.height = "auto";
+        image.style.maxWidth = "none";
+        image.style.maxHeight = "60%";
+        image.style.objectFit = "contain";
+        image.style.objectPosition = "center";
+        image.style.zIndex = "500";
+        image.style.pointerEvents = "auto";
+        image.style.userSelect = "none";
+
+        return { image, objectUrl };
+    }
+
+    async function restoreLocalLayers(options = {}) {
+        const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
+        const screenId = String(options.screenId || "screen");
+        if (!screenRoot) return 0;
+
+        try {
+            const records = await readLocalLayerRecords(screenId);
+            const stage = localLayerStage(screenRoot);
+            if (!(stage instanceof Element)) return 0;
+
+            if (root.getComputedStyle(stage).position === "static") {
+                stage.style.position = "relative";
+            }
+
+            let restored = 0;
+            records
+                .sort((a, b) => Number(a.createdAt || 0) - Number(b.createdAt || 0))
+                .forEach((record) => {
+                    const duplicate = [...screenRoot.querySelectorAll("[data-tq-dev-id]")]
+                        .some((element) => element.dataset.tqDevId === record.id);
+                    if (duplicate || !(record.blob instanceof Blob)) return;
+
+                    const { image } = createLocalLayerElement(record);
+                    stage.appendChild(image);
+                    restored += 1;
+                });
+
+            return restored;
+        } catch (error) {
+            console.warn("Falha ao restaurar assets locais:", error);
+            return 0;
+        }
+    }
+
     function mount(options = {}) {
         document.querySelector(".tq-asset-upload-dev")?.remove();
 
@@ -196,7 +360,13 @@
         const screenId = String(options.screenId || "screen");
 
         let replacementPreview = null;
-        const localLayers = [];
+        const localLayers = [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
+            .map((image) => ({
+                id: image.dataset.tqDevId,
+                image,
+                objectUrl: runtimeObjectUrls.get(image.dataset.tqDevId) || image.src,
+                fileName: image.dataset.tqLocalFile || "asset local"
+            }));
 
         const host = document.createElement("aside");
         host.className = "tq-asset-upload-dev";
@@ -248,8 +418,8 @@
                     <strong data-live-file-name>Nenhum arquivo local</strong>
 
                     <small>
-                        <b>Adicionar por cima</b> cria uma nova camada visível sobre a arte.
-                        Ela abre automaticamente no UX para mover e redimensionar.
+                        <b>Adicionar por cima</b> cria uma nova camada visível sobre a arte,
+                        salva neste dispositivo e restaura após F5. Ela abre automaticamente no UX.
                     </small>
 
                     <div class="tq-asset-upload-dev-actions">
@@ -291,8 +461,8 @@
                 </div>
 
                 <small class="tq-asset-upload-dev-note">
-                    A prévia local não envia nada ao GitHub. Quando aprovar a arte,
-                    use <b>Subir arquivo</b> para gravá-la na branch <b>${branch}</b>.
+                    Assets adicionados ficam salvos localmente neste navegador, sem GitHub.
+                    Quando aprovar a arte, use <b>Subir arquivo</b> para gravá-la na branch <b>${branch}</b>.
                 </small>
             </section>
         `;
@@ -380,7 +550,7 @@
             });
         }
 
-        function addLocalLayer(file) {
+        async function addLocalLayer(file) {
             const stage = stageForLocalLayer();
             if (!(stage instanceof Element)) {
                 status.textContent = "Não encontrei a área visual da tela";
@@ -391,44 +561,33 @@
                 stage.style.position = "relative";
             }
 
-            const objectUrl = URL.createObjectURL(file);
             const id = screenId + ".local." + slug(file.name) + "." + Date.now();
+            const record = {
+                id,
+                screenId,
+                fileName: file.name,
+                mimeType: file.type || "application/octet-stream",
+                blob: file,
+                createdAt: Date.now()
+            };
 
-            const image = document.createElement("img");
-            image.className = "tq-dev-local-live-asset";
-            image.dataset.tqDevId = id;
-            image.dataset.tqDevKind = "asset";
-            image.dataset.tqDevRole = "object";
-            image.dataset.tqDevLabel = "Local · " + file.name;
-            image.dataset.tqAssetId = id;
-            image.dataset.tqAssetRole = "object";
-            image.dataset.tqAssetLabel = "Local · " + file.name;
-            image.dataset.tqLocalFile = file.name;
-            image.src = objectUrl;
-            image.alt = "";
-            image.draggable = false;
+            try {
+                await saveLocalLayerRecord(record);
+            } catch (error) {
+                console.error("Falha ao salvar asset local:", error);
+                status.textContent = "Não consegui salvar o asset localmente";
+                return;
+            }
 
-            image.style.position = "absolute";
-            image.style.left = "30%";
-            image.style.top = "28%";
-            image.style.width = "40%";
-            image.style.height = "auto";
-            image.style.maxWidth = "none";
-            image.style.maxHeight = "60%";
-            image.style.objectFit = "contain";
-            image.style.objectPosition = "center";
-            image.style.zIndex = "500";
-            image.style.pointerEvents = "auto";
-            image.style.userSelect = "none";
-
+            const { image, objectUrl } = createLocalLayerElement(record);
             stage.appendChild(image);
 
-            const entry = { image, objectUrl, file };
+            const entry = { id, image, objectUrl, fileName: file.name };
             localLayers.push(entry);
 
             fileName.textContent = file.name;
             removeButton.disabled = false;
-            status.textContent = "CAMADA VISÍVEL · " + file.name;
+            status.textContent = "SALVO LOCAL · " + file.name;
 
             image.addEventListener("error", () => {
                 status.textContent = "Falha ao exibir " + file.name;
@@ -519,14 +678,21 @@
             status.textContent = "Troca desfeita";
         }
 
-        function removeLastLayer() {
+        async function removeLastLayer() {
             const entry = localLayers.pop();
             if (!entry) return;
 
             entry.image.remove();
-            URL.revokeObjectURL(entry.objectUrl);
+            releaseRuntimeUrl(entry.id);
+
+            try {
+                await deleteLocalLayerRecord(entry.id);
+            } catch (error) {
+                console.warn("Falha ao remover asset local persistido:", error);
+            }
+
             removeButton.disabled = localLayers.length === 0;
-            fileName.textContent = localLayers.at(-1)?.file?.name || "Nenhum arquivo local";
+            fileName.textContent = localLayers.at(-1)?.fileName || "Nenhum arquivo local";
             status.textContent = "Camada local removida";
         }
 
@@ -538,14 +704,14 @@
                 );
         }
 
-        function handleFile(file, mode) {
+        async function handleFile(file, mode) {
             if (!validImage(file)) {
                 status.textContent = "Escolha uma imagem válida";
                 return;
             }
 
             if (mode === "replace") replaceSelected(file);
-            else addLocalLayer(file);
+            else await addLocalLayer(file);
         }
 
         host.querySelector(".tq-asset-upload-dev-toggle").addEventListener("click", () => {
@@ -610,6 +776,11 @@
             openExternal(buildFolderUrl(repository, branch, folder));
         });
 
+        removeButton.disabled = localLayers.length === 0;
+        if (localLayers.length) {
+            fileName.textContent = localLayers.at(-1)?.fileName || "Asset local restaurado";
+        }
+
         syncCustomVisibility();
         syncSelected();
     }
@@ -619,6 +790,8 @@
         mount,
         normalizeAssetFolder,
         repositoryAssetPathFromUrl,
-        buildUploadUrl
+        buildUploadUrl,
+        restoreLocalLayers,
+        deleteLocalLayerRecord
     });
 })(globalThis);
