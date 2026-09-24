@@ -1,8 +1,12 @@
 .tq-scene-dev {
     position: fixed;
-    left: 16px;
-    bottom: 16px;
+    right: 16px;
+    bottom: 76px;
+    left: auto;
     z-index: 100004;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
     color: #fff7de;
     font: 600 12px/1.3 Arial, sans-serif;
 }
@@ -20,6 +24,7 @@
 }
 
 .tq-scene-dev-panel {
+    order: -1;
     width: 300px;
     max-height: min(76vh, 680px);
     overflow-y: auto;
