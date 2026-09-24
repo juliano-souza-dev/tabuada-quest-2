@@ -812,7 +812,7 @@
             islandTravelAnimation: "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json",
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
-            homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260923-home-overlay-v2",
+            homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260924-home-overlay-v3",
             region1ChallengeArt: Object.freeze({
                 1: "./assets/regions/region-1/challenges/corsario-enseada-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v4",
                 2: "./assets/regions/region-1/challenges/corsario-enseada-do-saque-challenge-bg.webp?v=20260922-corsario-challenge-v4",
