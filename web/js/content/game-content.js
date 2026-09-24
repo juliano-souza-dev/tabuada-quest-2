@@ -42,6 +42,7 @@
         frames,
         levelBadges,
         backgrounds: Object.freeze([
+            Object.freeze({ id: "background-aventura-pirata", type: "background", label: "Aventura Pirata", price: 900, asset: "./assets/backgrounds/tabuada-quest-background-pirata.webp" }),
             Object.freeze({ id: "background-enseada-dourada", type: "background", label: "Enseada Dourada", price: 400, asset: null }),
             Object.freeze({ id: "background-porto-esmeralda", type: "background", label: "Porto Esmeralda", price: 650, asset: null }),
             Object.freeze({ id: "background-mar-rubi", type: "background", label: "Mar Rubi", price: 900, asset: null }),
