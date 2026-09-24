@@ -262,6 +262,49 @@
         }
     }
 
+    async function clearLocalLayersForScreen(screenId, screenRoot = null) {
+        const id = String(screenId || "screen");
+
+        try {
+            const records = await readLocalLayerRecords(id);
+
+            if (records.length) {
+                const db = await openLocalAssetDb();
+                try {
+                    const transaction = db.transaction(LOCAL_LAYER_STORE, "readwrite");
+                    const store = transaction.objectStore(LOCAL_LAYER_STORE);
+                    records.forEach((record) => store.delete(String(record.id)));
+                    await transactionDone(transaction);
+                } finally {
+                    db.close();
+                }
+            }
+
+            records.forEach((record) => releaseRuntimeUrl(record.id));
+
+            if (screenRoot instanceof Element) {
+                screenRoot
+                    .querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")
+                    .forEach((element) => {
+                        releaseRuntimeUrl(element.dataset.tqDevId);
+                        element.remove();
+                    });
+
+                screenRoot
+                    .querySelectorAll("[data-tq-local-preview='true'], [data-tq-live-preview]")
+                    .forEach((element) => {
+                        delete element.dataset.tqLocalPreview;
+                        element.removeAttribute("data-tq-live-preview");
+                    });
+            }
+
+            return records.length;
+        } catch (error) {
+            console.warn("Falha ao limpar assets locais da tela:", error);
+            throw error;
+        }
+    }
+
     function releaseRuntimeUrl(id) {
         const current = runtimeObjectUrls.get(String(id));
         if (!current) return;
@@ -792,6 +835,7 @@
         repositoryAssetPathFromUrl,
         buildUploadUrl,
         restoreLocalLayers,
+        clearLocalLayersForScreen,
         deleteLocalLayerRecord
     });
 })(globalThis);
