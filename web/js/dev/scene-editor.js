@@ -7,10 +7,10 @@
         try {
             const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "{}");
             return parsed && typeof parsed === "object"
-                ? { version: 1, screens: parsed.screens && typeof parsed.screens === "object" ? parsed.screens : {} }
-                : { version: 1, screens: {} };
+                ? { version: 2, screens: parsed.screens && typeof parsed.screens === "object" ? parsed.screens : {} }
+                : { version: 2, screens: {} };
         } catch (_) {
-            return { version: 1, screens: {} };
+            return { version: 2, screens: {} };
         }
     }
 
@@ -34,7 +34,37 @@
         return parsed > 0 ? parsed : fallback;
     }
 
+    function computedGeometry(element) {
+        const style = root.getComputedStyle(element);
+        const translate = String(style.translate || "").trim();
+        const scale = String(style.scale || "").trim();
+
+        let x = 0;
+        let y = 0;
+        if (translate && translate !== "none") {
+            const parts = translate.split(/\s+/);
+            const parsedX = Number.parseFloat(parts[0]);
+            const parsedY = Number.parseFloat(parts[1] || "0");
+            if (Number.isFinite(parsedX)) x = parsedX;
+            if (Number.isFinite(parsedY)) y = parsedY;
+        }
+
+        let sx = 1;
+        let sy = 1;
+        if (scale && scale !== "none") {
+            const parts = scale.split(/\s+/);
+            sx = positiveScale(parts[0], 1);
+            sy = positiveScale(parts[1], sx);
+        }
+
+        return { x, y, sx, sy };
+    }
+
     function readGeometry(element) {
+        if (!element.hasAttribute("data-tq-dev-adjusted")) {
+            return computedGeometry(element);
+        }
+
         const x = Number.parseFloat(element.style.getPropertyValue("--tq-dev-x"));
         const y = Number.parseFloat(element.style.getPropertyValue("--tq-dev-y"));
         return {
