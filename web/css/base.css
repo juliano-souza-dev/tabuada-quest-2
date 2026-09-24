@@ -66,41 +66,66 @@ img {
     html:not(.tq-native-runtime) body {
         display: grid;
         place-items: start center;
-        min-height: max(var(--tq-app-height), 932px);
+        min-height: max(var(--tq-app-height), 937px);
         padding: 20px;
         overflow: auto;
     }
 
+    /*
+     * Galaxy A15 physical shell:
+     * 76.8 mm × 160.1 mm, represented here as 430 × 896.393 CSS px.
+     * The active display is centered inside the body and keeps the
+     * official 1080 × 2340 (19.5:9) screen proportion.
+     */
     html:not(.tq-native-runtime) .app-stage {
-        display: grid;
-        place-items: start center;
-        min-height: 892px;
+        position: relative;
+        display: block;
+        width: 430px;
+        height: 896.393px;
+        min-height: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 31px;
+        background: #081117;
+        box-shadow:
+            0 30px 90px rgba(0,0,0,.46),
+            0 0 0 4px rgba(3,9,13,.96);
     }
 
     html:not(.tq-native-runtime) .app-viewport {
         /*
-         * DEV device preset: Samsung Galaxy A15.
-         * Fixed logical viewport used by the browser simulator: 412 × 892 CSS px.
-         * Do not auto-shrink this viewport: development measurements must match the preset.
+         * Galaxy A15 logical development viewport.
+         * Width stays at 412 CSS px for layout work; height is derived from
+         * the real 1080:2340 panel ratio, so the screen itself is exactly 19.5:9.
+         *
+         * The viewport is then uniformly scaled to the physical screen area
+         * inside the simulated 76.8 × 160.1 mm phone body. This keeps both
+         * the BODY proportion and the DISPLAY proportion faithful.
          */
         --tq-device-width: 412;
-        --tq-device-height: 892;
+        --tq-device-height: 892.6667;
+        --tq-device-scale: 0.93339032;
         --tq-preview-status-height: 24px;
         --tq-preview-navigation-height: 24px;
         --tq-safe-top: var(--tq-preview-status-height);
         --tq-safe-bottom: var(--tq-preview-navigation-height);
 
+        position: absolute;
+        left: 50%;
+        top: 50%;
         width: 412px;
-        height: 892px;
-        aspect-ratio: 412 / 892;
+        height: 892.6667px;
+        aspect-ratio: 6 / 13;
         max-width: none;
         max-height: none;
+        margin: 0;
         padding: 0;
-        border: 2px solid rgba(255,255,255,.18);
-        border-radius: 28px;
-        box-shadow:
-            0 30px 90px rgba(0, 0, 0, 0.46),
-            0 0 0 5px rgba(5, 14, 20, .92);
+        overflow: hidden;
+        border: 0;
+        border-radius: 21px;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+        transform: translate(-50%, -50%) scale(var(--tq-device-scale));
+        transform-origin: center;
     }
 
     html:not(.tq-native-runtime) .app-viewport::before {
