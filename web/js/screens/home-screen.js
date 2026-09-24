@@ -104,8 +104,6 @@
                 <button class="art-hotspot hotspot-crew" type="button" data-action="crew" aria-label="Abrir Tripulação"></button>
                 <button class="art-hotspot hotspot-shipyard" type="button" data-action="shipyard" aria-label="Abrir Estaleiro"></button>
 
-                <div class="pet-dynamic-count">${petCount}/${totals.pets}</div>
-
                 <button class="art-hotspot hotspot-regions" type="button" data-action="regions" aria-label="Regiões"></button>
                 <button class="art-hotspot hotspot-daily" type="button" data-action="daily" aria-label="Recompensa diária"></button>
                 <button class="art-hotspot hotspot-shop" type="button" data-action="shop" aria-label="Loja"></button>
