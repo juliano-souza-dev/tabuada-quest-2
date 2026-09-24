@@ -15,6 +15,30 @@
         return [...baseFrames, ...commercialFrames];
     }
 
+    function getOwnedNameplates(state) {
+        const purchased = new Set(state.shop?.purchasedItemIds || []);
+        return (TQ.content.nameplates || []).filter((item) => item.isDefault || purchased.has(item.id));
+    }
+
+    function renderNameplateCard(item, equippedId) {
+        const isEquipped = item.id === equippedId;
+        return `
+            <article class="items-effect-card items-frame-card${isEquipped ? " is-equipped" : ""}">
+                <div class="items-frame-preview">
+                    <img src="${item.asset}" alt="">
+                </div>
+                <div class="items-effect-copy">
+                    <small>Plaquinha</small>
+                    <strong>${item.label}</strong>
+                    <span>${isEquipped ? "Em uso na Home" : "Disponível"}</span>
+                </div>
+                <button type="button" data-nameplate-id="${item.id}" ${isEquipped ? "disabled" : ""}>
+                    ${isEquipped ? "Equipada" : "Equipar"}
+                </button>
+            </article>
+        `;
+    }
+
     function renderFrameCard(frame, equippedId) {
         const isEquipped = frame.id === equippedId;
         const preview = frame.src || frame.asset;
@@ -65,6 +89,8 @@
         screen.setAttribute("aria-label", "Baú de Itens");
 
         const ownedFrames = getOwnedFrames(state);
+        const ownedNameplates = getOwnedNameplates(state);
+        const nameplateAllowed = ownedNameplates.map((item) => item.id);
         const ownedEffects = getOwnedEffects(state);
         const correctEffects = ownedEffects.filter((item) => item.effectType === "correct");
         const wrongEffects = ownedEffects.filter((item) => item.effectType === "wrong");
@@ -88,8 +114,16 @@
 
             <main class="slice-content items-content">
                 <p class="items-intro">
-                    Equipe aqui Molduras e Efeitos que você já possui.
+                    Equipe aqui Plaquinhas, Molduras e Efeitos que você já possui.
                 </p>
+
+                <section class="items-group" aria-labelledby="items-nameplates-title">
+                    <div class="items-group-heading">
+                        <div><small>HOME</small><h2 id="items-nameplates-title">Plaquinhas</h2></div>
+                        <span>Nome do jogador</span>
+                    </div>
+                    ${ownedNameplates.map((item) => renderNameplateCard(item, state.player.nameplateId)).join("")}
+                </section>
 
                 <section class="items-group" aria-labelledby="items-frames-title">
                     <div class="items-group-heading">
@@ -143,6 +177,12 @@
         `;
 
         screen.addEventListener("click", (event) => {
+            const nameplateButton = event.target.closest("[data-nameplate-id]");
+            if (nameplateButton) {
+                onStateChange(TQ.domain.playerState.withNameplate(state, nameplateButton.dataset.nameplateId, nameplateAllowed));
+                return;
+            }
+
             const frameButton = event.target.closest("[data-frame-id]");
             if (frameButton) {
                 onStateChange(
@@ -195,6 +235,7 @@
     TQ.screens.items = Object.freeze({
         getOwnedEffects,
         getOwnedFrames,
+        getOwnedNameplates,
         renderItemsScreen
     });
 })(globalThis);
