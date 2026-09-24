@@ -13,6 +13,7 @@
 
 @import url("./screens/ruby-shop.css?v=20260921-1545");
 @import url("./dev/scene-editor.css?v=20260924-global-tools-v8");
+@import url("./dev/settings-panel.css?v=20260924-settings-v1");
 
 
 /* Retorno global temporário para a Home nas telas de navegação do mundo. */
@@ -131,7 +132,7 @@
 }
 
 .tq-parallax-dev{position:fixed;right:16px;bottom:16px;z-index:100000;display:flex;flex-direction:column;align-items:flex-end;font:600 12px/1.25 Arial,sans-serif;color:#fff}
-.tq-parallax-dev-toggle{order:2;width:48px;height:48px;border:2px solid #e5bd54;border-radius:50%;background:#082738;color:#ffe18a;font-weight:900}
+.tq-parallax-dev-toggle{order:2;width:54px;height:54px;border:2px solid #e5bd54;border-radius:50%;background:#082738;color:#ffe18a;font-weight:900}
 .tq-parallax-dev-panel{order:1;width:280px;margin:0 0 8px;padding:12px;display:grid;gap:9px;border:1px solid #d7b554;border-radius:12px;background:rgba(5,29,41,.97);box-shadow:0 12px 32px rgba(0,0,0,.35)}
 .tq-parallax-dev-panel[hidden]{display:none}
 .tq-parallax-dev-panel select,.tq-parallax-dev-panel input,.tq-parallax-dev-panel button{width:100%}
