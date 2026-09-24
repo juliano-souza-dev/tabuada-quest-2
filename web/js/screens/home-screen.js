@@ -28,6 +28,9 @@
         const avatarSrc = TQ.content.assets.avatars[resolvedAvatarId];
         const heroSrc = TQ.content.assets.homeHeroes[resolvedAvatarId] || avatarSrc;
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
+        const currentLevel = Math.min(10, Math.max(1, Number(state.progression.level) || 1));
+        const levelBadgeSrc = TQ.content.levelBadges[currentLevel - 1];
+
         const frame = TQ.content.frames.find((item) => item.id === state.player.frameId)
             || TQ.content.frames.find((item) => item.id === TQ.content.defaultFrameId)
             || TQ.content.frames[0];
@@ -86,7 +89,7 @@
                     <img class="profile-slot-avatar" src="${avatarSrc}" alt="Avatar do jogador">
                 </button>
 
-                <div class="hud-level-slot" aria-label="Nível ${state.progression.level}">${state.progression.level}</div>
+                <div class="hud-level-slot" aria-label="Nível ${currentLevel}"><img src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
 
                 <div class="hud-wallet-slot">
                     <span class="wallet-value coins" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
