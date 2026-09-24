@@ -200,3 +200,12 @@
         width: calc(100vw - 78px);
     }
 }
+
+
+/* Home DEV · function layer override after all imports
+   This must live in app.css after the DEV editor import so it wins over
+   data-tq-dev-layered z-index overrides saved by the visual editor. */
+.home-design-stage [data-tq-dev-kind="function"] {
+    z-index: 9000 !important;
+    pointer-events: auto !important;
+}
