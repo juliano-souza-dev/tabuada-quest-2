@@ -322,6 +322,7 @@
         overlay.className = "tq-scene-dev-selection";
         overlay.hidden = true;
         overlay.innerHTML = `
+            <span class="tq-scene-dev-selection-move-surface" data-dev-move-surface aria-hidden="true"></span>
             <span class="tq-scene-dev-selection-label"></span>
             <i data-dev-handle="nw"></i><i data-dev-handle="n"></i><i data-dev-handle="ne"></i>
             <i data-dev-handle="e"></i><i data-dev-handle="se"></i><i data-dev-handle="s"></i>
@@ -492,10 +493,18 @@
             startInteraction(event, node, "move");
         }
 
-        function onHandleDown(event) {
+        function onSelectionOverlayDown(event) {
+            if (!opened || !selected) return;
+
             const handle = event.target.closest("[data-dev-handle]")?.dataset.devHandle;
-            if (!handle || !selected) return;
-            startInteraction(event, selected, "resize", handle);
+            if (handle) {
+                startInteraction(event, selected, "resize", handle);
+                return;
+            }
+
+            if (event.target.closest("[data-dev-move-surface], .tq-scene-dev-selection-label")) {
+                startInteraction(event, selected, "move");
+            }
         }
 
         function onPointerMove(event) {
@@ -700,7 +709,7 @@
 
         screenRoot.addEventListener("pointerdown", onPointerDown, true);
         screenRoot.addEventListener("click", interceptClick, true);
-        overlay.addEventListener("pointerdown", onHandleDown);
+        overlay.addEventListener("pointerdown", onSelectionOverlayDown);
         root.addEventListener("pointermove", onPointerMove, true);
         root.addEventListener("pointerup", onPointerUp, true);
         root.addEventListener("pointercancel", onPointerUp, true);
@@ -723,6 +732,7 @@
             root.removeEventListener("scroll", scheduleOverlay, true);
             document.removeEventListener("keydown", onKeyDown);
             host.remove();
+            overlay.removeEventListener("pointerdown", onSelectionOverlayDown);
             overlay.remove();
         };
     }
