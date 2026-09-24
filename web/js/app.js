@@ -387,7 +387,7 @@
             const el = document.createElement("div"); el.className = "tq-parallax-region" + (editable ? " is-editing" : ""); el.dataset.fxId = fx.id;
             el.style.left=((assetRect.left-stageRect.left+r.x*assetRect.width)/stageRect.width*100)+"%"; el.style.top=((assetRect.top-stageRect.top+r.y*assetRect.height)/stageRect.height*100)+"%"; el.style.width=(r.w*assetRect.width/stageRect.width*100)+"%"; el.style.height=(r.h*assetRect.height/stageRect.height*100)+"%";
             const poly=fx.points.map(p=>(((p.x-r.x)/r.w)*100).toFixed(2)+"% "+(((p.y-r.y)/r.h)*100).toFixed(2)+"%").join(","); el.style.clipPath="polygon("+poly+")"; el.style.webkitClipPath=el.style.clipPath;
-            const clone=cloneVisualLayer(visual); clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; clone.style.margin="0"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx); return el;
+            const clone=cloneVisualLayer(visual); if (!clone) return null; clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; clone.style.margin="0"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx); return el;
         };
         effects.filter((fx) => fx.backgroundId === activeBackgroundId).forEach((fx)=>renderEffect(fx)); refreshSaved(); persistEffects();
 
@@ -468,6 +468,7 @@
                         region.style.clipPath = "polygon("+polygon+")";
                         region.style.webkitClipPath = "polygon("+polygon+")";
                         const clone = cloneVisualLayer(visual);
+                        if (!clone) return cleanup();
                         clone.style.position="absolute";
                         clone.style.width=(assetRect.width/width*100)+"%";
                         clone.style.height=(assetRect.height/height*100)+"%";
