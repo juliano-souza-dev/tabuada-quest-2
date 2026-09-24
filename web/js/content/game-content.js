@@ -759,6 +759,7 @@
         getIslandPrimaryReward,
         homeBackgrounds,
         frames,
+        levelBadges,
         shopCatalog,
         getShopItem,
         rubyShopCatalog,
