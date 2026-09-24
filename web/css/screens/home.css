@@ -264,6 +264,25 @@
     filter: drop-shadow(0 1.1vh 1vh rgba(0,0,0,.32));
 }
 
+.home-shipyard-art {
+    position: absolute;
+    z-index: 18;
+    left: 30%;
+    top: 28%;
+    width: 40%;
+    height: auto;
+    max-width: none;
+    max-height: 60%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    translate: 131px 328px;
+    scale: 0.9065352318364367 0.9065352318364367;
+    transform-origin: top left;
+}
+
 .play-slot {
     position: absolute;
     z-index: 20;
@@ -605,6 +624,38 @@
 
 .hotspot-fashion {
     translate: 3px 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+
+/* Ajustes consolidados do layout UX copiado em 2026-09-24. */
+.hud-wallet-slot {
+    translate: 3px -2px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.play-slot {
+    translate: 17px -34px;
+    scale: 0.8738225629791895 1;
+    transform-origin: top left;
+}
+
+.hotspot-crew {
+    translate: 55px -269px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-shipyard {
+    translate: -16px -44px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-items {
+    translate: 3px -32px;
     scale: 1 1;
     transform-origin: top left;
 }
