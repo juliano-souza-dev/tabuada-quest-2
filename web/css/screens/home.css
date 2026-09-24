@@ -251,16 +251,16 @@
 .play-slot {
     position: absolute;
     z-index: 12;
-    left: 31%;
-    top: 52.6%;
-    width: 38%;
-    height: 6.2%;
+    left: 1.5%;
+    top: 60.2%;
+    width: 31.8%;
+    height: 8.9%;
     border: 0;
     background: transparent;
 }
 
-.hotspot-crew { left: 28.5%; top: 61.0%; width: 34.5%; height: 5.8%; }
-.hotspot-shipyard { left: 58.0%; top: 61.0%; width: 34.5%; height: 5.8%; }
+.hotspot-crew { left: 34.0%; top: 60.2%; width: 31.8%; height: 8.9%; }
+.hotspot-shipyard { left: 66.5%; top: 60.2%; width: 32.0%; height: 8.9%; }
 
 .art-hotspot {
     position: absolute;
@@ -320,11 +320,11 @@
     text-shadow: 0 1px 2px #071b49;
 }
 
-.hotspot-regions { left: 2.3%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-daily { left: 20.8%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-shop { left: 39.5%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-collection { left: 58.2%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-chests { right: 2.3%; top: 72.2%; width: 17.4%; height: 10.3%; }
+.hotspot-regions { left: 1.2%; top: 73.8%; width: 18.5%; height: 10.8%; }
+.hotspot-daily { left: 20.3%; top: 73.8%; width: 18.5%; height: 10.8%; }
+.hotspot-shop { left: 40.5%; top: 73.8%; width: 18.5%; height: 10.8%; }
+.hotspot-collection { left: 60.2%; top: 73.8%; width: 18.5%; height: 10.8%; }
+.hotspot-chests { right: 1.2%; top: 73.8%; width: 18.5%; height: 10.8%; }
 .hotspot-pets { left: 2.4%; bottom: 2.0%; width: 48%; height: 15.2%; }
 .hotspot-items { right: 2.4%; bottom: 2.0%; width: 47%; height: 15.2%; }
 
