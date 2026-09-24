@@ -206,7 +206,7 @@
 
 .tq-dev-local-live-asset {
     position: absolute;
-    z-index: 500 !important;
+    z-index: 500;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
