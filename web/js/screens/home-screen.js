@@ -102,6 +102,32 @@
                      src="${heroSrc}"
                      alt="Avatar selecionado em traje de aventura pirata">
 
+                <img class="home-play-art"
+                     data-tq-asset-id="home.play.art"
+                     data-tq-asset-role="object"
+                     data-tq-asset-label="Arte Jogar"
+                     data-tq-dev-id="home.play.art"
+                     data-tq-dev-kind="asset"
+                     data-tq-dev-role="object"
+                     data-tq-dev-label="Arte Jogar"
+                     src="./assets/ui/icons/jogar.webp"
+                     alt=""
+                     aria-hidden="true"
+                     draggable="false">
+
+                <img class="home-crew-art"
+                     data-tq-asset-id="home.crew.art"
+                     data-tq-asset-role="object"
+                     data-tq-asset-label="Arte Tripulação"
+                     data-tq-dev-id="home.crew.art"
+                     data-tq-dev-kind="asset"
+                     data-tq-dev-role="object"
+                     data-tq-dev-label="Arte Tripulação"
+                     src="./assets/ui/icons/tripulacao.webp"
+                     alt=""
+                     aria-hidden="true"
+                     draggable="false">
+
                 <img class="home-shipyard-art"
                      data-tq-asset-id="home.shipyard.art"
                      data-tq-asset-role="object"
