@@ -250,17 +250,32 @@
 
 .play-slot {
     position: absolute;
-    z-index: 12;
-    left: 1.5%;
-    top: 60.2%;
-    width: 31.8%;
-    height: 8.9%;
+    z-index: 20;
+    left: 0;
+    top: auto;
+    bottom: 12.0%;
+    width: 33.333%;
+    height: 12.8%;
     border: 0;
     background: transparent;
 }
 
-.hotspot-crew { left: 34.0%; top: 60.2%; width: 31.8%; height: 8.9%; }
-.hotspot-shipyard { left: 66.5%; top: 60.2%; width: 32.0%; height: 8.9%; }
+.hotspot-crew {
+    z-index: 20;
+    left: 33.333%;
+    top: auto;
+    bottom: 12.0%;
+    width: 33.334%;
+    height: 12.8%;
+}
+.hotspot-shipyard {
+    z-index: 20;
+    left: 66.667%;
+    top: auto;
+    bottom: 12.0%;
+    width: 33.333%;
+    height: 12.8%;
+}
 
 .art-hotspot {
     position: absolute;
