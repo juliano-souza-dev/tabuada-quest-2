@@ -67,38 +67,155 @@
         return withUnlockedRegionsThrough(state, TQ.domain.playerState.TOTAL_REGIONS);
     }
 
-    function withIslandPrepared(state, regionId, islandId) {
-        let s = withUnlockedRegion(state, regionId);
-        const normalizedRegionId = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
-        const normalizedIslandId = clampInteger(islandId, 1, TQ.domain.playerState.ISLANDS_PER_REGION);
-        const completed = new Set(s.campaign.completedIslandIds);
-
-        for (let id = 1; id < normalizedIslandId; id += 1) {
-            completed.add(TQ.domain.playerState.islandTravelKey(normalizedRegionId, id));
-        }
-
-        const previousProgress = s.campaign.regionProgress[String(normalizedRegionId)];
-        const regionProgress = {
-            ...s.campaign.regionProgress,
-            [String(normalizedRegionId)]: {
-                ...previousProgress,
-                islandsCompleted: Math.max(
-                    Number(previousProgress?.islandsCompleted) || 0,
-                    normalizedIslandId - 1
-                ),
-                islandsTotal: TQ.domain.playerState.ISLANDS_PER_REGION
-            }
+    function clearIslandStructuralState(state, regionId, islandId) {
+        const s = normalize(state);
+        const rewards = TQ.content?.getIslandRewards?.(regionId, islandId) || [];
+        let campaign = {
+            ...s.campaign,
+            petsRescuedIds: [...s.campaign.petsRescuedIds],
+            claimedChestIds: [...s.campaign.claimedChestIds],
+            specialMaps: { ...s.campaign.specialMaps },
+            collectibles: {
+                ...s.campaign.collectibles,
+                collectedIds: [...s.campaign.collectibles.collectedIds],
+                pendingIds: [...s.campaign.collectibles.pendingIds]
+            },
+            finalJourney: { ...s.campaign.finalJourney }
         };
 
-        let finalJourney = { ...s.campaign.finalJourney };
+        for (const reward of rewards) {
+            if (reward?.type === "pet" && typeof reward.petId === "string") {
+                campaign.petsRescuedIds = campaign.petsRescuedIds.filter((id) => id !== reward.petId);
+            }
+
+            if (reward?.type === "chest" && typeof reward.chestId === "string") {
+                campaign.claimedChestIds = campaign.claimedChestIds.filter((id) => id !== reward.chestId);
+                const kit = TQ.content?.getChestKit?.(reward.chestId);
+                const collectibleIds = new Set(
+                    Array.isArray(kit?.items)
+                        ? kit.items.map((item) => item?.collectibleId).filter(Boolean)
+                        : []
+                );
+                if (collectibleIds.size) {
+                    campaign.collectibles = {
+                        ...campaign.collectibles,
+                        collectedIds: campaign.collectibles.collectedIds.filter((id) => !collectibleIds.has(id)),
+                        pendingIds: campaign.collectibles.pendingIds.filter((id) => !collectibleIds.has(id))
+                    };
+                }
+                if (reward.isFinalChest) {
+                    campaign.finalJourney = {
+                        ...campaign.finalJourney,
+                        finalIslandCompleted: false,
+                        finalGrandChestUnlocked: false,
+                        finalGrandChestClaimed: false
+                    };
+                }
+            }
+
+            if (reward?.type === "map_fragment" && Number.isInteger(reward.mapId)) {
+                const mapId = String(reward.mapId);
+                const current = campaign.specialMaps[mapId];
+                if (current) {
+                    const beforeThisFragment = Math.max(0, (Number(reward.fragment) || 1) - 1);
+                    campaign.specialMaps = {
+                        ...campaign.specialMaps,
+                        [mapId]: {
+                            ...current,
+                            fragments: Math.min(Number(current.fragments) || 0, beforeThisFragment),
+                            missionStatus: "collecting",
+                            rewardClaimed: false,
+                            mission: null,
+                            lastMissionResult: null
+                        }
+                    };
+                }
+            }
+        }
+
+        return normalize({ ...s, campaign });
+    }
+
+    function withIslandPrepared(state, regionId, islandId) {
+        const normalizedRegionId = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
+        const normalizedIslandId = clampInteger(islandId, 1, TQ.domain.playerState.ISLANDS_PER_REGION);
+        let s = withUnlockedRegion(state, normalizedRegionId);
+
+        // Rewind only this region from the selected island onward. This makes
+        // the selected island a genuine first completion again, so its normal
+        // reward pipeline (pet/chest/map fragment/ruby) remains testable.
+        const keepCompleted = s.campaign.completedIslandIds.filter((key) => {
+            const match = /^region-(\d+)-island-(\d+)$/.exec(String(key));
+            if (!match) return true;
+            const keyRegionId = Number(match[1]);
+            const keyIslandId = Number(match[2]);
+            return keyRegionId !== normalizedRegionId || keyIslandId < normalizedIslandId;
+        });
+
+        const keepTravel = s.campaign.travelPlayedIslandIds.filter((key) => {
+            const match = /^region-(\d+)-island-(\d+)$/.exec(String(key));
+            if (!match) return true;
+            return Number(match[1]) !== normalizedRegionId || Number(match[2]) < normalizedIslandId;
+        });
+
+        s = normalize({
+            ...s,
+            campaign: {
+                ...s.campaign,
+                currentRegionId: normalizedRegionId,
+                currentIslandId: normalizedIslandId,
+                completedIslandIds: keepCompleted,
+                completedRegionIds: s.campaign.completedRegionIds.filter((id) => id !== normalizedRegionId),
+                travelPlayedIslandIds: keepTravel,
+                regionProgress: {
+                    ...s.campaign.regionProgress,
+                    [String(normalizedRegionId)]: {
+                        ...s.campaign.regionProgress[String(normalizedRegionId)],
+                        islandsCompleted: Math.min(
+                            normalizedIslandId - 1,
+                            keepCompleted.filter((key) => key.startsWith("region-" + normalizedRegionId + "-island-")).length
+                        ),
+                        islandsTotal: TQ.domain.playerState.ISLANDS_PER_REGION
+                    }
+                }
+            },
+            learning: {
+                ...s.learning,
+                activeSession: null,
+                lastResult: null
+            }
+        });
+
+        for (let id = normalizedIslandId; id <= TQ.domain.playerState.ISLANDS_PER_REGION; id += 1) {
+            s = clearIslandStructuralState(s, normalizedRegionId, id);
+        }
+
+        // Build prerequisite progress through the same domain operations used by
+        // the real game. Structural rewards from skipped prerequisites are also
+        // reflected, so later map gates/pets/chests do not leave impossible state.
+        for (let id = 1; id < normalizedIslandId; id += 1) {
+            const rewards = TQ.content?.getIslandRewards?.(normalizedRegionId, id) || [];
+            s = TQ.domain.playerState.applyIslandRewards(s, rewards);
+            s = TQ.domain.playerState.completeIsland(s, normalizedRegionId, id);
+        }
+
         if (normalizedRegionId === TQ.domain.playerState.TOTAL_REGIONS
             && normalizedIslandId === TQ.domain.playerState.ISLANDS_PER_REGION) {
-            finalJourney = {
-                ...finalJourney,
-                finalMapFragments: 9,
-                finalMapCompleted: true,
-                finalIslandUnlocked: true
-            };
+            s = normalize({
+                ...s,
+                campaign: {
+                    ...s.campaign,
+                    finalJourney: {
+                        ...s.campaign.finalJourney,
+                        finalMapFragments: 9,
+                        finalMapCompleted: true,
+                        finalIslandUnlocked: true,
+                        finalIslandCompleted: false,
+                        finalGrandChestUnlocked: false,
+                        finalGrandChestClaimed: false
+                    }
+                }
+            });
         }
 
         return normalize({
@@ -106,14 +223,12 @@
             campaign: {
                 ...s.campaign,
                 currentRegionId: normalizedRegionId,
-                currentIslandId: normalizedIslandId,
-                completedIslandIds: Array.from(completed),
-                regionProgress,
-                finalJourney
+                currentIslandId: normalizedIslandId
             },
             learning: {
                 ...s.learning,
-                activeSession: null
+                activeSession: null,
+                lastResult: null
             }
         });
     }
