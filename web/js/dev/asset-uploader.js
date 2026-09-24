@@ -305,6 +305,25 @@
                     <strong data-upload-selected>Nenhum asset selecionado</strong>
                 </div>
 
+                <fieldset class="tq-asset-upload-dev-local" data-live-dropzone>
+                    <legend>Editar ao vivo</legend>
+                    <input data-live-file type="file" accept="image/*,.webp,.png,.jpg,.jpeg,.gif,.svg" hidden>
+                    <strong data-live-file-name>Nenhum arquivo local</strong>
+                    <small>
+                        Selecione um asset no UX e escolha ou arraste uma imagem aqui.
+                        A troca aparece imediatamente na tela, sem recarregar.
+                    </small>
+                    <button type="button" class="is-primary" data-live-choose>
+                        🖼 Trocar asset agora
+                    </button>
+                    <button type="button" data-live-revert disabled>
+                        ↩ Desfazer preview
+                    </button>
+                    <small class="tq-asset-upload-dev-drop-hint">
+                        Você também pode soltar o arquivo neste bloco.
+                    </small>
+                </fieldset>
+
                 <button type="button" data-upload-use-selected>
                     Usar pasta do item selecionado
                 </button>
@@ -348,6 +367,11 @@
         const customRow = host.querySelector("[data-upload-custom-row]");
         const customInput = host.querySelector("[data-upload-custom]");
         const selectedLabel = host.querySelector("[data-upload-selected]");
+        const liveDropzone = host.querySelector("[data-live-dropzone]");
+        const liveFileInput = host.querySelector("[data-live-file]");
+        const liveFileName = host.querySelector("[data-live-file-name]");
+        const liveRevertButton = host.querySelector("[data-live-revert]");
+        let livePreview = null;
         const localFileInput = host.querySelector("[data-upload-local-file]");
         const localFileName = host.querySelector("[data-upload-local-name]");
         const localDrop = host.querySelector("[data-upload-local-drop]");
@@ -369,6 +393,101 @@
             return folder;
         }
 
+        function resolveLiveTarget() {
+            const selected = document.querySelector('[data-tq-dev-selected="true"]');
+            if (!(selected instanceof Element)) return null;
+
+            if (selected instanceof HTMLImageElement) {
+                return { selected, visual: selected, mode: "image" };
+            }
+
+            const nestedImage = selected.querySelector("img");
+            if (nestedImage instanceof HTMLImageElement) {
+                return { selected, visual: nestedImage, mode: "image" };
+            }
+
+            return { selected, visual: selected, mode: "background" };
+        }
+
+        function releaseLivePreview() {
+            if (livePreview?.objectUrl) URL.revokeObjectURL(livePreview.objectUrl);
+            livePreview = null;
+            liveRevertButton.disabled = true;
+        }
+
+        function revertLivePreview() {
+            if (!livePreview) return;
+
+            if (livePreview.mode === "image") {
+                livePreview.visual.setAttribute("src", livePreview.originalValue || "");
+            } else {
+                livePreview.visual.style.backgroundImage = livePreview.originalValue || "";
+            }
+
+            livePreview.visual.removeAttribute("data-tq-live-preview");
+            liveFileName.textContent = "Nenhum arquivo local";
+            status.textContent = "Preview desfeito";
+            releaseLivePreview();
+        }
+
+        function applyLiveFile(file) {
+            if (!(file instanceof File) || !file.type.startsWith("image/")) {
+                status.textContent = "Escolha uma imagem";
+                return;
+            }
+
+            const target = resolveLiveTarget();
+            if (!target) {
+                status.textContent = "Selecione um asset no UX";
+                return;
+            }
+
+            if (livePreview) revertLivePreview();
+
+            const objectUrl = URL.createObjectURL(file);
+            const originalValue = target.mode === "image"
+                ? target.visual.getAttribute("src") || ""
+                : target.visual.style.backgroundImage || "";
+
+            if (target.mode === "image") {
+                target.visual.setAttribute("src", objectUrl);
+            } else {
+                target.visual.style.backgroundImage = `url("${objectUrl}")`;
+                target.visual.style.backgroundSize = "contain";
+                target.visual.style.backgroundPosition = "center";
+                target.visual.style.backgroundRepeat = "no-repeat";
+            }
+
+            target.visual.setAttribute("data-tq-live-preview", file.name);
+            livePreview = {
+                ...target,
+                file,
+                objectUrl,
+                originalValue
+            };
+
+            liveFileName.textContent = file.name;
+            liveRevertButton.disabled = false;
+            status.textContent = "AO VIVO · " + file.name;
+
+            const selectedFolder = selectedAssetFolder(rootPath);
+            const known = [...folderSelect.options].find((option) => option.value === selectedFolder);
+            if (selectedFolder && known) {
+                folderSelect.value = selectedFolder;
+                syncCustomVisibility();
+            }
+
+            root.dispatchEvent(new CustomEvent("tq:dev-live-asset", {
+                detail: {
+                    fileName: file.name,
+                    folder: currentFolder(),
+                    targetId: target.selected.getAttribute("data-tq-dev-id")
+                        || target.selected.getAttribute("data-tq-asset-id")
+                        || ""
+                }
+            }));
+        }
+
         function openExternal(url) {
             const opened = root.open(url, "_blank");
             if (opened) opened.opener = null;
@@ -383,6 +502,35 @@
         });
 
         folderSelect.addEventListener("change", syncCustomVisibility);
+
+        host.querySelector("[data-live-choose]").addEventListener("click", () => {
+            liveFileInput.value = "";
+            liveFileInput.click();
+        });
+
+        liveFileInput.addEventListener("change", () => {
+            applyLiveFile(liveFileInput.files?.[0]);
+        });
+
+        liveRevertButton.addEventListener("click", revertLivePreview);
+
+        ["dragenter", "dragover"].forEach((type) => {
+            liveDropzone.addEventListener(type, (event) => {
+                event.preventDefault();
+                liveDropzone.classList.add("is-dragging");
+            });
+        });
+
+        ["dragleave", "drop"].forEach((type) => {
+            liveDropzone.addEventListener(type, (event) => {
+                event.preventDefault();
+                liveDropzone.classList.remove("is-dragging");
+            });
+        });
+
+        liveDropzone.addEventListener("drop", (event) => {
+            applyLiveFile(event.dataTransfer?.files?.[0]);
+        });
 
         host.querySelector("[data-upload-use-selected]").addEventListener("click", () => {
             const folder = syncSelectedLabel();
