@@ -7,7 +7,7 @@
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const DEFAULT_SHIP_ID = "ship-colombo";
-    const DEFAULT_NAMEPLATE_ID = "nameplate-caveira-mar-roxo";
+    const DEFAULT_NAMEPLATE_ID = "nameplate-chaves-tesouro-tropical";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
     const ISLANDS_PER_REGION = world.ISLANDS_PER_REGION;
     const LEGACY_TOTAL_REGIONS = 11;
