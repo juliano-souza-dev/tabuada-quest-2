@@ -8,6 +8,7 @@
     const COMMON_FOLDERS = Object.freeze([
         { value: "web/assets", label: "Assets · raiz" },
         { value: "web/assets/ui", label: "UI" },
+        { value: "web/assets/ui/icons", label: "UI · ícones" },
         { value: "web/assets/ui/niveis", label: "UI · níveis" },
         { value: "web/assets/ui/plaquinhas", label: "UI · plaquinhas" },
         { value: "web/assets/avatars", label: "Avatares" },
