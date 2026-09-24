@@ -107,51 +107,26 @@
 
 .profile-slot {
     position: absolute;
-    z-index: 10;
+    z-index: 13;
+    left: 8.4%;
+    top: 39.5%;
+    width: 20.5%;
     aspect-ratio: 1;
     padding: 0;
     border: 0;
+    border-radius: 50%;
+    overflow: hidden;
     background: transparent;
-}
-
-.profile-slot.is-simple {
-    left: 6.4457%;
-    top: 2.6376%;
-    width: 14.2%;
-}
-
-.profile-slot.has-frame {
-    left: 2.6071%;
-    top: .4361%;
-    width: 22%;
 }
 
 .profile-slot-avatar {
     position: absolute;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: center 18%;
-    background: #4ac9e7;
-}
-
-.profile-slot.is-simple .profile-slot-avatar {
-    inset: 5%;
-    width: 90%;
-    height: 90%;
-}
-
-.profile-slot.has-frame .profile-slot-avatar {
-    inset: 22%;
-    width: 56%;
-    height: 56%;
-}
-
-.profile-slot-frame {
-    position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 18%;
 }
 
 .hud-name-slot {
