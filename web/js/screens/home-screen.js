@@ -23,8 +23,10 @@
 
     function renderHomeScreen({ state, onStateChange, onNavigate, onExitSession }) {
         const avatarId = safeAvatarId(state.player.avatarId);
-        const avatarSrc = TQ.content.assets.avatars[avatarId];
-        const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
+        const fallbackAvatarId = "sofia";
+        const resolvedAvatarId = TQ.content.assets.avatars[avatarId] ? avatarId : fallbackAvatarId;
+        const avatarSrc = TQ.content.assets.avatars[resolvedAvatarId];
+        const heroSrc = TQ.content.assets.homeHeroes[resolvedAvatarId] || avatarSrc;
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
         const frame = TQ.content.frames.find((item) => item.id === state.player.frameId)
             || TQ.content.frames.find((item) => item.id === TQ.content.defaultFrameId)
