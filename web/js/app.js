@@ -200,50 +200,87 @@
             const asset = selectedAsset();
             if (!(asset instanceof HTMLImageElement)) return;
             const assetRect = asset.getBoundingClientRect();
-            let start = null;
+            let points = [];
+            let drawing = false;
+
+            const clampPoint = (event) => ({
+                x: Math.max(assetRect.left, Math.min(event.clientX, assetRect.right)),
+                y: Math.max(assetRect.top, Math.min(event.clientY, assetRect.bottom))
+            });
+            const redraw = () => {
+                if (!draft || points.length < 2) return;
+                draft.setAttribute("points", points.map((p) => p.x + "," + p.y).join(" "));
+            };
             const down = (event) => {
                 if (event.clientX < assetRect.left || event.clientX > assetRect.right || event.clientY < assetRect.top || event.clientY > assetRect.bottom) return;
-                start = { x: event.clientX, y: event.clientY };
-                draft = document.createElement("div");
-                draft.className = "tq-parallax-draft";
+                drawing = true;
+                points = [clampPoint(event)];
+                draft = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                draft.classList.add("tq-parallax-lasso");
+                const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                polygon.classList.add("tq-parallax-lasso-shape");
+                draft.appendChild(polygon);
                 document.body.appendChild(draft);
+                draft = polygon;
                 event.preventDefault();
             };
             const move = (event) => {
-                if (!start || !draft) return;
-                const x = Math.max(assetRect.left, Math.min(event.clientX, assetRect.right));
-                const y = Math.max(assetRect.top, Math.min(event.clientY, assetRect.bottom));
-                const left = Math.min(start.x, x), top = Math.min(start.y, y);
-                draft.style.cssText = `left:${left}px;top:${top}px;width:${Math.abs(x-start.x)}px;height:${Math.abs(y-start.y)}px`;
+                if (!drawing || !draft) return;
+                const point = clampPoint(event);
+                const last = points[points.length - 1];
+                if (Math.hypot(point.x-last.x, point.y-last.y) < 3) return;
+                points.push(point);
+                redraw();
+                event.preventDefault();
             };
-            const up = (event) => {
-                if (!start || !draft) return cleanup();
-                const r = draft.getBoundingClientRect();
-                if (r.width > 8 && r.height > 8) {
-                    region = document.createElement("div");
-                    region.className = "tq-parallax-region";
-                    const stageRect = stage.getBoundingClientRect();
-                    region.style.left = ((r.left-stageRect.left)/stageRect.width*100)+"%";
-                    region.style.top = ((r.top-stageRect.top)/stageRect.height*100)+"%";
-                    region.style.width = (r.width/stageRect.width*100)+"%";
-                    region.style.height = (r.height/stageRect.height*100)+"%";
-                    const clone = asset.cloneNode(false);
-                    clone.removeAttribute("data-tq-asset-id");
-                    clone.style.position="absolute";
-                    clone.style.width=(assetRect.width/r.width*100)+"%";
-                    clone.style.height=(assetRect.height/r.height*100)+"%";
-                    clone.style.left=(-((r.left-assetRect.left)/r.width)*100)+"%";
-                    clone.style.top=(-((r.top-assetRect.top)/r.height)*100)+"%";
-                    clone.style.maxWidth="none";
-                    clone.style.pointerEvents="none";
-                    region.appendChild(clone);
-                    stage.appendChild(region);
-                    apply();
+            const up = () => {
+                if (!drawing) return cleanup();
+                drawing = false;
+                if (points.length >= 3) {
+                    const minX = Math.min(...points.map((p) => p.x));
+                    const maxX = Math.max(...points.map((p) => p.x));
+                    const minY = Math.min(...points.map((p) => p.y));
+                    const maxY = Math.max(...points.map((p) => p.y));
+                    const width = maxX-minX, height = maxY-minY;
+                    if (width > 8 && height > 8) {
+                        region = document.createElement("div");
+                        region.className = "tq-parallax-region";
+                        const stageRect = stage.getBoundingClientRect();
+                        region.style.left = ((minX-stageRect.left)/stageRect.width*100)+"%";
+                        region.style.top = ((minY-stageRect.top)/stageRect.height*100)+"%";
+                        region.style.width = (width/stageRect.width*100)+"%";
+                        region.style.height = (height/stageRect.height*100)+"%";
+                        const polygon = points.map((p) => (((p.x-minX)/width)*100).toFixed(2)+"% "+(((p.y-minY)/height)*100).toFixed(2)+"%").join(",");
+                        region.style.clipPath = "polygon("+polygon+")";
+                        region.style.webkitClipPath = "polygon("+polygon+")";
+                        const clone = asset.cloneNode(false);
+                        clone.removeAttribute("data-tq-asset-id");
+                        clone.style.position="absolute";
+                        clone.style.width=(assetRect.width/width*100)+"%";
+                        clone.style.height=(assetRect.height/height*100)+"%";
+                        clone.style.left=(-((minX-assetRect.left)/width)*100)+"%";
+                        clone.style.top=(-((minY-assetRect.top)/height)*100)+"%";
+                        clone.style.maxWidth="none";
+                        clone.style.pointerEvents="none";
+                        region.appendChild(clone);
+                        stage.appendChild(region);
+                        apply();
+                    }
                 }
-                draft.remove(); draft=null; start=null; cleanup();
+                const svg = draft?.ownerSVGElement;
+                svg?.remove();
+                draft=null; points=[]; cleanup();
             };
-            const cleanup = () => { root.removeEventListener("pointerdown",down,true);root.removeEventListener("pointermove",move,true);root.removeEventListener("pointerup",up,true); };
-            root.addEventListener("pointerdown",down,true);root.addEventListener("pointermove",move,true);root.addEventListener("pointerup",up,true);
+            const cleanup = () => {
+                root.removeEventListener("pointerdown",down,true);
+                root.removeEventListener("pointermove",move,true);
+                root.removeEventListener("pointerup",up,true);
+                root.removeEventListener("pointercancel",up,true);
+            };
+            root.addEventListener("pointerdown",down,true);
+            root.addEventListener("pointermove",move,true);
+            root.addEventListener("pointerup",up,true);
+            root.addEventListener("pointercancel",up,true);
         };
     }
 
