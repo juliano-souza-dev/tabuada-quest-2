@@ -750,6 +750,13 @@
             : s;
     }
 
+    function withNameplate(state, nameplateId, allowedIds) {
+        const s = normalizeState(state);
+        return Array.isArray(allowedIds) && allowedIds.includes(nameplateId)
+            ? { ...s, player: { ...s.player, nameplateId } }
+            : s;
+    }
+
     function createFreshProfile(displayName, avatarId, playerId, allowedAvatarIds) {
         const name = String(displayName || "").trim().slice(0, 24);
         const normalizedAvatarId = String(avatarId || "");
@@ -1813,6 +1820,7 @@
         normalizeState,
         withHomeBackground,
         withProfileFrame,
+        withNameplate,
         createFreshProfile,
         withLastScreen,
         hireCrewMember,
