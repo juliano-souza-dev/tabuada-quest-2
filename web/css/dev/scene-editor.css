@@ -126,6 +126,10 @@
     transform-origin: top left;
 }
 
+.tq-dev-scene-editing [data-tq-dev-kind="overlay"] {
+    pointer-events: none !important;
+}
+
 .tq-dev-scene-editing [data-tq-dev-kind="function"] {
     outline: 2px dashed rgba(100,220,255,.82) !important;
     outline-offset: -2px;
