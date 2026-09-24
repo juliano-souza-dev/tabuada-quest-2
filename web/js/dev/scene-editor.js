@@ -119,6 +119,7 @@
                         <option value="asset">Assets</option>
                         <option value="function">Funções</option>
                         <option value="dynamicText">Textos</option>
+                        <option value="overlay">Overlays</option>
                         <option value="background">Fundos</option>
                     </select>
                 </label>
