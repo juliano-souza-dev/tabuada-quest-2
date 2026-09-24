@@ -221,9 +221,9 @@
         host.innerHTML = `
             <button type="button" class="tq-parallax-dev-toggle">FX</button>
             <section class="tq-parallax-dev-panel" hidden>
-                <strong>Parallax · protótipo</strong>
-                <div class="tq-parallax-background-context">Fundo atual: <b data-fx-background></b></div>
-                <select data-fx-asset>${assets.map((asset) => `<option value="${asset.dataset.tqAssetId}">${asset.dataset.tqAssetLabel || asset.dataset.tqAssetId} · ${asset.dataset.tqAssetRole}</option>`).join("")}</select>
+                <strong>Parallax · editor global</strong>
+                <div class="tq-parallax-background-context">Tela atual: <b data-fx-background></b></div>
+                <label>Elemento visual<select data-fx-asset></select></label>
                 <button type="button" data-fx-select>Desenhar área</button>
                 <label>Movimento <select data-fx-mode><option value="alternate">Vai e volta</option><option value="continuous">Contínuo</option></select></label>
                 <label>Direção <select data-fx-direction><option value="left">← Esquerda</option><option value="right">→ Direita</option><option value="up">↑ Cima</option><option value="down">↓ Baixo</option></select></label>
@@ -237,6 +237,13 @@
             </section>`;
         document.body.appendChild(host);
         const panel = host.querySelector(".tq-parallax-dev-panel");
+        const assetSelect = host.querySelector("[data-fx-asset]");
+        assetSelect.replaceChildren(...assetEntries.map((entry) => {
+            const option = document.createElement("option");
+            option.value = entry.id;
+            option.textContent = entry.label;
+            return option;
+        }));
         let draft = null;
         let region = null;
         let animation = null;
