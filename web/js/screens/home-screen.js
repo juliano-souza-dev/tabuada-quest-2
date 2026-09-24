@@ -104,6 +104,19 @@
                      src="${heroSrc}"
                      alt="Avatar selecionado em traje de aventura pirata">
 
+                <img class="home-shipyard-art"
+                     data-tq-asset-id="home.shipyard.art"
+                     data-tq-asset-role="object"
+                     data-tq-asset-label="Arte do Estaleiro"
+                     data-tq-dev-id="home.shipyard.art"
+                     data-tq-dev-kind="asset"
+                     data-tq-dev-role="object"
+                     data-tq-dev-label="Arte do Estaleiro"
+                     src="./assets/ui/icons/estaleiro.webp"
+                     alt=""
+                     aria-hidden="true"
+                     draggable="false">
+
                 <button class="art-hotspot hotspot-background" type="button" data-action="backgrounds" data-tq-dev-id="home.action.backgrounds" data-tq-dev-kind="function" data-tq-dev-label="Abrir seleção de fundo" data-tq-dev-action="backgrounds" aria-label="Escolher fundo"></button>
                 <button class="art-hotspot hotspot-fashion" type="button" data-action="fashion" data-tq-dev-id="home.action.fashion" data-tq-dev-kind="function" data-tq-dev-label="Abrir Moda" data-tq-dev-action="fashion" aria-label="Abrir Moda"></button>
 
