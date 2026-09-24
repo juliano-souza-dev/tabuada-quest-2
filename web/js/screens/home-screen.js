@@ -125,6 +125,18 @@
                             aria-label="Abrir lista de Regiões para desenvolvimento">
                             DEV · REGIÕES
                         </button>
+                        <button class="development-regions-shortcut"
+                            type="button"
+                            data-action="dev-add-gold"
+                            aria-label="Adicionar mil moedas de ouro">
+                            +1000 OURO
+                        </button>
+                        <button class="development-regions-shortcut"
+                            type="button"
+                            data-action="dev-level-up"
+                            aria-label="Aumentar um nível">
+                            +1 NÍVEL
+                        </button>
                         <button class="development-exit-shortcut"
                             type="button"
                             data-action="exit-session"
@@ -323,6 +335,24 @@
 
             if (action === "development-regions") {
                 onNavigate("development-regions");
+                return;
+            }
+
+            if (action === "dev-add-gold") {
+                onStateChange(TQ.domain.playerState.applyNumericReward(state, { coins: 1000 }));
+                return;
+            }
+
+            if (action === "dev-level-up") {
+                const currentLevel = Math.min(10, Math.max(1, Number(state.progression.level) || 1));
+                if (currentLevel >= 10) return;
+                onStateChange({
+                    ...state,
+                    progression: {
+                        ...state.progression,
+                        level: currentLevel + 1
+                    }
+                });
                 return;
             }
 
