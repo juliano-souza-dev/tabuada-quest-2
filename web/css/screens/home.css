@@ -126,9 +126,8 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    object-position: 54% 9%;
-    transform: scale(2.7);
-    transform-origin: 54% 16%;
+    object-position: center;
+    transform: none;
 }
 
 .hud-name-slot {
