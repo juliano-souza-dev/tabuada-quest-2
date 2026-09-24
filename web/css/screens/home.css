@@ -82,8 +82,8 @@
 }
 .home-frame-text {
     position: absolute;
-    left: 31%;
-    right: 7%;
+    left: 27%;
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
