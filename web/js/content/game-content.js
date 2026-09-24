@@ -8,8 +8,7 @@
     ]);
 
     const nameplates = Object.freeze([
-        Object.freeze({ id: "nameplate-wood", label: "Madeira", asset: "./assets/ui/header_name.webp?v=20260923-header-v1", isDefault: true }),
-        Object.freeze({ id: "nameplate-caveira-mar-roxo", type: "nameplate", label: "Caveira do Mar Roxo", price: 180, asset: "./assets/ui/plaquinhas/caveira-do-mar-roxo.webp" }),
+        Object.freeze({ id: "nameplate-caveira-mar-roxo", type: "nameplate", label: "Caveira do Mar Roxo", price: 180, asset: "./assets/ui/plaquinhas/caveira-do-mar-roxo.webp", isDefault: true }),
         Object.freeze({ id: "nameplate-bussola-corsario", type: "nameplate", label: "Bússola do Corsário", price: 260, asset: "./assets/ui/plaquinhas/bussola-do-corsario.webp" }),
         Object.freeze({ id: "nameplate-bussola-saque-real", type: "nameplate", label: "Bússola do Saque Real", price: 280, asset: "./assets/ui/plaquinhas/bussola-do-saque-real.webp" }),
         Object.freeze({ id: "nameplate-mare-perolas", type: "nameplate", label: "Maré de Pérolas", price: 320, asset: "./assets/ui/plaquinhas/mare-de-perolas.webp" }),
