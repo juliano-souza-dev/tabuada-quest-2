@@ -66,8 +66,8 @@
     position: absolute;
     z-index: 12;
     left: 50%;
-    top: -0.6%;
-    width: 36%;
+    top: 0;
+    width: 100%;
     aspect-ratio: 900 / 447;
     transform: translateX(-50%);
     pointer-events: none;
