@@ -38,7 +38,7 @@
 
         return `
             <article class="items-entry items-entry-with-preview${isEquipped ? " is-equipped" : ""}">
-                <div class="items-entry-preview items-nameplate-preview">
+                <div class="items-entry-preview items-frame-preview">
                     <img src="${preview}" alt="" draggable="false">
                 </div>
                 <div class="items-entry-copy">
