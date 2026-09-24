@@ -341,7 +341,7 @@
             }
 
             const messages = {
-                daily: "Recompensa diária preparada para a evolução da campanha.",
+                daily: "Recompensa diária será implementada em breve.",
                 chests: "Seus baús aparecerão aqui.",
                 pets: "Companheiros resgatados: " + petCount + "/" + totals.pets + "."
             };
