@@ -8,7 +8,27 @@
     ]);
 
     const nameplates = Object.freeze([
-        Object.freeze({ id: "nameplate-wood", label: "Madeira", asset: "./assets/ui/header_name.webp?v=20260923-header-v1", isDefault: true })
+        Object.freeze({ id: "nameplate-wood", label: "Madeira", asset: "./assets/ui/header_name.webp?v=20260923-header-v1", isDefault: true }),
+        Object.freeze({ id: "nameplate-caveira-mar-roxo", type: "nameplate", label: "Caveira do Mar Roxo", price: 180, asset: "./assets/ui/plaquinhas/caveira-do-mar-roxo.webp" }),
+        Object.freeze({ id: "nameplate-bussola-corsario", type: "nameplate", label: "Bússola do Corsário", price: 260, asset: "./assets/ui/plaquinhas/bussola-do-corsario.webp" }),
+        Object.freeze({ id: "nameplate-bussola-saque-real", type: "nameplate", label: "Bússola do Saque Real", price: 280, asset: "./assets/ui/plaquinhas/bussola-do-saque-real.webp" }),
+        Object.freeze({ id: "nameplate-mare-perolas", type: "nameplate", label: "Maré de Pérolas", price: 320, asset: "./assets/ui/plaquinhas/mare-de-perolas.webp" }),
+        Object.freeze({ id: "nameplate-ancora-perolas", type: "nameplate", label: "Âncora das Pérolas", price: 340, asset: "./assets/ui/plaquinhas/ancora-das-perolas.webp" }),
+        Object.freeze({ id: "nameplate-lacos-almirante", type: "nameplate", label: "Laços do Almirante", price: 380, asset: "./assets/ui/plaquinhas/lacos-do-almirante.webp" }),
+        Object.freeze({ id: "nameplate-ancoras-hibisco", type: "nameplate", label: "Âncoras de Hibisco", price: 400, asset: "./assets/ui/plaquinhas/ancoras-de-hibisco.webp" }),
+        Object.freeze({ id: "nameplate-tesouro-ilha-tropical", type: "nameplate", label: "Tesouro da Ilha Tropical", price: 400, asset: "./assets/ui/plaquinhas/tesouro-da-ilha-tropical.webp" }),
+        Object.freeze({ id: "nameplate-bandeiras-corsario", type: "nameplate", label: "Bandeiras do Corsário", price: 400, asset: "./assets/ui/plaquinhas/bandeiras-do-corsario.webp" }),
+        Object.freeze({ id: "nameplate-rota-coracao-rubi", type: "nameplate", label: "Rota do Coração Rubi", price: 800, asset: "./assets/ui/plaquinhas/rota-do-coracao-rubi.webp" }),
+        Object.freeze({ id: "nameplate-mapa-coracao-rubi", type: "nameplate", label: "Mapa do Coração Rubi", price: 800, asset: "./assets/ui/plaquinhas/mapa-do-coracao-rubi.webp" }),
+        Object.freeze({ id: "nameplate-rosas-capita", type: "nameplate", label: "Rosas da Capitã", price: 800, asset: "./assets/ui/plaquinhas/rosas-da-capita.webp" }),
+        Object.freeze({ id: "nameplate-rosas-capitao", type: "nameplate", label: "Rosas do Capitão", price: 1600, asset: "./assets/ui/plaquinhas/rosas-do-capitao.webp" }),
+        Object.freeze({ id: "nameplate-chaves-tesouro-tropical", type: "nameplate", label: "Chaves do Tesouro Tropical", price: 1600, asset: "./assets/ui/plaquinhas/chaves-do-tesouro-tropical.webp" }),
+        Object.freeze({ id: "nameplate-laminas-hibisco", type: "nameplate", label: "Lâminas do Hibisco", price: 1600, asset: "./assets/ui/plaquinhas/laminas-do-hibisco.webp" }),
+        Object.freeze({ id: "nameplate-jardim-saque", type: "nameplate", label: "Jardim do Saque", price: 3200, asset: "./assets/ui/plaquinhas/jardim-do-saque.webp" }),
+        Object.freeze({ id: "nameplate-festival-porto-pirata", type: "nameplate", label: "Festival do Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/festival-do-porto-pirata.webp" }),
+        Object.freeze({ id: "nameplate-noite-porto-pirata", type: "nameplate", label: "Noite no Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/noite-no-porto-pirata.webp" }),
+        Object.freeze({ id: "nameplate-coroa-rubi-imperial", type: "nameplate", label: "Coroa Rubi Imperial", price: 6400, asset: "./assets/ui/plaquinhas/coroa-rubi-imperial.webp" }),
+        Object.freeze({ id: "nameplate-coroa-rosa-ventos", type: "nameplate", label: "Coroa da Rosa dos Ventos", price: 6400, asset: "./assets/ui/plaquinhas/coroa-da-rosa-dos-ventos.webp" })
     ]);
 
     const profileFrames = Object.freeze([
@@ -20,10 +40,12 @@
     const shopCatalog = Object.freeze({
         tabs: Object.freeze([
             Object.freeze({ id: "frames", label: "Molduras" }),
+            Object.freeze({ id: "nameplates", label: "Plaquinhas" }),
             Object.freeze({ id: "backgrounds", label: "Fundos" }),
             Object.freeze({ id: "shipyard", label: "Estaleiro" }),
             Object.freeze({ id: "effects", label: "Efeitos" })
         ]),
+        nameplates,
         frames: Object.freeze([
             Object.freeze({ id: "frame-ancora-dourada", type: "frame", label: "Âncora Dourada", price: 250, asset: null }),
             Object.freeze({ id: "frame-coroa-corsaria", type: "frame", label: "Coroa Corsária", price: 450, asset: null }),
@@ -51,6 +73,7 @@
     function getShopItem(itemId) {
         const id = String(itemId);
         return [
+            ...shopCatalog.nameplates,
             ...shopCatalog.frames,
             ...shopCatalog.backgrounds,
             ...shopCatalog.ships,
