@@ -356,6 +356,17 @@
         return { image, objectUrl };
     }
 
+    function fileNameFromAssetUrl(rawUrl) {
+        if (!rawUrl) return "";
+        try {
+            const url = new URL(rawUrl, root.location.href);
+            const clean = decodeURIComponent(url.pathname.split("/").pop() || "");
+            return clean.trim().toLowerCase();
+        } catch (_) {
+            return String(rawUrl).split(/[?#]/)[0].split("/").pop()?.trim().toLowerCase() || "";
+        }
+    }
+
     async function restoreLocalLayers(options = {}) {
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
         const screenId = String(options.screenId || "screen");
@@ -370,18 +381,39 @@
                 stage.style.position = "relative";
             }
 
-            let restored = 0;
-            records
-                .sort((a, b) => Number(a.createdAt || 0) - Number(b.createdAt || 0))
-                .forEach((record) => {
-                    const duplicate = [...screenRoot.querySelectorAll("[data-tq-dev-id]")]
-                        .some((element) => element.dataset.tqDevId === record.id);
-                    if (duplicate || !(record.blob instanceof Blob)) return;
+            /*
+             * A local layer is a DEV draft. Once an asset with the same filename
+             * is part of the web-rendered screen, the draft must not be restored,
+             * otherwise the promoted asset appears twice after refresh.
+             */
+            const webBackedFileNames = new Set(
+                [...screenRoot.querySelectorAll("img:not(.tq-dev-local-live-asset)")]
+                    .map((image) => fileNameFromAssetUrl(image.currentSrc || image.getAttribute("src") || ""))
+                    .filter(Boolean)
+            );
 
-                    const { image } = createLocalLayerElement(record);
-                    stage.appendChild(image);
-                    restored += 1;
-                });
+            let restored = 0;
+            const ordered = records
+                .slice()
+                .sort((a, b) => Number(a.createdAt || 0) - Number(b.createdAt || 0));
+
+            for (const record of ordered) {
+                const localFileName = String(record.fileName || "").trim().toLowerCase();
+
+                if (localFileName && webBackedFileNames.has(localFileName)) {
+                    await deleteLocalLayerRecord(record.id);
+                    releaseRuntimeUrl(record.id);
+                    continue;
+                }
+
+                const duplicate = [...screenRoot.querySelectorAll("[data-tq-dev-id]")]
+                    .some((element) => element.dataset.tqDevId === record.id);
+                if (duplicate || !(record.blob instanceof Blob)) continue;
+
+                const { image } = createLocalLayerElement(record);
+                stage.appendChild(image);
+                restored += 1;
+            }
 
             return restored;
         } catch (error) {
