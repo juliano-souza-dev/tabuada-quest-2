@@ -8,15 +8,15 @@
     ]);
 
     const frames = Object.freeze([
-        Object.freeze({ id: "frame-mapa-coracao-rubi", type: "frame", label: "Mapa do Coração Rubi", price: 800, asset: "./assets/ui/molduras/mapa_do_coracao_rubi.webp" }),
-        Object.freeze({ id: "frame-rosas-capita", type: "frame", label: "Rosas da Capitã", price: 800, asset: "./assets/ui/molduras/rosas_da_capita.webp" }),
-        Object.freeze({ id: "frame-rosas-capitao", type: "frame", label: "Rosas do Capitão", price: 1600, asset: "./assets/ui/molduras/rosas_do_capitao.webp" }),
-        Object.freeze({ id: "frame-chaves-tesouro-tropical", type: "frame", label: "Chaves do Tesouro Tropical", price: 1600, asset: "./assets/ui/molduras/chaves_do_tesouro_tropical.webp", isDefault: true }),
-        Object.freeze({ id: "frame-laminas-hibisco", type: "frame", label: "Lâminas do Hibisco", price: 1600, asset: "./assets/ui/molduras/laminas_do_hibisco.webp" }),
-        Object.freeze({ id: "frame-jardim-saque", type: "frame", label: "Jardim do Saque", price: 3200, asset: "./assets/ui/molduras/jardim_do_saque.webp" }),
-        Object.freeze({ id: "frame-festival-porto-pirata", type: "frame", label: "Festival do Porto Pirata", price: 3200, asset: "./assets/ui/molduras/festival_do_porto_pirata.webp" }),
-        Object.freeze({ id: "frame-noite-porto-pirata", type: "frame", label: "Noite no Porto Pirata", price: 3200, asset: "./assets/ui/molduras/noite_no_porto_pirata.webp" }),
-        Object.freeze({ id: "frame-coroa-rosa-ventos", type: "frame", label: "Coroa da Rosa dos Ventos", price: 6400, asset: "./assets/ui/molduras/coroa_da_rosa_dos_ventos.webp" })
+        Object.freeze({ id: "frame-mapa-coracao-rubi", type: "frame", label: "Mapa do Coração Rubi", price: 800, asset: "./assets/ui/plaquinhas/mapa_do_coracao_rubi.webp" }),
+        Object.freeze({ id: "frame-rosas-capita", type: "frame", label: "Rosas da Capitã", price: 800, asset: "./assets/ui/plaquinhas/rosas_da_capita.webp" }),
+        Object.freeze({ id: "frame-rosas-capitao", type: "frame", label: "Rosas do Capitão", price: 1600, asset: "./assets/ui/plaquinhas/rosas_do_capitao.webp" }),
+        Object.freeze({ id: "frame-chaves-tesouro-tropical", type: "frame", label: "Chaves do Tesouro Tropical", price: 1600, asset: "./assets/ui/plaquinhas/chaves_do_tesouro_tropical.webp", isDefault: true }),
+        Object.freeze({ id: "frame-laminas-hibisco", type: "frame", label: "Lâminas do Hibisco", price: 1600, asset: "./assets/ui/plaquinhas/laminas_do_hibisco.webp" }),
+        Object.freeze({ id: "frame-jardim-saque", type: "frame", label: "Jardim do Saque", price: 3200, asset: "./assets/ui/plaquinhas/jardim_do_saque.webp" }),
+        Object.freeze({ id: "frame-festival-porto-pirata", type: "frame", label: "Festival do Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/festival_do_porto_pirata.webp" }),
+        Object.freeze({ id: "frame-noite-porto-pirata", type: "frame", label: "Noite no Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/noite_no_porto_pirata.webp" }),
+        Object.freeze({ id: "frame-coroa-rosa-ventos", type: "frame", label: "Coroa da Rosa dos Ventos", price: 6400, asset: "./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp" })
     ]);
 
     const shopCatalog = Object.freeze({
