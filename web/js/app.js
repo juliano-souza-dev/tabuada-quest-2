@@ -29,6 +29,7 @@
     let authRestorePending = false;
     let authRestoreRequired = false;
     let authErrorCode = "";
+    let appRenderToken = 0;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function syncStatus() {
@@ -480,14 +481,28 @@
         render();
     }
 
-    function render() {
+    async function renderWithDevelopmentTools(renderScreen, context, screenId, renderToken) {
+        await screens.render(renderScreen, context);
+        if (renderToken !== appRenderToken) return;
+
+        if (!TQ.content.development?.shortcutsEnabled) return;
+
+        mountParallaxPrototype();
+        TQ.dev?.sceneEditor?.mount(appRoot, {
+            screenId,
+            screenRoot: appRoot.firstElementChild || appRoot
+        });
+    }
+
+    async function render() {
+        const renderToken = ++appRenderToken;
         const renderState = developmentMode && developmentState
             ? developmentState
             : state;
         const status = syncStatus();
 
         if (status.native && !status.authenticated) {
-            screens.render(TQ.screens.auth.renderAuthScreen, {
+            await renderWithDevelopmentTools(TQ.screens.auth.renderAuthScreen, {
                 status,
                 busy: authBusy,
                 restoring: false,
@@ -495,12 +510,12 @@
                 onGoogleSignIn: startGoogleSignIn,
                 onRetryRestore: requestRemoteRestore,
                 onSignOut: signOut
-            });
+            }, "auth", renderToken);
             return;
         }
 
         if (status.native && (authRestorePending || authRestoreRequired)) {
-            screens.render(TQ.screens.auth.renderAuthScreen, {
+            await renderWithDevelopmentTools(TQ.screens.auth.renderAuthScreen, {
                 status,
                 busy: false,
                 restoring: authRestorePending,
@@ -508,16 +523,16 @@
                 onGoogleSignIn: startGoogleSignIn,
                 onRetryRestore: requestRemoteRestore,
                 onSignOut: signOut
-            });
+            }, "auth-restore", renderToken);
             return;
         }
 
         if (!renderState.player.profileCreated) {
-            screens.render(TQ.screens.profileSetup.renderProfileScreen, {
+            await renderWithDevelopmentTools(TQ.screens.profileSetup.renderProfileScreen, {
                 state: renderState,
                 status,
                 onStateChange: save
-            });
+            }, "profile-setup", renderToken);
             return;
         }
 
@@ -541,9 +556,11 @@
             "map-reward": TQ.screens.mapReward.renderMapRewardScreen,
             result: TQ.screens.result.renderResultScreen
         };
-        const renderer = renderers[renderState.ui.lastScreen] || renderers.home;
 
-        screens.render(renderer, {
+        const screenId = renderState.ui.lastScreen || "home";
+        const renderer = renderers[screenId] || renderers.home;
+
+        await renderWithDevelopmentTools(renderer, {
             state: renderState,
             onStateChange: save,
             onNavigate: navigate,
@@ -554,11 +571,7 @@
             onPreviewRegionChange: developmentMode ? setDevelopmentRegion : setWorldMapPreviewRegion,
             developmentMode,
             onDevelopmentIslandOpen: openDevelopmentIsland
-        });
-        if (TQ.content.development?.shortcutsEnabled) {
-            mountParallaxPrototype();
-            TQ.dev?.sceneEditor?.mount(appRoot, { screenId: renderState.ui.lastScreen || "home" });
-        }
+        }, screenId, renderToken);
     }
 
     render();
