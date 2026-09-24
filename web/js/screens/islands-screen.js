@@ -495,6 +495,7 @@
                     src="${visualPage.background}"
                     alt=""
                     aria-hidden="true">
+                ${regionId === 1 ? '<canvas class="region-ocean-motion" aria-hidden="true"></canvas>' : ""}
 
                 ${visualPage.hideBack ? "" : `
                     <button class="region-back-hitbox"
@@ -540,61 +541,59 @@
         const safeArea = screen.querySelector(".tq-safe-visual-area");
         const stage = screen.querySelector(".region-islands-canonical-stage");
 
-        // Region 1 parallax test: move layered island art at different depths while the chart background stays stable.
+        const regionLoader = screen.querySelector(".region-assets-loader");
+
         if (regionId === 1 && stage) {
-            const parallaxLayers = Array.from(stage.querySelectorAll(".region-island-art-shell"));
-            let targetX = 0;
-            let targetY = 0;
-            let currentX = 0;
-            let currentY = 0;
-            let parallaxFrame = 0;
+            const oceanCanvas = stage.querySelector(".region-ocean-motion");
+            const backgroundImage = stage.querySelector(".region-islands-background");
+            const context = oceanCanvas?.getContext("2d", { alpha: true });
+            let oceanFrame = 0;
+            let startedAt = 0;
 
-            parallaxLayers.forEach((layer, index) => {
-                layer.dataset.parallaxDepth = String(0.35 + (index * 0.16));
-                layer.style.willChange = "transform";
-            });
+            const resizeOceanCanvas = () => {
+                if (!oceanCanvas || !context) return;
+                const ratio = Math.min(Math.max(root.devicePixelRatio || 1, 1), 2);
+                oceanCanvas.width = Math.round(REGION_LAYOUT.viewport.width * ratio);
+                oceanCanvas.height = Math.round(REGION_LAYOUT.viewport.height * ratio);
+                context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            };
 
-            const renderParallax = () => {
-                currentX += (targetX - currentX) * 0.09;
-                currentY += (targetY - currentY) * 0.09;
-                parallaxLayers.forEach((layer) => {
-                    const depth = Number(layer.dataset.parallaxDepth) || 0.35;
-                    layer.style.transform = `translate3d(${currentX * depth}px, ${currentY * depth}px, 0)`;
-                });
-                if (Math.abs(targetX - currentX) > 0.02 || Math.abs(targetY - currentY) > 0.02) {
-                    parallaxFrame = root.requestAnimationFrame(renderParallax);
-                } else {
-                    parallaxFrame = 0;
+            const renderOcean = (time) => {
+                if (!oceanCanvas?.isConnected || !backgroundImage?.complete || !backgroundImage.naturalWidth) return;
+                if (!startedAt) startedAt = time;
+                const t = (time - startedAt) / 1000;
+                const width = REGION_LAYOUT.viewport.width;
+                const height = REGION_LAYOUT.viewport.height;
+                context.clearRect(0, 0, width, height);
+
+                // Repaint narrow horizontal ocean bands with gentle phase offsets.
+                // Island art remains in its own overlays above this canvas and never moves.
+                const bandTop = height * 0.20;
+                const bandBottom = height * 0.97;
+                const bandHeight = 18;
+                for (let y = bandTop, index = 0; y < bandBottom; y += bandHeight, index += 1) {
+                    const waveX = Math.sin(t * 0.72 + index * 0.58) * 3.2;
+                    const waveY = Math.sin(t * 0.48 + index * 0.41) * 1.15;
+                    context.globalAlpha = 0.34;
+                    context.drawImage(
+                        backgroundImage,
+                        0, y, width, Math.min(bandHeight + 2, height - y),
+                        waveX, y + waveY, width, Math.min(bandHeight + 2, height - y)
+                    );
+                }
+                context.globalAlpha = 1;
+                oceanFrame = root.requestAnimationFrame(renderOcean);
+            };
+
+            const startOcean = () => {
+                resizeOceanCanvas();
+                if (!oceanFrame && !root.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+                    oceanFrame = root.requestAnimationFrame(renderOcean);
                 }
             };
-
-            const setParallaxTarget = (clientX, clientY) => {
-                const rect = stage.getBoundingClientRect();
-                if (!rect.width || !rect.height) return;
-                const nx = ((clientX - rect.left) / rect.width - 0.5) * 2;
-                const ny = ((clientY - rect.top) / rect.height - 0.5) * 2;
-                targetX = Math.max(-1, Math.min(1, nx)) * 9;
-                targetY = Math.max(-1, Math.min(1, ny)) * 7;
-                if (!parallaxFrame) parallaxFrame = root.requestAnimationFrame(renderParallax);
-            };
-
-            stage.addEventListener("pointermove", (event) => {
-                if (event.pointerType === "mouse") setParallaxTarget(event.clientX, event.clientY);
-            }, { passive: true });
-
-            stage.addEventListener("touchmove", (event) => {
-                const touch = event.touches?.[0];
-                if (touch) setParallaxTarget(touch.clientX, touch.clientY);
-            }, { passive: true });
-
-            stage.addEventListener("pointerleave", () => {
-                targetX = 0;
-                targetY = 0;
-                if (!parallaxFrame) parallaxFrame = root.requestAnimationFrame(renderParallax);
-            }, { passive: true });
+            if (backgroundImage?.complete && backgroundImage.naturalWidth > 0) startOcean();
+            else backgroundImage?.addEventListener("load", startOcean, { once: true });
         }
-
-        const regionLoader = screen.querySelector(".region-assets-loader");
         const regionImages = Array.from(stage?.querySelectorAll("img") || []);
         const waitForImage = (image) => {
             if (image.complete && image.naturalWidth > 0) return Promise.resolve();
