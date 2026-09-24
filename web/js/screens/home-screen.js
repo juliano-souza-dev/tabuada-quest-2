@@ -19,9 +19,9 @@
         const avatarSrc = TQ.content.assets.avatars[avatarId];
         const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
-        const nameplate = TQ.content.nameplates.find((item) => item.id === state.player.nameplateId)
-            || TQ.content.nameplates.find((item) => item.id === TQ.content.defaultNameplateId)
-            || TQ.content.nameplates[0];
+        const frame = TQ.content.frames.find((item) => item.id === state.player.frameId)
+            || TQ.content.frames.find((item) => item.id === TQ.content.defaultFrameId)
+            || TQ.content.frames[0];
         const purchasedIds = new Set(state.shop.purchasedItemIds);
         const ownedBackgrounds = [
             ...TQ.content.homeBackgrounds,
@@ -64,9 +64,9 @@
                          alt="">
                 </div>
 
-                <div class="home-nameplate" aria-label="Plaquinha do jogador">
-                    <img class="home-nameplate-art" src="${nameplate.asset}" alt="" aria-hidden="true">
-                    <span class="home-nameplate-text">${state.player.displayName}</span>
+                <div class="home-frame" aria-label="Moldura do jogador">
+                    <img class="home-frame-art" src="${frame.asset}" alt="" aria-hidden="true">
+                    <span class="home-frame-text">${state.player.displayName}</span>
                 </div>
 
                 <img class="home-art-overlay"
