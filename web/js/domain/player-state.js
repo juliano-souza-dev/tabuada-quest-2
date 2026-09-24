@@ -3,10 +3,11 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 17;
+    const STATE_VERSION = 18;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
     const DEFAULT_PROFILE_FRAME_ID = "simple";
     const DEFAULT_SHIP_ID = "ship-colombo";
+    const DEFAULT_NAMEPLATE_ID = "nameplate-wood";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
     const ISLANDS_PER_REGION = world.ISLANDS_PER_REGION;
     const LEGACY_TOTAL_REGIONS = 11;
@@ -86,6 +87,7 @@
                 displayName: "Explorador",
                 avatarId: "luna",
                 profileFrameId: DEFAULT_PROFILE_FRAME_ID,
+                nameplateId: DEFAULT_NAMEPLATE_ID,
                 profileCreated: false
             },
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
@@ -531,12 +533,21 @@
 
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 17,
                 shop: {
                     ...existingShop,
                     purchasedItemIds: withDefaultShip,
                     equippedShipId: currentEquipped
                 }
+            };
+        }
+
+        if (migrated.schemaVersion === 17) {
+            const existingPlayer = isObject(migrated.player) ? migrated.player : {};
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: { ...existingPlayer, nameplateId: DEFAULT_NAMEPLATE_ID }
             };
         }
 
@@ -674,6 +685,7 @@
             && typeof value.player.displayName === "string"
             && typeof value.player.avatarId === "string"
             && typeof value.player.profileFrameId === "string"
+            && typeof value.player.nameplateId === "string"
             && typeof value.player.profileCreated === "boolean"
             && isObject(value.progression)
             && Number.isInteger(value.progression.level) && value.progression.level >= 1
