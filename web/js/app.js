@@ -696,6 +696,11 @@
             onOpenRegion: openSettingsRegion,
             onOpenIsland: openSettingsIsland
         });
+        TQ.dev?.assetUploader?.mount({
+            repository: "juliano-souza-dev/tabuada-quest-2",
+            branch: "develop",
+            rootPath: "web/assets"
+        });
         mountDevelopmentExit();
     }
 
