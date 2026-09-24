@@ -13,6 +13,7 @@
         { value: "web/assets/ui/plaquinhas", label: "UI · plaquinhas" },
         { value: "web/assets/avatars", label: "Avatares" },
         { value: "web/assets/backgrounds", label: "Backgrounds" },
+        { value: "web/assets/backgrounds/home", label: "Backgrounds · Home" },
         { value: "web/assets/crew", label: "Tripulação" },
         { value: "web/assets/pets", label: "Pets" },
         { value: "web/assets/collectibles", label: "Colecionáveis" },

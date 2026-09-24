@@ -2,9 +2,9 @@
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
     const homeBackgrounds = Object.freeze([
-        Object.freeze({ id: "pirate-main", label: "Baía encantada", src: "./assets/ui/home-pirata-fundo-principal.webp", isDefault: true }),
-        Object.freeze({ id: "pirate-bay", label: "Baía pirata", src: "./assets/backgrounds/home-pirate-bay.webp" }),
-        Object.freeze({ id: "pirate-port", label: "Porto pirata", src: "./assets/backgrounds/home-pirate-port.webp" })
+        Object.freeze({ id: "pirate-main", label: "Baía encantada", src: "./assets/backgrounds/home/home-pirata-fundo-principal.webp", isDefault: true }),
+        Object.freeze({ id: "pirate-bay", label: "Baía pirata", src: "./assets/backgrounds/home/home-pirate-bay.webp" }),
+        Object.freeze({ id: "pirate-port", label: "Porto pirata", src: "./assets/backgrounds/home/home-pirate-port.webp" })
     ]);
 
     const levelBadges = Object.freeze([
