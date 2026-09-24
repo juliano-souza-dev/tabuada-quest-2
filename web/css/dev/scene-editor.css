@@ -288,7 +288,7 @@
     cursor: not-allowed;
 }
 
-[data-tq-dev-layered="true"] {
+[data-tq-dev-id][data-tq-dev-layered="true"] {
     z-index: var(--tq-dev-z, 0) !important;
 }
 
