@@ -95,6 +95,24 @@
         element.removeAttribute("data-tq-dev-adjusted");
     }
 
+    function isDeleted(element) {
+        return element?.getAttribute("data-tq-dev-deleted") === "true";
+    }
+
+    function setDeleted(element, deleted) {
+        if (!(element instanceof Element)) return;
+        if (deleted) element.setAttribute("data-tq-dev-deleted", "true");
+        else element.removeAttribute("data-tq-dev-deleted");
+    }
+
+    function isDeleteProtected(node) {
+        return !node || node.kind === "function";
+    }
+
+    function isDeletableVisual(node) {
+        return Boolean(node) && ["asset", "overlay", "background"].includes(node.kind);
+    }
+
     function normalizedToken(value, fallback = "item") {
         const token = String(value || "")
             .normalize("NFD")
@@ -266,7 +284,9 @@
         let store = readStore();
         const saved = store.screens[screenId] || {};
         nodes.forEach((node) => {
-            if (saved[node.id]) applyGeometry(node.element, saved[node.id]);
+            if (!saved[node.id]) return;
+            applyGeometry(node.element, saved[node.id]);
+            setDeleted(node.element, Boolean(saved[node.id].deleted));
         });
 
         const nodeById = new Map(nodes.map((node) => [node.id, node]));
@@ -313,7 +333,7 @@
                     <button type="button" data-dev-copy>Copiar layout</button>
                     <button type="button" data-dev-reset-screen>Resetar tela</button>
                 </div>
-                <small>Arraste qualquer item mapeado. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px.</small>
+                <small>Arraste qualquer item mapeado. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais; funções são protegidas.</small>
             </section>
         `;
         document.body.appendChild(host);
@@ -349,7 +369,13 @@
         let raf = 0;
 
         function snapshot() {
-            return Object.fromEntries(nodes.map((node) => [node.id, readGeometry(node.element)]));
+            return Object.fromEntries(nodes.map((node) => [
+                node.id,
+                {
+                    ...readGeometry(node.element),
+                    ...(isDeleted(node.element) ? { deleted: true } : {})
+                }
+            ]));
         }
 
         function pushHistory() {
@@ -367,17 +393,26 @@
         function applySnapshot(snapshotValue) {
             nodes.forEach((node) => {
                 const geometry = snapshotValue?.[node.id];
-                if (geometry) applyGeometry(node.element, geometry);
-                else clearGeometry(node.element);
+                if (geometry) {
+                    applyGeometry(node.element, geometry);
+                    setDeleted(node.element, Boolean(geometry.deleted));
+                } else {
+                    clearGeometry(node.element);
+                    setDeleted(node.element, false);
+                }
             });
             persist();
+            refreshList();
             refreshInspector();
             scheduleOverlay();
         }
 
         function filteredNodes() {
+            const visibleNodes = nodes.filter((node) => !isDeleted(node.element));
             const filter = filterSelect.value;
-            return filter === "all" ? nodes : nodes.filter((node) => node.kind === filter);
+            return filter === "all"
+                ? visibleNodes
+                : visibleNodes.filter((node) => node.kind === filter);
         }
 
         function refreshList() {
@@ -418,7 +453,7 @@
 
         function updateOverlay() {
             raf = 0;
-            if (!opened || !selected || !selected.element.isConnected) {
+            if (!opened || !selected || !selected.element.isConnected || isDeleted(selected.element)) {
                 overlay.hidden = true;
                 return;
             }
@@ -637,8 +672,41 @@
 
         function onKeyDown(event) {
             if (!opened || !selected) return;
+            if (
+                event.target instanceof HTMLInputElement
+                || event.target instanceof HTMLSelectElement
+                || event.target instanceof HTMLTextAreaElement
+                || event.target?.isContentEditable
+            ) return;
+
+            if (event.key === "Delete") {
+                event.preventDefault();
+
+                if (isDeleteProtected(selected)) {
+                    status.textContent = "Funções são protegidas e não podem ser deletadas";
+                    return;
+                }
+
+                if (!isDeletableVisual(selected)) {
+                    status.textContent = "DEL é permitido somente para assets visuais";
+                    return;
+                }
+
+                pushHistory();
+                const deletedLabel = selected.label;
+                setDeleted(selected.element, true);
+                persist("Asset deletado · Desfazer restaura");
+                refreshList();
+                if (!selected || isDeleted(selected.element)) {
+                    const next = filteredNodes()[0] || null;
+                    selectNode(next);
+                }
+                status.textContent = deletedLabel + " deletado · Desfazer restaura";
+                scheduleOverlay();
+                return;
+            }
+
             if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
-            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
             event.preventDefault();
             pushHistory();
             const step = event.shiftKey ? 10 : 1;
@@ -700,13 +768,17 @@
             if (!selected) return;
             pushHistory();
             clearGeometry(selected.element);
+            setDeleted(selected.element, false);
             persist();
             refreshInspector();
             scheduleOverlay();
         });
         host.querySelector("[data-dev-reset-screen]").addEventListener("click", () => {
             pushHistory();
-            nodes.forEach((node) => clearGeometry(node.element));
+            nodes.forEach((node) => {
+                clearGeometry(node.element);
+                setDeleted(node.element, false);
+            });
             store = readStore();
             delete store.screens[screenId];
             writeStore(store);
