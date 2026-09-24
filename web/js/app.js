@@ -3,6 +3,21 @@
     const appRoot = document.querySelector("#app");
     if (!TQ || !appRoot) return;
 
+    // App-style input: suppress browser pinch and double-tap zoom while preserving ordinary single-touch interaction.
+    document.addEventListener("gesturestart", (event) => event.preventDefault(), { passive: false });
+    document.addEventListener("gesturechange", (event) => event.preventDefault(), { passive: false });
+    document.addEventListener("gestureend", (event) => event.preventDefault(), { passive: false });
+    document.addEventListener("touchmove", (event) => {
+        if (event.touches && event.touches.length > 1) event.preventDefault();
+    }, { passive: false });
+
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", (event) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) event.preventDefault();
+        lastTouchEnd = now;
+    }, { passive: false });
+
     let state = TQ.persistence.localStorage.loadState(root.localStorage);
     let developmentState = null;
     let developmentMode = false;
