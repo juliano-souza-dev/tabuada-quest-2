@@ -494,7 +494,16 @@
         }
 
         host.querySelector(".tq-asset-upload-dev-toggle").addEventListener("click", () => {
-            panel.hidden = !panel.hidden;
+            const opening = panel.hidden;
+            if (opening) {
+                document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel").forEach((candidate) => {
+                    if (candidate !== panel) candidate.hidden = true;
+                });
+                root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
+                    detail: { tool: "assets" }
+                }));
+            }
+            panel.hidden = !opening;
             if (!panel.hidden) {
                 syncSelectedLabel();
                 status.textContent = "DEV · " + branch;
