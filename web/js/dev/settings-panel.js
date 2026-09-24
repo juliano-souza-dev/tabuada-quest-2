@@ -1,6 +1,8 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     let activeCleanup = null;
+    let panelOpen = false;
+    let lastStatus = "Pronto";
 
     function integer(value, fallback = 0) {
         const parsed = Number(value);
@@ -350,6 +352,8 @@
 
         const panel = host.querySelector(".tq-settings-dev-panel");
         const status = host.querySelector("[data-set-status]");
+        panel.hidden = !panelOpen;
+        status.textContent = lastStatus;
         const coins = host.querySelector("[data-set-coins]");
         const gems = host.querySelector("[data-set-gems]");
         const level = host.querySelector("[data-set-level]");
@@ -403,13 +407,15 @@
 
         function commit(nextState, message) {
             currentState = normalize(nextState);
+            lastStatus = message;
             status.textContent = message;
             onCommit(currentState);
         }
 
         host.querySelector(".tq-settings-dev-toggle").onclick = () => {
-            panel.hidden = !panel.hidden;
-            if (!panel.hidden) sync();
+            panelOpen = panel.hidden;
+            panel.hidden = !panelOpen;
+            if (panelOpen) sync();
         };
 
         islandRegionSelect.addEventListener("change", refreshIslandOptions);
@@ -437,6 +443,7 @@
         host.querySelector("[data-set-open-region]").onclick = () => {
             const regionId = Number(regionSelect.value);
             const prepared = withUnlockedRegion(currentState, regionId);
+            panelOpen = false;
             onOpenRegion(prepared, regionId);
         };
 
@@ -450,6 +457,7 @@
             const regionId = Number(islandRegionSelect.value);
             const islandId = Number(islandSelect.value);
             const prepared = withIslandPrepared(currentState, regionId, islandId);
+            panelOpen = false;
             onOpenIsland(prepared, regionId, islandId);
         };
 
