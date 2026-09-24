@@ -157,18 +157,14 @@
 
 .hud-level-slot {
     position: absolute;
-    z-index: 10;
-    left: 43.3614%;
-    top: 3.2222%;
-    width: 10.1%;
-    height: 4.6%;
-    display: grid;
-    place-items: center;
-    color: white;
-    font-size: clamp(.72rem, 2.35vh, 1.02rem);
-    font-weight: 1000;
-    text-align: center;
-    text-shadow: 0 1px 2px #073d68;
+    z-index: 30;
+    left: 2.2%;
+    top: 17.4%;
+    width: 31%;
+    height: auto;
+    aspect-ratio: 3.15 / 1;
+    display: block;
+    pointer-events: none;
 }
 
 .hud-level-slot img {
