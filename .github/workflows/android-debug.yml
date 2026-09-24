@@ -5,7 +5,7 @@ name: Android Debug APK
 on:
   workflow_dispatch:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - "app/**"
       - "web/**"
