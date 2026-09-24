@@ -552,6 +552,50 @@
 }
 
 
+/* Baseline consolidado a partir do editor visual DEV · 2026-09-24.
+   Valores sx/sy = 0 do exportador antigo foram tratados como escala padrão 1. */
+.home-background-image {
+    translate: -5.432828421355907px -38.73832508982423px;
+    scale: 1.0309070103194569 0.8569456053585565;
+    transform-origin: top left;
+}
+
+.home-frame {
+    translate: 21px 13px;
+    scale: 0.8356511066063805 0.8356511066063804;
+    transform-origin: top left;
+}
+
+.home-frame-text {
+    translate: -103px -20px;
+    scale: 1.5920950218082512 1.5920950218082515;
+    transform-origin: top left;
+}
+
+.profile-slot {
+    translate: 56px 4px;
+    scale: 0.9939083692763154 0.9939083692763154;
+    transform-origin: top left;
+}
+
+.hud-level-slot {
+    translate: 204px -45px;
+    scale: 1.3561224489795918 1.3561224489795918;
+    transform-origin: top left;
+}
+
+.hotspot-background {
+    translate: 0 12px;
+    scale: 0.05 0.05;
+    transform-origin: top left;
+}
+
+.hotspot-fashion {
+    translate: 3px 0;
+    scale: 0.05 0.05;
+    transform-origin: top left;
+}
+
 /* Atalhos temporários usados apenas durante o desenvolvimento local. */
 .development-shortcuts {
     position: absolute;
