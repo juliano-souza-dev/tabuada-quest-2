@@ -146,6 +146,75 @@
         render();
     }
 
+    function commitSettingsState(nextState) {
+        const normalized = TQ.domain.playerState.normalizeState(nextState);
+        state = TQ.persistence.localStorage.saveState(root.localStorage, normalized);
+        if (developmentMode) developmentState = state;
+        render();
+    }
+
+    function openSettingsRegion(nextState, regionId) {
+        const normalizedRegionId = Math.max(
+            1,
+            Math.min(TQ.domain.playerState.TOTAL_REGIONS, Number(regionId) || 1)
+        );
+        const normalized = TQ.domain.playerState.normalizeState(nextState);
+
+        developmentMode = false;
+        developmentState = null;
+        developmentRegionId = null;
+        worldMapPreviewRegionId = null;
+        rewardReturnScreen = null;
+
+        state = TQ.persistence.localStorage.saveState(root.localStorage, {
+            ...normalized,
+            campaign: {
+                ...normalized.campaign,
+                currentRegionId: normalizedRegionId,
+                currentIslandId: 1
+            },
+            learning: {
+                ...normalized.learning,
+                activeSession: null
+            },
+            ui: {
+                ...normalized.ui,
+                lastScreen: "islands"
+            }
+        });
+        render();
+    }
+
+    function openSettingsIsland(nextState, regionId, islandId) {
+        const normalizedRegionId = Math.max(
+            1,
+            Math.min(TQ.domain.playerState.TOTAL_REGIONS, Number(regionId) || 1)
+        );
+        const normalizedIslandId = Math.max(
+            1,
+            Math.min(TQ.domain.playerState.ISLANDS_PER_REGION, Number(islandId) || 1)
+        );
+        let normalized = TQ.domain.playerState.normalizeState(nextState);
+
+        developmentMode = false;
+        developmentState = null;
+        developmentRegionId = null;
+        worldMapPreviewRegionId = null;
+        rewardReturnScreen = null;
+
+        // IMPORTANT: enter through the exact same state factory used by a normal
+        // island click. Rewards, pets, chests, map fragments and completion stay
+        // on the production gameplay path; SETTINGS only prepares access.
+        normalized = TQ.screens.islands.createIslandEntryState(
+            normalized,
+            normalizedRegionId,
+            normalizedIslandId
+        );
+
+        state = TQ.persistence.localStorage.saveState(root.localStorage, normalized);
+        render();
+    }
+
     function mountParallaxPrototype(screenId, screenRoot) {
         document.querySelector(".tq-parallax-dev")?.remove();
 
@@ -604,6 +673,12 @@
             screenRoot
         });
         mountParallaxPrototype(screenId, screenRoot);
+        TQ.dev?.settingsPanel?.mount({
+            getState: () => state,
+            onCommit: commitSettingsState,
+            onOpenRegion: openSettingsRegion,
+            onOpenIsland: openSettingsIsland
+        });
     }
 
     async function render() {
