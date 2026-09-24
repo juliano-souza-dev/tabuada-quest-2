@@ -555,7 +555,7 @@
             const purchasedItemIds = Array.isArray(existingShop.purchasedItemIds)
                 ? existingShop.purchasedItemIds.filter((id) => typeof id === "string")
                 : [];
-            const withDefaultNameplate = Array.from(new Set([DEFAULT_NAMEPLATE_ID, ...purchasedItemIds]));
+            const withDefaultNameplate = Array.from(new Set(["nameplate-chaves-tesouro-tropical", ...purchasedItemIds]));
             const legacyNameplate = existingPlayer.nameplateId === "nameplate-wood";
 
             migrated = {
@@ -564,7 +564,7 @@
                 player: {
                     ...existingPlayer,
                     nameplateId: legacyNameplate || typeof existingPlayer.nameplateId !== "string"
-                        ? DEFAULT_NAMEPLATE_ID
+                        ? "nameplate-chaves-tesouro-tropical"
                         : existingPlayer.nameplateId
                 },
                 shop: {
