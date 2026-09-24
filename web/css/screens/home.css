@@ -62,7 +62,7 @@
 }
 
 
-.home-nameplate {
+.home-frame {
     position: absolute;
     z-index: 12;
     left: 50%;
@@ -72,7 +72,7 @@
     transform: translateX(-50%);
     pointer-events: none;
 }
-.home-nameplate-art {
+.home-frame-art {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -80,7 +80,7 @@
     object-fit: contain;
     mix-blend-mode: screen;
 }
-.home-nameplate-text {
+.home-frame-text {
     position: absolute;
     left: 15%;
     right: 15%;
