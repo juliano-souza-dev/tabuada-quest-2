@@ -766,13 +766,9 @@
         defaultFrameId: "frame-chaves-tesouro-tropical",
         assets: Object.freeze({
             avatars: Object.freeze({
-                luna: "./assets/avatars/avatar-luna-visual-base.webp",
-                maya: "./assets/avatars/avatar-maya-visual-base.webp",
-                sofia: "./assets/avatars/avatar-sofia-visual-base.webp"
+                sofia: "./assets/avatars/file_00000000ce64820eb9d4a24f128c9ce0.png"
             }),
             homeHeroes: Object.freeze({
-                luna: "./assets/avatars/avatar-luna-pirata.webp",
-                maya: "./assets/avatars/avatar-maya-pirata.webp",
                 sofia: "./assets/avatars/avatar-sofia-pirata.webp"
             }),
             compass: "./assets/ui/icone-mapa-bussola.webp",
