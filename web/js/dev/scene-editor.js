@@ -34,6 +34,17 @@
         }
     }
 
+    function readScopedOcean(storageScopeId, editorContext) {
+        try {
+            return TQ.core?.oceanScene?.readConfig?.(
+                storageScopeId,
+                editorContext?.regionId
+            ) || null;
+        } catch (_) {
+            return null;
+        }
+    }
+
     function readStore() {
         try {
             const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "{}");
@@ -1525,11 +1536,15 @@
                     version: 1,
                     storageVersion: 4,
                     effects: readScopedParallax(screenId, editorContext)
+                },
+                ocean: {
+                    version: 1,
+                    config: readScopedOcean(storageScopeId, editorContext)
                 }
             }, null, 2);
             try {
                 await navigator.clipboard.writeText(payload);
-                status.textContent = "Layout + parallax copiados";
+                status.textContent = "Layout + parallax + mar copiados";
             } catch (_) {
                 const area = document.createElement("textarea");
                 area.value = payload;
@@ -1537,7 +1552,7 @@
                 area.select();
                 document.execCommand("copy");
                 area.remove();
-                status.textContent = "Layout + parallax copiados";
+                status.textContent = "Layout + parallax + mar copiados";
             }
         });
 
