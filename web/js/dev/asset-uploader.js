@@ -367,6 +367,38 @@
         }
     }
 
+    function promoteSavedSceneLayout(screenId, sourceId, targetElement) {
+        const targetId = targetElement?.dataset?.tqDevId;
+        if (!sourceId || !targetId) return false;
+
+        try {
+            const storageKey = "tq2.dev.scene-layout.v2";
+            const store = JSON.parse(root.localStorage.getItem(storageKey) || "{}");
+            const screen = store?.screens?.[screenId];
+            const sourceLayout = screen?.[sourceId];
+
+            if (!screen || !sourceLayout || typeof sourceLayout !== "object") {
+                return false;
+            }
+
+            const targetLayout = screen[targetId] && typeof screen[targetId] === "object"
+                ? screen[targetId]
+                : {};
+
+            screen[targetId] = {
+                ...targetLayout,
+                ...sourceLayout,
+                deleted: false
+            };
+            delete screen[sourceId];
+            root.localStorage.setItem(storageKey, JSON.stringify(store));
+            return true;
+        } catch (error) {
+            console.warn("Falha ao promover layout local para asset oficial:", error);
+            return false;
+        }
+    }
+
     async function restoreLocalLayers(options = {}) {
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
         const screenId = String(options.screenId || "screen");
@@ -386,11 +418,13 @@
              * is part of the web-rendered screen, the draft must not be restored,
              * otherwise the promoted asset appears twice after refresh.
              */
-            const webBackedFileNames = new Set(
-                [...screenRoot.querySelectorAll("img:not(.tq-dev-local-live-asset)")]
-                    .map((image) => fileNameFromAssetUrl(image.currentSrc || image.getAttribute("src") || ""))
-                    .filter(Boolean)
-            );
+            const webBackedByFileName = new Map();
+            [...screenRoot.querySelectorAll("img:not(.tq-dev-local-live-asset)")].forEach((image) => {
+                const fileName = fileNameFromAssetUrl(image.currentSrc || image.getAttribute("src") || "");
+                if (fileName && !webBackedByFileName.has(fileName)) {
+                    webBackedByFileName.set(fileName, image);
+                }
+            });
 
             let restored = 0;
             const ordered = records
@@ -400,7 +434,9 @@
             for (const record of ordered) {
                 const localFileName = String(record.fileName || "").trim().toLowerCase();
 
-                if (localFileName && webBackedFileNames.has(localFileName)) {
+                if (localFileName && webBackedByFileName.has(localFileName)) {
+                    const promotedTarget = webBackedByFileName.get(localFileName);
+                    promoteSavedSceneLayout(screenId, record.id, promotedTarget);
                     await deleteLocalLayerRecord(record.id);
                     releaseRuntimeUrl(record.id);
                     continue;
