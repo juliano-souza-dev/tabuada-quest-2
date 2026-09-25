@@ -94,7 +94,7 @@
                     <img class="profile-slot-avatar" src="${avatarSrc}" alt="Avatar do jogador" draggable="false">
                 </button>
 
-                <div class="hud-level-slot" data-tq-asset-id="home.level.badge" data-tq-asset-role="object" data-tq-asset-label="Placa de nível" data-tq-dev-id="home.level.badge" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Placa de nível" aria-label="Nível ${currentLevel}"><img src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
+                <div class="hud-level-slot" data-tq-asset-id="home.level.badge" data-tq-asset-role="object" data-tq-asset-label="Placa de nível" data-tq-dev-id="home.level.badge" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Placa de nível" aria-label="Nível ${currentLevel}"><img data-tq-dev-id="home.level.badge.image" data-tq-dev-kind="asset" data-tq-dev-label="Imagem da placa de nível" src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
 
                 <span class="wallet-value coins" data-tq-dev-id="home.wallet.coins" data-tq-dev-kind="dynamicText" data-tq-dev-label="Ouro" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
                 <span class="wallet-value gems" data-tq-dev-id="home.wallet.gems" data-tq-dev-kind="dynamicText" data-tq-dev-label="Gemas" aria-label="${state.wallet.gems} gemas">${state.wallet.gems}</span>
