@@ -170,6 +170,19 @@
                     markFunction(element, screenType, "open-island-" + islandId);
                 }
             });
+
+            const builderIslands = [...screenRoot.querySelectorAll(
+                '[data-builder-action-id][data-tq-dev-action="open_island"]'
+            )];
+            builderIslands.forEach((element, index) => {
+                if (index < 5) markFunction(element, screenType, "open-island-" + (index + 1));
+            });
+            screenRoot.querySelectorAll('[data-builder-action-id][data-tq-dev-action="go_back"]')
+                .forEach((element) => markFunction(element, screenType, "back"));
+            screenRoot.querySelectorAll('[data-builder-action-id][data-tq-dev-action="open_world_map"]')
+                .forEach((element) => markFunction(element, screenType, "open-nautical-chart"));
+            screenRoot.querySelectorAll('[data-builder-action-id][data-tq-dev-action="open_merchant"]')
+                .forEach((element) => markFunction(element, screenType, "open-merchant"));
             return;
         }
 
