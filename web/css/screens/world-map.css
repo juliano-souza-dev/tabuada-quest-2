@@ -31,7 +31,6 @@
 
 .world-map-stage {
     position: absolute;
-    aspect-ratio: 941 / 1672;
     overflow: hidden;
 }
 
