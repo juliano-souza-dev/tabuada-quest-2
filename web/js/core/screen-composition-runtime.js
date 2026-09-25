@@ -89,27 +89,55 @@
         return element;
     }
 
-    function createBoundImage(slot, binding) {
-        if (!binding?.asset) return null;
+    function createSlotElement(slot, binding, index = 0) {
+        const element = document.createElement("div");
+        element.className = "tq-composition-slot";
+        decorateElement(element, slot, binding);
+        element.dataset.tqSlotEmpty = binding?.asset ? "false" : "true";
+        element.dataset.tqSlotIndex = String(index);
+        element.style.position = "absolute";
+        element.style.left = "0";
+        element.style.top = "0";
+        element.style.width = slot.semanticType === "home_background" || slot.semanticType === "ocean"
+            ? "100%"
+            : "120px";
+        element.style.height = slot.semanticType === "home_background" || slot.semanticType === "ocean"
+            ? "100%"
+            : "120px";
+        element.style.zIndex = String(
+            TQ.content.screenComposition.defaultLayerForSemanticType(
+                binding?.semanticType || slot.semanticType
+            )
+        );
+        element.style.pointerEvents = "none";
+        element.style.userSelect = "none";
+        return element;
+    }
+
+    function renderSlotVisual(slotElement, slot, binding, previewSrc = null) {
+        if (!(slotElement instanceof HTMLElement)) return;
+        slotElement.replaceChildren();
+        const src = previewSrc || binding?.asset || null;
+        slotElement.dataset.tqSlotEmpty = src ? "false" : "true";
+        slotElement.dataset.tqSemanticType = binding?.semanticType || slot.semanticType;
+        if (!src) return;
+
         const image = document.createElement("img");
         image.className = "tq-composition-bound-asset";
-        decorateElement(image, slot, binding);
-        image.src = binding.asset;
+        image.src = src;
         image.alt = "";
         image.draggable = false;
         image.style.position = "absolute";
-        image.style.left = "30%";
-        image.style.top = "28%";
-        image.style.width = "40%";
-        image.style.height = "auto";
+        image.style.inset = "0";
+        image.style.width = "100%";
+        image.style.height = "100%";
         image.style.maxWidth = "none";
-        image.style.maxHeight = "70%";
+        image.style.maxHeight = "none";
         image.style.objectFit = "contain";
         image.style.objectPosition = "center";
-        image.style.zIndex = String(TQ.content.screenComposition.defaultLayerForSemanticType(binding?.semanticType || slot.semanticType));
         image.style.pointerEvents = "none";
         image.style.userSelect = "none";
-        return image;
+        slotElement.appendChild(image);
     }
 
     function markFunction(element, screenType, canonicalAction) {
@@ -275,7 +303,6 @@
 
         const layer = document.createElement("div");
         layer.className = "tq-composition-runtime-layer";
-        layer.dataset.tqDevIgnore = "true";
         layer.setAttribute("aria-hidden", "true");
         layer.style.position = "absolute";
         layer.style.inset = "0";
@@ -283,35 +310,59 @@
         layer.style.pointerEvents = "none";
         stage.appendChild(layer);
 
+        const slotElements = new Map();
+        registry.getAssetSlots(screenType).forEach((slot, index) => {
+            const empty = registry.readBinding(scopeId, screenType, slot.id);
+            const slotElement = createSlotElement(slot, empty, index);
+            slotElements.set(slot.id, slotElement);
+            layer.appendChild(slotElement);
+        });
+
+        function resolvedBinding(slot, bindings) {
+            let binding = bindings[slot.id];
+            if (slot.bindingMode !== "variants") return binding;
+
+            const variants = Array.isArray(binding?.variants) ? binding.variants : [];
+            const preferredId = String(runtimeState?.ui?.homeBackgroundId || "");
+            const activeVariant = variants.find((variant) => variant.id === preferredId)
+                || variants.find((variant) => variant.id === "default")
+                || variants.find((variant) => variant.asset)
+                || variants[0]
+                || null;
+            return {
+                ...binding,
+                asset: activeVariant?.asset || null,
+                activeVariantId: activeVariant?.id || null,
+                activeVariantEffects: activeVariant?.effects || []
+            };
+        }
+
         function refresh() {
-            layer.replaceChildren();
             const bindings = registry.readBindings(scopeId, screenType);
             registry.getAssetSlots(screenType).forEach((slot) => {
+                const slotElement = slotElements.get(slot.id);
+                if (!slotElement) return;
+
+                const binding = resolvedBinding(slot, bindings);
+                decorateElement(slotElement, slot, binding);
+                slotElement.style.zIndex = String(
+                    registry.defaultLayerForSemanticType(binding?.semanticType || slot.semanticType)
+                );
+
                 const localDraft = screenRoot.querySelector(
                     '.tq-dev-local-live-asset[data-tq-composition-slot="' + slot.id + '"]'
                 );
-                if (localDraft) return;
+                const previewSrc = localDraft instanceof HTMLImageElement
+                    ? (localDraft.currentSrc || localDraft.src || null)
+                    : null;
 
-                let binding = bindings[slot.id];
-                if (slot.bindingMode === "variants") {
-                    const variants = Array.isArray(binding?.variants) ? binding.variants : [];
-                    const preferredId = String(runtimeState?.ui?.homeBackgroundId || "");
-                    const activeVariant = variants.find((variant) => variant.id === preferredId)
-                        || variants.find((variant) => variant.id === "default")
-                        || variants.find((variant) => variant.asset)
-                        || variants[0]
-                        || null;
-                    binding = {
-                        ...binding,
-                        asset: activeVariant?.asset || null,
-                        activeVariantId: activeVariant?.id || null,
-                        activeVariantEffects: activeVariant?.effects || []
-                    };
+                if (localDraft instanceof HTMLElement) {
+                    localDraft.style.setProperty("display", "none", "important");
+                    localDraft.style.setProperty("visibility", "hidden", "important");
+                    localDraft.style.setProperty("pointer-events", "none", "important");
                 }
-                const image = createBoundImage(slot, binding);
-                if (!image) return;
-                image.style.pointerEvents = "none";
-                layer.appendChild(image);
+
+                renderSlotVisual(slotElement, slot, binding, previewSrc);
             });
             root.dispatchEvent(new CustomEvent("tq:composition-runtime-refreshed", {
                 detail: { screenType, scopeId }
@@ -347,6 +398,8 @@
         hideLegacyVisuals,
         decorateElement,
         decorateFunctions,
+        createSlotElement,
+        renderSlotVisual,
         mount
     });
 })(globalThis);
