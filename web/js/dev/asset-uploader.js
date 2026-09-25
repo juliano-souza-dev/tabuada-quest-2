@@ -357,7 +357,11 @@
         image.style.maxHeight = "60%";
         image.style.objectFit = "contain";
         image.style.objectPosition = "center";
-        image.style.zIndex = "500";
+        image.style.zIndex = String(
+            record.semanticType && TQ.content?.screenComposition
+                ? TQ.content.screenComposition.defaultLayerForSemanticType(record.semanticType)
+                : 500
+        );
         image.style.pointerEvents = record.slotId ? "none" : "auto";
         image.style.userSelect = "none";
 
