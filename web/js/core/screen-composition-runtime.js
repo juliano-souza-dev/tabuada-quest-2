@@ -96,6 +96,124 @@
         return image;
     }
 
+    function markFunction(element, screenType, canonicalAction) {
+        const registry = TQ.content?.screenComposition;
+        if (!(element instanceof Element) || !registry) return false;
+        const fn = registry.getFunctionSlots(screenType)
+            .find((item) => item.action === canonicalAction);
+        if (!fn) return false;
+
+        element.dataset.tqCompositionFunction = canonicalAction;
+        element.dataset.tqDevId = fn.id;
+        element.dataset.tqDevKind = "function";
+        element.dataset.tqDevRole = "button";
+        element.dataset.tqDevAction = canonicalAction;
+        element.dataset.tqDevLabel = fn.label;
+        return true;
+    }
+
+    function markDynamic(element, id, label, kind = "dynamicText") {
+        if (!(element instanceof Element)) return;
+        element.dataset.tqCompositionDynamic = id;
+        element.dataset.tqDevId = id;
+        element.dataset.tqDevKind = kind;
+        element.dataset.tqDevLabel = label;
+    }
+
+    function decorateFunctions(screenRoot, screenType) {
+        if (!(screenRoot instanceof Element)) return;
+
+        if (screenType === "home") {
+            const actionMap = {
+                items: "items",
+                play: "play",
+                crew: "crew",
+                shipyard: "shipyard",
+                regions: "regions",
+                daily: "daily-reward",
+                shop: "shop",
+                collection: "collectibles"
+            };
+            screenRoot.querySelectorAll("[data-action]").forEach((element) => {
+                const canonical = actionMap[element.dataset.action];
+                if (canonical) markFunction(element, screenType, canonical);
+            });
+            return;
+        }
+
+        if (screenType === "nautical-chart") {
+            screenRoot.querySelectorAll("[data-action]").forEach((element) => {
+                const action = element.dataset.action;
+                if (["back", "previous-chart", "next-chart"].includes(action)) {
+                    markFunction(element, screenType, action);
+                }
+            });
+            screenRoot.querySelectorAll("[data-region-id]").forEach((element) => {
+                markFunction(element, screenType, "open-region");
+            });
+            return;
+        }
+
+        if (screenType === "regions") {
+            const actionMap = {
+                "back-regions": "back",
+                "open-world-map": "open-nautical-chart",
+                "open-ruby-shop": "open-merchant"
+            };
+            screenRoot.querySelectorAll("[data-action]").forEach((element) => {
+                const canonical = actionMap[element.dataset.action];
+                if (canonical) markFunction(element, screenType, canonical);
+            });
+            screenRoot.querySelectorAll("[data-island-id]").forEach((element) => {
+                const islandId = Number(element.dataset.islandId);
+                if (Number.isInteger(islandId) && islandId >= 1 && islandId <= 5) {
+                    markFunction(element, screenType, "open-island-" + islandId);
+                }
+            });
+            return;
+        }
+
+        if (screenType === "island-game") {
+            [...screenRoot.querySelectorAll(".challenge-art-answer[data-answer]")]
+                .slice(0, 4)
+                .forEach((element, index) => {
+                    markFunction(element, screenType, "answer-" + (index + 1));
+                });
+            screenRoot.querySelectorAll('[data-action="prepare-next"], [data-action="continue-feedback"]')
+                .forEach((element) => markFunction(element, screenType, "continue"));
+
+            const equation = screenRoot.querySelector(".tabuada-pergunta-numero");
+            if (equation) {
+                markDynamic(
+                    equation,
+                    "island-game.text.equation",
+                    "Texto da conta",
+                    "dynamicText"
+                );
+            }
+
+            const correct = screenRoot.querySelector(".challenge-feedback-layer.is-correct");
+            if (correct) {
+                markDynamic(
+                    correct,
+                    "island-game.effect.correct",
+                    "Área de efeito acerto",
+                    "overlay"
+                );
+            }
+
+            const wrong = screenRoot.querySelector(".challenge-feedback-layer.is-wrong");
+            if (wrong) {
+                markDynamic(
+                    wrong,
+                    "island-game.effect.wrong",
+                    "Área de efeito erro",
+                    "overlay"
+                );
+            }
+        }
+    }
+
     function mount(options = {}) {
         const registry = TQ.content?.screenComposition;
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
@@ -117,6 +235,7 @@
         screenRoot.dataset.tqCompositionScope = scopeId;
         screenRoot.classList.add("tq-composition-reset");
 
+        decorateFunctions(screenRoot, screenType);
         hideLegacyVisuals(screenRoot);
 
         const stage = stageFor(screenRoot);
@@ -170,6 +289,7 @@
     TQ.core.screenCompositionRuntime = Object.freeze({
         hideLegacyVisuals,
         decorateElement,
+        decorateFunctions,
         mount
     });
 })(globalThis);
