@@ -8,7 +8,7 @@
     const LOCAL_DB_VERSION = 1;
     const LOCAL_LAYER_STORE = "layers";
     const runtimeObjectUrls = new Map();
-    const LOCAL_RESET_MARKER = "tq2.dev.local-assets-reset.20260925.v3";
+    const LOCAL_RESET_MARKER = "tq2.dev.local-assets-reset.20260925.engine-zero-v1";
     let localResetPromise = null;
 
     const COMMON_FOLDERS = Object.freeze([
@@ -599,8 +599,8 @@
                         Função
                         <select data-upload-function>
                             <option value="">Nenhuma · decorativo</option>
-                            ${compositionRegistry.getFunctionSlots(compositionScreenId).map((fn) =>
-                                '<option value="' + fn.id + '">' + fn.label + '</option>'
+                            ${[...screenRoot.querySelectorAll(".tq-engine-function-proxy")].map((fn) =>
+                                '<option value="' + fn.dataset.tqDevId + '">' + (fn.dataset.tqDevLabel || fn.dataset.tqDevAction || fn.dataset.tqDevId) + '</option>'
                             ).join("")}
                         </select>
                     </label>
@@ -903,9 +903,8 @@
 
             const slot = selectedCompositionSlot();
             const semanticType = semanticSelect?.value || slot?.semanticType || "environment";
-            const selectedFunction = composition && functionSelect?.value
-                ? compositionRegistry.getFunctionSlots(compositionScreenId)
-                    .find((fn) => fn.id === functionSelect.value)
+            const selectedFunction = functionSelect?.value
+                ? screenRoot.querySelector('.tq-engine-function-proxy[data-tq-dev-id="' + CSS.escape(functionSelect.value) + '"]')
                 : null;
             const variantId = slot?.bindingMode === "variants" ? selectedVariantId() : null;
             const id = slot
@@ -937,8 +936,8 @@
                 slotId: slot?.id || null,
                 slotLabel: slot?.label || null,
                 semanticType: semanticType || null,
-                boundFunctionId: selectedFunction?.id || null,
-                boundAction: selectedFunction?.action || null,
+                boundFunctionId: selectedFunction?.dataset?.tqDevId || null,
+                boundAction: selectedFunction?.dataset?.tqDevAction || null,
                 variantId,
                 pairId: slot?.pairId || null,
                 pairState: slot?.pairState || null
