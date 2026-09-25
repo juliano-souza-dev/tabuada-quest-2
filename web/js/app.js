@@ -34,6 +34,7 @@
     let activeOceanController = null;
     let activeDepthController = null;
     let activeCompositionController = null;
+    let activeDevelopmentNavigatorCleanup = null;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function syncStatus() {
@@ -340,6 +341,273 @@
         render();
     }
 
+    const DEV_SCREEN_LABELS = Object.freeze({
+        home: "Home",
+        "world-map": "Carta Náutica",
+        regions: "Carta Náutica",
+        "development-regions": "Regiões",
+        islands: "Mapa da Região",
+        travel: "Viagem para Ilha",
+        challenge: "Ilha · Jogo",
+        tavern: "Taverna",
+        crew: "Tripulação",
+        collectibles: "Colecionáveis",
+        shop: "Loja",
+        items: "Itens",
+        "ruby-shop": "Loja de Rubis",
+        "special-mission": "Missão especial",
+        chest: "Baú",
+        pet: "Pet",
+        "map-reward": "Recompensa de mapa",
+        result: "Resultado",
+        "profile-setup": "Perfil"
+    });
+
+    const DEV_NAV_TARGETS = Object.freeze([
+        Object.freeze({ id: "home", label: "Home" }),
+        Object.freeze({ id: "world-map", label: "Carta Náutica" }),
+        Object.freeze({ id: "development-regions", label: "Regiões" }),
+        Object.freeze({ id: "islands", label: "Mapa da Região", needsRegion: true }),
+        Object.freeze({ id: "challenge", label: "Ilha · Jogo", needsRegion: true, needsIsland: true }),
+        Object.freeze({ id: "travel", label: "Viagem para Ilha", needsRegion: true, needsIsland: true }),
+        Object.freeze({ id: "tavern", label: "Taverna" }),
+        Object.freeze({ id: "crew", label: "Tripulação" }),
+        Object.freeze({ id: "collectibles", label: "Colecionáveis" }),
+        Object.freeze({ id: "shop", label: "Loja" }),
+        Object.freeze({ id: "items", label: "Itens" }),
+        Object.freeze({ id: "ruby-shop", label: "Loja de Rubis", needsRegion: true })
+    ]);
+
+    function developmentScreenLabel(screenId) {
+        return DEV_SCREEN_LABELS[String(screenId || "")] || String(screenId || "Tela");
+    }
+
+    function directDevelopmentNavigate(targetScreenId, regionId, islandId) {
+        const target = DEV_NAV_TARGETS.find((item) => item.id === String(targetScreenId || ""));
+        if (!target) return;
+
+        const totalRegions = Math.max(1, Number(TQ.domain.playerState.TOTAL_REGIONS) || 1);
+        const islandsPerRegion = Math.max(1, Number(TQ.domain.playerState.ISLANDS_PER_REGION) || 1);
+        const normalizedRegionId = Math.max(1, Math.min(totalRegions, Number(regionId) || 1));
+        const normalizedIslandId = Math.max(1, Math.min(islandsPerRegion, Number(islandId) || 1));
+
+        let nextState = developmentState || state;
+        developmentMode = true;
+        regionBuilderPreviewActive = false;
+        rewardReturnScreen = null;
+
+        if (target.needsRegion) {
+            developmentRegionId = normalizedRegionId;
+        }
+
+        if (target.needsIsland) {
+            nextState = TQ.screens.islands.createDevelopmentIslandEntryState(
+                nextState,
+                normalizedRegionId,
+                normalizedIslandId
+            );
+        }
+
+        developmentState = TQ.domain.playerState.withLastScreen(nextState, target.id);
+        render();
+    }
+
+    function mountDevelopmentContextNavigator(options = {}) {
+        activeDevelopmentNavigatorCleanup?.();
+        activeDevelopmentNavigatorCleanup = null;
+        document.querySelector(".tq-dev-navigator")?.remove();
+        document.querySelector(".tq-dev-mobile-context")?.remove();
+
+        if (!TQ.content.development?.shortcutsEnabled) return;
+
+        const editorContext = options.editorContext || {};
+        const actualScreenId = String(editorContext.screenType || options.screenId || "home");
+        const currentLabel = developmentScreenLabel(actualScreenId);
+        const totalRegions = Math.max(1, Number(TQ.domain.playerState.TOTAL_REGIONS) || 1);
+        const islandsPerRegion = Math.max(1, Number(TQ.domain.playerState.ISLANDS_PER_REGION) || 1);
+        const currentRegionId = Math.max(
+            1,
+            Math.min(totalRegions, Number(editorContext.regionId) || Number(developmentRegionId) || 1)
+        );
+        const currentIslandId = Math.max(
+            1,
+            Math.min(islandsPerRegion, Number(editorContext.islandId) || 1)
+        );
+
+        const host = document.createElement("aside");
+        host.className = "tq-dev-navigator";
+        host.innerHTML = `
+            <button type="button" class="tq-dev-nav-toggle" aria-label="Abrir navegação DEV">NAV</button>
+            <section class="tq-dev-nav-panel">
+                <header>
+                    <strong>DEV · Contexto</strong>
+                    <small>Navegação direta</small>
+                </header>
+                <div class="tq-dev-nav-context">
+                    <div><span>Tela</span><strong data-dev-nav-current-screen></strong></div>
+                    <div data-dev-nav-current-region-row><span>Região</span><strong data-dev-nav-current-region></strong></div>
+                    <div data-dev-nav-current-island-row><span>Ilha</span><strong data-dev-nav-current-island></strong></div>
+                    <div data-dev-nav-current-background-row><span>Fundo</span><strong data-dev-nav-current-background></strong></div>
+                </div>
+                <label>
+                    Ir para
+                    <select data-dev-nav-screen>
+                        ${DEV_NAV_TARGETS.map((item) =>
+                            '<option value="' + item.id + '">' + item.label + '</option>'
+                        ).join("")}
+                    </select>
+                </label>
+                <div class="tq-dev-nav-grid">
+                    <label data-dev-nav-region-row>
+                        Região
+                        <select data-dev-nav-region>
+                            ${Array.from({ length: totalRegions }, (_, index) =>
+                                '<option value="' + (index + 1) + '">Região ' + (index + 1) + '</option>'
+                            ).join("")}
+                        </select>
+                    </label>
+                    <label data-dev-nav-island-row>
+                        Ilha
+                        <select data-dev-nav-island>
+                            ${Array.from({ length: islandsPerRegion }, (_, index) =>
+                                '<option value="' + (index + 1) + '">Ilha ' + (index + 1) + '</option>'
+                            ).join("")}
+                        </select>
+                    </label>
+                </div>
+                <button type="button" data-dev-nav-open>Abrir tela</button>
+            </section>
+        `;
+
+        const mobileBadge = document.createElement("div");
+        mobileBadge.className = "tq-dev-mobile-context";
+        mobileBadge.hidden = true;
+        document.body.append(host, mobileBadge);
+
+        const panel = host.querySelector(".tq-dev-nav-panel");
+        const toggle = host.querySelector(".tq-dev-nav-toggle");
+        const screenSelect = host.querySelector("[data-dev-nav-screen]");
+        const regionSelect = host.querySelector("[data-dev-nav-region]");
+        const islandSelect = host.querySelector("[data-dev-nav-island]");
+        const regionRow = host.querySelector("[data-dev-nav-region-row]");
+        const islandRow = host.querySelector("[data-dev-nav-island-row]");
+
+        host.querySelector("[data-dev-nav-current-screen]").textContent = currentLabel;
+
+        const currentRegionRow = host.querySelector("[data-dev-nav-current-region-row]");
+        const currentRegion = host.querySelector("[data-dev-nav-current-region]");
+        if (editorContext.regionId) {
+            currentRegion.textContent = "R" + editorContext.regionId
+                + (editorContext.regionLabel ? " · " + editorContext.regionLabel : "");
+        } else {
+            currentRegionRow.hidden = true;
+        }
+
+        const currentIslandRow = host.querySelector("[data-dev-nav-current-island-row]");
+        if (editorContext.islandId) {
+            host.querySelector("[data-dev-nav-current-island]").textContent = "Ilha " + editorContext.islandId;
+        } else {
+            currentIslandRow.hidden = true;
+        }
+
+        const currentBackgroundRow = host.querySelector("[data-dev-nav-current-background-row]");
+        if (options.homeBackgroundId) {
+            host.querySelector("[data-dev-nav-current-background]").textContent = options.homeBackgroundId;
+        } else {
+            currentBackgroundRow.hidden = true;
+        }
+
+        const currentTarget = DEV_NAV_TARGETS.find((item) => item.id === actualScreenId)
+            || DEV_NAV_TARGETS.find((item) =>
+                actualScreenId === "regions" && item.id === "world-map"
+            )
+            || DEV_NAV_TARGETS[0];
+
+        screenSelect.value = currentTarget.id;
+        regionSelect.value = String(currentRegionId);
+        islandSelect.value = String(currentIslandId);
+
+        function syncTargetFields() {
+            const target = DEV_NAV_TARGETS.find((item) => item.id === screenSelect.value);
+            regionRow.hidden = !target?.needsRegion;
+            islandRow.hidden = !target?.needsIsland;
+        }
+
+        function openNavigator(nextOpen) {
+            const open = Boolean(nextOpen);
+            panel.hidden = !open;
+            if (open) {
+                root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
+                    detail: { tool: "nav" }
+                }));
+            }
+        }
+
+        toggle.addEventListener("click", () => openNavigator(panel.hidden));
+        screenSelect.addEventListener("change", syncTargetFields);
+        host.querySelector("[data-dev-nav-open]").addEventListener("click", () => {
+            directDevelopmentNavigate(
+                screenSelect.value,
+                Number(regionSelect.value),
+                Number(islandSelect.value)
+            );
+        });
+
+        const desktopQuery = root.matchMedia("(min-width: 1101px)");
+        function syncDesktopMode() {
+            panel.hidden = !desktopQuery.matches;
+        }
+        syncDesktopMode();
+        if (typeof desktopQuery.addEventListener === "function") {
+            desktopQuery.addEventListener("change", syncDesktopMode);
+        } else {
+            desktopQuery.addListener?.(syncDesktopMode);
+        }
+        syncTargetFields();
+
+        let mobileBadgeTimer = null;
+        const TOOL_LABELS = Object.freeze({
+            depth: "CENA",
+            ocean: "MAR",
+            assets: "UP",
+            ux: "UX",
+            settings: "SET",
+            nav: "NAV"
+        });
+
+        function onToolActivate(event) {
+            if (event.detail?.tool !== "nav" && !panel.hidden && !desktopQuery.matches) {
+                panel.hidden = true;
+            }
+
+            if (!root.matchMedia("(max-width: 620px)").matches) return;
+            const toolLabel = TOOL_LABELS[event.detail?.tool] || "DEV";
+            const parts = [toolLabel, currentLabel];
+            if (editorContext.regionId) parts.push("R" + editorContext.regionId);
+            if (editorContext.islandId) parts.push("Ilha " + editorContext.islandId);
+            mobileBadge.textContent = parts.join(" · ");
+            mobileBadge.hidden = false;
+            root.clearTimeout(mobileBadgeTimer);
+            mobileBadgeTimer = root.setTimeout(() => {
+                mobileBadge.hidden = true;
+            }, 3200);
+        }
+
+        root.addEventListener("tq:dev-tool-activate", onToolActivate);
+
+        activeDevelopmentNavigatorCleanup = () => {
+            root.removeEventListener("tq:dev-tool-activate", onToolActivate);
+            root.clearTimeout(mobileBadgeTimer);
+            if (typeof desktopQuery.removeEventListener === "function") {
+                desktopQuery.removeEventListener("change", syncDesktopMode);
+            } else {
+                desktopQuery.removeListener?.(syncDesktopMode);
+            }
+            host.remove();
+            mobileBadge.remove();
+        };
+    }
+
     function resolveDevelopmentEditorContext(screenRoot, context, screenId) {
         const domRegionId = Number(screenRoot?.dataset?.regionId);
         const previewRegionId = Number(context?.previewRegionId);
@@ -422,6 +690,8 @@
     }
 
     async function renderWithDevelopmentTools(renderScreen, context, screenId, renderToken) {
+        activeDevelopmentNavigatorCleanup?.();
+        activeDevelopmentNavigatorCleanup = null;
         activeOceanController?.destroy?.();
         activeOceanController = null;
         activeDepthController?.destroy?.();
@@ -553,6 +823,12 @@
             screenId: editorStorageScope,
             compositionScreenId: editorScreenId,
             compositionVariantId: activeHomeBackgroundId
+        });
+        mountDevelopmentContextNavigator({
+            screenId: editorScreenId,
+            editorContext,
+            storageScopeId: editorStorageScope,
+            homeBackgroundId: activeHomeBackgroundId
         });
         mountDevelopmentExit();
     }
