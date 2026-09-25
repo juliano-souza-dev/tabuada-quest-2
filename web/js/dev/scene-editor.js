@@ -1,41 +1,7 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     const STORAGE_KEY = "tq2.dev.scene-layout.v3";
-    const PARALLAX_STORAGE_KEY = "tq2.dev.parallax.effects.v4";
     let activeCleanup = null;
-
-    function readScopedParallax(screenId, editorContext, effectsScopeId) {
-        try {
-            const parsed = JSON.parse(root.localStorage.getItem(PARALLAX_STORAGE_KEY) || "[]");
-            const effects = Array.isArray(parsed) ? parsed : [];
-            return effects.filter((fx) => {
-                if (!fx || typeof fx !== "object") return false;
-                const expectedBackgroundId = screenId === "home" && effectsScopeId
-                    ? String(effectsScopeId)
-                    : String(screenId || "");
-                if (String(fx.backgroundId || "") !== expectedBackgroundId) return false;
-                if (screenId === "islands") {
-                    return Number(fx.regionId) === Number(editorContext?.regionId);
-                }
-                return true;
-            }).map((fx) => {
-                const runtimeEffect = [...document.querySelectorAll("[data-runtime-fx-id]")]
-                    .find((node) => node.dataset.runtimeFxId === fx?.id);
-                const publishedSource = runtimeEffect?.dataset?.runtimeFxSrc;
-                if (!publishedSource) return fx;
-                return {
-                    ...fx,
-                    sourceVisual: {
-                        ...(fx.sourceVisual || {}),
-                        kind: "image",
-                        src: publishedSource
-                    }
-                };
-            });
-        } catch (_) {
-            return [];
-        }
-    }
 
     function readScopedOcean(storageScopeId, editorContext) {
         try {
@@ -1717,11 +1683,6 @@
                     timeZone: editorContext.timeZone
                 },
                 nodes: snapshot(),
-                parallax: {
-                    version: 1,
-                    storageVersion: 4,
-                    effects: readScopedParallax(screenId, editorContext, effectsScopeId)
-                },
                 ocean: {
                     version: 1,
                     config: readScopedOcean(effectsScopeId, editorContext)
