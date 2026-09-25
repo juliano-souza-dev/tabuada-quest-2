@@ -553,7 +553,7 @@
         function destroy() {
             destroyed = true;
             stop();
-            stage.removeEventListener("pointerdown", onPointerDown, true);
+            screenRoot.removeEventListener("pointerdown", onPointerDown, true);
             source.removeEventListener("load", onSourceLoad);
             root.removeEventListener("resize", resize);
             gl.deleteTexture(texture);
@@ -568,7 +568,7 @@
             start();
         }
 
-        stage.addEventListener("pointerdown", onPointerDown, true);
+        screenRoot.addEventListener("pointerdown", onPointerDown, true);
         source.addEventListener("load", onSourceLoad);
         root.addEventListener("resize", resize);
         applyVisualState();
