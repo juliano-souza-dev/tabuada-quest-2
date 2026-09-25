@@ -241,6 +241,7 @@
 
     function resolveScreenType(screenId) {
         const id = String(screenId || "");
+        if (id.startsWith("region-builder.")) return "regions";
         return SCREEN_ALIASES[id] || (SCREENS[id] ? id : null);
     }
 
