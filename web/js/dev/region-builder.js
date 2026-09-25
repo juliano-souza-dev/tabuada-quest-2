@@ -159,13 +159,22 @@
             .replace(/"/g, "&quot;");
     }
 
-    function regionOptionsHtml(selected) {
+    function regionOptionsHtml(selected, activeDraftId = null) {
         const items = Array.isArray(TQ.content?.regions) ? TQ.content.regions : [];
+        const drafts = readStore().drafts
+            .filter((draft) => draft.id !== activeDraftId)
+            .sort((a, b) => Number(a.order) - Number(b.order));
+
         return [
             '<option value="">Início / sem região anterior</option>',
             ...items.map((region) =>
                 '<option value="' + region.id + '"' + (String(selected) === String(region.id) ? " selected" : "") + '>' +
                 String(region.id).padStart(2, "0") + " · " + escapeHtml(region.label) +
+                '</option>'
+            ),
+            ...drafts.map((draft) =>
+                '<option value="' + escapeHtml(draft.id) + '"' + (String(selected) === String(draft.id) ? " selected" : "") + '>' +
+                String(draft.order).padStart(2, "0") + " · " + escapeHtml(draft.label) + " · RASCUNHO" +
                 '</option>'
             )
         ].join("");
@@ -422,7 +431,7 @@
                     </div>
                     <label>Desbloquear após
                         <select data-builder-unlock-after>
-                            ${regionOptionsHtml(draft.unlock?.regionId)}
+                            ${regionOptionsHtml(draft.unlock?.regionId, draft.id)}
                         </select>
                     </label>
                     <small>Nova região é aditiva. IDs existentes não são renumerados.</small>
@@ -515,11 +524,15 @@
 
             body.querySelector("[data-builder-unlock-after]")?.addEventListener("change", (event) => {
                 const raw = event.target.value;
+                const numeric = Number(raw);
+                const regionId = raw === ""
+                    ? null
+                    : (Number.isInteger(numeric) && String(numeric) === raw ? numeric : raw);
                 saveField((draft) => ({
                     ...draft,
                     unlock: {
                         type: "after_region",
-                        regionId: raw === "" ? null : Number(raw)
+                        regionId
                     }
                 }));
             });
