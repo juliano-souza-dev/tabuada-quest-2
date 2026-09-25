@@ -1,19 +1,22 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STORAGE_KEY = "tq2.dev.composition-bindings.v1";
-    const SCHEMA_VERSION = 1;
-    const RESET_MARKER = "tq2.dev.composition-reset.20260925.v3";
+    const STORAGE_KEY = "tq2.dev.composition-bindings.v2";
+    const SCHEMA_VERSION = 2;
+    const RESET_MARKER = "tq2.dev.composition-reset.20260925.full-v1";
 
     function ensureCompositionReset() {
         try {
             if (root.localStorage.getItem(RESET_MARKER) === "done") return;
             [
                 STORAGE_KEY,
+                "tq2.dev.composition-bindings.v1",
                 "tq2.dev.scene-layout.v2",
+                "tq2.dev.scene-layout.v3",
                 "tq2.dev.parallax.effects.v4",
                 "tq2.dev.parallax.effects.v3",
                 "tq2.dev.ocean-scene.v1",
-                "tq2.dev.depth-scene.v1"
+                "tq2.dev.depth-scene.v1",
+                "tq2.dev.region-builder.v1"
             ].forEach((key) => root.localStorage.removeItem(key));
             root.localStorage.setItem(RESET_MARKER, "done");
         } catch (_) {}
