@@ -66,6 +66,15 @@ img {
     background: var(--navy-900);
 }
 
+/* An explicitly empty visual surface has no invented fallback color.
+   This is activated by the renderer only while editing a zero-asset scene. */
+body.tq-empty-surface-active,
+body.tq-empty-surface-active .app-stage,
+body.tq-empty-surface-active .app-viewport {
+    background: transparent !important;
+    background-image: none !important;
+}
+
 /* O frame de telefone existe somente no preview desktop do navegador.
    APK/PWA nativos usam toda a viewport, inclusive em tablets. */
 @media (min-width: 700px) {
