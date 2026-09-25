@@ -1,6 +1,6 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-    const STORAGE_KEY = "tq2.dev.scene-layout.v2";
+    const STORAGE_KEY = "tq2.dev.scene-layout.v3";
     const PARALLAX_STORAGE_KEY = "tq2.dev.parallax.effects.v4";
     let activeCleanup = null;
 
