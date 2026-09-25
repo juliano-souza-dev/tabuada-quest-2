@@ -343,6 +343,47 @@
         }
     }
 
+    async function clearLocalLayersForRestore(screenId, activeVariantId = null, screenRoot = null) {
+        const id = String(screenId || "screen");
+        const variant = activeVariantId === null
+            ? null
+            : (String(activeVariantId || "default").trim() || "default");
+        const records = await readLocalLayerRecords(id);
+        const matches = variant === null
+            ? records
+            : records.filter((record) =>
+                record.variantId === null
+                || record.variantId === undefined
+                || String(record.variantId || "default") === variant
+            );
+
+        if (matches.length) {
+            const db = await openLocalAssetDb();
+            try {
+                const transaction = db.transaction(LOCAL_LAYER_STORE, "readwrite");
+                const store = transaction.objectStore(LOCAL_LAYER_STORE);
+                matches.forEach((record) => store.delete(String(record.id)));
+                await transactionDone(transaction);
+            } finally {
+                db.close();
+            }
+        }
+
+        const ids = new Set(matches.map((record) => String(record.id)));
+        matches.forEach((record) => releaseRuntimeUrl(record.id));
+
+        if (screenRoot instanceof Element && ids.size) {
+            screenRoot
+                .querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")
+                .forEach((element) => {
+                    if (!ids.has(String(element.dataset.tqLocalRecordId || ""))) return;
+                    element.remove();
+                });
+        }
+
+        return matches.length;
+    }
+
     async function removeLocalLayerBySlot(screenId, slotId, variantId = null, screenRoot = null) {
         const id = String(screenId || "screen");
         const wantedSlot = String(slotId || "");
@@ -1609,6 +1650,7 @@
         restoreLocalLayers,
         readLocalLayerRecords,
         clearLocalLayersForScreen,
+        clearLocalLayersForRestore,
         removeLocalLayerBySlot,
         deleteLocalLayerRecord
     });
