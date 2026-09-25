@@ -1202,6 +1202,7 @@
                 compositionScreenId: editorScreenId,
                 screenRoot
             });
+            activeCompositionController?.refresh?.();
         }
 
         if (renderToken !== appRenderToken) return;
