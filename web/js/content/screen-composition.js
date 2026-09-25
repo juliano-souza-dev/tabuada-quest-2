@@ -455,6 +455,41 @@
     }
 
 
+    const HOME_BACKGROUND_GROUP_CATALOG = Object.freeze({
+        default: Object.freeze({
+            id: "default",
+            label: "Default",
+            folder: "./assets/backgrounds/default/",
+            manifest: "./assets/backgrounds/default/manifest.json",
+            legacyIds: Object.freeze(["pirate-main"])
+        })
+    });
+
+    const HOME_BACKGROUND_GROUP_ALIASES = Object.freeze({
+        "pirate-main": "default"
+    });
+
+    function resolveHomeBackgroundGroupId(value) {
+        const id = String(value || "default").trim() || "default";
+        return HOME_BACKGROUND_GROUP_ALIASES[id] || id;
+    }
+
+    function publishedHomeBackgroundBinding(slotId, semanticType, asset) {
+        return Object.freeze({
+            slotId,
+            semanticType,
+            asset: null,
+            variants: Object.freeze([
+                Object.freeze({
+                    id: "default",
+                    label: "Default",
+                    asset,
+                    effects: Object.freeze([])
+                })
+            ])
+        });
+    }
+
     const PUBLISHED_BINDINGS = Object.freeze({
         home: Object.freeze({
             "home.header.frame": Object.freeze({
@@ -465,39 +500,73 @@
             "home.header.avatar": Object.freeze({
                 slotId: "home.header.avatar",
                 semanticType: "avatar",
-                asset: "./assets/avatars/avatar-sofia-pirata-rosto.png"
+                asset: "./assets/avatars/avatar-sofia-pirata-rosto.webp"
             }),
             "home.header.logo": Object.freeze({
                 slotId: "home.header.logo",
                 semanticType: "logo",
                 asset: "./assets/ui/icons/tabuada-quest-logo.webp"
             }),
-            "home.background.scenery.4": Object.freeze({
-                slotId: "home.background.scenery.4",
-                semanticType: "environment",
-                asset: null,
-                variants: Object.freeze([
-                    Object.freeze({
-                        id: "pirate-main",
-                        label: "Pirata principal",
-                        asset: "./assets/backgrounds/home/home-pirate-sky.webp",
-                        effects: Object.freeze([])
-                    })
-                ])
-            }),
-            "home.background.pier": Object.freeze({
-                slotId: "home.background.pier",
-                semanticType: "pier",
-                asset: null,
-                variants: Object.freeze([
-                    Object.freeze({
-                        id: "pirate-main",
-                        label: "Pier principal",
-                        asset: "./assets/ui/home-art-overlay.webp",
-                        effects: Object.freeze([])
-                    })
-                ])
-            }),
+            "home.background.ocean": publishedHomeBackgroundBinding(
+                "home.background.ocean",
+                "ocean",
+                "./assets/backgrounds/default/oceano.webp"
+            ),
+            "home.background.cloud.1": publishedHomeBackgroundBinding(
+                "home.background.cloud.1",
+                "cloud",
+                "./assets/backgrounds/default/cloud-sunset-01.webp"
+            ),
+            "home.background.cloud.2": publishedHomeBackgroundBinding(
+                "home.background.cloud.2",
+                "cloud",
+                "./assets/backgrounds/default/cloud-sunset-02.webp"
+            ),
+            "home.background.cloud.3": publishedHomeBackgroundBinding(
+                "home.background.cloud.3",
+                "cloud",
+                "./assets/backgrounds/default/cloud-sunset-03.webp"
+            ),
+            "home.background.cloud.4": publishedHomeBackgroundBinding(
+                "home.background.cloud.4",
+                "cloud",
+                "./assets/backgrounds/default/cloud-sunset-horizon.webp"
+            ),
+            "home.background.ship.1": publishedHomeBackgroundBinding(
+                "home.background.ship.1",
+                "ship",
+                "./assets/backgrounds/default/navio-pirata.webp"
+            ),
+            "home.background.island.1": publishedHomeBackgroundBinding(
+                "home.background.island.1",
+                "island",
+                "./assets/backgrounds/default/island-01-unlocked.webp"
+            ),
+            "home.background.pier": publishedHomeBackgroundBinding(
+                "home.background.pier",
+                "pier",
+                "./assets/backgrounds/default/wooden-pier.webp"
+            ),
+            "home.background.scenery.1": publishedHomeBackgroundBinding(
+                "home.background.scenery.1",
+                "environment",
+                "./assets/backgrounds/default/construcoes-piratas.webp"
+            ),
+            "home.background.scenery.2": publishedHomeBackgroundBinding(
+                "home.background.scenery.2",
+                "environment",
+                "./assets/backgrounds/default/pirate-lantern.webp"
+            ),
+            "home.background.scenery.3": publishedHomeBackgroundBinding(
+                "home.background.scenery.3",
+                "environment",
+                "./assets/backgrounds/default/home-art-overlay.webp"
+            ),
+            "home.background.scenery.4": publishedHomeBackgroundBinding(
+                "home.background.scenery.4",
+                "environment",
+                "./assets/backgrounds/default/sky-sunset.webp"
+            ),
             "home.button.shipyard": Object.freeze({
                 slotId: "home.button.shipyard",
                 semanticType: "ui_button",
@@ -793,6 +862,9 @@
         SEMANTIC_TYPES,
         FX_LABELS,
         PUBLISHED_BINDINGS,
+        HOME_BACKGROUND_GROUP_CATALOG,
+        HOME_BACKGROUND_GROUP_ALIASES,
+        resolveHomeBackgroundGroupId,
         SCREENS,
         SCREEN_ALIASES,
         resolveScreenType,

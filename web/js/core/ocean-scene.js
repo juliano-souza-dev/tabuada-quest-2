@@ -156,14 +156,28 @@
         }
     }
 
-    function readConfig(scopeId, regionId) {
+    const EFFECT_SCOPE_ALIASES = Object.freeze({
+        "home.background-default": "home.background-pirate-main"
+    });
+
+    function effectScopeCandidates(scopeId) {
         const scope = String(scopeId || "");
+        const legacy = EFFECT_SCOPE_ALIASES[scope];
+        return legacy ? [scope, legacy] : [scope];
+    }
+
+    function readConfig(scopeId, regionId) {
+        const candidates = effectScopeCandidates(scopeId);
         const store = readStore();
-        if (scope && store.scopes[scope]) {
-            return normalizeConfig(store.scopes[scope], regionId);
+        for (const scope of candidates) {
+            if (scope && store.scopes[scope]) {
+                return normalizeConfig(store.scopes[scope], regionId);
+            }
         }
-        if (scope && PUBLISHED_CONFIGS[scope]) {
-            return normalizeConfig(PUBLISHED_CONFIGS[scope], regionId);
+        for (const scope of candidates) {
+            if (scope && PUBLISHED_CONFIGS[scope]) {
+                return normalizeConfig(PUBLISHED_CONFIGS[scope], regionId);
+            }
         }
         return defaultConfig(regionId);
     }
