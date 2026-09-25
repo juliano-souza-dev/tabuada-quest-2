@@ -231,8 +231,16 @@
         return normalizedToken(screenId, "screen") + ".auto." + parts.join(">");
     }
 
+    function isStructuralNode(element, screenRoot) {
+        if (!(element instanceof Element)) return true;
+        if (element === screenRoot) return true;
+        if (element.hasAttribute("data-tq-dev-structural")) return true;
+        return element.matches(".tq-safe-visual-area, .tq-canonical-stage");
+    }
+
     function shouldAutoMap(element, screenRoot) {
         if (!(element instanceof Element)) return false;
+        if (isStructuralNode(element, screenRoot)) return false;
         if (element.hasAttribute("data-tq-dev-ignore")) return false;
         if (element.matches("script, style, template, source")) return false;
         if (element.closest(".tq-scene-dev, .tq-scene-dev-selection, .tq-parallax-dev")) return false;
@@ -320,6 +328,32 @@
 
         let store = readStore();
         const saved = store.screens[screenId] || {};
+
+        // The screen shell, safe visual area and canonical stage define the
+        // coordinate system. They are rulers, not editable artwork.
+        // Clear any stale DEV geometry left by older editor versions and
+        // ignore legacy saved entries for those structural nodes.
+        [screenRoot, ...screenRoot.querySelectorAll(".tq-safe-visual-area, .tq-canonical-stage")]
+            .forEach((element) => {
+                clearGeometry(element);
+                clearLayer(element);
+                element.removeAttribute("data-tq-dev-id");
+                element.removeAttribute("data-tq-dev-generated");
+                element.removeAttribute("data-tq-dev-kind");
+                element.removeAttribute("data-tq-dev-label");
+            });
+
+        const legacyStructuralIds = Object.keys(saved).filter((id) =>
+            id === normalizedToken(screenId, "screen") + ".auto."
+            || id.includes("tq-safe-visual-area")
+            || id.includes("tq-canonical-stage")
+        );
+        if (legacyStructuralIds.length) {
+            legacyStructuralIds.forEach((id) => delete saved[id]);
+            store.screens[screenId] = saved;
+            writeStore(store);
+        }
+
         nodes.forEach((node) => {
             if (!saved[node.id]) return;
             applyGeometry(node.element, saved[node.id]);
