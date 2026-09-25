@@ -194,9 +194,9 @@
         );
     }
     regionSlots.push(...repeatedAssets("regions.cloud", "Nuvem", "cloud", 10, { group: "clouds" }));
-    regionSlots.push(...repeatedAssets("regions.environment", "Cenário", "environment", 10, {
+    regionSlots.push(...repeatedAssets("regions.environment", "Elemento de ambiente", "environment", 10, {
         group: "environment",
-        acceptedTypes: ["environment", "ship"]
+        acceptedTypes: ["environment", "island"]
     }));
 
     const islandGameSlots = Object.freeze([
