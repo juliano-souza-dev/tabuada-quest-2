@@ -398,6 +398,16 @@
 
         if (target.needsRegion) {
             developmentRegionId = normalizedRegionId;
+            nextState = {
+                ...nextState,
+                campaign: {
+                    ...nextState.campaign,
+                    currentRegionId: normalizedRegionId,
+                    currentIslandId: target.needsIsland
+                        ? normalizedIslandId
+                        : Number(nextState.campaign?.currentIslandId) || 1
+                }
+            };
         }
 
         if (target.needsIsland) {
