@@ -151,3 +151,15 @@
         max-height: 72vh;
     }
 }
+
+
+.tq-settings-dev-panel .is-lock-action {
+    border-color: rgba(237, 129, 111, .72);
+    color: #ffe0da;
+    background: rgba(105, 31, 26, .72);
+}
+
+.tq-settings-dev-panel .is-lock-action:hover,
+.tq-settings-dev-panel .is-lock-action:focus-visible {
+    background: rgba(137, 43, 34, .9);
+}
