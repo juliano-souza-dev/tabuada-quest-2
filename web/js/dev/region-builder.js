@@ -3,7 +3,7 @@
     const STORAGE_KEY = "tq2.dev.region-builder.v1";
     const STORE_VERSION = 3;
     const SCENE_LAYOUT_KEY = "tq2.dev.scene-layout.v2";
-    const VISUAL_RESET_MARKER = "tq2.dev.region-builder-visual-reset.20260925.v3";
+    const VISUAL_RESET_MARKER = "tq2.dev.region-builder-visual-reset.20260925.engine-zero-v1";
     let activeCleanup = null;
     let panelOpen = false;
 
