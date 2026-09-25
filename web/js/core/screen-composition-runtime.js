@@ -380,9 +380,10 @@
             proxy.type = "button";
             proxy.className = "tq-engine-function-proxy";
             proxy.dataset.tqEngineFunctionProxy = "true";
-            proxy.dataset.tqEngineFunctionId = original.dataset.tqDevId || action;
             proxy.dataset.tqCompositionFunction = action;
             proxy.dataset.tqDevId = functionInstanceId(original, index);
+            proxy.dataset.tqEngineFunctionId = proxy.dataset.tqDevId;
+            proxy.dataset.tqEngineFunctionType = original.dataset.tqDevId || action;
             proxy.dataset.tqDevKind = "function";
             proxy.dataset.tqDevRole = "button";
             proxy.dataset.tqDevAction = action;
@@ -427,7 +428,7 @@
 
             const functionId = asset.dataset.tqBoundFunctionId;
             const proxy = proxies.find(
-                (item) => item.dataset.tqEngineFunctionId === functionId
+                (item) => item.dataset.tqDevId === functionId
             );
 
             if (!proxy || proxy.disabled) return;
