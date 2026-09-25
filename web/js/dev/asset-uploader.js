@@ -750,8 +750,9 @@
             if (variantRow) variantRow.hidden = !usesVariants;
             if (variantInput && usesVariants) {
                 const knownIds = (current?.variants || []).map((variant) => variant.id);
-                if (!variantInput.value || !knownIds.includes(variantInput.value)) {
-                    variantInput.value = knownIds[0] || "default";
+                const localVariant = localLayers.find((item) => item.slotId === slot.id)?.variantId;
+                if (!variantInput.value) {
+                    variantInput.value = localVariant || knownIds[0] || "default";
                 }
             }
             if (slotInfo) {
@@ -867,11 +868,12 @@
                 : screenId + ".local." + slug(file.name) + "." + Date.now();
 
             if (slot) {
-                const previous = localLayers.find((entry) => entry.id === id);
-                if (previous) {
+                const previousEntries = localLayers.filter((entry) => entry.slotId === slot.id);
+                for (const previous of previousEntries) {
                     previous.image.remove();
                     releaseRuntimeUrl(previous.id);
                     localLayers.splice(localLayers.indexOf(previous), 1);
+                    try { await deleteLocalLayerRecord(previous.id); } catch (_) {}
                 }
                 try { await deleteLocalLayerRecord(id); } catch (_) {}
                 screenRoot.querySelectorAll('[data-tq-composition-slot="' + slot.id + '"]')
@@ -896,13 +898,27 @@
             };
 
             if (slot) {
-                compositionRegistry.bindAsset(
-                    screenId,
-                    compositionScreenId,
-                    slot.id,
-                    null,
-                    record.semanticType
-                );
+                if (slot.bindingMode === "variants") {
+                    compositionRegistry.bindVariant(
+                        screenId,
+                        compositionScreenId,
+                        slot.id,
+                        variantId || "default",
+                        null,
+                        {
+                            label: variantId || "default",
+                            semanticType: record.semanticType
+                        }
+                    );
+                } else {
+                    compositionRegistry.bindAsset(
+                        screenId,
+                        compositionScreenId,
+                        slot.id,
+                        null,
+                        record.semanticType
+                    );
+                }
             }
 
             try {
