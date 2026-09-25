@@ -154,7 +154,7 @@
             return;
         }
 
-        if (screenType === "regions") {
+        if (screenType === "region-map") {
             const actionMap = {
                 "back-regions": "back",
                 "open-world-map": "open-nautical-chart",
