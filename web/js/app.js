@@ -1162,7 +1162,8 @@
             screenRoot,
             screenId: editorScreenId,
             scopeId: editorStorageScope,
-            regionId: editorContext.regionId
+            regionId: editorContext.regionId,
+            state: context?.state || (developmentMode && developmentState ? developmentState : state)
         }) || null;
 
         if (TQ.content.development?.shortcutsEnabled) {
