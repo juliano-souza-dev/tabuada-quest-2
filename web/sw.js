@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-prod-assets-20260925-default-bg-fx-avatar-v3";
+const CACHE_VERSION = "tq2-prod-assets-20260925-force-cache-1937-v4";
 const CACHE_PREFIX = "tq2-prod-assets-";
 
 self.addEventListener("install", (event) => {

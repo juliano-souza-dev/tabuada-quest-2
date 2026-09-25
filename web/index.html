@@ -40,7 +40,7 @@
             window.visualViewport?.addEventListener("resize", syncAppViewport, { passive: true });
         })();
     </script>
-    <link rel="stylesheet" href="./css/app.css?v=20260925-prod-home-1827-v1">
+    <link rel="stylesheet" href="./css/app.css?v=20260925-force-cache-1937-v4">
 </head>
 <body>
     <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
@@ -50,7 +50,7 @@
 
     <script src="./vendor/lottie.min.js"></script>
     <script src="./js/content/game-content.js?v=20260925-prod-default-bg-fx-v3"></script>
-    <script src="./js/content/screen-composition.js?v=20260925-prod-default-bg-fx-v3"></script>
+    <script src="./js/content/screen-composition.js?v=20260925-force-cache-1937-v4"></script>
     <script src="./js/content/collectibles-assets.js?v=20260922-collectibles-shelf"></script>
     <script src="./js/content/challenge-effects.js?v=20260921-2359"></script>
     <script src="./js/domain/world-structure.js?v=20260921-1020"></script>
@@ -61,9 +61,9 @@
     <script src="./js/persistence/local-storage.js?v=20260922-dev-exit"></script>
     <script src="./js/core/screen-manager.js?v=20260925-global-full-bleed-v1"></script>
     <script src="./js/core/ocean-loader.js?v=20260923-2"></script>
-    <script src="./js/core/ocean-scene.js?v=20260925-prod-default-bg-fx-v3"></script>
-    <script src="./js/core/depth-scene.js?v=20260925-prod-default-bg-fx-v3"></script>
-    <script src="./js/core/screen-composition-runtime.js?v=20260925-prod-default-bg-fx-v3"></script>
+    <script src="./js/core/ocean-scene.js?v=20260925-force-cache-1937-v4"></script>
+    <script src="./js/core/depth-scene.js?v=20260925-force-cache-1937-v4"></script>
+    <script src="./js/core/screen-composition-runtime.js?v=20260925-force-cache-1937-v4"></script>
     <script src="./js/core/safe-viewport.js?v=20260925-prod-v1"></script>
     <script src="./js/core/challenge-effect-renderer.js?v=20260921-2214"></script>
     <script src="./js/core/world-map.js?v=20260922-world-map-v1"></script>
@@ -86,12 +86,12 @@
     <script src="./js/screens/pet-screen.js?v=20260922-safe-viewport-v1"></script>
     <script src="./js/screens/map-reward-screen.js?v=20260921-2204"></script>
     <script src="./js/screens/result-screen.js?v=20260922-safe-viewport-v1"></script>
-    <script src="./js/app.js?v=20260925-prod-default-bg-fx-v3"></script>
+    <script src="./js/app.js?v=20260925-force-cache-1937-v4"></script>
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", async () => {
                 try {
-                    const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+                    const registration = await navigator.serviceWorker.register("./sw.js?v=20260925-force-cache-1937-v4", { scope: "./" });
                     const installButton = document.getElementById("pwa-install-button");
                     let installPrompt = null;
                     const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches
