@@ -261,19 +261,39 @@
             ? activeScreenId + " · Região " + activeRegionId
             : activeScreenId;
 
-        const explicitAssets = [...activeRoot.querySelectorAll("[data-tq-asset-id]")];
-        const looseImages = [...activeRoot.querySelectorAll("img")]
-            .filter((image) => !image.closest("[data-tq-asset-id]"));
-        const backgroundAssets = [...activeRoot.querySelectorAll("*")]
-            .filter((element) => {
-                if (element.closest(".tq-parallax-region, .tq-parallax-dev")) return false;
-                const backgroundImage = root.getComputedStyle(element).backgroundImage;
-                return backgroundImage && backgroundImage !== "none";
-            })
-            .filter((element) => !explicitAssets.includes(element));
+        const compositionRegistry = TQ.content?.screenComposition || null;
+        const compositionType = compositionRegistry?.resolveScreenType?.(activeScreenId) || null;
+        const compositionActive = Boolean(compositionType);
+
+        const explicitAssets = compositionActive
+            ? [...activeRoot.querySelectorAll("[data-tq-composition-slot][data-tq-semantic-type]")]
+                .filter((element) =>
+                    compositionRegistry
+                        .allowedFxForSemanticType(element.dataset.tqSemanticType)
+                        .includes("parallax")
+                )
+            : [...activeRoot.querySelectorAll("[data-tq-asset-id]")];
+
+        const looseImages = compositionActive
+            ? []
+            : [...activeRoot.querySelectorAll("img")]
+                .filter((image) => !image.closest("[data-tq-asset-id]"));
+
+        const backgroundAssets = compositionActive
+            ? []
+            : [...activeRoot.querySelectorAll("*")]
+                .filter((element) => {
+                    if (element.closest(".tq-parallax-region, .tq-parallax-dev")) return false;
+                    const backgroundImage = root.getComputedStyle(element).backgroundImage;
+                    return backgroundImage && backgroundImage !== "none";
+                })
+                .filter((element) => !explicitAssets.includes(element));
 
         const assets = [...new Set([...explicitAssets, ...looseImages, ...backgroundAssets])];
-        if (!assets.length) assets.push(activeRoot);
+        if (!assets.length) {
+            if (compositionActive) return;
+            assets.push(activeRoot);
+        }
 
         const assetEntries = assets.map((asset, index) => {
             const id = asset.dataset.tqAssetId
