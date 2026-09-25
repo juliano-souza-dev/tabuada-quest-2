@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260925-map-align-v1";
+const CACHE_VERSION = "tq2-dev-assets-20260925-asset-cardinality-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
