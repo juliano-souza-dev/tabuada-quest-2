@@ -32,6 +32,7 @@
     let authErrorCode = "";
     let appRenderToken = 0;
     let activeOceanController = null;
+    let activeDepthController = null;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function syncStatus() {
@@ -1097,6 +1098,8 @@
     async function renderWithDevelopmentTools(renderScreen, context, screenId, renderToken) {
         activeOceanController?.destroy?.();
         activeOceanController = null;
+        activeDepthController?.destroy?.();
+        activeDepthController = null;
 
         await screens.render(renderScreen, context);
         if (renderToken !== appRenderToken) return;
@@ -1117,12 +1120,20 @@
             regionId: editorContext.regionId
         }) || null;
 
+        activeDepthController = TQ.core?.depthScene?.mount?.({
+            screenRoot,
+            scopeId: editorStorageScope,
+            screenId: editorScreenId,
+            regionId: editorContext.regionId
+        }) || null;
+
         if (!TQ.content.development?.shortcutsEnabled) return;
 
         await TQ.dev?.assetUploader?.restoreLocalLayers?.({
             screenId: editorStorageScope,
             screenRoot
         });
+        activeDepthController?.refresh?.();
         TQ.dev?.sceneEditor?.mount(appRoot, {
             screenId: editorScreenId,
             storageScopeId: editorStorageScope,
@@ -1137,6 +1148,13 @@
             scopeId: editorStorageScope,
             regionId: editorContext.regionId,
             controller: activeOceanController
+        });
+        TQ.dev?.depthEditor?.mount?.({
+            screenRoot,
+            scopeId: editorStorageScope,
+            screenId: editorScreenId,
+            regionId: editorContext.regionId,
+            controller: activeDepthController
         });
         TQ.dev?.settingsPanel?.mount({
             getState: () => state,
