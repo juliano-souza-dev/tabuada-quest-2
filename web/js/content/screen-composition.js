@@ -199,8 +199,8 @@
             ]),
             dynamic: Object.freeze([])
         }),
-        regions: Object.freeze({
-            id: "regions",
+        "region-map": Object.freeze({
+            id: "region-map",
             label: "Região",
             assets: Object.freeze(regionSlots),
             functions: Object.freeze([
@@ -240,7 +240,7 @@
         home: "home",
         "world-map": "nautical-chart",
         regions: "nautical-chart",
-        islands: "regions",
+        islands: "region-map",
         challenge: "island-game"
     });
 
@@ -250,7 +250,7 @@
 
     function resolveScreenType(screenId) {
         const id = String(screenId || "");
-        if (id.startsWith("region-builder.")) return "regions";
+        if (id.startsWith("region-builder.")) return "region-map";
         return SCREEN_ALIASES[id] || (SCREENS[id] ? id : null);
     }
 
