@@ -2,6 +2,23 @@
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     const STORAGE_KEY = "tq2.dev.composition-bindings.v1";
     const SCHEMA_VERSION = 1;
+    const RESET_MARKER = "tq2.dev.composition-reset.20260925.v1";
+
+    function ensureCompositionReset() {
+        try {
+            if (root.localStorage.getItem(RESET_MARKER) === "done") return;
+            [
+                STORAGE_KEY,
+                "tq2.dev.parallax.effects.v4",
+                "tq2.dev.parallax.effects.v3",
+                "tq2.dev.ocean-scene.v1",
+                "tq2.dev.depth-scene.v1"
+            ].forEach((key) => root.localStorage.removeItem(key));
+            root.localStorage.setItem(RESET_MARKER, "done");
+        } catch (_) {}
+    }
+
+    ensureCompositionReset();
 
     const SEMANTIC_TYPES = Object.freeze({
         frame: Object.freeze({ label: "Placa / moldura", fx: Object.freeze([]) }),
@@ -380,6 +397,7 @@
     TQ.content.screenComposition = Object.freeze({
         STORAGE_KEY,
         SCHEMA_VERSION,
+        RESET_MARKER,
         SEMANTIC_TYPES,
         SCREENS,
         SCREEN_ALIASES,
