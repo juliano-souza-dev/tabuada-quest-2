@@ -15,6 +15,19 @@
                     return Number(fx.regionId) === Number(editorContext?.regionId);
                 }
                 return true;
+            }).map((fx) => {
+                const runtimeEffect = [...document.querySelectorAll("[data-runtime-fx-id]")]
+                    .find((node) => node.dataset.runtimeFxId === fx?.id);
+                const publishedSource = runtimeEffect?.dataset?.runtimeFxSrc;
+                if (!publishedSource) return fx;
+                return {
+                    ...fx,
+                    sourceVisual: {
+                        ...(fx.sourceVisual || {}),
+                        kind: "image",
+                        src: publishedSource
+                    }
+                };
             });
         } catch (_) {
             return [];
