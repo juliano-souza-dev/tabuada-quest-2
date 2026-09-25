@@ -30,6 +30,7 @@
     const SLOT_GROUP_LABELS = Object.freeze({
         header: "Cabeçalho",
         "background-composition": "Background",
+        "background-ocean": "Oceano",
         "background-clouds": "Nuvens",
         "background-ships": "Navios",
         "background-islands": "Ilhas",
@@ -41,15 +42,21 @@
         environment: "Cenário"
     });
 
-    function slotGroupLabel(slot) {
-        return SLOT_GROUP_LABELS[slot?.group]
+    function slotGroupLabel(slot, limits = {}) {
+        const base = SLOT_GROUP_LABELS[slot?.group]
             || (slot?.compositionId ? "Background" : "Outros");
+        const limit = limits?.[slot?.group];
+        if (!limit) return base;
+        const min = Number(limit.min);
+        const max = Number(limit.max);
+        if (!Number.isFinite(min) || !Number.isFinite(max)) return base;
+        return (limit.label || base) + " · " + min + "–" + max;
     }
 
-    function renderSlotOptions(slots) {
+    function renderSlotOptions(slots, limits = {}) {
         const groups = new Map();
         (slots || []).forEach((slot) => {
-            const label = slotGroupLabel(slot);
+            const label = slotGroupLabel(slot, limits);
             if (!groups.has(label)) groups.set(label, []);
             groups.get(label).push(slot);
         });
@@ -700,7 +707,10 @@
                         <label>
                             Este upload é:
                             <select data-upload-slot>
-                                ${renderSlotOptions(compositionSlots)}
+                                ${renderSlotOptions(
+                                    compositionSlots,
+                                    compositionRegistry?.getAssetLimits?.(resolvedCompositionScreenId) || {}
+                                )}
                             </select>
                         </label>
 
