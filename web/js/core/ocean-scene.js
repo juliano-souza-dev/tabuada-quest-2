@@ -331,8 +331,13 @@
 
     function mount(options = {}) {
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
-        const stage = screenRoot?.querySelector(".region-islands-canonical-stage");
-        const source = stage?.querySelector(".region-islands-background");
+        const stage = screenRoot?.querySelector(".tq-canonical-stage")
+            || screenRoot?.querySelector(".tq-safe-visual-area")
+            || screenRoot;
+        const compositionActive = Boolean(screenRoot?.dataset?.tqCompositionScreen);
+        const source = compositionActive
+            ? stage?.querySelector('[data-tq-semantic-type="ocean"]')
+            : stage?.querySelector(".region-islands-background");
         const regionId = Number(options.regionId || screenRoot?.dataset?.regionId) || null;
         const scopeId = String(options.scopeId || (regionId ? "islands.region-" + regionId : ""));
 
@@ -347,7 +352,7 @@
         canvas.className = "region-ocean-motion";
         canvas.dataset.tqOceanScene = "true";
         canvas.setAttribute("aria-hidden", "true");
-        source.insertAdjacentElement("afterend", canvas);
+        stage.appendChild(canvas);
 
         const gl = canvas.getContext("webgl", {
             alpha: true,
@@ -449,7 +454,8 @@
 
         function shipPosition() {
             if (!config.shipWake) return { x: -1, y: -1 };
-            const ship = stage.querySelector(".region-ruby-shop-button:not(.is-locked)");
+            const ship = stage.querySelector('[data-tq-semantic-type="ship"]')
+                || stage.querySelector(".region-ruby-shop-button:not(.is-locked)");
             if (!(ship instanceof Element)) return { x: -1, y: -1 };
             const stageRect = stage.getBoundingClientRect();
             const shipRect = ship.getBoundingClientRect();
