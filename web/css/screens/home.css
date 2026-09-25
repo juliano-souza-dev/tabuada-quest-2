@@ -738,7 +738,7 @@ html.tq-pwa-runtime .home-safe-visual-area {
    carried a stale deleted=true flag. */
 
 .home-background-image {
-    display: block;
+    display: none;
     translate: -92.1884690762329px -832.3618054741743px;
     scale: 1.0531322205720464 2.2339605407686873;
     transform-origin: top left;
@@ -885,5 +885,14 @@ html.tq-pwa-runtime .home-safe-visual-area {
 .hotspot-items {
     translate: -14.422210693359375px -170.67971602392382px;
     scale: 1 1;
+    transform-origin: top left;
+}
+
+
+/* Moonlit pirate port background · linked from the former local DEV layer. */
+.home-screen > .home-full-bleed-background,
+.home-screen > .tq-screen-full-bleed-backdrop {
+    translate: 0.35555315017700195px -30.303502221638496px;
+    scale: 1.0342592584590118 1.1424170949447348;
     transform-origin: top left;
 }
