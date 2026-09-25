@@ -604,7 +604,7 @@
 
         contextTitle.textContent = contextCaption;
         contextType.textContent = "Tela: " + editorContext.screenTypeLabel;
-        contextRegion.textContent = "Região: " + (editorContext.regionId ? String(editorContext.regionId) : "—");
+        contextRegion.textContent = "Região: " + (editorContext.regionId ? String(editorContext.regionId) + (editorContext.regionLabel ? " · " + editorContext.regionLabel : "") : "—");
         contextRegion.title = regionCaption;
         contextPage.textContent = editorContext.regionPage ? "Página/variante: " + editorContext.regionPage : "";
         contextPage.hidden = !editorContext.regionPage;
