@@ -99,6 +99,16 @@
         return element?.getAttribute("data-tq-dev-deleted") === "true";
     }
 
+    function isLocked(element) {
+        return element?.getAttribute("data-tq-dev-locked") === "true";
+    }
+
+    function setLocked(element, locked) {
+        if (!(element instanceof Element)) return;
+        if (locked) element.setAttribute("data-tq-dev-locked", "true");
+        else element.removeAttribute("data-tq-dev-locked");
+    }
+
     function setDeleted(element, deleted) {
         if (!(element instanceof Element)) return;
         if (deleted) element.setAttribute("data-tq-dev-deleted", "true");
@@ -360,6 +370,7 @@
             if (!saved[node.id]) return;
             applyGeometry(node.element, saved[node.id]);
             setDeleted(node.element, Boolean(saved[node.id].deleted));
+            setLocked(node.element, Boolean(saved[node.id].locked));
             if (Number.isFinite(Number(saved[node.id].z))) {
                 applyLayer(node.element, saved[node.id].z);
             } else {
@@ -423,6 +434,7 @@
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-undo>↶ Desfazer</button>
                     <button type="button" data-dev-reset>Resetar item</button>
+                    <button type="button" class="tq-scene-dev-lock" data-dev-lock-item aria-pressed="false">🔒 Bloquear</button>
                     <button type="button" class="tq-scene-dev-delete" data-dev-delete aria-label="Excluir elemento visual selecionado">🗑 Excluir visual</button>
                 </div>
                 <div class="tq-scene-dev-actions">
@@ -441,6 +453,7 @@
                 </button>
                 <button type="button" data-dev-compact-save aria-label="Salvar item e selecionar outro" title="Salvar e próximo">✓</button>
                 <button type="button" data-dev-compact-undo aria-label="Desfazer última alteração" title="Desfazer">↶</button>
+                <button type="button" class="tq-scene-dev-compact-lock" data-dev-compact-lock aria-label="Bloquear elemento selecionado" title="Bloquear">🔒</button>
                 <button type="button" class="tq-scene-dev-compact-delete" data-dev-compact-delete aria-label="Excluir elemento visual selecionado" title="Excluir visual">🗑</button>
                 <button type="button" data-dev-compact-close aria-label="Sair do editor visual" title="Fechar editor">×</button>
             </div>
@@ -468,8 +481,10 @@
         const compactAdjustButton = host.querySelector("[data-dev-compact-adjust]");
         const compactSaveButton = host.querySelector("[data-dev-compact-save]");
         const compactUndoButton = host.querySelector("[data-dev-compact-undo]");
+        const compactLockButton = host.querySelector("[data-dev-compact-lock]");
         const compactDeleteButton = host.querySelector("[data-dev-compact-delete]");
         const compactCloseButton = host.querySelector("[data-dev-compact-close]");
+        const lockItemButton = host.querySelector("[data-dev-lock-item]");
         const deleteButton = host.querySelector("[data-dev-delete]");
         const collapseButton = host.querySelector("[data-dev-collapse]");
         const clearFunctionsButton = host.querySelector("[data-dev-clear-functions]");
@@ -507,6 +522,7 @@
                 {
                     ...readGeometry(node.element),
                     ...(isDeleted(node.element) ? { deleted: true } : {}),
+                    ...(isLocked(node.element) ? { locked: true } : {}),
                     ...(hasLayerOverride(node.element) ? { z: readLayer(node.element) } : {})
                 }
             ]));
@@ -531,12 +547,14 @@
                 if (geometry) {
                     applyGeometry(node.element, geometry);
                     setDeleted(node.element, Boolean(geometry.deleted));
+                    setLocked(node.element, Boolean(geometry.locked));
                     if (Number.isFinite(Number(geometry.z))) applyLayer(node.element, geometry.z);
                     else clearLayer(node.element);
                 } else {
                     clearGeometry(node.element);
                     clearLayer(node.element);
                     setDeleted(node.element, false);
+                    setLocked(node.element, false);
                 }
             });
             persist();
@@ -561,7 +579,7 @@
             const options = available.map((node) => {
                 const option = document.createElement("option");
                 option.value = node.id;
-                option.textContent = node.label + " · " + kindLabel(node.kind);
+                option.textContent = (isLocked(node.element) ? "🔒 " : "") + node.label + " · " + kindLabel(node.kind);
                 return option;
             });
             nodeSelect.replaceChildren(...options);
@@ -579,20 +597,25 @@
                 name.textContent = "Nenhum selecionado";
                 type.textContent = "";
                 action.textContent = "";
-                [inputX, inputY, inputSx, inputSy].forEach((input) => input.value = "");
+                [inputX, inputY, inputSx, inputSy].forEach((input) => {
+                    input.value = "";
+                    input.disabled = true;
+                });
                 layerButtons.forEach((button) => button.disabled = true);
                 layerValue.textContent = "";
                 syncEditorChrome();
                 return;
             }
             const geometry = readGeometry(selected.element);
-            name.textContent = selected.label;
-            type.textContent = kindLabel(selected.kind) + (selected.role ? " · " + selected.role : "");
+            const locked = isLocked(selected.element);
+            name.textContent = (locked ? "🔒 " : "") + selected.label;
+            type.textContent = kindLabel(selected.kind) + (selected.role ? " · " + selected.role : "") + (locked ? " · BLOQUEADO" : "");
             action.textContent = selected.action ? "Ação: " + selected.action : "";
             inputX.value = Math.round(geometry.x * 100) / 100;
             inputY.value = Math.round(geometry.y * 100) / 100;
             inputSx.value = Math.round(geometry.sx * 10000) / 100;
             inputSy.value = Math.round(geometry.sy * 10000) / 100;
+            [inputX, inputY, inputSx, inputSy].forEach((input) => input.disabled = locked);
             const layerable = isLayerableVisual(selected);
             layerButtons.forEach((button) => button.disabled = !layerable);
             layerValue.textContent = layerable ? "z " + readLayer(selected.element) : "protegido";
@@ -607,12 +630,15 @@
             }
             const rect = selected.element.getBoundingClientRect();
             overlay.hidden = false;
+            const locked = isLocked(selected.element);
             overlay.classList.toggle("tq-scene-dev-selection--compact", rect.width < 72 || rect.height < 72);
+            overlay.classList.toggle("tq-scene-dev-selection--locked", locked);
             overlay.style.left = rect.left + "px";
             overlay.style.top = rect.top + "px";
             overlay.style.width = rect.width + "px";
             overlay.style.height = rect.height + "px";
-            overlay.querySelector(".tq-scene-dev-selection-label").textContent = selected.label;
+            overlay.querySelector(".tq-scene-dev-selection-label").textContent =
+                (isLocked(selected.element) ? "🔒 " : "") + selected.label;
         }
 
         function scheduleOverlay() {
@@ -631,9 +657,19 @@
             clearFunctionsButton.setAttribute("aria-pressed", functionsHidden ? "true" : "false");
             panel.hidden = !opened || compactVisible;
             compactBar.hidden = !compactVisible;
-            compactName.textContent = selected?.label || "Toque no próximo elemento";
+            const selectedLocked = Boolean(selected && isLocked(selected.element));
+            compactName.textContent = selected
+                ? (selectedLocked ? "🔒 " : "") + selected.label
+                : "Toque no próximo elemento";
             compactSaveButton.disabled = !selected;
             compactUndoButton.disabled = history.length === 0;
+            compactLockButton.disabled = !selected;
+            compactLockButton.textContent = selectedLocked ? "🔓" : "🔒";
+            compactLockButton.title = selectedLocked ? "Desbloquear" : "Bloquear";
+            compactLockButton.setAttribute("aria-label", selectedLocked ? "Desbloquear elemento selecionado" : "Bloquear elemento selecionado");
+            lockItemButton.disabled = !selected;
+            lockItemButton.textContent = selectedLocked ? "🔓 Desbloquear" : "🔒 Bloquear";
+            lockItemButton.setAttribute("aria-pressed", selectedLocked ? "true" : "false");
             const canDelete = Boolean(selected && isDeletableVisual(selected) && !isDeleteProtected(selected));
             compactDeleteButton.disabled = !canDelete;
             deleteButton.disabled = !canDelete;
@@ -666,6 +702,25 @@
             status.textContent = functionsHidden
                 ? "Funções removidas da área de edição"
                 : "Funções visíveis na área de edição";
+        }
+
+        function toggleSelectedLock() {
+            if (!selected) return;
+
+            const nextLocked = !isLocked(selected.element);
+            pushHistory();
+            setLocked(selected.element, nextLocked);
+
+            if (nextLocked && interaction?.node === selected) {
+                interaction = null;
+            }
+
+            persist(nextLocked ? "Elemento bloqueado" : "Elemento desbloqueado");
+            refreshList();
+            if (selected) nodeSelect.value = selected.id;
+            refreshInspector();
+            scheduleOverlay();
+            syncEditorChrome();
         }
 
         function saveAndSelectNext() {
@@ -745,6 +800,12 @@
             selectNode(node);
             event.preventDefault();
             event.stopPropagation();
+
+            if (isLocked(node.element)) {
+                status.textContent = "Elemento bloqueado · toque em Desbloquear para editar";
+                scheduleOverlay();
+                return;
+            }
 
             const rect = node.element.getBoundingClientRect();
             const stage = node.element.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
@@ -900,6 +961,11 @@
 
         function setFromInspector() {
             if (!selected) return;
+            if (isLocked(selected.element)) {
+                status.textContent = "Elemento bloqueado · desbloqueie para alterar";
+                refreshInspector();
+                return;
+            }
             pushHistory();
             const sx = Math.max(.05, number(inputSx.value, 100) / 100);
             const sy = lockRatio.checked ? sx : Math.max(.05, number(inputSy.value, 100) / 100);
@@ -1024,6 +1090,10 @@
 
             if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
             event.preventDefault();
+            if (isLocked(selected.element)) {
+                status.textContent = "Elemento bloqueado · desbloqueie para mover";
+                return;
+            }
             pushHistory();
             const step = event.shiftKey ? 10 : 1;
             const geometry = readGeometry(selected.element);
@@ -1084,6 +1154,7 @@
         compactAdjustButton.addEventListener("click", () => setCollapsed(false));
         compactSaveButton.addEventListener("click", saveAndSelectNext);
         compactUndoButton.addEventListener("click", undoLastChange);
+        compactLockButton.addEventListener("click", toggleSelectedLock);
         compactDeleteButton.addEventListener("click", deleteSelectedVisual);
         compactCloseButton.addEventListener("click", () => setOpened(false));
         [inputX, inputY, inputSx, inputSy].forEach((input) => input.addEventListener("change", setFromInspector));
@@ -1093,6 +1164,7 @@
         layerFrontButton.addEventListener("click", () => changeSelectedLayer("front"));
 
         host.querySelector("[data-dev-undo]").addEventListener("click", undoLastChange);
+        lockItemButton.addEventListener("click", toggleSelectedLock);
         deleteButton.addEventListener("click", deleteSelectedVisual);
         host.querySelector("[data-dev-reset]").addEventListener("click", () => {
             if (!selected) return;
@@ -1100,6 +1172,7 @@
             clearGeometry(selected.element);
             clearLayer(selected.element);
             setDeleted(selected.element, false);
+            setLocked(selected.element, false);
             persist();
             refreshInspector();
             scheduleOverlay();
@@ -1112,6 +1185,7 @@
                 clearGeometry(node.element);
                 clearLayer(node.element);
                 setDeleted(node.element, false);
+                setLocked(node.element, false);
             });
 
             store = readStore();
