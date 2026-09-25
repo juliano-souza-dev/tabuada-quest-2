@@ -1030,6 +1030,16 @@
             };
             localLayers.push(entry);
 
+            if (slot) {
+                root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                    detail: {
+                        scopeId: screenId,
+                        screenId: compositionScreenId,
+                        slotId: slot.id
+                    }
+                }));
+            }
+
             fileName.textContent = file.name;
             removeButton.disabled = false;
             if (publishedPathInput && slot) {
@@ -1043,7 +1053,14 @@
                 status.textContent = "Falha ao exibir " + file.name;
             }, { once: true });
 
-            root.requestAnimationFrame(() => reopenUxOn(image));
+            root.requestAnimationFrame(() => {
+                const semanticSlot = slot
+                    ? screenRoot.querySelector(
+                        '.tq-composition-slot[data-tq-composition-slot="' + CSS.escape(slot.id) + '"]'
+                    )
+                    : null;
+                reopenUxOn(semanticSlot || image);
+            });
         }
 
         function replaceSelected(file) {
