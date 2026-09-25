@@ -62,7 +62,8 @@
         const visualAssets = Array.isArray(normalizedDraft.screen?.assets)
             ? normalizedDraft.screen.assets
             : [];
-        screen.dataset.tqEmptySurface = visualAssets.length ? "false" : "true";
+        const linkedVisualCount = visualAssets.filter((asset) => asset?.asset || asset?.localFileName).length;
+        screen.dataset.tqEmptySurface = linkedVisualCount ? "false" : "true";
         screen.setAttribute("aria-label", "Construção visual da região " + draft.label);
 
         const actions = normalizedDraft.screen.actions;
@@ -102,7 +103,7 @@
             </button>
             <div class="region-builder-preview-meta" data-tq-dev-ignore="true">
                 <strong>${draft.label}</strong>
-                <span>0 assets · ${actions.length} funções</span>
+                <span>${linkedVisualCount}/${visualAssets.length} artes · ${actions.length} funções</span>
             </div>
             <div class="tq-safe-visual-area">
                 <main class="region-builder-preview-stage tq-canonical-stage">
