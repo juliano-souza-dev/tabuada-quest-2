@@ -223,7 +223,7 @@
 .region-back-hitbox,
 .global-world-map-button,
 .region-ruby-shop-button {
-    z-index: 2;
+    z-index: 3;
 }
 
 
@@ -1684,7 +1684,7 @@
 }
 
 .region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="1"] {
-    z-index: 1;
+    z-index: 3;
 }
 
 .region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="1"] .region-island-art {
