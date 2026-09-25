@@ -483,8 +483,12 @@
         let draftData = null;
         const storageKey = "tq2.dev.parallax.effects.v4";
         const legacyStorageKey = "tq2.dev.parallax.effects.v3";
-        const activeBackgroundId = activeScreenId;
-        const activeBackgroundLabel = activeScreenId;
+        const activeBackgroundId = activeScreenId === "home" && scope.effectScopeId
+            ? String(scope.effectScopeId)
+            : activeScreenId;
+        const activeBackgroundLabel = activeScreenId === "home" && scope.effectLabel
+            ? String(scope.effectLabel)
+            : activeScreenId;
         host.querySelector("[data-fx-background]").textContent = activeScopeLabel;
         host.querySelector("[data-fx-scope]").textContent = activeScopeLabel;
         let effects = (() => { try {
@@ -1133,6 +1137,16 @@
         return editorScreenId;
     }
 
+    function resolveDevelopmentEffectScope(editorScreenId, editorStorageScope, renderState) {
+        if (editorScreenId !== "home") return editorStorageScope;
+        const backgroundId = String(renderState?.ui?.homeBackgroundId || "default")
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9._-]+/g, "-")
+            .replace(/^-+|-+$/g, "") || "default";
+        return `${editorStorageScope}.background-${backgroundId}`;
+    }
+
     async function renderWithDevelopmentTools(renderScreen, context, screenId, renderToken) {
         activeOceanController?.destroy?.();
         activeOceanController = null;
@@ -1153,17 +1167,33 @@
         const editorScreenId = screenRoot.dataset.tqDevScreenId || screenId;
         const editorContext = resolveDevelopmentEditorContext(screenRoot, context, screenId);
         const editorStorageScope = resolveDevelopmentStorageScope(editorScreenId, editorContext);
+        const activeRenderState = context?.state || (developmentMode && developmentState ? developmentState : state);
+        const editorEffectScope = resolveDevelopmentEffectScope(
+            editorScreenId,
+            editorStorageScope,
+            activeRenderState
+        );
+        const activeHomeBackgroundId = editorScreenId === "home"
+            ? String(activeRenderState?.ui?.homeBackgroundId || "default")
+            : null;
         const compositionRegistry = TQ.content?.screenComposition || null;
         const compositionScreenType = compositionRegistry?.resolveScreenType?.(editorScreenId) || null;
         const screenAllowsFx = (fxId) =>
             !compositionScreenType || compositionRegistry.screenAllowsFx(compositionScreenType, fxId);
+        const screenHasSemanticType = (semanticType) =>
+            Boolean(compositionScreenType) && compositionRegistry
+                .getAssetSlots(compositionScreenType)
+                .some((slot) =>
+                    slot.semanticType === semanticType
+                    || (slot.acceptedTypes || []).includes(semanticType)
+                );
 
         activeCompositionController = TQ.core?.screenCompositionRuntime?.mount?.({
             screenRoot,
             screenId: editorScreenId,
             scopeId: editorStorageScope,
             regionId: editorContext.regionId,
-            state: context?.state || (developmentMode && developmentState ? developmentState : state)
+            state: activeRenderState
         }) || null;
 
         if (TQ.content.development?.shortcutsEnabled) {
@@ -1174,10 +1204,12 @@
             });
         }
 
+        if (renderToken !== appRenderToken) return;
+
         if (screenAllowsFx("ocean")) {
             activeOceanController = TQ.core?.oceanScene?.mount?.({
                 screenRoot,
-                scopeId: editorStorageScope,
+                scopeId: editorEffectScope,
                 regionId: editorContext.regionId
             }) || null;
         }
@@ -1185,7 +1217,7 @@
         if (screenAllowsFx("depth") || screenAllowsFx("ship-rock")) {
             activeDepthController = TQ.core?.depthScene?.mount?.({
                 screenRoot,
-                scopeId: editorStorageScope,
+                scopeId: editorEffectScope,
                 screenId: editorScreenId,
                 regionId: editorContext.regionId
             }) || null;
@@ -1195,12 +1227,20 @@
         TQ.dev?.sceneEditor?.mount(appRoot, {
             screenId: editorScreenId,
             storageScopeId: editorStorageScope,
-            editorContext,
+            effectsScopeId: editorEffectScope,
+            editorContext: {
+                ...editorContext,
+                homeBackgroundId: activeHomeBackgroundId
+            },
             screenRoot
         });
         if (screenAllowsFx("parallax")) {
             mountParallaxPrototype(editorScreenId, screenRoot, {
-                regionId: editorContext.regionId
+                regionId: editorContext.regionId,
+                effectScopeId: editorEffectScope,
+                effectLabel: activeHomeBackgroundId
+                    ? "Home · " + activeHomeBackgroundId
+                    : null
             });
         } else {
             document.querySelector(".tq-parallax-dev")?.remove();
@@ -1209,9 +1249,10 @@
         if (screenAllowsFx("ocean")) {
             TQ.dev?.oceanEditor?.mount?.({
                 screenRoot,
-                scopeId: editorStorageScope,
+                scopeId: editorEffectScope,
                 regionId: editorContext.regionId,
-                controller: activeOceanController
+                controller: activeOceanController,
+                showShipWake: screenHasSemanticType("ship")
             });
         } else {
             document.querySelector(".tq-ocean-dev")?.remove();
@@ -1220,7 +1261,7 @@
         if (screenAllowsFx("depth") || screenAllowsFx("ship-rock")) {
             TQ.dev?.depthEditor?.mount?.({
                 screenRoot,
-                scopeId: editorStorageScope,
+                scopeId: editorEffectScope,
                 screenId: editorScreenId,
                 regionId: editorContext.regionId,
                 controller: activeDepthController
