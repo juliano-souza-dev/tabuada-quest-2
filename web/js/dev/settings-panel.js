@@ -21,6 +21,97 @@
         return TQ.domain.playerState.normalizeState(state);
     }
 
+    function readDevLocks(state) {
+        const s = normalize(state);
+        const raw = s.campaign?.devLocks && typeof s.campaign.devLocks === "object"
+            ? s.campaign.devLocks
+            : {};
+        return {
+            regionIds: uniqueSorted(
+                Array.isArray(raw.regionIds)
+                    ? raw.regionIds.filter((id) => Number.isInteger(id) && id >= 1 && id <= TQ.domain.playerState.TOTAL_REGIONS)
+                    : []
+            ),
+            islandKeys: Array.from(new Set(
+                Array.isArray(raw.islandKeys)
+                    ? raw.islandKeys.filter((key) => /^region-\d+-island-\d+$/.test(String(key)))
+                    : []
+            ))
+        };
+    }
+
+    function withDevLocks(state, nextLocks) {
+        const s = normalize(state);
+        return normalize({
+            ...s,
+            campaign: {
+                ...s.campaign,
+                devLocks: {
+                    regionIds: uniqueSorted(nextLocks.regionIds || []),
+                    islandKeys: Array.from(new Set(nextLocks.islandKeys || []))
+                }
+            }
+        });
+    }
+
+    function islandKey(regionId, islandId) {
+        return "region-" + regionId + "-island-" + islandId;
+    }
+
+    function withRegionLocked(state, regionId, locked = true) {
+        const id = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
+        const locks = readDevLocks(state);
+        const ids = new Set(locks.regionIds);
+        if (locked) ids.add(id);
+        else ids.delete(id);
+        return withDevLocks(state, { ...locks, regionIds: [...ids] });
+    }
+
+    function withAllRegionsLocked(state, locked = true) {
+        const locks = readDevLocks(state);
+        const regionIds = locked
+            ? Array.from({ length: TQ.domain.playerState.TOTAL_REGIONS }, (_, index) => index + 1)
+            : [];
+        return withDevLocks(state, { ...locks, regionIds });
+    }
+
+    function withIslandLocked(state, regionId, islandId, locked = true) {
+        const r = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
+        const i = clampInteger(islandId, 1, TQ.domain.playerState.ISLANDS_PER_REGION);
+        const locks = readDevLocks(state);
+        const keys = new Set(locks.islandKeys);
+        const key = islandKey(r, i);
+        if (locked) keys.add(key);
+        else keys.delete(key);
+        return withDevLocks(state, { ...locks, islandKeys: [...keys] });
+    }
+
+    function withRegionIslandsLocked(state, regionId, locked = true) {
+        const r = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
+        const locks = readDevLocks(state);
+        const prefix = "region-" + r + "-island-";
+        const keys = new Set(locks.islandKeys.filter((key) => !String(key).startsWith(prefix)));
+        if (locked) {
+            for (let i = 1; i <= TQ.domain.playerState.ISLANDS_PER_REGION; i += 1) {
+                keys.add(islandKey(r, i));
+            }
+        }
+        return withDevLocks(state, { ...locks, islandKeys: [...keys] });
+    }
+
+    function withAllIslandsLocked(state, locked = true) {
+        const locks = readDevLocks(state);
+        const islandKeys = [];
+        if (locked) {
+            for (let r = 1; r <= TQ.domain.playerState.TOTAL_REGIONS; r += 1) {
+                for (let i = 1; i <= TQ.domain.playerState.ISLANDS_PER_REGION; i += 1) {
+                    islandKeys.push(islandKey(r, i));
+                }
+            }
+        }
+        return withDevLocks(state, { ...locks, islandKeys });
+    }
+
     function withResources(state, values) {
         const s = normalize(state);
         return {
@@ -39,34 +130,38 @@
     }
 
     function withUnlockedRegion(state, regionId) {
-        const s = normalize(state);
         const id = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
-        return {
+        const s = withRegionLocked(state, id, false);
+        return normalize({
             ...s,
             campaign: {
                 ...s.campaign,
                 currentRegionId: id,
                 unlockedRegionIds: uniqueSorted([...s.campaign.unlockedRegionIds, id])
             }
-        };
+        });
     }
 
     function withUnlockedRegionsThrough(state, regionId) {
-        const s = normalize(state);
         const id = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
         const ids = Array.from({ length: id }, (_, index) => index + 1);
-        return {
+        let s = normalize(state);
+        for (const unlockedId of ids) s = withRegionLocked(s, unlockedId, false);
+        return normalize({
             ...s,
             campaign: {
                 ...s.campaign,
                 currentRegionId: id,
                 unlockedRegionIds: uniqueSorted([...s.campaign.unlockedRegionIds, ...ids])
             }
-        };
+        });
     }
 
     function withAllRegionsUnlocked(state) {
-        return withUnlockedRegionsThrough(state, TQ.domain.playerState.TOTAL_REGIONS);
+        return withAllRegionsLocked(
+            withUnlockedRegionsThrough(state, TQ.domain.playerState.TOTAL_REGIONS),
+            false
+        );
     }
 
     function clearIslandStructuralState(state, regionId, islandId) {
@@ -142,6 +237,7 @@
         const normalizedRegionId = clampInteger(regionId, 1, TQ.domain.playerState.TOTAL_REGIONS);
         const normalizedIslandId = clampInteger(islandId, 1, TQ.domain.playerState.ISLANDS_PER_REGION);
         let s = withUnlockedRegion(state, normalizedRegionId);
+        s = withIslandLocked(s, normalizedRegionId, normalizedIslandId, false);
 
         // Rewind only this region from the selected island onward. This makes
         // the selected island a genuine first completion again, so its normal
@@ -317,11 +413,15 @@
                     <label>Região<select data-set-region></select></label>
                     <div class="tq-settings-dev-actions">
                         <button type="button" data-set-unlock-region>Liberar região</button>
-                        <button type="button" data-set-open-region>Abrir região</button>
+                        <button type="button" class="is-lock-action" data-set-lock-region>Bloquear região</button>
                     </div>
                     <div class="tq-settings-dev-actions">
+                        <button type="button" data-set-open-region>Abrir região</button>
                         <button type="button" data-set-unlock-through>Liberar até aqui</button>
+                    </div>
+                    <div class="tq-settings-dev-actions">
                         <button type="button" data-set-unlock-all-regions>Liberar todas</button>
+                        <button type="button" class="is-lock-action" data-set-lock-all-regions>Bloquear todas</button>
                     </div>
                 </fieldset>
 
@@ -331,9 +431,20 @@
                         <label>Região<select data-set-island-region></select></label>
                         <label>Ilha<select data-set-island></select></label>
                     </div>
-                    <button type="button" data-set-prepare-island>Liberar ilha selecionada</button>
+                    <div class="tq-settings-dev-actions">
+                        <button type="button" data-set-prepare-island>Liberar ilha</button>
+                        <button type="button" class="is-lock-action" data-set-lock-island>Bloquear ilha</button>
+                    </div>
                     <button type="button" data-set-open-island>Abrir ilha no fluxo normal</button>
-                    <small>Abrir ilha usa a mesma sessão do jogo: desafio, resultado e recompensas continuam normais.</small>
+                    <div class="tq-settings-dev-actions">
+                        <button type="button" data-set-unlock-region-islands>Liberar todas desta região</button>
+                        <button type="button" class="is-lock-action" data-set-lock-region-islands>Bloquear todas desta região</button>
+                    </div>
+                    <div class="tq-settings-dev-actions">
+                        <button type="button" data-set-unlock-all-islands>Liberar todas do jogo</button>
+                        <button type="button" class="is-lock-action" data-set-lock-all-islands>Bloquear todas do jogo</button>
+                    </div>
+                    <small>Os bloqueios do SET são overrides de teste: não apagam progresso nem recompensas.</small>
                 </fieldset>
 
                 <fieldset>
@@ -440,12 +551,21 @@
             commit(withUnlockedRegion(currentState, Number(regionSelect.value)), "Região liberada");
         };
 
+        host.querySelector("[data-set-lock-region]").onclick = () => {
+            const regionId = Number(regionSelect.value);
+            commit(withRegionLocked(currentState, regionId, true), "Região " + regionId + " bloqueada");
+        };
+
         host.querySelector("[data-set-unlock-through]").onclick = () => {
             commit(withUnlockedRegionsThrough(currentState, Number(regionSelect.value)), "Regiões liberadas");
         };
 
         host.querySelector("[data-set-unlock-all-regions]").onclick = () => {
-            commit(withAllRegionsUnlocked(currentState), "Todas liberadas");
+            commit(withAllRegionsUnlocked(currentState), "Todas as regiões liberadas");
+        };
+
+        host.querySelector("[data-set-lock-all-regions]").onclick = () => {
+            commit(withAllRegionsLocked(currentState, true), "Todas as regiões bloqueadas");
         };
 
         host.querySelector("[data-set-open-region]").onclick = () => {
@@ -459,6 +579,39 @@
             const regionId = Number(islandRegionSelect.value);
             const islandId = Number(islandSelect.value);
             commit(withIslandPrepared(currentState, regionId, islandId), "Ilha liberada");
+        };
+
+        host.querySelector("[data-set-lock-island]").onclick = () => {
+            const regionId = Number(islandRegionSelect.value);
+            const islandId = Number(islandSelect.value);
+            commit(
+                withIslandLocked(currentState, regionId, islandId, true),
+                "Região " + regionId + " · Ilha " + islandId + " bloqueada"
+            );
+        };
+
+        host.querySelector("[data-set-unlock-region-islands]").onclick = () => {
+            const regionId = Number(islandRegionSelect.value);
+            commit(
+                withRegionIslandsLocked(currentState, regionId, false),
+                "Ilhas da região " + regionId + " liberadas"
+            );
+        };
+
+        host.querySelector("[data-set-lock-region-islands]").onclick = () => {
+            const regionId = Number(islandRegionSelect.value);
+            commit(
+                withRegionIslandsLocked(currentState, regionId, true),
+                "Ilhas da região " + regionId + " bloqueadas"
+            );
+        };
+
+        host.querySelector("[data-set-unlock-all-islands]").onclick = () => {
+            commit(withAllIslandsLocked(currentState, false), "Todas as ilhas liberadas");
+        };
+
+        host.querySelector("[data-set-lock-all-islands]").onclick = () => {
+            commit(withAllIslandsLocked(currentState, true), "Todas as ilhas bloqueadas");
         };
 
         host.querySelector("[data-set-open-island]").onclick = () => {
@@ -508,6 +661,11 @@
         withUnlockedRegion,
         withUnlockedRegionsThrough,
         withAllRegionsUnlocked,
+        withRegionLocked,
+        withAllRegionsLocked,
+        withIslandLocked,
+        withRegionIslandsLocked,
+        withAllIslandsLocked,
         withIslandPrepared,
         withSpecialMapUnlocked,
         withAllSpecialMapsUnlocked
