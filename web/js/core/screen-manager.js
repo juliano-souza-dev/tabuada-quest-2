@@ -1,4 +1,7 @@
-(function (root) {\n    const TQ = root.TabuadaQuest = root.TabuadaQuest || {};\n\n    function waitForVisualAssets(node) {
+(function (root) {
+    const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
+
+    function waitForVisualAssets(node) {
         const images = Array.from(node.querySelectorAll("img"));
         const imageJobs = images.map((img) => {
             if (img.complete && img.naturalWidth > 0) return Promise.resolve();
