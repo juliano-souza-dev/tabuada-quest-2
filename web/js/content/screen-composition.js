@@ -35,7 +35,7 @@
         logo: Object.freeze({ label: "Logo", fx: Object.freeze([]), defaultZ: 42 }),
         home_background: Object.freeze({
             label: "Fundo da Home",
-            fx: Object.freeze(["depth", "parallax", "background-animation"]),
+            fx: Object.freeze(["ocean", "depth", "parallax", "background-animation"]),
             depthRoles: Object.freeze(["sky", "custom"]),
             defaultZ: 1
         }),
