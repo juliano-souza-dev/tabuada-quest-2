@@ -426,3 +426,20 @@
     color: #ffe0da !important;
     background: rgba(105, 31, 26, .72) !important;
 }
+
+
+/* UX editor: temporarily clear functional hitboxes from the editing surface.
+   The game controls remain in the DOM and return unchanged when the editor
+   shows functions again or closes. */
+.tq-dev-scene-editing.tq-dev-functions-hidden [data-tq-dev-kind="function"] {
+    outline: none !important;
+    outline-offset: 0 !important;
+    background-color: transparent !important;
+    pointer-events: none !important;
+}
+
+.tq-scene-dev-panel [data-dev-clear-functions][aria-pressed="true"] {
+    border-color: rgba(149, 229, 188, .66);
+    color: #dfffea;
+    background: rgba(31, 104, 74, .58);
+}
