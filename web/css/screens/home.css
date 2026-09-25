@@ -731,158 +731,17 @@ html.tq-pwa-runtime .home-safe-visual-area {
     scale: 1 1;
 }
 
-/* Home UX snapshot · 2026-09-24 21:03 BRT */
-.home-screen {
-    /* Structural viewport: never move/scale this from a UX snapshot. */
-    translate: 0 0;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-.home-full-bleed-background {
-    translate: -1px 5px;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-.home-safe-visual-area {
-    /* Fixed useful area. Child artwork may move; this coordinate system may not. */
-    translate: 0 0;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-.home-background-image {
-    translate: -5.43283px -38.7383px;
-    scale: 1.03091 0.856946;
-    transform-origin: top left;
-}
-
-.home-frame {
-    translate: 0 8px;
-    scale: 1.00154 0.8874;
-    transform-origin: top left;
-}
-
-.home-frame-art {
-    translate: -2px 2px;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-.home-frame-text {
-    translate: -103px -20px;
-    scale: 1.5921 1.5921;
-    transform-origin: top left;
-}
-
-.profile-slot {
-    translate: -4px 1px;
-    scale: 1.31886 1.31886;
-    transform-origin: top left;
-}
-
-.profile-slot-avatar {
-    translate: -4px -3px;
-    scale: 1.1056 1.1056;
-    transform-origin: top left;
-}
-
-.hud-level-slot {
-    translate: 204px -45px;
-    scale: 1.35612 1.35612;
-    transform-origin: top left;
-}
-
-.hud-level-slot > img {
-    translate: -13px 0;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-/* The former DEV local layer home-art-overlay.webp is now the canonical overlay. */
-.home-art-overlay {
-    inset: auto;
-    left: 30%;
-    top: 28%;
-    width: 40%;
-    height: auto;
-    max-width: none;
-    max-height: 60%;
-    object-fit: contain;
-    object-position: center;
-    translate: -129.47106423127386px -131.77766441650033px;
-    scale: 2.466694368438211 2.5403844849953776;
-    transform-origin: top left;
-    z-index: 5;
-}
-
-.home-hero-character {
-    translate: -1.0337296351965684px 35.35498313613423px;
-    scale: 1 1;
-    transform-origin: top left;
-    z-index: 500;
-}
-
-.home-play-art {
-    translate: -123.46032583685493px 341.713631253374px;
-    scale: 0.9299737058044887 0.9299737058044887;
-    transform-origin: top left;
-}
-
-.home-crew-art {
-    translate: 8.999999999999998px 369.6404356374838px;
-    scale: 0.8331097411945125 0.9133157467575412;
-    transform-origin: top left;
-}
-
-.home-shipyard-art {
-    translate: 137.53270364803433px 349.07090500269925px;
-    scale: 0.8331000000000001 0.8331000000000001;
-    transform-origin: top left;
-}
-
-.hotspot-background {
-    translate: 3.1011889055897015px -74.78041315232949px;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-.hotspot-fashion {
-    translate: -20.775781609521044px -84.63768690165469px;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-.play-slot {
-    translate: 16.03372963519657px -222.7739994353948px;
-    scale: 0.865882 0.95;
-    transform-origin: top left;
-}
-
-.hotspot-crew {
-    translate: 35.134918540786266px -317.62577571306167px;
-    scale: 0.677547 1;
-    transform-origin: top left;
-}
-
-.hotspot-shipyard {
-    translate: -12.607133433538209px -201.98992130195978px;
-    scale: 1 1;
-    transform-origin: top left;
-}
-
-.hotspot-items {
-    translate: 3px -32px;
-    scale: 1 1;
-    transform-origin: top left;
-}
-/* Home UX snapshot · 2026-09-25 02:08 BRT */
+/* Home UX snapshot · 2026-09-24 23:29 BRT */
 /* Consolidated from the mobile UX editor. Only stable game elements are
-   promoted here. DEV lock flags and auto-mapped hidden UI are not runtime CSS. */
+   promoted here. DEV lock flags and auto-mapped hidden UI are not runtime CSS.
+   The default background is intentionally ACTIVE even if the editor export
+   carried a stale deleted=true flag. */
 
 .home-background-image {
-    display: none;
+    display: block;
+    translate: -92.1884690762329px -832.3618054741743px;
+    scale: 1.0531322205720464 2.2339605407686873;
+    transform-origin: top left;
 }
 
 .home-frame {
@@ -893,7 +752,7 @@ html.tq-pwa-runtime .home-safe-visual-area {
 
 .home-frame-art {
     translate: -2px 2px;
-    scale: 1 0.9877003852196066;
+    scale: 1 0.9877;
     transform-origin: top left;
 }
 
@@ -916,20 +775,20 @@ html.tq-pwa-runtime .home-safe-visual-area {
 }
 
 .profile-slot-avatar {
-    translate: 3.111114501953125px 0.911102294921875px;
-    scale: 0.8675785453417635 0.8675785453417635;
+    translate: 3.11111px 0.911102px;
+    scale: 0.867579 0.867579;
     transform-origin: top left;
 }
 
 .hud-level-slot {
-    translate: 143.91107177734375px 22.555564880371094px;
-    scale: 1.1948280816488877 1.1948280816488877;
+    translate: 128.26663398742676px -22.59998321533203px;
+    scale: 0.2899386973470263 0.28993869734702626;
     transform-origin: top left;
 }
 
 .hud-level-slot > img {
-    translate: -13px 0;
-    scale: 5.992070783259634 5.992070783259635;
+    translate: -202.39199073697756px 362.3066900634766px;
+    scale: 0.3571385369630572 0.05;
     transform-origin: top left;
 }
 
@@ -982,19 +841,19 @@ html.tq-pwa-runtime .home-safe-visual-area {
 }
 
 .play-slot {
-    translate: 48.64442825317383px -174.99018177281627px;
-    scale: 0.873823 1;
+    translate: 25.888874053955078px -119.5234154153944px;
+    scale: 0.7988197569899372 0.8437035212791508;
     transform-origin: top left;
 }
 
 .hotspot-crew {
-    translate: 55px -269px;
+    translate: 61.40000915527344px -232.73333740234375px;
     scale: 1 1;
     transform-origin: top left;
 }
 
 .hotspot-shipyard {
-    translate: -6.3999786376953125px -193.74914508001984px;
+    translate: -162.84442138671875px -157.4824824823636px;
     scale: 1 1;
     transform-origin: top left;
 }
