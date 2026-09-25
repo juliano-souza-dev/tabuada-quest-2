@@ -27,13 +27,15 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     const composition=TQ.content.screenComposition;
 
     const home=composition.getAssetSlots("home");
-    assert.equal(home.length,30);
+    assert.equal(home.length,31);
     assert.equal(home.filter((slot)=>slot.group==="header").length,3);
     assert.equal(home.filter((slot)=>slot.group==="buttons").length,8);
     assert.equal(home.filter((slot)=>slot.semanticType==="ocean").length,1);
     assert.equal(home.filter((slot)=>slot.group==="background-clouds").length,10);
     assert.equal(home.filter((slot)=>slot.group==="background-ships").length,5);
     assert.equal(home.filter((slot)=>slot.group==="background-islands").length,3);
+    assert.equal(home.filter((slot)=>slot.group==="background-pier").length,1);
+    assert.equal(home.filter((slot)=>slot.group==="background-pier" && slot.required).length,1);
     assert.equal(home.filter((slot)=>slot.group==="background-ships" && slot.required).length,1);
     assert.deepEqual(
         JSON.parse(JSON.stringify(composition.getAssetLimits("home"))),
@@ -41,7 +43,8 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
             "background-ocean": {label:"Oceano",min:1,max:1},
             "background-clouds": {label:"Nuvens",min:0,max:10},
             "background-ships": {label:"Navios",min:1,max:5},
-            "background-islands": {label:"Ilhas",min:0,max:3}
+            "background-islands": {label:"Ilhas",min:0,max:3},
+            "background-pier": {label:"Pier",min:1,max:1}
         }
     );
 
