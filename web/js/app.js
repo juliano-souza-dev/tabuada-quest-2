@@ -318,7 +318,74 @@
             return clone;
         };
 
-        const cloneVisualLayer = (visual) => {
+        const visualSnapshot = (visual) => {
+            if (!(visual instanceof Element)) return null;
+
+            if (visual instanceof HTMLImageElement) {
+                const style = root.getComputedStyle(visual);
+                return {
+                    kind: "image",
+                    src: visual.currentSrc || visual.src || visual.getAttribute("src") || "",
+                    objectFit: style.objectFit || "fill",
+                    objectPosition: style.objectPosition || "50% 50%"
+                };
+            }
+
+            const style = root.getComputedStyle(visual);
+            if (style.backgroundImage && style.backgroundImage !== "none") {
+                return {
+                    kind: "background",
+                    backgroundImage: style.backgroundImage,
+                    backgroundPosition: style.backgroundPosition,
+                    backgroundSize: style.backgroundSize,
+                    backgroundRepeat: style.backgroundRepeat,
+                    backgroundOrigin: style.backgroundOrigin,
+                    backgroundClip: style.backgroundClip,
+                    backgroundColor: style.backgroundColor,
+                    borderRadius: style.borderRadius
+                };
+            }
+
+            const image = visual.querySelector("img");
+            return image instanceof HTMLImageElement ? visualSnapshot(image) : null;
+        };
+
+        const cloneFromSnapshot = (snapshot) => {
+            if (!snapshot || typeof snapshot !== "object") return null;
+
+            if (snapshot.kind === "image" && snapshot.src) {
+                const clone = document.createElement("img");
+                clone.dataset.fxPrimary = "true";
+                clone.src = snapshot.src;
+                clone.alt = "";
+                clone.style.objectFit = snapshot.objectFit || "fill";
+                clone.style.objectPosition = snapshot.objectPosition || "50% 50%";
+                return clone;
+            }
+
+            if (snapshot.kind === "background" && snapshot.backgroundImage) {
+                const clone = document.createElement("div");
+                clone.dataset.fxPrimary = "true";
+                clone.style.backgroundImage = snapshot.backgroundImage;
+                clone.style.backgroundPosition = snapshot.backgroundPosition || "0% 0%";
+                clone.style.backgroundSize = snapshot.backgroundSize || "auto";
+                clone.style.backgroundRepeat = snapshot.backgroundRepeat || "repeat";
+                clone.style.backgroundOrigin = snapshot.backgroundOrigin || "padding-box";
+                clone.style.backgroundClip = snapshot.backgroundClip || "border-box";
+                clone.style.backgroundColor = snapshot.backgroundColor || "transparent";
+                clone.style.borderRadius = snapshot.borderRadius || "0px";
+                return clone;
+            }
+
+            return null;
+        };
+
+        const cloneVisualLayer = (visual, snapshot = null) => {
+            if (snapshot) {
+                const persistedClone = cloneFromSnapshot(snapshot);
+                if (persistedClone) return persistedClone;
+            }
+
             if (!(visual instanceof Element)) return null;
 
             if (visual instanceof HTMLImageElement) {
@@ -516,15 +583,38 @@
         const renderEffect = (fx, editable = false) => {
             const asset = assetById.get(fx.assetId);
             const visual = visualElement(asset);
-            if (!(visual instanceof Element)) return null;
-            stage = resolveStage(visual);
-            const assetRect = visual.getBoundingClientRect(), stageRect = stage.getBoundingClientRect();
-            if (!assetRect.width || !assetRect.height || !stageRect.width || !stageRect.height) return null;
+            const sourceStillVisible = visual instanceof Element
+                && root.getComputedStyle(visual).display !== "none"
+                && visual.getBoundingClientRect().width > 0
+                && visual.getBoundingClientRect().height > 0;
+
+            stage = sourceStillVisible
+                ? resolveStage(visual)
+                : (activeRoot.querySelector(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']") || activeRoot);
+
+            const stageRect = stage.getBoundingClientRect();
+            if (!stageRect.width || !stageRect.height) return null;
+
+            let assetRect = null;
+            if (sourceStillVisible) {
+                assetRect = visual.getBoundingClientRect();
+            } else if (fx.sourceRect) {
+                assetRect = {
+                    left: stageRect.left + fx.sourceRect.x * stageRect.width,
+                    top: stageRect.top + fx.sourceRect.y * stageRect.height,
+                    width: fx.sourceRect.w * stageRect.width,
+                    height: fx.sourceRect.h * stageRect.height
+                };
+            }
+            if (!assetRect || !assetRect.width || !assetRect.height) return null;
+
             const r = fx.bounds;
             const el = document.createElement("div"); el.className = "tq-parallax-region" + (editable ? " is-editing" : ""); el.dataset.fxId = fx.id;
             el.style.left=((assetRect.left-stageRect.left+r.x*assetRect.width)/stageRect.width*100)+"%"; el.style.top=((assetRect.top-stageRect.top+r.y*assetRect.height)/stageRect.height*100)+"%"; el.style.width=(r.w*assetRect.width/stageRect.width*100)+"%"; el.style.height=(r.h*assetRect.height/stageRect.height*100)+"%";
             const poly=fx.points.map(p=>(((p.x-r.x)/r.w)*100).toFixed(2)+"% "+(((p.y-r.y)/r.h)*100).toFixed(2)+"%").join(","); el.style.clipPath="polygon("+poly+")"; el.style.webkitClipPath=el.style.clipPath;
-            const clone=cloneVisualLayer(visual); if (!clone) return null; clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; clone.style.margin="0"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx); return el;
+            const clone=cloneVisualLayer(sourceStillVisible ? visual : null, fx.sourceVisual);
+            if (!clone) return null;
+            clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; clone.style.margin="0"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx); return el;
         };
         effects.filter(isActiveScope).forEach((fx)=>renderEffect(fx)); refreshSaved(); persistEffects();
 
@@ -693,7 +783,27 @@
                         clone.style.pointerEvents="none";
                         region.appendChild(clone);
                         stage.appendChild(region);
-                        draftData = { assetId: asset.dataset.tqFxId, assetLabel: asset.dataset.tqAssetLabel || asset.dataset.tqDevLabel || asset.getAttribute("alt") || asset.getAttribute("aria-label") || asset.dataset.tqFxId, bounds: { x:(minX-assetRect.left)/assetRect.width, y:(minY-assetRect.top)/assetRect.height, w:width/assetRect.width, h:height/assetRect.height }, points: points.map(p=>({x:(p.x-assetRect.left)/assetRect.width,y:(p.y-assetRect.top)/assetRect.height})) };
+                        draftData = {
+                            assetId: asset.dataset.tqFxId,
+                            assetLabel: asset.dataset.tqAssetLabel || asset.dataset.tqDevLabel || asset.getAttribute("alt") || asset.getAttribute("aria-label") || asset.dataset.tqFxId,
+                            sourceVisual: visualSnapshot(visual),
+                            sourceRect: {
+                                x: (assetRect.left - stageRect.left) / stageRect.width,
+                                y: (assetRect.top - stageRect.top) / stageRect.height,
+                                w: assetRect.width / stageRect.width,
+                                h: assetRect.height / stageRect.height
+                            },
+                            bounds: {
+                                x:(minX-assetRect.left)/assetRect.width,
+                                y:(minY-assetRect.top)/assetRect.height,
+                                w:width/assetRect.width,
+                                h:height/assetRect.height
+                            },
+                            points: points.map(p=>({
+                                x:(p.x-assetRect.left)/assetRect.width,
+                                y:(p.y-assetRect.top)/assetRect.height
+                            }))
+                        };
                         apply();
                     }
                 }
