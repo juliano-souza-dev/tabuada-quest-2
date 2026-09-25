@@ -316,10 +316,17 @@
             || screenRoot?.querySelector(".tq-safe-visual-area")
             || screenRoot;
         const compositionActive = Boolean(screenRoot?.dataset?.tqCompositionScreen);
-        const source = compositionActive
+        const semanticHost = compositionActive
             ? (
                 stage?.querySelector('[data-tq-semantic-type="ocean"]')
                 || stage?.querySelector('[data-tq-semantic-type="home_background"]')
+            )
+            : null;
+        const source = compositionActive
+            ? (
+                semanticHost instanceof HTMLImageElement
+                    ? semanticHost
+                    : semanticHost?.querySelector?.("img")
             )
             : stage?.querySelector(".region-islands-background");
         const regionId = Number(options.regionId || screenRoot?.dataset?.regionId) || null;
