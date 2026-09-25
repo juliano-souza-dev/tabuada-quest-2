@@ -473,3 +473,10 @@
     background: #95e5bc;
     cursor: not-allowed;
 }
+
+
+.tq-scene-dev-compact-lock[aria-pressed="true"] {
+    border-color: rgba(149, 229, 188, .9) !important;
+    background: rgba(30, 103, 74, .72) !important;
+    box-shadow: inset 0 0 0 1px rgba(149, 229, 188, .18);
+}
