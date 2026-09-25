@@ -18,6 +18,7 @@
 @import url("./dev/region-builder.css?v=20260925-transparent-empty-v1");
 @import url("./dev/ocean-editor.css?v=20260925-webgl-ocean-v2");
 @import url("./dev/depth-editor.css?v=20260925-depth-scene-v1");
+@import url("./dev/audio-editor.css?v=20260925-screen-audio-v1");
 
 
 /* Retorno global temporário para a Home nas telas de navegação do mundo. */
@@ -353,7 +354,8 @@
    entire usable vertical edge so controls are never clipped off-screen. */
 .tq-scene-dev-panel,
 .tq-settings-dev-panel,
-.tq-asset-upload-dev-panel {
+.tq-asset-upload-dev-panel,
+.tq-audio-dev-panel {
     position: fixed;
     top: max(12px, var(--tq-safe-top, 0px));
     right: 82px;
@@ -372,7 +374,8 @@
 
 .tq-scene-dev-panel > header,
 .tq-settings-dev-panel > header,
-.tq-asset-upload-dev-panel > header {
+.tq-asset-upload-dev-panel > header,
+.tq-audio-dev-panel > header {
     position: sticky;
     top: -12px;
     z-index: 4;
