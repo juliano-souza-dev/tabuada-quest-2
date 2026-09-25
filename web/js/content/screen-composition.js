@@ -257,6 +257,7 @@
         home: "home",
         "world-map": "nautical-chart",
         regions: "nautical-chart",
+        "development-regions": "nautical-chart",
         islands: "region-map",
         challenge: "island-game"
     });
