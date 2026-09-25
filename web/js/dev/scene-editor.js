@@ -1635,6 +1635,7 @@
                     screenType: editorContext.screenType,
                     screenTypeLabel: editorContext.screenTypeLabel,
                     regionId: editorContext.regionId,
+                    islandId: editorContext.islandId || null,
                     regionLabel: editorContext.regionLabel,
                     regionPage: editorContext.regionPage,
                     developmentMode: editorContext.developmentMode,
