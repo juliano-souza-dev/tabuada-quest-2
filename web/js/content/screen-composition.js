@@ -30,45 +30,52 @@
     });
 
     const SEMANTIC_TYPES = Object.freeze({
-        frame: Object.freeze({ label: "Placa / moldura", fx: Object.freeze([]) }),
-        avatar: Object.freeze({ label: "Avatar", fx: Object.freeze([]) }),
-        logo: Object.freeze({ label: "Logo", fx: Object.freeze([]) }),
+        frame: Object.freeze({ label: "Placa / moldura", fx: Object.freeze([]), defaultZ: 40 }),
+        avatar: Object.freeze({ label: "Avatar", fx: Object.freeze([]), defaultZ: 41 }),
+        logo: Object.freeze({ label: "Logo", fx: Object.freeze([]), defaultZ: 42 }),
         home_background: Object.freeze({
             label: "Fundo da Home",
             fx: Object.freeze(["depth", "parallax", "background-animation"]),
-            depthRoles: Object.freeze(["sky", "custom"])
+            depthRoles: Object.freeze(["sky", "custom"]),
+            defaultZ: 1
         }),
-        ui_button: Object.freeze({ label: "Botão visual", fx: Object.freeze([]) }),
-        ocean: Object.freeze({ label: "Oceano", fx: Object.freeze(["ocean"]) }),
+        ui_button: Object.freeze({ label: "Botão visual", fx: Object.freeze([]), defaultZ: 30 }),
+        ocean: Object.freeze({ label: "Oceano", fx: Object.freeze(["ocean"]), defaultZ: 1 }),
         island_state: Object.freeze({
             label: "Ilha",
             fx: Object.freeze(["depth", "parallax"]),
-            depthRoles: Object.freeze(["world", "custom"])
+            depthRoles: Object.freeze(["world", "custom"]),
+            defaultZ: 20
         }),
         cloud: Object.freeze({
             label: "Nuvem",
             fx: Object.freeze(["depth", "parallax"]),
-            depthRoles: Object.freeze(["cloudFar", "cloudNear"])
+            depthRoles: Object.freeze(["cloudFar", "cloudNear"]),
+            defaultZ: 12
         }),
         environment: Object.freeze({
             label: "Cenário / edifício",
             fx: Object.freeze(["depth", "parallax"]),
-            depthRoles: Object.freeze(["world", "custom"])
+            depthRoles: Object.freeze(["world", "custom"]),
+            defaultZ: 22
         }),
         ship: Object.freeze({
             label: "Navio",
             fx: Object.freeze(["depth", "parallax", "ship-rock"]),
-            depthRoles: Object.freeze(["ship"])
+            depthRoles: Object.freeze(["ship"]),
+            defaultZ: 24
         }),
         island_background: Object.freeze({
             label: "Ilha ao fundo",
             fx: Object.freeze(["depth", "parallax"]),
-            depthRoles: Object.freeze(["world", "custom"])
+            depthRoles: Object.freeze(["world", "custom"]),
+            defaultZ: 10
         }),
         pier: Object.freeze({
             label: "Pier",
             fx: Object.freeze(["depth", "parallax"]),
-            depthRoles: Object.freeze(["world", "custom"])
+            depthRoles: Object.freeze(["world", "custom"]),
+            defaultZ: 25
         })
     });
 
@@ -291,6 +298,10 @@
         return FX_LABELS[fxId] || String(fxId || "");
     }
 
+    function defaultLayerForSemanticType(semanticType) {
+        return Number(SEMANTIC_TYPES[semanticType]?.defaultZ) || 1;
+    }
+
     function depthRolesForSemanticType(semanticType) {
         return SEMANTIC_TYPES[semanticType]?.depthRoles || Object.freeze([]);
     }
@@ -437,6 +448,7 @@
         allowedFunctionActions,
         allowedFxForSemanticType,
         fxLabel,
+        defaultLayerForSemanticType,
         depthRolesForSemanticType,
         allowedFxForSlot,
         screenAllowsFx,
