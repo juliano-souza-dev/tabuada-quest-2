@@ -1367,8 +1367,10 @@
             result: TQ.screens.result.renderResultScreen
         };
 
-        const screenId = renderState.ui.lastScreen || "home";
-        const renderer = renderers[screenId] || renderers.home;
+        const requestedScreenId = renderState.ui.lastScreen || "home";
+        const hasRequestedRenderer = Boolean(renderers[requestedScreenId]);
+        const screenId = hasRequestedRenderer ? requestedScreenId : "home";
+        const renderer = renderers[screenId];
 
         await renderWithDevelopmentTools(renderer, {
             state: renderState,
