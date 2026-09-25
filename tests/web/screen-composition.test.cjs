@@ -27,9 +27,21 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     const composition=TQ.content.screenComposition;
 
     const home=composition.getAssetSlots("home");
-    assert.equal(home.length,52);
+    assert.equal(home.length,53);
     assert.equal(home.filter((slot)=>slot.group==="header").length,4);
+    assert.equal(home.filter((slot)=>slot.group==="character").length,1);
     assert.equal(home.filter((slot)=>slot.group==="buttons").length,8);
+    assert.equal(home.find((slot)=>slot.id==="home.header.avatar").label,"Avatar rosto");
+    assert.equal(home.find((slot)=>slot.id==="home.character.avatar-full").label,"Avatar completo");
+    assert.equal(home.find((slot)=>slot.id==="home.character.avatar-full").required,true);
+    assert.deepEqual(
+        Array.from(composition.allowedFxForSemanticType("avatar_full")),
+        ["depth"]
+    );
+    assert.deepEqual(
+        Array.from(composition.allowedFxForSemanticType("avatar")),
+        []
+    );
     assert.equal(home.filter((slot)=>slot.semanticType==="ocean").length,1);
     assert.equal(home.filter((slot)=>slot.group==="background-clouds").length,10);
     assert.equal(home.filter((slot)=>slot.group==="background-ships").length,5);
@@ -55,6 +67,14 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     assert.ok(home.filter((slot)=>slot.group==="header").every((slot)=>
         !composition.compositionAcceptsSlot("home",homeBackground.id,slot)
     ));
+    assert.equal(
+        composition.compositionAcceptsSlot(
+            "home",
+            homeBackground.id,
+            home.find((slot)=>slot.id==="home.character.avatar-full")
+        ),
+        false
+    );
     assert.deepEqual(
         JSON.parse(JSON.stringify(composition.getAssetLimits("home"))),
         {
@@ -63,7 +83,8 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
             "background-ships": {label:"Navios",min:1,max:5},
             "background-islands": {label:"Ilhas",min:0,max:3},
             "background-pier": {label:"Pier",min:1,max:1},
-            "background-scenery": {label:"Itens de cenário",min:0,max:20}
+            "background-scenery": {label:"Itens de cenário",min:0,max:20},
+            "character": {label:"Avatar completo",min:1,max:1}
         }
     );
 
