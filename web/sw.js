@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260925-cena-element-behavior-v1";
+const CACHE_VERSION = "tq2-dev-assets-20260925-home-semantic-snapshot-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {

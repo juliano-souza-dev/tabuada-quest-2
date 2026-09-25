@@ -896,3 +896,81 @@ html.tq-pwa-runtime .home-safe-visual-area {
     scale: 1.0342592584590118 1.1424170949447348;
     transform-origin: top left;
 }
+
+
+/* Home semantic UX snapshot · 2026-09-25 17:49 BRT */
+.home-design-stage [data-tq-composition-slot="home.header.frame"] {
+    translate: 10.713629538867849px -95.39011699886848px;
+    scale: 3.115942308567881 3.115942308567881;
+    transform-origin: top left;
+    z-index: 41 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.header.avatar"] {
+    translate: 43.92588110935819px 51.44635523534479px;
+    scale: 0.571454727756223 0.571454727756223;
+    transform-origin: top left;
+    z-index: 42 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.header.logo"] {
+    translate: 155.34762831358384px 140.4056778297952px;
+    scale: 1.1160643803413635 1.116064380341363;
+    transform-origin: top left;
+    z-index: 43 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.ocean"] {
+    translate: -67.49586609486745px -46.08735989832965px;
+    scale: 1.2314352216315383 1.1154245410401638;
+    transform-origin: top left;
+    z-index: 12 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.cloud.1"] {
+    translate: -9.642266584981066px -21.435981348060324px;
+    scale: 1.7856664613948907 1.7856664613948907;
+    transform-origin: top left;
+    z-index: 40 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.cloud.2"] {
+    translate: 261.4125607483756px 78.2413319204202px;
+    scale: 1.0535681590304722 1.0535681590304722;
+    transform-origin: top left;
+    z-index: 25 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.ship.1"] {
+    translate: 65.35314018709396px 135.0466824927801px;
+    scale: 2.633828647335026 2.6338286473350254;
+    transform-origin: top left;
+    z-index: 20 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.pier"] {
+    translate: -237.84257576286632px -392.27845866950406px;
+    scale: 7.454963185899063 10.472636187429096;
+    transform-origin: top left;
+    z-index: 24 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.scenery.2"] {
+    translate: 112.49311015811244px 396.56565493911614px;
+    scale: 3.196294520249357 3.196294520249357;
+    transform-origin: top left;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.scenery.3"] {
+    translate: 286.0539086877715px 155.41086477343737px;
+    scale: 1.9178186690446932 1.9178186690446932;
+    transform-origin: top left;
+    z-index: 22 !important;
+}
+
+.home-design-stage [data-tq-composition-slot="home.background.scenery.4"] {
+    translate: -86.78039926482958px 0;
+    scale: 4.669418793727354 1.7856663324469246;
+    transform-origin: top left;
+    z-index: 12 !important;
+}

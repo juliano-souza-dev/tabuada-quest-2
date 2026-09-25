@@ -454,6 +454,40 @@
         );
     }
 
+
+    const PUBLISHED_BINDINGS = Object.freeze({
+        home: Object.freeze({
+            "home.header.frame": Object.freeze({
+                slotId: "home.header.frame",
+                semanticType: "frame",
+                asset: "./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp"
+            }),
+            "home.header.avatar": Object.freeze({
+                slotId: "home.header.avatar",
+                semanticType: "avatar",
+                asset: "./assets/avatars/avatar-sofia-pirata-rosto.png"
+            }),
+            "home.header.logo": Object.freeze({
+                slotId: "home.header.logo",
+                semanticType: "logo",
+                asset: "./assets/ui/icons/tabuada-quest-logo.webp"
+            }),
+            "home.background.scenery.4": Object.freeze({
+                slotId: "home.background.scenery.4",
+                semanticType: "environment",
+                asset: null,
+                variants: Object.freeze([
+                    Object.freeze({
+                        id: "pirate-main",
+                        label: "Pirata principal",
+                        asset: "./assets/backgrounds/home/home-pirate-sky.webp",
+                        effects: Object.freeze([])
+                    })
+                ])
+            })
+        })
+    });
+
     function readStore() {
         try {
             const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "{}");
@@ -485,9 +519,12 @@
     function readBindings(scopeId, screenId) {
         const scope = String(scopeId || "");
         const stored = readStore().scopes[scope]?.bindings || {};
+        const published = PUBLISHED_BINDINGS[resolveScreenType(screenId)] || {};
         const result = {};
         getAssetSlots(screenId).forEach((slot) => {
-            const current = stored[slot.id];
+            const current = Object.prototype.hasOwnProperty.call(stored, slot.id)
+                ? stored[slot.id]
+                : published[slot.id];
             const semanticType = slot.acceptedTypes.includes(current?.semanticType)
                 ? current.semanticType
                 : slot.semanticType;
@@ -702,6 +739,7 @@
         SCHEMA_VERSION,
         SEMANTIC_TYPES,
         FX_LABELS,
+        PUBLISHED_BINDINGS,
         SCREENS,
         SCREEN_ALIASES,
         resolveScreenType,

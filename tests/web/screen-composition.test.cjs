@@ -207,6 +207,66 @@ test("composição da Home mantém variantes por peça e restaura só a ativa",(
     assert.equal(binding.variants[0].id,"pirate-bay");
 });
 
+test("Home usa bindings publicados sem impedir reset explícito",()=>{
+    const TQ=loadComposition();
+    const composition=TQ.content.screenComposition;
+
+    const frame=composition.readBinding("home","home","home.header.frame");
+    assert.equal(frame.asset,"./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp");
+
+    const sky=composition.readBinding("home","home","home.background.scenery.4");
+    assert.equal(sky.variants.length,1);
+    assert.equal(sky.variants[0].id,"pirate-main");
+    assert.equal(sky.variants[0].asset,"./assets/backgrounds/home/home-pirate-sky.webp");
+
+    composition.resetScope("home","home");
+
+    assert.equal(
+        composition.readBinding("home","home","home.header.frame").asset,
+        null
+    );
+    assert.deepEqual(
+        Array.from(composition.readBinding("home","home","home.background.scenery.4").variants),
+        []
+    );
+});
+
+test("Home publica oceano e profundidade da composição pirate-main",()=>{
+    const data=new Map();
+    const context=vm.createContext({
+        console,
+        localStorage:{
+            getItem(key){return data.has(key)?data.get(key):null;},
+            setItem(key,value){data.set(key,String(value));},
+            removeItem(key){data.delete(key);}
+        },
+        TabuadaQuest:{core:{}}
+    });
+
+    vm.runInContext(read("web/js/core/ocean-scene.js"),context);
+    const ocean=context.TabuadaQuest.core.oceanScene.readConfig("home.background-pirate-main",null);
+    assert.equal(ocean.enabled,true);
+    assert.equal(ocean.preset,"adventure");
+    assert.equal(ocean.movement,52);
+    assert.equal(ocean.speed,44);
+    assert.equal(ocean.shine,4);
+    assert.equal(ocean.foam,28);
+    assert.equal(ocean.ripples,true);
+    assert.equal(ocean.shipWake,false);
+    assert.equal(ocean.quality,"balanced");
+    assert.equal(ocean.area.length,220);
+
+    vm.runInContext(read("web/js/core/depth-scene.js"),context);
+    const depth=context.TabuadaQuest.core.depthScene.readConfig("home.background-pirate-main",null);
+    assert.equal(depth.enabled,true);
+    assert.equal(depth.intensity,84);
+    assert.equal(depth.followPointer,false);
+    assert.equal(depth.layers["home.background.ship.1"].role,"ship");
+    assert.equal(depth.layers["home.background.cloud.2"].role,"cloudFar");
+    assert.equal(depth.layers["home.background.cloud.2"].opacity,72);
+    assert.ok(!Object.keys(depth.layers).some((id)=>id.includes(".auto.")));
+});
+
 test("carregamento não contém reset automático de composição ou drafts locais",()=>{
     const compositionJs=read("web/js/content/screen-composition.js");
     const uploaderJs=read("web/js/dev/asset-uploader.js");

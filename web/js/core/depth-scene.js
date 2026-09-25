@@ -133,7 +133,67 @@
             : elementTypeFromSemantic(semanticType);
     }
 
-    const PUBLISHED_CONFIGS = Object.freeze({});
+    const PUBLISHED_CONFIGS = Object.freeze({
+        "home.background-pirate-main": Object.freeze({
+            version: 1,
+            enabled: true,
+            intensity: 84,
+            followPointer: false,
+            regionId: null,
+            layers: Object.freeze({
+                "home.background.ship.1": Object.freeze({
+                    enabled: true,
+                    role: "ship",
+                    depth: 16,
+                    drift: 0,
+                    speed: 0,
+                    opacity: 100,
+                    scale: 100,
+                    tilt: 0
+                }),
+                "home.background.scenery.1": Object.freeze({
+                    enabled: true,
+                    role: "world",
+                    depth: 12,
+                    drift: 3,
+                    speed: 10,
+                    opacity: 100,
+                    scale: 101,
+                    tilt: 0
+                }),
+                "home.background.scenery.2": Object.freeze({
+                    enabled: false,
+                    role: "world",
+                    depth: 12,
+                    drift: 3,
+                    speed: 10,
+                    opacity: 100,
+                    scale: 101,
+                    tilt: 0
+                }),
+                "home.background.scenery.3": Object.freeze({
+                    enabled: false,
+                    role: "world",
+                    depth: 12,
+                    drift: 3,
+                    speed: 10,
+                    opacity: 100,
+                    scale: 101,
+                    tilt: 0
+                }),
+                "home.background.cloud.2": Object.freeze({
+                    enabled: true,
+                    role: "cloudFar",
+                    depth: 88,
+                    drift: 77,
+                    speed: 14,
+                    opacity: 72,
+                    scale: 124,
+                    tilt: 82
+                })
+            })
+        })
+    });
 
     function clone(value) {
         return JSON.parse(JSON.stringify(value));
