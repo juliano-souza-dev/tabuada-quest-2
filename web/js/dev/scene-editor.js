@@ -517,20 +517,29 @@
         let history = [];
         let raf = 0;
 
-        function snapshot() {
-            return Object.fromEntries(nodes.map((node) => [
-                node.id,
-                {
-                    ...readGeometry(node.element),
-                    ...(isDeleted(node.element) ? { deleted: true } : {}),
-                    ...(isLocked(node.element) ? { locked: true } : {}),
-                    ...(hasLayerOverride(node.element) ? { z: readLayer(node.element) } : {})
-                }
-            ]));
+        function snapshot(targetNodes = nodes) {
+            return Object.fromEntries(targetNodes
+                .filter((node) => node?.id && node?.element instanceof Element)
+                .map((node) => [
+                    node.id,
+                    {
+                        ...readGeometry(node.element),
+                        ...(isDeleted(node.element) ? { deleted: true } : {}),
+                        ...(isLocked(node.element) ? { locked: true } : {}),
+                        ...(hasLayerOverride(node.element) ? { z: readLayer(node.element) } : {})
+                    }
+                ]));
         }
 
-        function pushHistory() {
-            history.push(snapshot());
+        function pushHistory(targetNodes = null) {
+            const capturedNodes = Array.isArray(targetNodes)
+                ? targetNodes
+                : (selected ? [selected] : nodes);
+
+            history.push({
+                version: 1,
+                nodes: snapshot(capturedNodes)
+            });
             if (history.length > 30) history.shift();
             syncEditorChrome();
         }
@@ -543,25 +552,34 @@
         }
 
         function applySnapshot(snapshotValue) {
-            nodes.forEach((node) => {
-                const geometry = snapshotValue?.[node.id];
-                if (geometry) {
-                    applyGeometry(node.element, geometry);
-                    setDeleted(node.element, Boolean(geometry.deleted));
-                    setLocked(node.element, Boolean(geometry.locked));
-                    if (Number.isFinite(Number(geometry.z))) applyLayer(node.element, geometry.z);
-                    else clearLayer(node.element);
+            // New history entries are patches: only captured nodes are restored.
+            // Plain objects are still accepted for compatibility with older history.
+            const patch = snapshotValue?.nodes && typeof snapshotValue.nodes === "object"
+                ? snapshotValue.nodes
+                : snapshotValue;
+
+            if (!patch || typeof patch !== "object") return;
+
+            Object.entries(patch).forEach(([id, geometry]) => {
+                const node = nodeById.get(id);
+                if (!node || !geometry) return;
+
+                applyGeometry(node.element, geometry);
+                setDeleted(node.element, Boolean(geometry.deleted));
+                setLocked(node.element, Boolean(geometry.locked));
+
+                if (Number.isFinite(Number(geometry.z))) {
+                    applyLayer(node.element, geometry.z);
                 } else {
-                    clearGeometry(node.element);
                     clearLayer(node.element);
-                    setDeleted(node.element, false);
-                    setLocked(node.element, false);
                 }
             });
-            persist();
+
+            persist("Alteração desfeita");
             refreshList();
             refreshInspector();
             scheduleOverlay();
+            syncEditorChrome();
         }
 
         function filteredNodes() {
@@ -1036,10 +1054,10 @@
             const targetZ = targetEntry.z;
             if (targetZ === current) {
                 const delta = actionName === "back" || actionName === "down" ? -1 : 1;
-                pushHistory();
+                pushHistory([selected]);
                 applyLayer(selected.element, clamp(current + delta, 0, 9999));
             } else {
-                pushHistory();
+                pushHistory([selected, targetEntry.node]);
                 applyLayer(selected.element, targetZ);
                 applyLayer(targetEntry.node.element, current);
             }
@@ -1184,7 +1202,7 @@
             scheduleOverlay();
         });
         host.querySelector("[data-dev-reset-screen]").addEventListener("click", async () => {
-            pushHistory();
+            pushHistory(nodes);
             status.textContent = "Limpando dados locais...";
 
             nodes.forEach((node) => {
