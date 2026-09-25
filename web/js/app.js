@@ -759,6 +759,7 @@
             ? compositionRegistry?.HOME_BACKGROUND_GROUP_CATALOG?.[activeHomeBackgroundId] || null
             : null;
         const audioCatalogUrl = activeHomeBackgroundGroup?.manifest || null;
+        const audioCatalog = activeHomeBackgroundGroup?.audio || [];
         const compositionScreenType = compositionRegistry?.resolveScreenType?.(editorScreenId) || null;
         const screenAllowsFx = (fxId) =>
             !compositionScreenType || compositionRegistry.screenAllowsFx(compositionScreenType, fxId);
@@ -856,6 +857,7 @@
             screenId: editorScreenId,
             regionId: editorContext.regionId,
             controller: activeAudioController,
+            catalog: audioCatalog,
             catalogUrl: audioCatalogUrl
         });
 
