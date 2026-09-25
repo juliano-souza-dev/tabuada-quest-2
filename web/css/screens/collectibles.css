@@ -6,8 +6,12 @@
     background: #2a160b;
 }
 
+.collectibles-safe-visual-area {
+    pointer-events: none;
+}
+
 .collectibles-artboard {
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 100%;
     overflow: hidden;

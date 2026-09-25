@@ -1,7 +1,7 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
-    const TAB_IDS = Object.freeze(["fashion", "backgrounds", "frames", "effects", "nameplates"]);
+    const TAB_IDS = Object.freeze(["fashion", "backgrounds", "frames", "effects"]);
     let activeTabId = "frames";
 
     function getOwnedEffects(state) {
@@ -11,16 +11,7 @@
 
     function getOwnedFrames(state) {
         const purchased = new Set(state.shop?.purchasedItemIds || []);
-        const baseFrames = TQ.content.profileFrames || [];
-        const commercialFrames = (TQ.content.shopCatalog.frames || [])
-            .filter((frame) => purchased.has(frame.id));
-
-        return [...baseFrames, ...commercialFrames];
-    }
-
-    function getOwnedNameplates(state) {
-        const purchased = new Set(state.shop?.purchasedItemIds || []);
-        return (TQ.content.nameplates || []).filter((item) => item.isDefault || purchased.has(item.id));
+        return (TQ.content.frames || []).filter((frame) => frame.isDefault || purchased.has(frame.id));
     }
 
     function normalizeBackground(item) {
@@ -41,38 +32,18 @@
         return [...baseBackgrounds, ...commercialBackgrounds].filter(Boolean);
     }
 
-    function renderNameplateCard(item, equippedId) {
-        const isEquipped = item.id === equippedId;
-        return `
-            <article class="items-entry items-entry-with-preview${isEquipped ? " is-equipped" : ""}">
-                <div class="items-entry-preview items-nameplate-preview">
-                    <img src="${item.asset}" alt="" draggable="false">
-                </div>
-                <div class="items-entry-copy">
-                    <strong>${item.label}</strong>
-                    <span>${isEquipped ? "Em uso na Home" : "Disponível"}</span>
-                </div>
-                <button class="items-equip-button" type="button" data-nameplate-id="${item.id}" ${isEquipped ? "disabled" : ""}>
-                    ${isEquipped ? "Equipada" : "Equipar"}
-                </button>
-            </article>
-        `;
-    }
-
     function renderFrameCard(frame, equippedId) {
         const isEquipped = frame.id === equippedId;
-        const preview = frame.src || frame.asset;
+        const preview = frame.asset;
 
         return `
             <article class="items-entry items-entry-with-preview${isEquipped ? " is-equipped" : ""}">
-                <div class="items-entry-preview ${preview ? "" : "is-pending"}">
-                    ${preview
-                        ? `<img src="${preview}" alt="" draggable="false">`
-                        : `<span>${frame.id === TQ.content.defaultProfileFrameId ? "○" : "Arte em breve"}</span>`}
+                <div class="items-entry-preview items-frame-preview">
+                    <img src="${preview}" alt="" draggable="false">
                 </div>
                 <div class="items-entry-copy">
                     <strong>${frame.label}</strong>
-                    <span>${isEquipped ? "Em uso no perfil" : "Disponível"}</span>
+                    <span>${isEquipped ? "Em uso na Home" : "Disponível"}</span>
                 </div>
                 <button
                     class="items-equip-button"
@@ -141,7 +112,6 @@
         state,
         ownedBackgrounds,
         ownedFrames,
-        ownedNameplates,
         correctEffects,
         wrongEffects,
         equipped
@@ -196,23 +166,11 @@
             `;
         }
 
-        if (tabId === "nameplates") {
-            return `
-                <section class="items-panel-section" aria-label="Placas">
-                    ${ownedNameplates.length
-                        ? ownedNameplates.map((item) =>
-                            renderNameplateCard(item, state.player.nameplateId)
-                        ).join("")
-                        : renderEmpty("Nenhuma Placa disponível ainda.")}
-                </section>
-            `;
-        }
-
         return `
             <section class="items-panel-section" aria-label="Molduras">
                 ${ownedFrames.length
                     ? ownedFrames.map((frame) =>
-                        renderFrameCard(frame, state.player.profileFrameId)
+                        renderFrameCard(frame, state.player.frameId)
                     ).join("")
                     : renderEmpty("Nenhuma Moldura disponível ainda.")}
             </section>
@@ -225,14 +183,12 @@
         screen.setAttribute("aria-label", "Baú de Itens");
 
         const ownedFrames = getOwnedFrames(state);
-        const ownedNameplates = getOwnedNameplates(state);
         const ownedBackgrounds = getOwnedBackgrounds(state);
         const ownedEffects = getOwnedEffects(state);
         const correctEffects = ownedEffects.filter((item) => item.effectType === "correct");
         const wrongEffects = ownedEffects.filter((item) => item.effectType === "wrong");
         const equipped = state.inventory?.equipped || {};
 
-        const nameplateAllowed = ownedNameplates.map((item) => item.id);
         const frameAllowed = ownedFrames.map((item) => item.id);
         const backgroundAllowed = ownedBackgrounds.map((item) => item.id);
         const correctAllowed = TQ.content.shopCatalog.effects
@@ -266,7 +222,6 @@
                     <button type="button" class="items-tab-hotspot" data-items-tab="backgrounds" aria-label="Fundo"></button>
                     <button type="button" class="items-tab-hotspot" data-items-tab="frames" aria-label="Molduras"></button>
                     <button type="button" class="items-tab-hotspot" data-items-tab="effects" aria-label="Efeitos"></button>
-                    <button type="button" class="items-tab-hotspot" data-items-tab="nameplates" aria-label="Placa"></button>
                 </nav>
 
                 <div class="items-dynamic-panel" role="region" aria-live="polite"></div>
@@ -288,7 +243,6 @@
                 state,
                 ownedBackgrounds,
                 ownedFrames,
-                ownedNameplates,
                 correctEffects,
                 wrongEffects,
                 equipped
@@ -308,22 +262,10 @@
                 return;
             }
 
-            const nameplateButton = event.target.closest("[data-nameplate-id]");
-            if (nameplateButton) {
-                onStateChange(
-                    TQ.domain.playerState.withNameplate(
-                        state,
-                        nameplateButton.dataset.nameplateId,
-                        nameplateAllowed
-                    )
-                );
-                return;
-            }
-
             const frameButton = event.target.closest("[data-frame-id]");
             if (frameButton) {
                 onStateChange(
-                    TQ.domain.playerState.withProfileFrame(
+                    TQ.domain.playerState.withFrame(
                         state,
                         frameButton.dataset.frameId,
                         frameAllowed
@@ -380,7 +322,6 @@
     TQ.screens.items = Object.freeze({
         getOwnedEffects,
         getOwnedFrames,
-        getOwnedNameplates,
         getOwnedBackgrounds,
         renderItemsScreen
     });

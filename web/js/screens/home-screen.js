@@ -9,10 +9,6 @@
         return item ? { id: item.id, label: item.label, src: item.asset, isShopItem: true } : null;
     }
 
-    function normalizeShopFrame(item) {
-        return item ? { id: item.id, label: item.label, src: item.asset, isShopItem: true } : null;
-    }
-
     function resolveHomeBackground(backgroundId) {
         return TQ.content.homeBackgrounds.find((item) => item.id === backgroundId)
             || normalizeShopBackground(TQ.content.shopCatalog.backgrounds.find((item) => item.id === backgroundId))
@@ -20,12 +16,6 @@
             || TQ.content.homeBackgrounds[0];
     }
 
-    function resolveProfileFrame(frameId) {
-        return TQ.content.profileFrames.find((item) => item.id === frameId)
-            || normalizeShopFrame(TQ.content.shopCatalog.frames.find((item) => item.id === frameId))
-            || TQ.content.profileFrames.find((item) => item.id === TQ.content.defaultProfileFrameId)
-            || TQ.content.profileFrames[0];
-    }
 
     function clampPercent(value) {
         return Math.max(0, Math.min(100, value));
@@ -33,13 +23,17 @@
 
     function renderHomeScreen({ state, onStateChange, onNavigate, onExitSession }) {
         const avatarId = safeAvatarId(state.player.avatarId);
-        const avatarSrc = TQ.content.assets.avatars[avatarId];
-        const heroSrc = TQ.content.assets.homeHeroes[avatarId] || avatarSrc;
+        const fallbackAvatarId = "sofia";
+        const resolvedAvatarId = TQ.content.assets.avatars[avatarId] ? avatarId : fallbackAvatarId;
+        const avatarSrc = TQ.content.assets.avatars[resolvedAvatarId];
+        const heroSrc = TQ.content.assets.homeHeroes[resolvedAvatarId] || avatarSrc;
         const background = resolveHomeBackground(state.ui.homeBackgroundId);
-        const profileFrame = resolveProfileFrame(state.player.profileFrameId);
-        const nameplate = TQ.content.nameplates.find((item) => item.id === state.player.nameplateId)
-            || TQ.content.nameplates.find((item) => item.id === TQ.content.defaultNameplateId)
-            || TQ.content.nameplates[0];
+        const currentLevel = Math.min(10, Math.max(1, Number(state.progression.level) || 1));
+        const levelBadgeSrc = TQ.content.levelBadges[currentLevel - 1];
+
+        const frame = TQ.content.frames.find((item) => item.id === state.player.frameId)
+            || TQ.content.frames.find((item) => item.id === TQ.content.defaultFrameId)
+            || TQ.content.frames[0];
         const purchasedIds = new Set(state.shop.purchasedItemIds);
         const ownedBackgrounds = [
             ...TQ.content.homeBackgrounds,
@@ -54,7 +48,6 @@
         const displayedBackgroundSrc = background.src || defaultBackground?.src || "";
         const totals = TQ.content.campaignTotals;
 
-        const xpPercent = clampPercent((state.progression.xpCurrent / state.progression.xpRequired) * 100);
         const chestCount = Math.min(state.campaign.claimedChestIds.length, totals.chests);
         const chestPercent = clampPercent((chestCount / totals.chests) * 100);
         const petCount = Math.min(state.campaign.petsRescuedIds.length, totals.pets);
@@ -62,78 +55,107 @@
         const screen = document.createElement("section");
         screen.className = "home-screen home-premium";
         screen.setAttribute("aria-label", "Início do Tabuada Quest");
+        screen.setAttribute("data-tq-dev-ignore", "true");
         screen.style.setProperty("--home-bleed-image", `url("${displayedBackgroundSrc}")`);
 
         screen.innerHTML = `
             <img
                 class="home-full-bleed-background"
+                data-tq-dev-ignore="true"
+                data-tq-asset-id="home.background.bleed" data-tq-asset-role="background" data-tq-asset-label="Fundo externo da Home" data-tq-dev-id="home.background.bleed" data-tq-dev-kind="background" data-tq-dev-role="background" data-tq-dev-label="Fundo externo da Home"
                 src="${displayedBackgroundSrc}"
                 data-default-src="${defaultBackground?.src || displayedBackgroundSrc}"
                 alt=""
                 aria-hidden="true"
                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;pointer-events:none;user-select:none;"
             >
-            <div class="tq-safe-visual-area home-safe-visual-area">
-            <div class="home-design-stage tq-canonical-stage">
-                <div class="home-world" aria-hidden="true">
+            <div class="tq-safe-visual-area home-safe-visual-area" data-tq-dev-ignore="true">
+            <div class="home-design-stage tq-canonical-stage" data-tq-dev-ignore="true">
+                <div class="home-world" data-tq-dev-ignore="true" aria-hidden="true">
                     <img class="home-background-image"
+                         data-tq-asset-id="home.background.main" data-tq-asset-role="background" data-tq-asset-label="Background principal" data-tq-dev-id="home.background.main" data-tq-dev-kind="background" data-tq-dev-role="background" data-tq-dev-label="Background principal"
                          src="${displayedBackgroundSrc}"
                          data-default-src="${defaultBackground?.src || displayedBackgroundSrc}"
                          alt="">
                 </div>
 
-                <div class="home-nameplate" aria-label="Plaquinha do jogador">
-                    <img class="home-nameplate-art" src="${nameplate.asset}" alt="" aria-hidden="true">
-                    <span class="home-nameplate-text">${state.player.displayName}</span>
+                <div class="home-frame" aria-label="Moldura do jogador" data-tq-asset-id="home.player.frame" data-tq-asset-role="object" data-tq-asset-label="Moldura do jogador" data-tq-dev-id="home.player.frame" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Moldura do jogador">
+                    <img class="home-frame-art" src="${frame.asset}" alt="" aria-hidden="true">
+                    <span class="home-frame-text" data-tq-dev-id="home.player.name" data-tq-dev-kind="dynamicText" data-tq-dev-label="Nome do jogador">${state.player.displayName}</span>
                 </div>
 
                 <img class="home-art-overlay"
+                     data-tq-asset-id="home.art.overlay" data-tq-asset-role="overlay" data-tq-asset-label="Arte sobreposta da Home" data-tq-dev-id="home.art.overlay" data-tq-dev-kind="overlay" data-tq-dev-role="overlay" data-tq-dev-label="Arte sobreposta da Home"
                      src="${TQ.content.assets.homeOverlay}"
                      alt=""
                      aria-hidden="true">
 
-                <button class="profile-slot ${profileFrame.src ? "has-frame" : "is-simple"}" type="button" data-action="items" aria-label="Abrir Baú de Itens para trocar moldura">
-                    <img class="profile-slot-avatar" src="${avatarSrc}" alt="">
-                    ${profileFrame.src ? `<img class="profile-slot-frame" src="${profileFrame.src}" alt="" aria-hidden="true">` : ""}
+                <button class="profile-slot" type="button" data-action="items" data-tq-asset-id="home.player.portrait" data-tq-asset-role="function" data-tq-asset-label="Avatar do jogador" data-tq-dev-id="home.player.portrait" data-tq-dev-kind="function" data-tq-dev-role="button" data-tq-dev-label="Avatar do jogador · abrir itens" data-tq-dev-action="items" aria-label="Abrir Baú de Itens pelo avatar">
+                    <img class="profile-slot-avatar" src="${avatarSrc}" alt="Avatar do jogador" draggable="false">
                 </button>
 
-                <div class="hud-level-slot" aria-label="Nível ${state.progression.level}">${state.progression.level}</div>
+                <div class="hud-level-slot" data-tq-asset-id="home.level.badge" data-tq-asset-role="object" data-tq-asset-label="Placa de nível" data-tq-dev-id="home.level.badge" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Placa de nível" aria-label="Nível ${currentLevel}"><img data-tq-dev-id="home.level.badge.image" data-tq-dev-kind="asset" data-tq-dev-label="Imagem da placa de nível" src="${levelBadgeSrc}" alt="Nível ${currentLevel}"></div>
 
-                <div class="hud-xp-slot" aria-label="Experiência ${state.progression.xpCurrent} de ${state.progression.xpRequired}">
-                    <span class="hud-xp-fill" style="width:${xpPercent}%"></span>
-                    <b>${state.progression.xpCurrent}/${state.progression.xpRequired}</b>
-                </div>
-
-                <div class="hud-wallet-slot">
-                    <span class="wallet-value coins" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
-                    <span class="wallet-value gems" aria-label="${state.wallet.gems} gemas">${state.wallet.gems}</span>
-                </div>
+                <span class="wallet-value coins" data-tq-dev-id="home.wallet.coins" data-tq-dev-kind="dynamicText" data-tq-dev-label="Ouro" aria-label="${state.wallet.coins} moedas">${state.wallet.coins}</span>
+                <span class="wallet-value gems" data-tq-dev-id="home.wallet.gems" data-tq-dev-kind="dynamicText" data-tq-dev-label="Gemas" aria-label="${state.wallet.gems} gemas">${state.wallet.gems}</span>
 
                 <img class="home-hero-character"
+                     data-tq-asset-id="home.hero" data-tq-asset-role="object" data-tq-asset-label="Personagem" data-tq-dev-id="home.hero" data-tq-dev-kind="asset" data-tq-dev-role="object" data-tq-dev-label="Personagem"
                      src="${heroSrc}"
                      alt="Avatar selecionado em traje de aventura pirata">
 
-                <button class="art-hotspot hotspot-background" type="button" data-action="backgrounds" aria-label="Escolher fundo"></button>
-                <button class="art-hotspot hotspot-fashion" type="button" data-action="fashion" aria-label="Abrir Moda"></button>
+                <img class="home-play-art"
+                     data-tq-asset-id="home.play.art"
+                     data-tq-asset-role="object"
+                     data-tq-asset-label="Arte Jogar"
+                     data-tq-dev-id="home.play.art"
+                     data-tq-dev-kind="asset"
+                     data-tq-dev-role="object"
+                     data-tq-dev-label="Arte Jogar"
+                     src="./assets/ui/icons/jogar.webp"
+                     alt=""
+                     aria-hidden="true"
+                     draggable="false">
 
-                <button class="play-slot" type="button" data-action="play" aria-label="Jogar"></button>
-                <button class="art-hotspot hotspot-crew" type="button" data-action="crew" aria-label="Abrir Tripulação"></button>
-                <button class="art-hotspot hotspot-shipyard" type="button" data-action="shipyard" aria-label="Abrir Estaleiro"></button>
+                <img class="home-crew-art"
+                     data-tq-asset-id="home.crew.art"
+                     data-tq-asset-role="object"
+                     data-tq-asset-label="Arte Tripulação"
+                     data-tq-dev-id="home.crew.art"
+                     data-tq-dev-kind="asset"
+                     data-tq-dev-role="object"
+                     data-tq-dev-label="Arte Tripulação"
+                     src="./assets/ui/icons/tripulacao.webp"
+                     alt=""
+                     aria-hidden="true"
+                     draggable="false">
 
-                <div class="reward-dynamic-bar" aria-label="Próximo baú de recompensa">
-                    <span style="width:${chestPercent}%"></span>
-                    <b>${chestCount}/${totals.chests}</b>
-                </div>
+                <img class="home-shipyard-art"
+                     data-tq-asset-id="home.shipyard.art"
+                     data-tq-asset-role="object"
+                     data-tq-asset-label="Arte do Estaleiro"
+                     data-tq-dev-id="home.shipyard.art"
+                     data-tq-dev-kind="asset"
+                     data-tq-dev-role="object"
+                     data-tq-dev-label="Arte do Estaleiro"
+                     src="./assets/ui/icons/estaleiro.webp"
+                     alt=""
+                     aria-hidden="true"
+                     draggable="false">
 
-                <div class="pet-dynamic-count">${petCount}/${totals.pets}</div>
+                <button class="art-hotspot hotspot-background" type="button" data-action="backgrounds" data-tq-dev-id="home.action.backgrounds" data-tq-dev-kind="function" data-tq-dev-label="Abrir seleção de fundo" data-tq-dev-action="backgrounds" aria-label="Escolher fundo"></button>
+                <button class="art-hotspot hotspot-fashion" type="button" data-action="fashion" data-tq-dev-id="home.action.fashion" data-tq-dev-kind="function" data-tq-dev-label="Abrir Moda" data-tq-dev-action="fashion" aria-label="Abrir Moda"></button>
 
-                <button class="art-hotspot hotspot-regions" type="button" data-action="regions" aria-label="Regiões"></button>
-                <button class="art-hotspot hotspot-daily" type="button" data-action="daily" aria-label="Recompensa diária"></button>
-                <button class="art-hotspot hotspot-shop" type="button" data-action="shop" aria-label="Loja"></button>
-                <button class="art-hotspot hotspot-collection" type="button" data-action="collection" aria-label="Colecionáveis"></button>
-                <button class="art-hotspot hotspot-chests" type="button" data-action="chests" aria-label="Baús"></button>
-                <button class="art-hotspot hotspot-pets" type="button" data-action="pets" aria-label="Pets"></button>
-                <button class="art-hotspot hotspot-items" type="button" data-action="items" aria-label="Baú de itens"></button>
+                <button class="play-slot" type="button" data-action="play" data-tq-dev-id="home.action.play" data-tq-dev-kind="function" data-tq-dev-label="Jogar" data-tq-dev-action="play" aria-label="Jogar"></button>
+                <button class="art-hotspot hotspot-crew" type="button" data-action="crew" data-tq-dev-id="home.action.crew" data-tq-dev-kind="function" data-tq-dev-label="Abrir Tripulação" data-tq-dev-action="crew" aria-label="Abrir Tripulação"></button>
+                <button class="art-hotspot hotspot-shipyard" type="button" data-action="shipyard" data-tq-dev-id="home.action.shipyard" data-tq-dev-kind="function" data-tq-dev-label="Abrir Estaleiro" data-tq-dev-action="shipyard" aria-label="Abrir Estaleiro"></button>
+
+                <button class="art-hotspot hotspot-regions" type="button" data-action="regions" data-tq-dev-id="home.action.regions" data-tq-dev-kind="function" data-tq-dev-label="Abrir Regiões" data-tq-dev-action="regions" aria-label="Regiões"></button>
+                <button class="art-hotspot hotspot-daily" type="button" data-action="daily" data-tq-dev-id="home.action.daily" data-tq-dev-kind="function" data-tq-dev-label="Recompensa diária" data-tq-dev-action="daily" aria-label="Recompensa diária"></button>
+                <button class="art-hotspot hotspot-shop" type="button" data-action="shop" data-tq-dev-id="home.action.shop" data-tq-dev-kind="function" data-tq-dev-label="Abrir Loja" data-tq-dev-action="shop" aria-label="Loja"></button>
+                <button class="art-hotspot hotspot-collection" type="button" data-action="collection" data-tq-dev-id="home.action.collection" data-tq-dev-kind="function" data-tq-dev-label="Abrir Colecionáveis" data-tq-dev-action="collection" aria-label="Colecionáveis"></button>
+                <button class="art-hotspot hotspot-items" type="button" data-action="items" data-tq-dev-id="home.action.items" data-tq-dev-kind="function" data-tq-dev-label="Abrir Itens" data-tq-dev-action="items" aria-label="Itens"></button>
+
 
             </div>
             </div>
@@ -322,6 +344,29 @@
                 return;
             }
 
+            if (action === "development-regions") {
+                onNavigate("development-regions");
+                return;
+            }
+
+            if (action === "dev-add-gold") {
+                onStateChange(TQ.domain.playerState.applyNumericReward(state, { coins: 1000 }));
+                return;
+            }
+
+            if (action === "dev-level-up") {
+                const currentLevel = Math.min(10, Math.max(1, Number(state.progression.level) || 1));
+                if (currentLevel >= 10) return;
+                onStateChange({
+                    ...state,
+                    progression: {
+                        ...state.progression,
+                        level: currentLevel + 1
+                    }
+                });
+                return;
+            }
+
             if (action === "exit-session") {
                 onExitSession?.();
                 return;
@@ -340,7 +385,7 @@
             }
 
             const messages = {
-                daily: "Recompensa diária preparada para a evolução da campanha.",
+                daily: "Recompensa diária será implementada em breve.",
                 chests: "Seus baús aparecerão aqui.",
                 pets: "Companheiros resgatados: " + petCount + "/" + totals.pets + "."
             };
@@ -354,7 +399,6 @@
     TQ.screens = TQ.screens || {};
     TQ.screens.home = Object.freeze({
         renderHomeScreen,
-        resolveHomeBackground,
-        resolveProfileFrame
+        resolveHomeBackground
     });
 })(globalThis);

@@ -1,71 +1,59 @@
-const CACHE_VERSION = "tq2-shell-20260924-18";
-const CACHE_PREFIX = "tq2-shell-";
-const SHELL = [
-  "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./assets/pwa/icon-192.svg",
-  "./assets/pwa/icon-512.svg",
-  "./vendor/lottie.min.js",
-  "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json",
-  "./assets/transitions/el-colombo/images/el-colombo.webp",
-  "./assets/transitions/el-colombo/images/ocean-background.webp",
-  "./assets/ui/inventory/bau_de_itens.webp",
-  "./css/app.css",
-  "./css/screens/items.css",
-  "./js/app.js",
-  "./js/screens/items-screen.js"
-];
+const CACHE_VERSION = "tq2-prod-assets-20260925-v1";
+const CACHE_PREFIX = "tq2-prod-assets-";
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(SHELL)));
-  // Do not skipWaiting here. The running game keeps its current version
-  // until the client explicitly activates the fully installed update.
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_VERSION)
+      keys
+        .filter((key) => (key.startsWith("tq2-shell-") || key.startsWith(CACHE_PREFIX)) && key !== CACHE_VERSION)
         .map((key) => caches.delete(key))
-    ))
+    )).then(() => self.clients.claim())
   );
-  self.clients.claim();
-});
-
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (event.request.mode === "navigate") {
+  const isStaticCode = event.request.mode === "navigate"
+    || url.pathname.endsWith(".html")
+    || url.pathname.endsWith(".js")
+    || url.pathname.endsWith(".css")
+    || url.pathname.endsWith(".json")
+    || url.pathname.endsWith(".webmanifest");
+
+  if (isStaticCode) {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const copy = response.clone();
-            event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.put("./index.html", copy)));
-          }
-          return response;
-        })
-        .catch(() => caches.match("./index.html").then((cached) => cached || caches.match("./")))
+      fetch(event.request, { cache: "no-store" }).catch(() => caches.match(event.request))
     );
     return;
   }
 
+  const isHeavyAsset = /\.(?:webp|png|jpg|jpeg|gif|svg|mp3|ogg|wav|mp4|webm|woff2?)$/i.test(url.pathname);
+  if (!isHeavyAsset) {
+    event.respondWith(fetch(event.request, { cache: "no-store" }));
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type === "opaque") return response;
-        const copy = response.clone();
-        event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, copy)));
+    caches.open(CACHE_VERSION).then(async (cache) => {
+      try {
+        const response = await fetch(event.request);
+        if (response && response.ok && response.type !== "opaque") {
+          event.waitUntil(cache.put(event.request, response.clone()));
+        }
         return response;
-      });
+      } catch (error) {
+        const cached = await cache.match(event.request);
+        if (cached) return cached;
+        throw error;
+      }
     })
   );
 });

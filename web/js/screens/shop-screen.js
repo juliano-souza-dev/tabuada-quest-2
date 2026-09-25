@@ -11,8 +11,11 @@
         const canBuy = hasPrice && state.wallet.coins >= item.price;
         const displayName = item.label || item.name || item.id;
 
+        const hasPreview = item.type === "background" && Boolean(item.asset);
+
         return `
-            <article class="shop-item-card" data-shop-item-id="${item.id}">
+            <article class="shop-item-card ${hasPreview ? "has-preview" : ""}" data-shop-item-id="${item.id}">
+                ${hasPreview ? `<img class="shop-item-preview" src="${item.asset}" alt="" aria-hidden="true">` : ""}
                 <div class="shop-item-copy">
                     <h2>${displayName}</h2>
                     <p class="shop-price">
@@ -69,20 +72,14 @@
             </nav>
 
             <main class="shop-content">
-                <section data-shop-panel="nameplates" hidden>
-                    <p class="shop-intro">Compre plaquinhas para personalizar o nome na Home.</p>
-                    <div class="shop-item-list">
-                        ${catalog.nameplates.filter((item) => !item.isDefault).map((item) => renderStoreItem(item, state)).join("")}
-                    </div>
-                </section>
                 <section data-shop-panel="frames" hidden>
-                    <p class="shop-intro">As artes entram na etapa visual. Por enquanto, o catálogo mostra apenas os nomes.</p>
+                    <p class="shop-intro">Compre molduras para personalizar avatar e nome na Home.</p>
                     <div class="shop-item-list">
-                        ${catalog.frames.map((item) => renderStoreItem(item, state)).join("")}
+                        ${catalog.frames.filter((item) => !item.isDefault).map((item) => renderStoreItem(item, state)).join("")}
                     </div>
                 </section>
                 <section data-shop-panel="backgrounds" hidden>
-                    <p class="shop-intro">As artes entram na etapa visual. Por enquanto, o catálogo mostra nome e preço.</p>
+                    <p class="shop-intro">Fundos comprados ficam disponíveis para equipar na Home.</p>
                     <div class="shop-item-list">
                         ${catalog.backgrounds.map((item) => renderStoreItem(item, state)).join("")}
                     </div>

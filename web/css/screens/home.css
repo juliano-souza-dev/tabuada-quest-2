@@ -41,7 +41,9 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: #0b2b3d;
+    /* The full-bleed artwork below is the fallback. Never expose a blue
+       structural canvas when an editable background is moved/resized. */
+    background: transparent;
 }
 
 .home-background-image {
@@ -62,17 +64,17 @@
 }
 
 
-.home-nameplate {
+.home-frame {
     position: absolute;
     z-index: 12;
     left: 50%;
-    top: -80px;
+    top: -40px;
     width: 100%;
     aspect-ratio: 900 / 447;
     transform: translateX(-50%);
     pointer-events: none;
 }
-.home-nameplate-art {
+.home-frame-art {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -80,19 +82,28 @@
     object-fit: contain;
     mix-blend-mode: screen;
 }
-.home-nameplate-text {
+.home-frame-text {
     position: absolute;
-    left: 15%;
-    right: 15%;
-    top: 48%;
+    left: 27%;
+    right: 0;
+    top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    overflow: hidden;
     white-space: nowrap;
-    text-overflow: ellipsis;
-    color: #4b230d;
-    font: 900 clamp(12px, 3.4cqw, 24px)/1 system-ui, sans-serif;
-    text-shadow: 0 1px 0 rgba(255,218,135,.7);
+    overflow: hidden;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(24px, 5.2cqw, 52px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.035em;
+    color: #4b240d;
+    text-shadow:
+        0 2px 0 rgba(255, 221, 132, 0.72),
+        0 4px 3px rgba(77, 31, 5, 0.24);
+    pointer-events: none;
 }
 
 .home-art-overlay {
@@ -107,51 +118,40 @@
 
 .profile-slot {
     position: absolute;
-    z-index: 10;
+    z-index: 40;
+    left: 11.95%;
+    top: 2.65%;
+    width: 15.1%;
     aspect-ratio: 1;
     padding: 0;
     border: 0;
+    border-radius: 50%;
+    overflow: hidden;
     background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.profile-slot.is-simple {
-    left: 6.4457%;
-    top: 2.6376%;
-    width: 14.2%;
+.profile-slot:focus-visible {
+    outline: 3px solid #ffe18a;
+    outline-offset: 3px;
 }
 
-.profile-slot.has-frame {
-    left: 2.6071%;
-    top: .4361%;
-    width: 22%;
+.profile-slot:active .profile-slot-avatar {
+    transform: scale(.97);
 }
 
 .profile-slot-avatar {
     position: absolute;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: center 18%;
-    background: #4ac9e7;
-}
-
-.profile-slot.is-simple .profile-slot-avatar {
-    inset: 5%;
-    width: 90%;
-    height: 90%;
-}
-
-.profile-slot.has-frame .profile-slot-avatar {
-    inset: 22%;
-    width: 56%;
-    height: 56%;
-}
-
-.profile-slot-frame {
-    position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    transform: none;
 }
 
 .hud-name-slot {
@@ -172,18 +172,21 @@
 
 .hud-level-slot {
     position: absolute;
-    z-index: 10;
-    left: 43.3614%;
-    top: 3.2222%;
-    width: 10.1%;
-    height: 4.6%;
-    display: grid;
-    place-items: center;
-    color: white;
-    font-size: clamp(.72rem, 2.35vh, 1.02rem);
-    font-weight: 1000;
-    text-align: center;
-    text-shadow: 0 1px 2px #073d68;
+    z-index: 30;
+    left: 2.2%;
+    top: 17.4%;
+    width: 31%;
+    height: auto;
+    aspect-ratio: 3.15 / 1;
+    display: block;
+    pointer-events: none;
+}
+
+.hud-level-slot img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .hud-xp-slot {
@@ -214,13 +217,6 @@
     font-size: clamp(.38rem, 1.28vh, .58rem);
     line-height: 1;
     text-shadow: 0 1px 2px #0c4773;
-}
-
-.hud-wallet-slot {
-    position: absolute;
-    z-index: 10;
-    inset: 0;
-    pointer-events: none;
 }
 
 .wallet-value {
@@ -263,19 +259,81 @@
     filter: drop-shadow(0 1.1vh 1vh rgba(0,0,0,.32));
 }
 
+.home-play-art,
+.home-crew-art {
+    position: absolute;
+    z-index: 18;
+    left: 30%;
+    top: 28%;
+    width: 40%;
+    height: auto;
+    max-width: none;
+    max-height: 60%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    transform-origin: top left;
+}
+
+.home-play-art {
+    translate: -140px 331px;
+    scale: 1.06 1.06;
+}
+
+.home-crew-art {
+    translate: 9px 330px;
+    scale: 1 1;
+}
+
+.home-shipyard-art {
+    position: absolute;
+    z-index: 18;
+    left: 30%;
+    top: 28%;
+    width: 40%;
+    height: auto;
+    max-width: none;
+    max-height: 60%;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    translate: 152px 333px;
+    scale: 0.906535 0.906535;
+    transform-origin: top left;
+}
+
 .play-slot {
     position: absolute;
-    z-index: 12;
-    left: 31%;
-    top: 52.6%;
-    width: 38%;
-    height: 6.2%;
+    z-index: 20;
+    left: 0;
+    top: auto;
+    bottom: 12.0%;
+    width: 33.333%;
+    height: 12.8%;
     border: 0;
     background: transparent;
 }
 
-.hotspot-crew { left: 28.5%; top: 61.0%; width: 34.5%; height: 5.8%; }
-.hotspot-shipyard { left: 58.0%; top: 61.0%; width: 34.5%; height: 5.8%; }
+.hotspot-crew {
+    z-index: 20;
+    left: 33.333%;
+    top: auto;
+    bottom: 12.0%;
+    width: 33.334%;
+    height: 12.8%;
+}
+.hotspot-shipyard {
+    z-index: 20;
+    left: 66.667%;
+    top: auto;
+    bottom: 12.0%;
+    width: 33.333%;
+    height: 12.8%;
+}
 
 .art-hotspot {
     position: absolute;
@@ -335,13 +393,24 @@
     text-shadow: 0 1px 2px #071b49;
 }
 
-.hotspot-regions { left: 2.3%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-daily { left: 20.8%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-shop { left: 39.5%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-collection { left: 58.2%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-chests { right: 2.3%; top: 72.2%; width: 17.4%; height: 10.3%; }
-.hotspot-pets { left: 2.4%; bottom: 2.0%; width: 48%; height: 15.2%; }
-.hotspot-items { right: 2.4%; bottom: 2.0%; width: 47%; height: 15.2%; }
+/* Bottom navigation is drawn at the foot of the responsive Home stage.
+   Anchor hitboxes to the bottom, not to a legacy 1672px Y percentage. */
+.hotspot-regions,
+.hotspot-daily,
+.hotspot-shop,
+.hotspot-collection,
+.hotspot-items {
+    top: auto;
+    bottom: 0;
+    width: 20%;
+    height: 11.6%;
+}
+
+.hotspot-regions { left: 0; }
+.hotspot-daily { left: 20%; }
+.hotspot-shop { left: 40%; }
+.hotspot-collection { left: 60%; }
+.hotspot-items { left: 80%; }
 
 .home-toast {
     position: absolute;
@@ -538,7 +607,76 @@
 }
 
 
-/* Atalhos temporários usados apenas durante o desenvolvimento local. */
+/* Baseline consolidado a partir do editor visual DEV · 2026-09-24.
+   Valores sx/sy = 0 do exportador antigo foram tratados como escala padrão 1. */
+.home-background-image {
+    translate: -5.432828421355907px -38.73832508982423px;
+    scale: 1.0309070103194569 0.8569456053585565;
+    transform-origin: top left;
+}
+
+.home-frame {
+    translate: 0 8px;
+    scale: 1.001538834850514 0.8874004850582418;
+    transform-origin: top left;
+}
+
+.home-frame-text {
+    translate: -103px -20px;
+    scale: 1.5921 1.5921;
+    transform-origin: top left;
+}
+
+.profile-slot {
+    translate: -4px 1px;
+    scale: 1.3188595492822839 1.318859549282284;
+    transform-origin: top left;
+}
+
+.hud-level-slot {
+    translate: 204px -45px;
+    scale: 1.35612 1.35612;
+    transform-origin: top left;
+}
+
+.hotspot-background {
+    translate: 0 12px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-fashion {
+    translate: 3px 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+
+/* Ajustes consolidados do layout UX copiado em 2026-09-24. */
+.play-slot {
+    translate: 15px -31px;
+    scale: 0.8658817086527929 0.95;
+    transform-origin: top left;
+}
+
+.hotspot-crew {
+    translate: 31px -38px;
+    scale: 0.6775465498357065 1;
+    transform-origin: top left;
+}
+
+.hotspot-shipyard {
+    translate: 6px -37px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-items {
+    translate: 3px -32px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
 /* PWA instalada: o cenário também sangra até as bordas da viewport.
    Apenas os controles respeitam a safe area; não há letterbox visual. */
 html.tq-pwa-runtime .home-screen,
@@ -548,4 +686,345 @@ html.tq-pwa-runtime .home-safe-visual-area {
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
+}
+
+/* Progress counters are intentionally hidden on the Home artwork. */
+.home-screen .hud-xp-slot,
+.home-screen .reward-dynamic-bar {
+    display: none !important;
+}
+
+.home-screen .pet-dynamic-count {
+    display: none !important;
+}
+
+
+/* DEV Home · interactive functions stay above visual assets
+   Visual layers can be freely stacked in the editor, but menu/function
+   hitboxes must remain clickable above them. */
+.home-design-stage [data-tq-dev-kind="function"] {
+    z-index: 1000 !important;
+}
+
+
+/* Home UX export · 2026-09-24 22:50 */
+.home-frame-art {
+    translate: -2px 2px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.profile-slot-avatar {
+    translate: -4px -3px;
+    scale: 1.1055950098451972 1.1055950098451972;
+    transform-origin: top left;
+}
+
+.hud-level-slot > img {
+    translate: -13px 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.home-hero-character {
+    translate: 0 0;
+    scale: 1 1;
+}
+
+/* Home UX snapshot · 2026-09-24 21:03 BRT */
+.home-screen {
+    /* Structural viewport: never move/scale this from a UX snapshot. */
+    translate: 0 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.home-full-bleed-background {
+    translate: -1px 5px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.home-safe-visual-area {
+    /* Fixed useful area. Child artwork may move; this coordinate system may not. */
+    translate: 0 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.home-background-image {
+    translate: -5.43283px -38.7383px;
+    scale: 1.03091 0.856946;
+    transform-origin: top left;
+}
+
+.home-frame {
+    translate: 0 8px;
+    scale: 1.00154 0.8874;
+    transform-origin: top left;
+}
+
+.home-frame-art {
+    translate: -2px 2px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.home-frame-text {
+    translate: -103px -20px;
+    scale: 1.5921 1.5921;
+    transform-origin: top left;
+}
+
+.profile-slot {
+    translate: -4px 1px;
+    scale: 1.31886 1.31886;
+    transform-origin: top left;
+}
+
+.profile-slot-avatar {
+    translate: -4px -3px;
+    scale: 1.1056 1.1056;
+    transform-origin: top left;
+}
+
+.hud-level-slot {
+    translate: 204px -45px;
+    scale: 1.35612 1.35612;
+    transform-origin: top left;
+}
+
+.hud-level-slot > img {
+    translate: -13px 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+/* The former DEV local layer home-art-overlay.webp is now the canonical overlay. */
+.home-art-overlay {
+    inset: auto;
+    left: 30%;
+    top: 28%;
+    width: 40%;
+    height: auto;
+    max-width: none;
+    max-height: 60%;
+    object-fit: contain;
+    object-position: center;
+    translate: -129.47106423127386px -131.77766441650033px;
+    scale: 2.466694368438211 2.5403844849953776;
+    transform-origin: top left;
+    z-index: 5;
+}
+
+.home-hero-character {
+    translate: -1.0337296351965684px 35.35498313613423px;
+    scale: 1 1;
+    transform-origin: top left;
+    z-index: 500;
+}
+
+.home-play-art {
+    translate: -123.46032583685493px 341.713631253374px;
+    scale: 0.9299737058044887 0.9299737058044887;
+    transform-origin: top left;
+}
+
+.home-crew-art {
+    translate: 8.999999999999998px 369.6404356374838px;
+    scale: 0.8331097411945125 0.9133157467575412;
+    transform-origin: top left;
+}
+
+.home-shipyard-art {
+    translate: 137.53270364803433px 349.07090500269925px;
+    scale: 0.8331000000000001 0.8331000000000001;
+    transform-origin: top left;
+}
+
+.hotspot-background {
+    translate: 3.1011889055897015px -74.78041315232949px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-fashion {
+    translate: -20.775781609521044px -84.63768690165469px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.play-slot {
+    translate: 16.03372963519657px -222.7739994353948px;
+    scale: 0.865882 0.95;
+    transform-origin: top left;
+}
+
+.hotspot-crew {
+    translate: 35.134918540786266px -317.62577571306167px;
+    scale: 0.677547 1;
+    transform-origin: top left;
+}
+
+.hotspot-shipyard {
+    translate: -12.607133433538209px -201.98992130195978px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-items {
+    translate: 3px -32px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+/* Home UX snapshot · 2026-09-25 02:08 BRT */
+/* Consolidated from the mobile UX editor. Only stable game elements are
+   promoted here. DEV lock flags and auto-mapped hidden UI are not runtime CSS. */
+
+.home-background-image {
+    display: none;
+}
+
+.home-frame {
+    translate: -1.044403076171875px -9.755546569824219px;
+    scale: 1.1288688285184267 1.3641728774500361;
+    transform-origin: top left;
+}
+
+.home-frame-art {
+    translate: -2px 2px;
+    scale: 1 0.9877003852196066;
+    transform-origin: top left;
+}
+
+.home-frame-text {
+    translate: -1164.6888523101807px 202.57785034179688px;
+    scale: 3.242612218704299 2.14049198152822;
+    transform-origin: top left;
+}
+
+.home-art-overlay {
+    translate: -118.40001010894775px -525.15549659729px;
+    scale: 2.452462951832017 3.934898876933174;
+    transform-origin: top left;
+}
+
+.profile-slot {
+    translate: -23.99999237060547px 5.422214508056641px;
+    scale: 1.674563185813407 1.674563185813407;
+    transform-origin: top left;
+}
+
+.profile-slot-avatar {
+    translate: 3.111114501953125px 0.911102294921875px;
+    scale: 0.8675785453417635 0.8675785453417635;
+    transform-origin: top left;
+}
+
+.hud-level-slot {
+    translate: 143.91107177734375px 22.555564880371094px;
+    scale: 1.1948280816488877 1.1948280816488877;
+    transform-origin: top left;
+}
+
+.hud-level-slot > img {
+    translate: -13px 0;
+    scale: 5.992070783259634 5.992070783259635;
+    transform-origin: top left;
+}
+
+.wallet-value.coins {
+    translate: 11.73333740234375px 100.62222671508789px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.wallet-value.gems {
+    translate: -92.08895874023438px -26.666664123535156px;
+    scale: 2.207251292653877 2.2072512926538774;
+    transform-origin: top left;
+}
+
+.home-hero-character {
+    translate: 2.844390869140625px 13.510971069335938px;
+    scale: 0.7939748248377893 0.7939748248377893;
+    transform-origin: top left;
+}
+
+.home-play-art {
+    translate: -102.83778496742246px 229.85218490407897px;
+    scale: 0.7922065080932824 1.2032095849053597;
+    transform-origin: top left;
+}
+
+.home-crew-art {
+    translate: 116.022216796875px 253.10446411132813px;
+    scale: 0.8818 0.8818;
+    transform-origin: top left;
+}
+
+.home-shipyard-art {
+    translate: 1.9332895922836428px 253.9916909950117px;
+    scale: 0.8818438502156271 0.8818438502156271;
+    transform-origin: top left;
+}
+
+.hotspot-background {
+    translate: 0 12px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-fashion {
+    translate: 2.288909912109375px 6.04443359375px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.play-slot {
+    translate: 48.64442825317383px -174.99018177281627px;
+    scale: 0.873823 1;
+    transform-origin: top left;
+}
+
+.hotspot-crew {
+    translate: 55px -269px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-shipyard {
+    translate: -6.3999786376953125px -193.74914508001984px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-regions {
+    translate: 0 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-daily {
+    translate: 2.4888763427734375px -5.33343505859375px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-shop {
+    translate: 0 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-collection {
+    translate: -1.777801513671875px -11.3778076171875px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-items {
+    translate: -14.422210693359375px -170.67971602392382px;
+    scale: 1 1;
+    transform-origin: top left;
 }

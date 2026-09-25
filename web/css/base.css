@@ -3,10 +3,16 @@
     --tq-native-safe-right: 0px;
     --tq-native-safe-bottom: 0px;
     --tq-native-safe-left: 0px;
-    --tq-safe-top: max(env(safe-area-inset-top, 0px), var(--tq-native-safe-top));
-    --tq-safe-right: max(env(safe-area-inset-right, 0px), var(--tq-native-safe-right));
-    --tq-safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--tq-native-safe-bottom));
-    --tq-safe-left: max(env(safe-area-inset-left, 0px), var(--tq-native-safe-left));
+    /*
+     * App coordinates are based on the usable browser/PWA viewport, not the
+     * physical panel. viewport-fit=contain keeps system cutouts outside it.
+     */
+    --tq-safe-top: 0px;
+    --tq-safe-right: 0px;
+    --tq-safe-bottom: 0px;
+    --tq-safe-left: 0px;
+    --tq-app-width: 100vw;
+    --tq-app-height: 100dvh;
 }
 
 * {
@@ -21,7 +27,7 @@ body {
 }
 
 body {
-    min-height: 100dvh;
+    min-height: var(--tq-app-height);
     overflow: hidden;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: var(--cream-100);
@@ -45,14 +51,15 @@ img {
 }
 
 .app-stage {
-    width: 100%;
-    min-height: 100dvh;
+    width: var(--tq-app-width);
+    height: var(--tq-app-height);
+    min-height: 0;
 }
 
 .app-viewport {
     position: relative;
     width: 100%;
-    height: 100dvh;
+    height: 100%;
     min-height: 0;
     overflow: hidden;
     margin: 0 auto;
@@ -64,23 +71,114 @@ img {
 @media (min-width: 700px) {
     html:not(.tq-native-runtime) body {
         display: grid;
-        place-items: center;
+        place-items: start center;
+        min-height: max(var(--tq-app-height), 937px);
         padding: 20px;
+        overflow: auto;
     }
 
+    /*
+     * Galaxy A15 physical shell:
+     * 76.8 mm × 160.1 mm, represented here as 430 × 896.393 CSS px.
+     * The active display is centered inside the body and keeps the
+     * official 1080 × 2340 (19.5:9) screen proportion.
+     */
     html:not(.tq-native-runtime) .app-stage {
-        display: grid;
-        place-items: center;
+        position: relative;
+        display: block;
+        width: 430px;
+        height: 896.393px;
+        min-height: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 31px;
+        background: #081117;
+        box-shadow:
+            0 30px 90px rgba(0,0,0,.46),
+            0 0 0 4px rgba(3,9,13,.96);
     }
 
     html:not(.tq-native-runtime) .app-viewport {
-        width: min(430px, calc((100dvh - 40px) * 941 / 1672));
-        height: auto;
-        aspect-ratio: 941 / 1672;
-        max-height: calc(100dvh - 40px);
-        border: 1px solid var(--line);
-        border-radius: 32px;
-        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+        /*
+         * Galaxy A15 logical development viewport.
+         * Width stays at 412 CSS px for layout work; height is derived from
+         * the real 1080:2340 panel ratio, so the screen itself is exactly 19.5:9.
+         *
+         * The viewport is then uniformly scaled to the physical screen area
+         * inside the simulated 76.8 × 160.1 mm phone body. This keeps both
+         * the BODY proportion and the DISPLAY proportion faithful.
+         */
+        --tq-device-width: 412;
+        --tq-device-height: 892.6667;
+        --tq-device-scale: 0.93339032;
+        --tq-preview-status-height: 24px;
+        --tq-preview-navigation-height: 24px;
+
+        /*
+         * The simulated OS owns the top/bottom system strips.
+         * #app receives only the usable rectangle, exactly like a normal
+         * standalone web app.
+         */
+        --tq-preview-useful-width: 412px;
+        --tq-preview-useful-height: 844.6667px;
+        --tq-safe-top: 0px;
+        --tq-safe-bottom: 0px;
+
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: var(--tq-preview-useful-width);
+        height: var(--tq-preview-useful-height);
+        aspect-ratio: auto;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        border: 0;
+        border-radius: 21px;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+        transform: translate(-50%, -50%) scale(var(--tq-device-scale));
+        transform-origin: center;
+    }
+
+    html:not(.tq-native-runtime) .app-stage::before {
+        content: "10:20                                  ◉  Wi-Fi  ▮▮▮";
+        position: absolute;
+        z-index: 1000;
+        left: 50%;
+        top: 7px;
+        width: calc(var(--tq-preview-useful-width) * var(--tq-device-scale));
+        height: calc(var(--tq-preview-status-height) * var(--tq-device-scale));
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 8px;
+        overflow: hidden;
+        font: 700 9px/1 system-ui, sans-serif;
+        white-space: pre;
+        color: rgba(255,255,255,.94);
+        background: rgba(7,29,41,.96);
+        pointer-events: none;
+    }
+
+    html:not(.tq-native-runtime) .app-stage::after {
+        content: "";
+        position: absolute;
+        z-index: 1000;
+        left: 50%;
+        bottom: 7px;
+        width: calc(var(--tq-preview-useful-width) * var(--tq-device-scale));
+        height: calc(var(--tq-preview-navigation-height) * var(--tq-device-scale));
+        transform: translateX(-50%);
+        background: rgba(7,29,41,.94);
+        pointer-events: none;
+    }
+
+    html:not(.tq-native-runtime) .app-viewport > section {
+        height: 100%;
+        min-height: 0;
     }
 }
 
@@ -101,4 +199,36 @@ img {
     max-width: none;
     max-height: none;
     pointer-events: auto;
+}
+
+@media (display-mode: standalone) {
+    html,
+    body {
+        width: 100%;
+        height: var(--tq-app-height);
+        min-height: var(--tq-app-height);
+        max-height: var(--tq-app-height);
+    }
+
+    .app-stage,
+    .app-viewport {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        max-height: none;
+    }
+
+    body {
+        padding: 0;
+    }
+}
+
+.tq-pwa-runtime .app-viewport {
+    padding: 0;
+}
+
+.tq-pwa-runtime .app-viewport > section {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
 }

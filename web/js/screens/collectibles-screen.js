@@ -61,7 +61,7 @@
         );
 
         screen.innerHTML = `
-            <div class="collectibles-artboard">
+            <div class="tq-safe-visual-area collectibles-safe-visual-area">\n                <div class="collectibles-artboard tq-canonical-stage">
                 <img
                     class="collectibles-background"
                     src="./assets/collectibles/colecionaveis-background.webp"
