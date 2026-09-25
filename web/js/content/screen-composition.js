@@ -149,21 +149,29 @@
         assetSlot("home.header.avatar", "Avatar", "avatar", { required: true, group: "header" }),
         assetSlot("home.header.logo", "Logo", "logo", { required: true, group: "header" }),
 
-        homeBackgroundPart("home.background.backdrop", "Fundo base / céu", "home_backdrop"),
         homeBackgroundPart("home.background.ocean", "Oceano", "ocean", { required: true }),
         ...Array.from({ length: 10 }, (_, index) =>
             homeBackgroundPart(
                 "home.background.cloud." + (index + 1),
                 "Nuvem " + (index + 1),
-                "cloud"
+                "cloud",
+                { group: "background-clouds" }
             )
         ),
-        ...Array.from({ length: 10 }, (_, index) =>
+        ...Array.from({ length: 5 }, (_, index) =>
             homeBackgroundPart(
-                "home.background.scene." + (index + 1),
-                "Elemento de cenário " + (index + 1),
-                "environment",
-                { acceptedTypes: ["environment", "ship", "island"] }
+                "home.background.ship." + (index + 1),
+                "Navio " + (index + 1),
+                "ship",
+                { group: "background-ships" }
+            )
+        ),
+        ...Array.from({ length: 3 }, (_, index) =>
+            homeBackgroundPart(
+                "home.background.island." + (index + 1),
+                "Ilha " + (index + 1),
+                "island",
+                { group: "background-islands" }
             )
         ),
 
