@@ -353,7 +353,8 @@
 
     function localLayerStage(screenRoot) {
         if (!(screenRoot instanceof Element)) return null;
-        return screenRoot.querySelector(".tq-canonical-stage")
+        return screenRoot.querySelector(".tq-engine-canvas")
+            || screenRoot.querySelector(".tq-canonical-stage")
             || screenRoot.querySelector(".tq-safe-visual-area")
             || screenRoot;
     }
@@ -378,6 +379,8 @@
         image.dataset.tqLocalScreen = record.screenId;
         if (record.slotId) image.dataset.tqCompositionSlot = record.slotId;
         if (record.semanticType) image.dataset.tqSemanticType = record.semanticType;
+        if (record.boundFunctionId) image.dataset.tqBoundFunctionId = record.boundFunctionId;
+        if (record.boundAction) image.dataset.tqBoundAction = record.boundAction;
         if (record.variantId) image.dataset.tqCompositionVariant = record.variantId;
         if (record.pairId) image.dataset.tqPairId = record.pairId;
         if (record.pairState) image.dataset.tqPairState = record.pairState;
@@ -399,7 +402,7 @@
                 ? TQ.content.screenComposition.defaultLayerForSemanticType(record.semanticType)
                 : 500
         );
-        image.style.pointerEvents = record.slotId ? "none" : "auto";
+        image.style.pointerEvents = "auto";
         image.style.userSelect = "none";
 
         return { image, objectUrl };
@@ -484,15 +487,6 @@
 
             for (const record of ordered) {
                 const localFileName = String(record.fileName || "").trim().toLowerCase();
-
-                // Composition v1 starts from semantic slots. Old free-floating DEV
-                // layers are intentionally discarded during the refactor reset.
-                if (composition && !record.slotId) {
-                    await deleteLocalLayerRecord(record.id);
-                    releaseRuntimeUrl(record.id);
-                    continue;
-                }
-
                 // One-time promotion cleanup for the Home background that was first
                 // positioned as local 48378.png and is now an official WebP asset.
                 if (screenId === "home" && (record.id === "home.local.48378-png.1790304073944" || localFileName === "48378.png")) {
@@ -509,7 +503,7 @@
                     continue;
                 }
 
-                if (localFileName && webBackedByFileName.has(localFileName)) {
+                if (!composition && localFileName && webBackedByFileName.has(localFileName)) {
                     const promotedTarget = webBackedByFileName.get(localFileName);
                     promoteSavedSceneLayout(screenId, record.id, promotedTarget);
                     await deleteLocalLayerRecord(record.id);
@@ -558,6 +552,8 @@
                     id: recordId,
                     slotId: image.dataset.tqCompositionSlot || null,
                     semanticType: image.dataset.tqSemanticType || null,
+                    boundFunctionId: image.dataset.tqBoundFunctionId || null,
+                    boundAction: image.dataset.tqBoundAction || null,
                     variantId: image.dataset.tqCompositionVariant || null,
                     image,
                     objectUrl: runtimeObjectUrls.get(recordId) || image.src,
@@ -585,6 +581,7 @@
                     <label>
                         Destino na tela
                         <select data-upload-slot>
+                            <option value="">Novo asset livre</option>
                             ${compositionSlots.map((slot) =>
                                 '<option value="' + slot.id + '">' +
                                 (slot.required ? '● ' : '○ ') + slot.label +
@@ -594,8 +591,18 @@
                     </label>
 
                     <label>
-                        Tipo
+                        Tipo do asset
                         <select data-upload-semantic></select>
+                    </label>
+
+                    <label>
+                        Função
+                        <select data-upload-function>
+                            <option value="">Nenhuma · decorativo</option>
+                            ${compositionRegistry.getFunctionSlots(compositionScreenId).map((fn) =>
+                                '<option value="' + fn.id + '">' + fn.label + '</option>'
+                            ).join("")}
+                        </select>
                     </label>
 
                     <small data-upload-slot-info>
@@ -715,6 +722,7 @@
         const status = host.querySelector("[data-upload-status]");
         const slotSelect = host.querySelector("[data-upload-slot]");
         const semanticSelect = host.querySelector("[data-upload-semantic]");
+        const functionSelect = host.querySelector("[data-upload-function]");
         const slotInfo = host.querySelector("[data-upload-slot-info]");
         const publishedPathInput = host.querySelector("[data-upload-published-path]");
         const bindPublishedButton = host.querySelector("[data-upload-bind-published]");
@@ -770,7 +778,10 @@
         function syncCompositionSlot() {
             if (!composition || !slotSelect || !semanticSelect) return;
             const slot = selectedCompositionSlot();
-            semanticSelect.replaceChildren(...((slot?.acceptedTypes || []).map((type) => {
+            const allowedTypes = slot?.acceptedTypes?.length
+                ? slot.acceptedTypes
+                : Object.keys(compositionRegistry.SEMANTIC_TYPES || {});
+            semanticSelect.replaceChildren(...((allowedTypes).map((type) => {
                 const option = document.createElement("option");
                 option.value = type;
                 option.textContent = compositionRegistry.SEMANTIC_TYPES[type]?.label || type;
@@ -856,7 +867,8 @@
 
         function stageForLocalLayer() {
             const selected = selectedAssetElement();
-            return selected?.closest(".tq-canonical-stage")
+            return selected?.closest(".tq-engine-canvas, .tq-canonical-stage")
+                || screenRoot?.querySelector(".tq-engine-canvas")
                 || screenRoot?.querySelector(".tq-canonical-stage")
                 || selected?.closest(".tq-safe-visual-area")
                 || screenRoot?.querySelector(".tq-safe-visual-area")
@@ -890,13 +902,10 @@
             }
 
             const slot = selectedCompositionSlot();
-            if (composition && !slot) {
-                status.textContent = "Escolha primeiro o destino desta arte";
-                return;
-            }
-
-            const semanticType = slot && semanticSelect
-                ? semanticSelect.value
+            const semanticType = semanticSelect?.value || slot?.semanticType || "environment";
+            const selectedFunction = composition && functionSelect?.value
+                ? compositionRegistry.getFunctionSlots(compositionScreenId)
+                    .find((fn) => fn.id === functionSelect.value)
                 : null;
             const variantId = slot?.bindingMode === "variants" ? selectedVariantId() : null;
             const id = slot
@@ -927,7 +936,9 @@
                 createdAt: Date.now(),
                 slotId: slot?.id || null,
                 slotLabel: slot?.label || null,
-                semanticType: semanticType || slot?.semanticType || null,
+                semanticType: semanticType || null,
+                boundFunctionId: selectedFunction?.id || null,
+                boundAction: selectedFunction?.action || null,
                 variantId,
                 pairId: slot?.pairId || null,
                 pairState: slot?.pairState || null
@@ -960,6 +971,8 @@
                 fileName: file.name,
                 slotId: record.slotId,
                 semanticType: record.semanticType,
+                boundFunctionId: record.boundFunctionId || null,
+                boundAction: record.boundAction || null,
                 variantId: record.variantId || null
             };
             localLayers.push(entry);
