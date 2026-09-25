@@ -104,6 +104,20 @@
     box-shadow: 0 8px 16px rgba(0,0,0,.2);
 }
 
+.shop-item-card.has-preview {
+    grid-template-columns: 78px 1fr auto;
+}
+
+.shop-item-preview {
+    width: 78px;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+    display: block;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 4px 10px rgba(0,0,0,.28);
+}
+
 .shop-item-copy h2 {
     margin: 0 0 6px;
     color: #fff0bd;

@@ -2,57 +2,47 @@
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
     const homeBackgrounds = Object.freeze([
-        Object.freeze({ id: "pirate-main", label: "Baía encantada", src: "./assets/ui/home-pirata-fundo-principal.webp", isDefault: true }),
-        Object.freeze({ id: "pirate-bay", label: "Baía pirata", src: "./assets/backgrounds/home-pirate-bay.webp" }),
-        Object.freeze({ id: "pirate-port", label: "Porto pirata", src: "./assets/backgrounds/home-pirate-port.webp" })
+        Object.freeze({ id: "pirate-main", label: "Baía encantada", src: "./assets/backgrounds/home/home-pirata-fundo-principal.webp", isDefault: true }),
+        Object.freeze({ id: "pirate-bay", label: "Baía pirata", src: "./assets/backgrounds/home/home-pirate-bay.webp" }),
+        Object.freeze({ id: "pirate-port", label: "Porto pirata", src: "./assets/backgrounds/home/home-pirate-port.webp" })
     ]);
 
-    const nameplates = Object.freeze([
-        Object.freeze({ id: "nameplate-caveira-mar-roxo", type: "nameplate", label: "Caveira do Mar Roxo", price: 180, asset: "./assets/ui/plaquinhas/caveira-do-mar-roxo.webp", isDefault: true }),
-        Object.freeze({ id: "nameplate-bussola-corsario", type: "nameplate", label: "Bússola do Corsário", price: 260, asset: "./assets/ui/plaquinhas/bussola-do-corsario.webp" }),
-        Object.freeze({ id: "nameplate-bussola-saque-real", type: "nameplate", label: "Bússola do Saque Real", price: 280, asset: "./assets/ui/plaquinhas/bussola-do-saque-real.webp" }),
-        Object.freeze({ id: "nameplate-mare-perolas", type: "nameplate", label: "Maré de Pérolas", price: 320, asset: "./assets/ui/plaquinhas/mare-de-perolas.webp" }),
-        Object.freeze({ id: "nameplate-ancora-perolas", type: "nameplate", label: "Âncora das Pérolas", price: 340, asset: "./assets/ui/plaquinhas/ancora-das-perolas.webp" }),
-        Object.freeze({ id: "nameplate-lacos-almirante", type: "nameplate", label: "Laços do Almirante", price: 380, asset: "./assets/ui/plaquinhas/lacos-do-almirante.webp" }),
-        Object.freeze({ id: "nameplate-ancoras-hibisco", type: "nameplate", label: "Âncoras de Hibisco", price: 400, asset: "./assets/ui/plaquinhas/ancoras-de-hibisco.webp" }),
-        Object.freeze({ id: "nameplate-tesouro-ilha-tropical", type: "nameplate", label: "Tesouro da Ilha Tropical", price: 400, asset: "./assets/ui/plaquinhas/tesouro-da-ilha-tropical.webp" }),
-        Object.freeze({ id: "nameplate-bandeiras-corsario", type: "nameplate", label: "Bandeiras do Corsário", price: 400, asset: "./assets/ui/plaquinhas/bandeiras-do-corsario.webp" }),
-        Object.freeze({ id: "nameplate-rota-coracao-rubi", type: "nameplate", label: "Rota do Coração Rubi", price: 800, asset: "./assets/ui/plaquinhas/rota-do-coracao-rubi.webp" }),
-        Object.freeze({ id: "nameplate-mapa-coracao-rubi", type: "nameplate", label: "Mapa do Coração Rubi", price: 800, asset: "./assets/ui/plaquinhas/mapa-do-coracao-rubi.webp" }),
-        Object.freeze({ id: "nameplate-rosas-capita", type: "nameplate", label: "Rosas da Capitã", price: 800, asset: "./assets/ui/plaquinhas/rosas-da-capita.webp" }),
-        Object.freeze({ id: "nameplate-rosas-capitao", type: "nameplate", label: "Rosas do Capitão", price: 1600, asset: "./assets/ui/plaquinhas/rosas-do-capitao.webp" }),
-        Object.freeze({ id: "nameplate-chaves-tesouro-tropical", type: "nameplate", label: "Chaves do Tesouro Tropical", price: 1600, asset: "./assets/ui/plaquinhas/chaves-do-tesouro-tropical.webp" }),
-        Object.freeze({ id: "nameplate-laminas-hibisco", type: "nameplate", label: "Lâminas do Hibisco", price: 1600, asset: "./assets/ui/plaquinhas/laminas-do-hibisco.webp" }),
-        Object.freeze({ id: "nameplate-jardim-saque", type: "nameplate", label: "Jardim do Saque", price: 3200, asset: "./assets/ui/plaquinhas/jardim-do-saque.webp" }),
-        Object.freeze({ id: "nameplate-festival-porto-pirata", type: "nameplate", label: "Festival do Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/festival-do-porto-pirata.webp" }),
-        Object.freeze({ id: "nameplate-noite-porto-pirata", type: "nameplate", label: "Noite no Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/noite-no-porto-pirata.webp" }),
-        Object.freeze({ id: "nameplate-coroa-rubi-imperial", type: "nameplate", label: "Coroa Rubi Imperial", price: 6400, asset: "./assets/ui/plaquinhas/coroa-rubi-imperial.webp" }),
-        Object.freeze({ id: "nameplate-coroa-rosa-ventos", type: "nameplate", label: "Coroa da Rosa dos Ventos", price: 6400, asset: "./assets/ui/plaquinhas/coroa-da-rosa-dos-ventos.webp" })
+    const levelBadges = Object.freeze([
+        "./assets/ui/niveis/tabuada_quest_nivel_01.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_02.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_03.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_04.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_05.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_06.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_07.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_08.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_09.webp",
+        "./assets/ui/niveis/tabuada_quest_nivel_10.webp"
     ]);
 
-    const profileFrames = Object.freeze([
-        Object.freeze({ id: "simple", label: "Simples", src: null, isDefault: true }),
-        Object.freeze({ id: "pirate-treasure", label: "Tesouro pirata", src: "./assets/frames/profile-frame-pirate-treasure.webp" }),
-        Object.freeze({ id: "tide-wheel", label: "Timão das marés", src: "./assets/frames/profile-frame-tide-wheel.webp" })
+    const frames = Object.freeze([
+        Object.freeze({ id: "frame-mapa-coracao-rubi", type: "frame", label: "Mapa do Coração Rubi", price: 800, asset: "./assets/ui/plaquinhas/mapa_do_coracao_rubi.webp" }),
+        Object.freeze({ id: "frame-rosas-capita", type: "frame", label: "Rosas da Capitã", price: 800, asset: "./assets/ui/plaquinhas/rosas_da_capita.webp" }),
+        Object.freeze({ id: "frame-rosas-capitao", type: "frame", label: "Rosas do Capitão", price: 1600, asset: "./assets/ui/plaquinhas/rosas_do_capitao.webp" }),
+        Object.freeze({ id: "frame-chaves-tesouro-tropical", type: "frame", label: "Chaves do Tesouro Tropical", price: 1600, asset: "./assets/ui/plaquinhas/chaves_do_tesouro_tropical.webp", isDefault: true }),
+        Object.freeze({ id: "frame-laminas-hibisco", type: "frame", label: "Lâminas do Hibisco", price: 1600, asset: "./assets/ui/plaquinhas/laminas_do_hibisco.webp" }),
+        Object.freeze({ id: "frame-jardim-saque", type: "frame", label: "Jardim do Saque", price: 3200, asset: "./assets/ui/plaquinhas/jardim_do_saque.webp" }),
+        Object.freeze({ id: "frame-festival-porto-pirata", type: "frame", label: "Festival do Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/festival_do_porto_pirata.webp" }),
+        Object.freeze({ id: "frame-noite-porto-pirata", type: "frame", label: "Noite no Porto Pirata", price: 3200, asset: "./assets/ui/plaquinhas/noite_no_porto_pirata.webp" }),
+        Object.freeze({ id: "frame-coroa-rosa-ventos", type: "frame", label: "Coroa da Rosa dos Ventos", price: 6400, asset: "./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp" })
     ]);
 
     const shopCatalog = Object.freeze({
         tabs: Object.freeze([
             Object.freeze({ id: "frames", label: "Molduras" }),
-            Object.freeze({ id: "nameplates", label: "Plaquinhas" }),
             Object.freeze({ id: "backgrounds", label: "Fundos" }),
             Object.freeze({ id: "shipyard", label: "Estaleiro" }),
             Object.freeze({ id: "effects", label: "Efeitos" })
         ]),
-        nameplates,
-        frames: Object.freeze([
-            Object.freeze({ id: "frame-ancora-dourada", type: "frame", label: "Âncora Dourada", price: 250, asset: null }),
-            Object.freeze({ id: "frame-coroa-corsaria", type: "frame", label: "Coroa Corsária", price: 450, asset: null }),
-            Object.freeze({ id: "frame-mare-de-safira", type: "frame", label: "Maré de Safira", price: 700, asset: null }),
-            Object.freeze({ id: "frame-rubi-do-capitao", type: "frame", label: "Rubi do Capitão", price: 1000, asset: null }),
-            Object.freeze({ id: "frame-lenda-do-kraken", type: "frame", label: "Lenda do Kraken", price: 1400, asset: null })
-        ]),
+        frames,
+        levelBadges,
         backgrounds: Object.freeze([
+            Object.freeze({ id: "background-aventura-pirata", type: "background", label: "Aventura Pirata", price: 900, asset: "./assets/backgrounds/tabuada-quest-background-pirata.webp" }),
             Object.freeze({ id: "background-enseada-dourada", type: "background", label: "Enseada Dourada", price: 400, asset: null }),
             Object.freeze({ id: "background-porto-esmeralda", type: "background", label: "Porto Esmeralda", price: 650, asset: null }),
             Object.freeze({ id: "background-mar-rubi", type: "background", label: "Mar Rubi", price: 900, asset: null }),
@@ -72,7 +62,6 @@
     function getShopItem(itemId) {
         const id = String(itemId);
         return [
-            ...shopCatalog.nameplates,
             ...shopCatalog.frames,
             ...shopCatalog.backgrounds,
             ...shopCatalog.ships,
@@ -770,8 +759,8 @@
         getIslandRewards,
         getIslandPrimaryReward,
         homeBackgrounds,
-        profileFrames,
-        nameplates,
+        frames,
+        levelBadges,
         shopCatalog,
         getShopItem,
         rubyShopCatalog,
@@ -790,17 +779,12 @@
         chestKits,
         getChestKit,
         defaultHomeBackgroundId: "pirate-main",
-        defaultProfileFrameId: "simple",
-        defaultNameplateId: "nameplate-wood",
+        defaultFrameId: "frame-chaves-tesouro-tropical",
         assets: Object.freeze({
             avatars: Object.freeze({
-                luna: "./assets/avatars/avatar-luna-visual-base.webp",
-                maya: "./assets/avatars/avatar-maya-visual-base.webp",
-                sofia: "./assets/avatars/avatar-sofia-visual-base.webp"
+                sofia: "./assets/avatars/avatar-sofia-pirata-rosto.png"
             }),
             homeHeroes: Object.freeze({
-                luna: "./assets/avatars/avatar-luna-pirata.webp",
-                maya: "./assets/avatars/avatar-maya-pirata.webp",
                 sofia: "./assets/avatars/avatar-sofia-pirata.webp"
             }),
             compass: "./assets/ui/icone-mapa-bussola.webp",
@@ -828,7 +812,7 @@
             islandTravelAnimation: "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json",
             pet: "./assets/pets/axolotl-captain.webp",
             playButton: "./assets/ui/home-pirata-botao-aventura.webp",
-            homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260923-home-overlay-v2",
+            homeOverlay: "./assets/ui/home-art-overlay.webp?v=20260924-home-overlay-v3",
             region1ChallengeArt: Object.freeze({
                 1: "./assets/regions/region-1/challenges/corsario-enseada-da-bandeira-challenge-bg.webp?v=20260922-corsario-challenge-v4",
                 2: "./assets/regions/region-1/challenges/corsario-enseada-do-saque-challenge-bg.webp?v=20260922-corsario-challenge-v4",

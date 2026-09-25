@@ -55,7 +55,7 @@
             if (!geometry.scale) return;
 
             stage.style.left = geometry.offsetX + "px";
-            stage.style.top = geometry.offsetY + "px";
+            stage.style.top = "0px";
             stage.dataset.safeViewportScale = String(geometry.scale);
 
             if (mode === "scale") {
@@ -64,8 +64,10 @@
                 stage.style.transformOrigin = "0 0";
                 stage.style.transform = "scale(" + geometry.scale + ")";
             } else {
+                // Size-mode screens are percentage-driven. Let them consume the full
+                // usable height instead of preserving a fixed aspect-ratio letterbox.
                 stage.style.width = geometry.renderWidth + "px";
-                stage.style.height = geometry.renderHeight + "px";
+                stage.style.height = safeArea.clientHeight + "px";
                 stage.style.transform = "none";
             }
         }

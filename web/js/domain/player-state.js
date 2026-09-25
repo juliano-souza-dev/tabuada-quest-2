@@ -3,11 +3,10 @@
     const world = TQ.domain?.worldStructure;
     if (!world) throw new Error("world-structure module must be loaded before player-state");
 
-    const STATE_VERSION = 19;
+    const STATE_VERSION = 21;
     const DEFAULT_HOME_BACKGROUND_ID = "pirate-main";
-    const DEFAULT_PROFILE_FRAME_ID = "simple";
     const DEFAULT_SHIP_ID = "ship-colombo";
-    const DEFAULT_NAMEPLATE_ID = "nameplate-caveira-mar-roxo";
+    const DEFAULT_FRAME_ID = "frame-chaves-tesouro-tropical";
     const TOTAL_REGIONS = world.TOTAL_REGIONS;
     const ISLANDS_PER_REGION = world.ISLANDS_PER_REGION;
     const LEGACY_TOTAL_REGIONS = 11;
@@ -85,15 +84,14 @@
             player: {
                 id: "local-player",
                 displayName: "Explorador",
-                avatarId: "luna",
-                profileFrameId: DEFAULT_PROFILE_FRAME_ID,
-                nameplateId: DEFAULT_NAMEPLATE_ID,
+                avatarId: "sofia",
+                frameId: DEFAULT_FRAME_ID,
                 profileCreated: false
             },
             progression: { level: 1, xpCurrent: 0, xpRequired: 100 },
             wallet: { coins: 0, gems: 0 },
             crew: { hiredIds: [] },
-            shop: { purchasedItemIds: [DEFAULT_SHIP_ID, DEFAULT_NAMEPLATE_ID], equippedShipId: DEFAULT_SHIP_ID },
+            shop: { purchasedItemIds: [DEFAULT_SHIP_ID, DEFAULT_FRAME_ID], equippedShipId: DEFAULT_SHIP_ID },
             inventory: {
                 items: [],
                 equipped: {
@@ -315,7 +313,7 @@
 
         if (migrated.schemaVersion === 3) {
             const player = isObject(migrated.player) ? migrated.player : {};
-            migrated = { ...migrated, schemaVersion: 4, player: { ...player, profileFrameId: player.profileFrameId === "tide-wheel" ? "tide-wheel" : DEFAULT_PROFILE_FRAME_ID } };
+            migrated = { ...migrated, schemaVersion: 4, player: { ...player, profileFrameId: player.profileFrameId === "tide-wheel" ? "tide-wheel" : "simple" } };
         }
 
         if (migrated.schemaVersion === 4) {
@@ -557,16 +555,16 @@
             const purchasedItemIds = Array.isArray(existingShop.purchasedItemIds)
                 ? existingShop.purchasedItemIds.filter((id) => typeof id === "string")
                 : [];
-            const withDefaultNameplate = Array.from(new Set([DEFAULT_NAMEPLATE_ID, ...purchasedItemIds]));
+            const withDefaultNameplate = Array.from(new Set(["nameplate-chaves-tesouro-tropical", ...purchasedItemIds]));
             const legacyNameplate = existingPlayer.nameplateId === "nameplate-wood";
 
             migrated = {
                 ...migrated,
-                schemaVersion: STATE_VERSION,
+                schemaVersion: 19,
                 player: {
                     ...existingPlayer,
                     nameplateId: legacyNameplate || typeof existingPlayer.nameplateId !== "string"
-                        ? DEFAULT_NAMEPLATE_ID
+                        ? "nameplate-chaves-tesouro-tropical"
                         : existingPlayer.nameplateId
                 },
                 shop: {
@@ -576,6 +574,31 @@
             };
         }
 
+        if (migrated.schemaVersion === 19) {
+            const existingPlayer = isObject(migrated.player) ? migrated.player : {};
+            const existingShop = isObject(migrated.shop) ? migrated.shop : {};
+            const legacyCommercialFrames = new Set(["frame-ancora-dourada", "frame-coroa-corsaria", "frame-mare-de-safira", "frame-rubi-do-capitao", "frame-lenda-do-kraken"]);
+            const purchases = Array.isArray(existingShop.purchasedItemIds) ? existingShop.purchasedItemIds.filter((id) => typeof id === "string") : [];
+            const migratedPurchases = purchases.filter((id) => !legacyCommercialFrames.has(id)).map((id) => id.startsWith("nameplate-") ? "frame-" + id.slice("nameplate-".length) : id);
+            const selected = typeof existingPlayer.nameplateId === "string" && existingPlayer.nameplateId.startsWith("nameplate-") ? "frame-" + existingPlayer.nameplateId.slice("nameplate-".length) : DEFAULT_FRAME_ID;
+            const { profileFrameId, nameplateId, ...player } = existingPlayer;
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: { ...player, frameId: selected },
+                shop: { ...existingShop, purchasedItemIds: Array.from(new Set([DEFAULT_FRAME_ID, ...migratedPurchases])) }
+            };
+        }
+        if (migrated.schemaVersion === 20) {
+            const existingPlayer = isObject(migrated.player) ? migrated.player : {};
+            const validAvatarIds = new Set(["sofia"]);
+            const avatarId = validAvatarIds.has(existingPlayer.avatarId) ? existingPlayer.avatarId : "sofia";
+            migrated = {
+                ...migrated,
+                schemaVersion: STATE_VERSION,
+                player: { ...existingPlayer, avatarId }
+            };
+        }
         return migrated;
     }
 
@@ -709,8 +732,7 @@
             && isObject(value.player)
             && typeof value.player.displayName === "string"
             && typeof value.player.avatarId === "string"
-            && typeof value.player.profileFrameId === "string"
-            && typeof value.player.nameplateId === "string"
+            && typeof value.player.frameId === "string"
             && typeof value.player.profileCreated === "boolean"
             && isObject(value.progression)
             && Number.isInteger(value.progression.level) && value.progression.level >= 1
@@ -768,17 +790,10 @@
             : s;
     }
 
-    function withProfileFrame(state, frameId, allowedIds) {
+    function withFrame(state, frameId, allowedIds) {
         const s = normalizeState(state);
         return Array.isArray(allowedIds) && allowedIds.includes(frameId)
-            ? { ...s, player: { ...s.player, profileFrameId: frameId } }
-            : s;
-    }
-
-    function withNameplate(state, nameplateId, allowedIds) {
-        const s = normalizeState(state);
-        return Array.isArray(allowedIds) && allowedIds.includes(nameplateId)
-            ? { ...s, player: { ...s.player, nameplateId } }
+            ? { ...s, player: { ...s.player, frameId } }
             : s;
     }
 
@@ -1837,15 +1852,13 @@
         TOTAL_REGIONS,
         ISLANDS_PER_REGION,
         DEFAULT_HOME_BACKGROUND_ID,
-        DEFAULT_PROFILE_FRAME_ID,
         createLearningState,
         createInitialState,
         migrateState,
         isValidState,
         normalizeState,
         withHomeBackground,
-        withProfileFrame,
-        withNameplate,
+        withFrame,
         createFreshProfile,
         withLastScreen,
         hireCrewMember,
