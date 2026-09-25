@@ -1094,10 +1094,11 @@
     }
 
     async function renderWithDevelopmentTools(renderScreen, context, screenId, renderToken) {
+        activeOceanController?.destroy?.();
+        activeOceanController = null;
+
         await screens.render(renderScreen, context);
         if (renderToken !== appRenderToken) return;
-
-        if (!TQ.content.development?.shortcutsEnabled) return;
 
         const screenRoot = appRoot.firstElementChild || appRoot;
         const emptySurfaceActive = screenRoot.dataset.tqEmptySurface === "true";
@@ -1108,6 +1109,14 @@
         const editorScreenId = screenRoot.dataset.tqDevScreenId || screenId;
         const editorContext = resolveDevelopmentEditorContext(screenRoot, context, screenId);
         const editorStorageScope = resolveDevelopmentStorageScope(editorScreenId, editorContext);
+
+        activeOceanController = TQ.core?.oceanScene?.mount?.({
+            screenRoot,
+            scopeId: editorStorageScope,
+            regionId: editorContext.regionId
+        }) || null;
+
+        if (!TQ.content.development?.shortcutsEnabled) return;
 
         await TQ.dev?.assetUploader?.restoreLocalLayers?.({
             screenId: editorStorageScope,
@@ -1121,6 +1130,12 @@
         });
         mountParallaxPrototype(editorScreenId, screenRoot, {
             regionId: editorContext.regionId
+        });
+        TQ.dev?.oceanEditor?.mount?.({
+            screenRoot,
+            scopeId: editorStorageScope,
+            regionId: editorContext.regionId,
+            controller: activeOceanController
         });
         TQ.dev?.settingsPanel?.mount({
             getState: () => state,
