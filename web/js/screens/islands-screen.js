@@ -502,7 +502,17 @@
                     src="${visualPage.background}"
                     alt=""
                     aria-hidden="true">
-                ${regionId === 1 ? '<canvas class="region-ocean-motion" aria-hidden="true"></canvas>' : ""}
+                ${regionId === 1 ? `
+                    <div class="region-published-parallax"
+                        data-runtime-fx-id="fx_1790339938294"
+                        data-runtime-fx-src="./assets/parallax/islands/region-1/parallax-islands-region-1-fx_1790339938294.webp"
+                        aria-hidden="true">
+                        <img src="./assets/parallax/islands/region-1/parallax-islands-region-1-fx_1790339938294.webp"
+                            alt=""
+                            aria-hidden="true">
+                    </div>
+                    <canvas class="region-ocean-motion" aria-hidden="true"></canvas>
+                ` : ""}
 
                 ${visualPage.hideBack ? "" : `
                     <button class="region-back-hitbox"
