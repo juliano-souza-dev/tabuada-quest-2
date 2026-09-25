@@ -90,7 +90,7 @@
         image.style.maxHeight = "70%";
         image.style.objectFit = "contain";
         image.style.objectPosition = "center";
-        image.style.zIndex = "20";
+        image.style.zIndex = String(TQ.content.screenComposition.defaultLayerForSemanticType(binding?.semanticType || slot.semanticType));
         image.style.pointerEvents = "none";
         image.style.userSelect = "none";
         return image;
