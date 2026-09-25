@@ -429,6 +429,9 @@
                     <button type="button" data-dev-copy>Copiar layout</button>
                     <button type="button" data-dev-reset-screen>Resetar tela</button>
                 </div>
+                <div class="tq-scene-dev-actions">
+                    <button type="button" data-dev-clear-functions>Limpar funções</button>
+                </div>
                 <small>Arraste qualquer item mapeado. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais. Page Up/Page Down muda a camada; com Shift envia direto para frente/fundo. Funções são protegidas.</small>
             </section>
             <div class="tq-scene-dev-compact" data-dev-compact hidden>
@@ -469,6 +472,7 @@
         const compactCloseButton = host.querySelector("[data-dev-compact-close]");
         const deleteButton = host.querySelector("[data-dev-delete]");
         const collapseButton = host.querySelector("[data-dev-collapse]");
+        const clearFunctionsButton = host.querySelector("[data-dev-clear-functions]");
         const name = host.querySelector("[data-dev-name]");
         const type = host.querySelector("[data-dev-type]");
         const action = host.querySelector("[data-dev-action]");
@@ -491,6 +495,7 @@
         const mobileEditorQuery = root.matchMedia("(max-width: 620px)");
         let opened = false;
         let collapsed = false;
+        let functionsHidden = false;
         let selected = null;
         let interaction = null;
         let history = [];
@@ -541,7 +546,10 @@
         }
 
         function filteredNodes() {
-            const visibleNodes = nodes.filter((node) => !isDeleted(node.element));
+            const visibleNodes = nodes.filter((node) =>
+                !isDeleted(node.element)
+                && !(functionsHidden && node.kind === "function")
+            );
             const filter = filterSelect.value;
             return filter === "all"
                 ? visibleNodes
@@ -618,6 +626,9 @@
 
         function syncEditorChrome() {
             const compactVisible = opened && collapsed && isMobileEditor();
+            appRoot.classList.toggle("tq-dev-functions-hidden", opened && functionsHidden);
+            clearFunctionsButton.textContent = functionsHidden ? "Mostrar funções" : "Limpar funções";
+            clearFunctionsButton.setAttribute("aria-pressed", functionsHidden ? "true" : "false");
             panel.hidden = !opened || compactVisible;
             compactBar.hidden = !compactVisible;
             compactName.textContent = selected?.label || "Toque no próximo elemento";
@@ -633,6 +644,28 @@
             collapsed = Boolean(nextCollapsed && opened && isMobileEditor());
             syncEditorChrome();
             scheduleOverlay();
+        }
+
+        function setFunctionsHidden(nextHidden) {
+            functionsHidden = Boolean(nextHidden);
+
+            if (functionsHidden && selected?.kind === "function") {
+                selected.element.removeAttribute("data-tq-dev-selected");
+                selected = null;
+                overlay.hidden = true;
+            }
+
+            if (functionsHidden && filterSelect.value === "function") {
+                filterSelect.value = "all";
+            }
+
+            refreshList();
+            refreshInspector();
+            syncEditorChrome();
+            scheduleOverlay();
+            status.textContent = functionsHidden
+                ? "Funções removidas da área de edição"
+                : "Funções visíveis na área de edição";
         }
 
         function saveAndSelectNext() {
@@ -746,7 +779,7 @@
             const element = event.target.closest?.("[data-tq-dev-id]");
             if (!element || !appRoot.contains(element)) return;
             const node = nodeById.get(element.dataset.tqDevId);
-            if (!node) return;
+            if (!node || (functionsHidden && node.kind === "function")) return;
             startInteraction(event, node, "move");
         }
 
@@ -954,7 +987,9 @@
             const element = event.target.closest?.("[data-tq-dev-id]");
             if (element) {
                 const node = nodeById.get(element.dataset.tqDevId);
-                if (node) selectNode(node);
+                if (node && !(functionsHidden && node.kind === "function")) {
+                    selectNode(node);
+                }
             }
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -1045,6 +1080,7 @@
             if (selected && isMobileEditor()) setCollapsed(true);
         });
         collapseButton.addEventListener("click", () => setCollapsed(true));
+        clearFunctionsButton.addEventListener("click", () => setFunctionsHidden(!functionsHidden));
         compactAdjustButton.addEventListener("click", () => setCollapsed(false));
         compactSaveButton.addEventListener("click", saveAndSelectNext);
         compactUndoButton.addEventListener("click", undoLastChange);
@@ -1137,6 +1173,7 @@
         activeCleanup = () => {
             if (raf) root.cancelAnimationFrame(raf);
             appRoot.classList.remove("tq-dev-scene-editing");
+            appRoot.classList.remove("tq-dev-functions-hidden");
             document.body.classList.remove("tq-dev-scene-editing-active");
             screenRoot.removeEventListener("pointerdown", onPointerDown, true);
             screenRoot.removeEventListener("click", interceptClick, true);
