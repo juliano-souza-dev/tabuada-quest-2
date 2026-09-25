@@ -344,6 +344,45 @@
         }
     }
 
+    async function removeLocalLayerBySlot(screenId, slotId, variantId = null, screenRoot = null) {
+        const id = String(screenId || "screen");
+        const wantedSlot = String(slotId || "");
+        if (!wantedSlot) return 0;
+
+        const records = await readLocalLayerRecords(id);
+        const matches = records.filter((record) =>
+            String(record.slotId || "") === wantedSlot
+            && (
+                variantId === null
+                || String(record.variantId || "default") === String(variantId || "default")
+            )
+        );
+
+        for (const record of matches) {
+            await deleteLocalLayerRecord(record.id);
+            releaseRuntimeUrl(record.id);
+        }
+
+        if (screenRoot instanceof Element) {
+            screenRoot
+                .querySelectorAll('.tq-dev-local-live-asset[data-tq-composition-slot="' + CSS.escape(wantedSlot) + '"]')
+                .forEach((element) => {
+                    if (
+                        variantId !== null
+                        && String(element.dataset.tqCompositionVariant || "default") !== String(variantId || "default")
+                    ) return;
+                    element.remove();
+                });
+
+            const slot = semanticSlotElement(screenRoot, wantedSlot);
+            if (slot instanceof HTMLElement) {
+                slot.dataset.tqSlotEmpty = "true";
+            }
+        }
+
+        return matches.length;
+    }
+
     function releaseRuntimeUrl(id) {
         const current = runtimeObjectUrls.get(String(id));
         if (!current) return;
@@ -405,7 +444,41 @@
         image.style.pointerEvents = "auto";
         image.style.userSelect = "none";
 
+        if (record.slotId) {
+            delete image.dataset.tqDevId;
+            delete image.dataset.tqAssetId;
+            image.dataset.tqDevIgnore = "true";
+            image.style.left = "0";
+            image.style.top = "0";
+            image.style.width = "100%";
+            image.style.height = "100%";
+            image.style.maxHeight = "none";
+            image.style.zIndex = "auto";
+            image.style.pointerEvents = "none";
+        }
+
         return { image, objectUrl };
+    }
+
+    function semanticSlotElement(screenRoot, slotId) {
+        if (!(screenRoot instanceof Element) || !slotId) return null;
+        return screenRoot.querySelector(
+            '.tq-composition-slot[data-tq-composition-slot="' + CSS.escape(String(slotId)) + '"]'
+        );
+    }
+
+    function attachLocalLayerImage(screenRoot, stage, record, image) {
+        const slot = semanticSlotElement(screenRoot, record?.slotId);
+        const parent = slot instanceof HTMLElement ? slot : stage;
+        parent.appendChild(image);
+
+        if (slot instanceof HTMLElement) {
+            slot.dataset.tqSlotEmpty = "false";
+            if (record.semanticType) slot.dataset.tqSemanticType = record.semanticType;
+            if (record.variantId) slot.dataset.tqCompositionVariant = record.variantId;
+        }
+
+        return parent;
     }
 
     function fileNameFromAssetUrl(rawUrl) {
@@ -511,13 +584,15 @@
                     continue;
                 }
 
-                const visualId = record.slotId || record.id;
-                const duplicate = [...screenRoot.querySelectorAll("[data-tq-dev-id]")]
-                    .some((element) => element.dataset.tqDevId === visualId);
+                const duplicate = record.slotId
+                    ? [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
+                        .some((element) => element.dataset.tqLocalRecordId === String(record.id))
+                    : [...screenRoot.querySelectorAll("[data-tq-dev-id]")]
+                        .some((element) => element.dataset.tqDevId === String(record.id));
                 if (duplicate || !(record.blob instanceof Blob)) continue;
 
                 const { image } = createLocalLayerElement(record);
-                stage.appendChild(image);
+                attachLocalLayerImage(screenRoot, stage, record, image);
                 restored += 1;
             }
 
@@ -1108,7 +1183,7 @@
             }
 
             const { image, objectUrl } = createLocalLayerElement(record);
-            stage.appendChild(image);
+            attachLocalLayerImage(screenRoot, stage, record, image);
 
             const entry = {
                 id,
@@ -1497,6 +1572,7 @@
         readLocalLayerRecords,
         ensureLocalDraftReset,
         clearLocalLayersForScreen,
+        removeLocalLayerBySlot,
         deleteLocalLayerRecord
     });
 })(globalThis);
