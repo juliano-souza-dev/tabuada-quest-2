@@ -35,6 +35,7 @@
         "background-ships": "Navios",
         "background-islands": "Ilhas",
         "background-pier": "Pier",
+        "background-scenery": "Itens de cenário",
         buttons: "Botões",
         navigation: "Navegação",
         background: "Background",
