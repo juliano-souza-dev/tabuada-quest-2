@@ -266,7 +266,7 @@
         const compositionActive = Boolean(compositionType);
 
         const explicitAssets = compositionActive
-            ? [...activeRoot.querySelectorAll("[data-tq-composition-slot][data-tq-semantic-type]")]
+            ? [...activeRoot.querySelectorAll("[data-tq-semantic-type][data-tq-dev-kind='asset']")]
                 .filter((element) =>
                     compositionRegistry
                         .allowedFxForSemanticType(element.dataset.tqSemanticType)
