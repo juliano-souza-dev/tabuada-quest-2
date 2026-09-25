@@ -23,6 +23,7 @@
     let developmentMode = false;
     let developmentRegionId = null;
     let worldMapPreviewRegionId = null;
+    let regionBuilderPreviewActive = false;
     let rewardReturnScreen = null;
     let worldMapReturnScreen = "home";
     let authBusy = false;
@@ -74,6 +75,7 @@
         developmentMode = false;
         developmentRegionId = null;
         worldMapPreviewRegionId = null;
+        regionBuilderPreviewActive = false;
         rewardReturnScreen = null;
         worldMapReturnScreen = "home";
         authBusy = false;
@@ -229,6 +231,16 @@
         );
 
         state = TQ.persistence.localStorage.saveState(root.localStorage, normalized);
+        render();
+    }
+
+    function openRegionBuilderPreview() {
+        regionBuilderPreviewActive = true;
+        render();
+    }
+
+    function closeRegionBuilderPreview() {
+        regionBuilderPreviewActive = false;
         render();
     }
 
@@ -802,15 +814,17 @@
         if (!TQ.content.development?.shortcutsEnabled) return;
 
         const screenRoot = appRoot.firstElementChild || appRoot;
+        const editorScreenId = screenRoot.dataset.tqDevScreenId || screenId;
+
         await TQ.dev?.assetUploader?.restoreLocalLayers?.({
-            screenId,
+            screenId: editorScreenId,
             screenRoot
         });
         TQ.dev?.sceneEditor?.mount(appRoot, {
-            screenId,
+            screenId: editorScreenId,
             screenRoot
         });
-        mountParallaxPrototype(screenId, screenRoot, {
+        mountParallaxPrototype(editorScreenId, screenRoot, {
             regionId: context.state?.campaign?.currentRegionId
         });
         TQ.dev?.settingsPanel?.mount({
@@ -819,13 +833,16 @@
             onOpenRegion: openSettingsRegion,
             onOpenIsland: openSettingsIsland
         });
+        TQ.dev?.regionBuilder?.mount({
+            onPreview: openRegionBuilderPreview
+        });
         TQ.dev?.assetUploader?.mount({
             repository: "juliano-souza-dev/tabuada-quest-2",
             branch: "develop",
             rootPath: "web/assets",
             appRoot,
             screenRoot,
-            screenId
+            screenId: editorScreenId
         });
         mountDevelopmentExit();
     }
@@ -869,6 +886,19 @@
                 status,
                 onStateChange: save
             }, "profile-setup", renderToken);
+            return;
+        }
+
+        if (regionBuilderPreviewActive && TQ.screens.developmentRegionBuilder) {
+            await renderWithDevelopmentTools(
+                TQ.screens.developmentRegionBuilder.renderDevelopmentRegionBuilderScreen,
+                {
+                    state: renderState,
+                    onExitRegionBuilder: closeRegionBuilderPreview
+                },
+                "region-builder-preview",
+                renderToken
+            );
             return;
         }
 
