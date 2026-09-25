@@ -112,6 +112,27 @@
     }
 
     const HOME_BACKGROUND_COMPOSITION_ID = "home.background.composition";
+    const HOME_BACKGROUND_GROUPS = Object.freeze([
+        "background-ocean",
+        "background-clouds",
+        "background-ships",
+        "background-islands",
+        "background-pier"
+    ]);
+    const HOME_BACKGROUND_TYPES = Object.freeze([
+        "ocean",
+        "cloud",
+        "ship",
+        "island",
+        "pier"
+    ]);
+    const HOME_BACKGROUND_LIMITS = Object.freeze({
+        "background-ocean": Object.freeze({ label: "Oceano", min: 1, max: 1 }),
+        "background-clouds": Object.freeze({ label: "Nuvens", min: 0, max: 10 }),
+        "background-ships": Object.freeze({ label: "Navios", min: 1, max: 5 }),
+        "background-islands": Object.freeze({ label: "Ilhas", min: 0, max: 3 }),
+        "background-pier": Object.freeze({ label: "Pier", min: 1, max: 1 })
+    });
     const homeBackgroundPart = (id, label, semanticType, options = {}) =>
         assetSlot(id, label, semanticType, {
             ...options,
@@ -220,19 +241,15 @@
             id: "home",
             label: "Home",
             assets: homeSlots,
-            assetLimits: Object.freeze({
-                "background-ocean": Object.freeze({ label: "Oceano", min: 1, max: 1 }),
-                "background-clouds": Object.freeze({ label: "Nuvens", min: 0, max: 10 }),
-                "background-ships": Object.freeze({ label: "Navios", min: 1, max: 5 }),
-                "background-islands": Object.freeze({ label: "Ilhas", min: 0, max: 3 }),
-                "background-pier": Object.freeze({ label: "Pier", min: 1, max: 1 })
-            }),
+            assetLimits: HOME_BACKGROUND_LIMITS,
             compositions: Object.freeze([
                 Object.freeze({
                     id: HOME_BACKGROUND_COMPOSITION_ID,
                     label: "Fundo da Home",
                     equipStatePath: "ui.homeBackgroundId",
-                    memberGroup: "background-composition"
+                    memberGroups: HOME_BACKGROUND_GROUPS,
+                    allowedSemanticTypes: HOME_BACKGROUND_TYPES,
+                    limits: HOME_BACKGROUND_LIMITS
                 })
             ]),
             functions: Object.freeze([
@@ -354,6 +371,27 @@
     function getComposition(screenId, compositionId) {
         return getCompositions(screenId)
             .find((item) => item.id === String(compositionId || "")) || null;
+    }
+
+    function getCompositionSlots(screenId, compositionId) {
+        const composition = getComposition(screenId, compositionId);
+        if (!composition) return [];
+        return getAssetSlots(screenId).filter((slot) =>
+            slot.compositionId === composition.id
+        );
+    }
+
+    function compositionAcceptsSlot(screenId, compositionId, slotOrId) {
+        const composition = getComposition(screenId, compositionId);
+        const slot = typeof slotOrId === "string"
+            ? getSlot(screenId, slotOrId)
+            : slotOrId;
+        if (!composition || !slot || slot.compositionId !== composition.id) return false;
+
+        const allowedGroups = composition.memberGroups || [];
+        const allowedTypes = composition.allowedSemanticTypes || [];
+        return allowedGroups.includes(slot.group)
+            && allowedTypes.includes(slot.semanticType);
     }
 
     function getSlot(screenId, slotId) {
@@ -659,6 +697,8 @@
         getAssetLimit,
         getCompositions,
         getComposition,
+        getCompositionSlots,
+        compositionAcceptsSlot,
         getSlot,
         getPair,
         allowedFunctionActions,
