@@ -383,3 +383,63 @@
     outline-offset: -2px;
     background-color: rgba(31,163,208,.16) !important;
 }
+
+
+/* Engine zero-state canvas */
+[data-tq-engine-mode="true"] {
+    background: transparent !important;
+    background-image: none !important;
+}
+
+.tq-engine-canvas {
+    z-index: 20;
+    background: transparent !important;
+    pointer-events: none;
+}
+
+.tq-engine-function-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 9000;
+    pointer-events: none;
+}
+
+.tq-engine-function-proxy {
+    appearance: none;
+    border: 0 !important;
+    outline: 0;
+    background: transparent !important;
+    background-image: none !important;
+    color: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    opacity: 0;
+    pointer-events: auto;
+}
+
+.tq-engine-function-proxy:disabled {
+    pointer-events: none;
+}
+
+.tq-dev-scene-editing .tq-engine-function-proxy {
+    opacity: 1;
+    border: 2px dashed rgba(100, 220, 255, .9) !important;
+    background: rgba(31, 163, 208, .16) !important;
+}
+
+.tq-dev-scene-editing .tq-engine-function-proxy::after {
+    content: attr(data-tq-dev-label);
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    color: #dcf7ff;
+    font: 800 10px/1.15 system-ui, sans-serif;
+    text-align: center;
+    pointer-events: none;
+}
+
+.tq-engine-canvas > .tq-dev-local-live-asset {
+    pointer-events: auto;
+}
