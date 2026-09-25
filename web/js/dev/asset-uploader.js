@@ -34,6 +34,7 @@
         "background-clouds": "Nuvens",
         "background-ships": "Navios",
         "background-islands": "Ilhas",
+        "background-pier": "Pier",
         buttons: "Botões",
         navigation: "Navegação",
         background: "Background",
