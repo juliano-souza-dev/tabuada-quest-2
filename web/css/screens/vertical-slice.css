@@ -1683,13 +1683,6 @@
     }
 }
 
-.region-islands-map-screen[data-region-id="1"] .region-ocean-motion {
-    translate: 7.340916550539703px -58.72876779665188px;
-    scale: 1 1.030429413366141;
-    z-index: 2;
-    transform-origin: top left;
-}
-
 .region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="1"] {
     z-index: 1;
 }
