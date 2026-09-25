@@ -1202,6 +1202,7 @@
             await TQ.dev?.assetUploader?.restoreLocalLayers?.({
                 screenId: editorStorageScope,
                 compositionScreenId: editorScreenId,
+                compositionVariantId: activeHomeBackgroundId,
                 screenRoot
             });
             activeCompositionController?.refresh?.();
