@@ -10,7 +10,13 @@
 
     const SEMANTIC_TYPES = Object.freeze({
         frame: Object.freeze({ label: "Placa / moldura", fx: Object.freeze([]), defaultZ: 40 }),
-        avatar: Object.freeze({ label: "Avatar", fx: Object.freeze([]), defaultZ: 41 }),
+        avatar: Object.freeze({ label: "Avatar rosto", fx: Object.freeze([]), defaultZ: 41 }),
+        avatar_full: Object.freeze({
+            label: "Avatar completo",
+            fx: Object.freeze(["depth"]),
+            depthRoles: Object.freeze(["custom"]),
+            defaultZ: 26
+        }),
         logo: Object.freeze({ label: "Logo", fx: Object.freeze([]), defaultZ: 42 }),
         level_plate: Object.freeze({ label: "Plaquinha de nível", fx: Object.freeze([]), defaultZ: 43 }),
         ui_button: Object.freeze({ label: "Botão visual", fx: Object.freeze([]), defaultZ: 30 }),
@@ -125,6 +131,10 @@
         "background-pier": Object.freeze({ label: "Pier", min: 1, max: 1 }),
         "background-scenery": Object.freeze({ label: "Itens de cenário", min: 0, max: 20 })
     });
+    const HOME_ASSET_LIMITS = Object.freeze({
+        ...HOME_BACKGROUND_LIMITS,
+        character: Object.freeze({ label: "Avatar completo", min: 1, max: 1 })
+    });
     const homeBackgroundPart = (id, label, semanticType, options = {}) =>
         assetSlot(id, label, semanticType, {
             ...options,
@@ -136,9 +146,14 @@
 
     const homeSlots = Object.freeze([
         assetSlot("home.header.frame", "Placa moldura", "frame", { required: true, group: "header" }),
-        assetSlot("home.header.avatar", "Avatar", "avatar", { required: true, group: "header" }),
+        assetSlot("home.header.avatar", "Avatar rosto", "avatar", { required: true, group: "header" }),
         assetSlot("home.header.logo", "Logo", "logo", { required: true, group: "header" }),
         assetSlot("home.header.level-plate", "Plaquinha de nível", "level_plate", { required: true, group: "header" }),
+
+        assetSlot("home.character.avatar-full", "Avatar completo", "avatar_full", {
+            required: true,
+            group: "character"
+        }),
 
         homeBackgroundPart("home.background.ocean", "Oceano", "ocean", { required: true, group: "background-ocean" }),
         ...Array.from({ length: 10 }, (_, index) =>
@@ -242,7 +257,7 @@
             id: "home",
             label: "Home",
             assets: homeSlots,
-            assetLimits: HOME_BACKGROUND_LIMITS,
+            assetLimits: HOME_ASSET_LIMITS,
             compositions: Object.freeze([
                 Object.freeze({
                     id: HOME_BACKGROUND_COMPOSITION_ID,
