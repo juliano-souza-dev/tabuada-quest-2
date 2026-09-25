@@ -303,14 +303,6 @@
             }
         }
 
-        const unboundRequired = actions.filter((action) =>
-            action.required
-            && !bindings.some((binding) => binding.actionId === action.id)
-        );
-        if (unboundRequired.length) {
-            warnings.push(unboundRequired.length + " função(ões) obrigatória(s) ainda sem asset visual");
-        }
-
         const requiredWithoutArt = assets.filter((asset) => asset.required && !asset.asset);
         if (requiredWithoutArt.length) {
             warnings.push(requiredWithoutArt.length + " slot(s) obrigatório(s) ainda sem arte vinculada");
