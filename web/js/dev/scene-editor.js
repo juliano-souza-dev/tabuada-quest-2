@@ -56,7 +56,7 @@
         }
     }
 
-    function readScopedComposition(storageScopeId, screenId) {
+    function readScopedComposition(storageScopeId, screenId, screenRoot) {
         try {
             const registry = TQ.content?.screenComposition;
             const screenType = registry?.resolveScreenType?.(screenId);
@@ -74,7 +74,10 @@
                     pairId: slot.pairId || null,
                     pairState: slot.pairState || null,
                     group: slot.group || null,
-                    binding: registry.readBinding(storageScopeId, screenType, slot.id)
+                    binding: registry.readBinding(storageScopeId, screenType, slot.id),
+                    localDraft: screenRoot?.querySelector?.(
+                        '[data-tq-composition-slot="' + slot.id + '"][data-tq-local-file]'
+                    )?.dataset?.tqLocalFile || null
                 })),
                 functions: registry.getFunctionSlots(screenType).map((item) => ({
                     id: item.id,
@@ -1653,7 +1656,7 @@
                     version: 1,
                     config: readScopedDepth(storageScopeId, editorContext)
                 },
-                composition: readScopedComposition(storageScopeId, screenId)
+                composition: readScopedComposition(storageScopeId, screenId, screenRoot)
             }, null, 2);
             try {
                 await navigator.clipboard.writeText(payload);
