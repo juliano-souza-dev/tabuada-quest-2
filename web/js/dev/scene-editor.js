@@ -359,6 +359,7 @@
             || id.includes("tq-canonical-stage")
             || id.includes("home-world")
             || id === "home.background.bleed"
+            || id === "home.level.badge.image"
         );
         if (legacyStructuralIds.length) {
             legacyStructuralIds.forEach((id) => delete saved[id]);
