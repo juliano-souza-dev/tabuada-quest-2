@@ -331,13 +331,130 @@
         }
     }
 
+    function functionInstanceId(original, index) {
+        const base = original.dataset.tqDevId
+            || original.dataset.tqCompositionFunction
+            || "function";
+        const target = original.dataset.regionId
+            || original.dataset.islandId
+            || original.dataset.answer
+            || original.dataset.builderActionId
+            || original.dataset.action
+            || (index + 1);
+        return base + ".instance." + String(target);
+    }
+
+    function createEngineFunctionLayer(screenRoot) {
+        const originals = [...screenRoot.querySelectorAll("[data-tq-composition-function]")];
+
+        const canvas = document.createElement("div");
+        canvas.className = "tq-engine-canvas tq-canonical-stage";
+        canvas.dataset.tqEngineCanvas = "true";
+        canvas.style.position = "absolute";
+        canvas.style.inset = "0";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.overflow = "hidden";
+        canvas.style.pointerEvents = "none";
+        canvas.style.background = "transparent";
+
+        const functionLayer = document.createElement("div");
+        functionLayer.className = "tq-engine-function-layer";
+        functionLayer.style.position = "absolute";
+        functionLayer.style.inset = "0";
+        functionLayer.style.pointerEvents = "none";
+        canvas.appendChild(functionLayer);
+
+        const proxies = [];
+
+        originals.forEach((original, index) => {
+            const proxy = document.createElement("button");
+            const action = original.dataset.tqCompositionFunction || "";
+            const label = original.dataset.tqDevLabel
+                || original.getAttribute("aria-label")
+                || action
+                || ("Função " + (index + 1));
+            const column = index % 3;
+            const row = Math.floor(index / 3);
+
+            proxy.type = "button";
+            proxy.className = "tq-engine-function-proxy";
+            proxy.dataset.tqEngineFunctionProxy = "true";
+            proxy.dataset.tqEngineFunctionId = original.dataset.tqDevId || action;
+            proxy.dataset.tqCompositionFunction = action;
+            proxy.dataset.tqDevId = functionInstanceId(original, index);
+            proxy.dataset.tqDevKind = "function";
+            proxy.dataset.tqDevRole = "button";
+            proxy.dataset.tqDevAction = action;
+            proxy.dataset.tqDevLabel = label;
+            proxy.setAttribute("aria-label", label);
+            proxy.disabled = Boolean(original.disabled);
+
+            proxy.style.position = "absolute";
+            proxy.style.left = (18 + column * 118) + "px";
+            proxy.style.top = (18 + row * 82) + "px";
+            proxy.style.width = "104px";
+            proxy.style.height = "64px";
+            proxy.style.margin = "0";
+            proxy.style.padding = "0";
+            proxy.style.border = "0";
+            proxy.style.background = "transparent";
+            proxy.style.color = "transparent";
+            proxy.style.boxShadow = "none";
+            proxy.style.pointerEvents = "auto";
+
+            proxy.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (screenRoot.classList.contains("tq-dev-scene-editing")) return;
+                if (original.disabled) return;
+
+                original.click();
+            });
+
+            functionLayer.appendChild(proxy);
+            proxies.push(proxy);
+        });
+
+        screenRoot.appendChild(canvas);
+
+        const onBoundAssetClick = (event) => {
+            if (screenRoot.classList.contains("tq-dev-scene-editing")) return;
+
+            const asset = event.target.closest?.("[data-tq-bound-function-id]");
+            if (!asset || !screenRoot.contains(asset)) return;
+
+            const functionId = asset.dataset.tqBoundFunctionId;
+            const proxy = proxies.find(
+                (item) => item.dataset.tqEngineFunctionId === functionId
+            );
+
+            if (!proxy || proxy.disabled) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            proxy.click();
+        };
+
+        screenRoot.addEventListener("click", onBoundAssetClick, true);
+
+        return {
+            canvas,
+            proxies,
+            destroy() {
+                screenRoot.removeEventListener("click", onBoundAssetClick, true);
+                canvas.remove();
+            }
+        };
+    }
+
     function mount(options = {}) {
         const registry = TQ.content?.screenComposition;
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
         const screenId = String(options.screenId || "");
         const scopeId = String(options.scopeId || screenId);
         const screenType = registry?.resolveScreenType?.(screenId);
-        const runtimeState = options.state || null;
 
         if (!registry || !screenRoot || !screenType) {
             return {
@@ -351,80 +468,16 @@
 
         screenRoot.dataset.tqCompositionScreen = screenType;
         screenRoot.dataset.tqCompositionScope = scopeId;
+        screenRoot.dataset.tqEngineMode = "true";
         screenRoot.classList.add("tq-composition-reset");
 
         decorateFunctions(screenRoot, screenType);
         hideLegacyVisuals(screenRoot);
         orphanLegacyPresentation(screenRoot);
 
-        const stage = stageFor(screenRoot);
-        if (root.getComputedStyle(stage).position === "static") {
-            stage.style.position = "relative";
-        }
-
-        const layer = document.createElement("div");
-        layer.className = "tq-composition-runtime-layer";
-        layer.setAttribute("aria-hidden", "true");
-        layer.style.position = "absolute";
-        layer.style.inset = "0";
-        layer.style.zIndex = "2";
-        layer.style.pointerEvents = "none";
-        stage.appendChild(layer);
-
-        const slotElements = new Map();
-        registry.getAssetSlots(screenType).forEach((slot, index) => {
-            const empty = registry.readBinding(scopeId, screenType, slot.id);
-            const slotElement = createSlotElement(slot, empty, index);
-            slotElements.set(slot.id, slotElement);
-            layer.appendChild(slotElement);
-        });
-
-        function resolvedBinding(slot, bindings) {
-            let binding = bindings[slot.id];
-            if (slot.bindingMode !== "variants") return binding;
-
-            const variants = Array.isArray(binding?.variants) ? binding.variants : [];
-            const preferredId = String(runtimeState?.ui?.homeBackgroundId || "");
-            const activeVariant = variants.find((variant) => variant.id === preferredId)
-                || variants.find((variant) => variant.id === "default")
-                || variants.find((variant) => variant.asset)
-                || variants[0]
-                || null;
-            return {
-                ...binding,
-                asset: activeVariant?.asset || null,
-                activeVariantId: activeVariant?.id || null,
-                activeVariantEffects: activeVariant?.effects || []
-            };
-        }
+        const engine = createEngineFunctionLayer(screenRoot);
 
         function refresh() {
-            const bindings = registry.readBindings(scopeId, screenType);
-            registry.getAssetSlots(screenType).forEach((slot) => {
-                const slotElement = slotElements.get(slot.id);
-                if (!slotElement) return;
-
-                const binding = resolvedBinding(slot, bindings);
-                decorateElement(slotElement, slot, binding);
-                slotElement.style.zIndex = String(
-                    registry.defaultLayerForSemanticType(binding?.semanticType || slot.semanticType)
-                );
-
-                const localDraft = screenRoot.querySelector(
-                    '.tq-dev-local-live-asset[data-tq-composition-slot="' + slot.id + '"]'
-                );
-                const previewSrc = localDraft instanceof HTMLImageElement
-                    ? (localDraft.currentSrc || localDraft.src || null)
-                    : null;
-
-                if (localDraft instanceof HTMLElement) {
-                    localDraft.style.setProperty("display", "none", "important");
-                    localDraft.style.setProperty("visibility", "hidden", "important");
-                    localDraft.style.setProperty("pointer-events", "none", "important");
-                }
-
-                renderSlotVisual(slotElement, slot, binding, previewSrc);
-            });
             root.dispatchEvent(new CustomEvent("tq:composition-runtime-refreshed", {
                 detail: { screenType, scopeId }
             }));
@@ -443,13 +496,14 @@
             screenType,
             scopeId,
             refresh,
-            getSlots: () => registry.getAssetSlots(screenType),
+            getSlots: () => [],
             destroy() {
                 root.removeEventListener("tq:composition-binding-changed", onBindingChanged);
-                layer.remove();
+                engine.destroy();
                 screenRoot.classList.remove("tq-composition-reset");
                 delete screenRoot.dataset.tqCompositionScreen;
                 delete screenRoot.dataset.tqCompositionScope;
+                delete screenRoot.dataset.tqEngineMode;
             }
         };
     }
@@ -460,6 +514,7 @@
         decorateElement,
         decorateFunctions,
         orphanLegacyPresentation,
+        createEngineFunctionLayer,
         createSlotElement,
         renderSlotVisual,
         mount
