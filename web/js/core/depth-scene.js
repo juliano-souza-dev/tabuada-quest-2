@@ -41,7 +41,17 @@
             drift: 26,
             speed: 34,
             opacity: 100,
-            scale: 114
+            scale: 114,
+            tilt: 0
+        }),
+        ship: Object.freeze({
+            label: "Navio",
+            depth: 48,
+            drift: 18,
+            speed: 34,
+            opacity: 100,
+            scale: 104,
+            tilt: 34
         }),
         world: Object.freeze({
             label: "Ilhas / cenário",
@@ -102,7 +112,8 @@
             drift: percent(source.drift, preset.drift),
             speed: percent(source.speed, preset.speed),
             opacity: percent(source.opacity, preset.opacity),
-            scale: clamp(number(source.scale, preset.scale), 100, 125)
+            scale: clamp(number(source.scale, preset.scale), 100, 125),
+            tilt: percent(source.tilt, preset.tilt || 0)
         };
     }
 
@@ -401,11 +412,18 @@
                         ? -pointerY * depth * intensity * 15
                         : 0;
                     const x = pointerShiftX + autoX;
-                    const y = pointerShiftY + autoY;
+                    const shipBob = layer.role === "ship" && !reducedMotion
+                        ? Math.sin((time * 1.45) + entry.phase) * (2 + drift * 5)
+                        : 0;
+                    const y = pointerShiftY + autoY + shipBob;
                     const scale = layer.scale / 100;
+                    const tiltDegrees = layer.role === "ship" && !reducedMotion
+                        ? Math.sin((time * 1.18) + entry.phase) * (layer.tilt / 100) * 4.5
+                        : 0;
                     const transform = [
                         entry.baseTransform,
                         `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`,
+                        tiltDegrees ? `rotate(${tiltDegrees.toFixed(3)}deg)` : "",
                         `scale(${scale.toFixed(4)})`
                     ].filter(Boolean).join(" ");
 
