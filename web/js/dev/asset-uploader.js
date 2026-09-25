@@ -4,7 +4,7 @@
     const DEFAULT_REPOSITORY = "juliano-souza-dev/tabuada-quest-2";
     const DEFAULT_BRANCH = "develop";
     const DEFAULT_ROOT_PATH = "web/assets";
-    const LOCAL_DB_NAME = "tq2-dev-local-assets-v2";
+    const LOCAL_DB_NAME = "tq2-dev-local-assets-v3";
     const LOCAL_DB_VERSION = 1;
     const LOCAL_LAYER_STORE = "layers";
     const runtimeObjectUrls = new Map();
