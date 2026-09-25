@@ -1084,7 +1084,7 @@
             else syncEditorChrome();
         }
 
-        function deleteSelectedVisual() {
+        async function deleteSelectedVisual() {
             if (!selected) return;
 
             if (isDeleteProtected(selected)) {
@@ -1096,6 +1096,63 @@
             if (!isDeletableVisual(selected)) {
                 status.textContent = "Excluir é permitido somente para assets visuais";
                 syncEditorChrome();
+                return;
+            }
+
+            const registry = TQ.content?.screenComposition;
+            const slotId = selected.element.dataset.tqCompositionSlot;
+            const slot = slotId && registry
+                ? registry.getSlot(screenId, slotId)
+                : null;
+
+            if (slot) {
+                pushHistory();
+                const variantId = selected.element.dataset.tqCompositionVariant
+                    || editorContext.homeBackgroundId
+                    || "default";
+
+                try {
+                    await TQ.dev?.assetUploader?.removeLocalLayerBySlot?.(
+                        storageScopeId,
+                        slot.id,
+                        slot.bindingMode === "variants" ? variantId : null,
+                        screenRoot
+                    );
+                } catch (error) {
+                    console.warn("Falha ao remover rascunho local do slot:", error);
+                }
+
+                if (slot.bindingMode === "variants") {
+                    registry.unbindVariant(
+                        storageScopeId,
+                        screenId,
+                        slot.id,
+                        variantId
+                    );
+                } else {
+                    registry.unbindAsset(
+                        storageScopeId,
+                        screenId,
+                        slot.id
+                    );
+                }
+
+                setDeleted(selected.element, false);
+                selected.element.dataset.tqSlotEmpty = "true";
+                root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                    detail: {
+                        scopeId: storageScopeId,
+                        screenId,
+                        slotId: slot.id
+                    }
+                }));
+
+                persist("Arte removida · posição do slot preservada");
+                refreshList();
+                refreshInspector();
+                scheduleOverlay();
+                syncEditorChrome();
+                status.textContent = selected.label + " · arte removida; slot preservado";
                 return;
             }
 
