@@ -23,7 +23,7 @@
             || stage;
         const scopeId = String(options.scopeId || "");
         const regionId = Number(options.regionId) || null;
-        const controller = options.controller;
+        let controller = options.controller;
         const showShipWake = options.showShipWake !== false;
 
         document.querySelector(".tq-ocean-dev")?.remove();
@@ -175,9 +175,26 @@
             };
         }
 
+        function ensureController() {
+            if (controller?.webgl) return controller;
+            const hasOcean = Boolean(
+                screenRoot?.querySelector('[data-tq-semantic-type="ocean"] img')
+            );
+            if (!hasOcean) return controller;
+
+            controller?.destroy?.();
+            controller = TQ.core.oceanScene.mount({
+                screenRoot,
+                scopeId,
+                regionId,
+                config
+            });
+            return controller;
+        }
+
         function persist(message = "Salvo automaticamente") {
             config = TQ.core.oceanScene.saveConfig(scopeId, readControls(), regionId);
-            controller?.update?.(config);
+            ensureController()?.update?.(config);
             status.textContent = message;
             syncControls();
             root.dispatchEvent(new CustomEvent("tq:ocean-config-changed", {
@@ -197,6 +214,7 @@
             panelOpen = Boolean(nextOpen);
             panel.hidden = !panelOpen;
             if (panelOpen) {
+                ensureController();
                 closeOtherPanels();
                 root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
                     detail: { tool: "ocean" }
@@ -342,7 +360,7 @@
             input.addEventListener("input", () => {
                 syncLabels();
                 config = TQ.core.oceanScene.normalizeConfig(readControls(), regionId);
-                controller?.update?.(config);
+                ensureController()?.update?.(config);
                 status.textContent = "Ajustando...";
             });
             input.addEventListener("change", () => persist());
@@ -356,12 +374,12 @@
         host.querySelector("[data-ocean-reset]").addEventListener("click", () => {
             TQ.core.oceanScene.clearConfig(scopeId);
             config = TQ.core.oceanScene.readConfig(scopeId, regionId);
-            controller?.update?.(config);
+            ensureController()?.update?.(config);
             syncControls();
             status.textContent = "Versão publicada restaurada";
         });
         host.querySelector("[data-ocean-test]").addEventListener("click", () => {
-            controller?.addRipple?.({ x: 0.5, y: 0.62 });
+            ensureController()?.addRipple?.({ x: 0.5, y: 0.62 });
             status.textContent = "Ondinha enviada";
         });
 
@@ -369,6 +387,7 @@
 
         activeCleanup = () => {
             root.removeEventListener("tq:dev-tool-activate", onOtherTool);
+            controller?.destroy?.();
             host.remove();
         };
         return activeCleanup;
