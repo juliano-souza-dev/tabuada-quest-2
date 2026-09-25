@@ -1,7 +1,7 @@
 .tq-ocean-dev {
     position: fixed;
     right: 16px;
-    bottom: 272px;
+    bottom: 336px;
     z-index: 100006;
     display: flex;
     flex-direction: column;
@@ -227,7 +227,7 @@
 @media (max-width: 620px) {
     .tq-ocean-dev {
         right: 8px;
-        bottom: 264px;
+        bottom: 328px;
     }
 
     .tq-ocean-dev-panel {
