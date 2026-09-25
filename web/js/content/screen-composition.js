@@ -191,7 +191,7 @@
         home: Object.freeze({
             id: "home",
             label: "Home",
-            assets: homeSlots,
+            assets: Object.freeze([]),
             functions: Object.freeze([
                 functionSlot("home.fn.shipyard", "Abrir estaleiro", "shipyard"),
                 functionSlot("home.fn.collectibles", "Abrir colecionáveis", "collectibles"),
@@ -207,7 +207,7 @@
         "nautical-chart": Object.freeze({
             id: "nautical-chart",
             label: "Carta náutica",
-            assets: nauticalSlots,
+            assets: Object.freeze([]),
             functions: Object.freeze([
                 functionSlot("nautical.fn.back", "Voltar", "back"),
                 functionSlot("nautical.fn.next", "Avançar carta", "next-chart"),
@@ -219,7 +219,7 @@
         "region-map": Object.freeze({
             id: "region-map",
             label: "Região",
-            assets: Object.freeze(regionSlots),
+            assets: Object.freeze([]),
             functions: Object.freeze([
                 functionSlot("regions.fn.back", "Voltar", "back"),
                 functionSlot("regions.fn.nautical-chart", "Abrir carta náutica", "open-nautical-chart"),
@@ -237,7 +237,7 @@
         "island-game": Object.freeze({
             id: "island-game",
             label: "Ilha · jogo",
-            assets: islandGameSlots,
+            assets: Object.freeze([]),
             functions: Object.freeze([
                 functionSlot("island-game.fn.answer.1", "Alternativa 1", "answer-1"),
                 functionSlot("island-game.fn.answer.2", "Alternativa 2", "answer-2"),
@@ -325,9 +325,9 @@
 
     function screenAllowsFx(screenId, fxId) {
         const wanted = String(fxId || "");
-        return getAssetSlots(screenId).some((slot) =>
-            allowedFxForSemanticType(slot.semanticType).includes(wanted)
-            || (slot.acceptedTypes || []).some((type) => allowedFxForSemanticType(type).includes(wanted))
+        if (!getScreen(screenId)) return false;
+        return Object.values(SEMANTIC_TYPES).some((type) =>
+            Array.isArray(type.fx) && type.fx.includes(wanted)
         );
     }
 
