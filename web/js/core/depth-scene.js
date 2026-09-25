@@ -251,7 +251,7 @@
 
     function isVisualTarget(element) {
         if (!(element instanceof Element)) return false;
-        if (element.closest(".tq-depth-dev, .tq-parallax-dev, .tq-ocean-dev, .tq-scene-dev")) return false;
+        if (element.closest(".tq-depth-dev, .tq-ocean-dev, .tq-scene-dev")) return false;
         if (element.dataset.tqDevKind === "function") return false;
         if (element.matches("button, a, input, select, textarea, label")) return false;
         if (element.matches("img, picture, svg, canvas, video")) return true;
