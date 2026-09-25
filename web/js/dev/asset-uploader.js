@@ -928,6 +928,7 @@
         repositoryAssetPathFromUrl,
         buildUploadUrl,
         restoreLocalLayers,
+        readLocalLayerRecords,
         clearLocalLayersForScreen,
         deleteLocalLayerRecord
     });
