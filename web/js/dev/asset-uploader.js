@@ -552,6 +552,19 @@
                     <small data-upload-slot-info>
                         ● obrigatório · ○ opcional
                     </small>
+
+                    <label>
+                        Arquivo publicado
+                        <input
+                            data-upload-published-path
+                            type="text"
+                            spellcheck="false"
+                            autocomplete="off"
+                            placeholder="Será preenchido a partir da pasta e do arquivo">
+                    </label>
+                    <button type="button" data-upload-bind-published>
+                        Vincular arquivo publicado
+                    </button>
                 ` : ""}
 
                 <label>
@@ -644,6 +657,8 @@
         const slotSelect = host.querySelector("[data-upload-slot]");
         const semanticSelect = host.querySelector("[data-upload-semantic]");
         const slotInfo = host.querySelector("[data-upload-slot-info]");
+        const publishedPathInput = host.querySelector("[data-upload-published-path]");
+        const bindPublishedButton = host.querySelector("[data-upload-bind-published]");
         const folderSelect = host.querySelector("[data-upload-folder]");
         const customRow = host.querySelector("[data-upload-custom-row]");
         const customInput = host.querySelector("[data-upload-custom]");
@@ -654,6 +669,25 @@
         const dropzone = host.querySelector("[data-live-dropzone]");
         const removeButton = host.querySelector("[data-live-remove]");
         const revertButton = host.querySelector("[data-live-revert]");
+
+        function runtimeAssetUrl(value) {
+            const raw = String(value || "").trim().replace(/\\/g, "/");
+            if (!raw) return null;
+            if (/^(?:https?:|blob:|data:)/i.test(raw)) return raw;
+            if (raw.startsWith("./assets/")) return raw;
+            if (raw.startsWith("assets/")) return "./" + raw;
+            if (raw.startsWith("web/assets/")) return "./assets/" + raw.slice("web/assets/".length);
+            return raw.startsWith("./") ? raw : "./" + raw.replace(/^\/+/, "");
+        }
+
+        function suggestedPublishedPath(slot = selectedCompositionSlot()) {
+            if (!slot) return "";
+            const current = compositionRegistry.readBinding(screenId, compositionScreenId, slot.id);
+            if (current?.asset) return current.asset;
+            const entry = localLayers.find((item) => item.slotId === slot.id);
+            if (!entry?.fileName) return "";
+            return runtimeAssetUrl(currentFolder() + "/" + entry.fileName) || "";
+        }
 
         function selectedCompositionSlot() {
             if (!composition || !slotSelect) return null;
@@ -682,8 +716,11 @@
                 slotInfo.textContent = slot
                     ? (slot.required ? "Obrigatório" : "Opcional")
                         + " · " + (current?.asset ? "arte vinculada" : "sem arte")
-                        + (fx.length ? " · FX: " + fx.join(", ") : " · sem FX")
+                        + (fx.length ? " · " + fx.map((id) => compositionRegistry.fxLabel(id)).join(" · ") : " · sem efeito")
                     : "";
+            }
+            if (publishedPathInput) {
+                publishedPathInput.value = suggestedPublishedPath(slot);
             }
         }
 
@@ -840,7 +877,12 @@
 
             fileName.textContent = file.name;
             removeButton.disabled = false;
-            status.textContent = "SALVO LOCAL · " + file.name;
+            if (publishedPathInput && slot) {
+                publishedPathInput.value = runtimeAssetUrl(currentFolder() + "/" + file.name) || "";
+            }
+            status.textContent = slot
+                ? "ARTE DE TESTE · " + slot.label
+                : "SALVO LOCAL · " + file.name;
 
             image.addEventListener("error", () => {
                 status.textContent = "Falha ao exibir " + file.name;
@@ -1005,7 +1047,35 @@
             syncCompositionSlot();
         });
 
-        folderSelect.addEventListener("change", syncCustomVisibility);
+        folderSelect.addEventListener("change", () => {
+            syncCustomVisibility();
+            if (publishedPathInput && selectedCompositionSlot()) {
+                const current = compositionRegistry.readBinding(
+                    screenId,
+                    compositionScreenId,
+                    selectedCompositionSlot().id
+                );
+                if (!current?.asset) publishedPathInput.value = suggestedPublishedPath();
+            }
+        });
+
+        bindPublishedButton?.addEventListener("click", () => {
+            const slot = selectedCompositionSlot();
+            if (!slot) {
+                status.textContent = "Escolha primeiro o destino";
+                return;
+            }
+            const assetUrl = runtimeAssetUrl(publishedPathInput?.value);
+            compositionRegistry.bindAsset(
+                screenId,
+                compositionScreenId,
+                slot.id,
+                assetUrl,
+                semanticSelect?.value || slot.semanticType
+            );
+            status.textContent = assetUrl ? "Arquivo vinculado ao destino" : "Vínculo removido";
+            syncCompositionSlot();
+        });
 
         host.querySelector("[data-upload-use-selected]").addEventListener("click", () => {
             const folder = syncSelected();
