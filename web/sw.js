@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260925-up-inventory-v1";
+const CACHE_VERSION = "tq2-dev-assets-20260925-no-fx-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
