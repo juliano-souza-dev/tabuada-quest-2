@@ -534,6 +534,8 @@
                         <button type="button" data-dev-layer-up>↑ Avançar</button>
                         <button type="button" data-dev-layer-front>↥ Frente</button>
                     </div>
+                    <button type="button" class="tq-scene-dev-select-below" data-dev-select-below>◎ Selecionar abaixo</button>
+                    <small class="tq-scene-dev-layer-hint">Alt + clique também atravessa elementos sobrepostos.</small>
                 </div>
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-undo>↶ Desfazer</button>
@@ -548,7 +550,7 @@
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-clear-functions>Limpar funções</button>
                 </div>
-                <small>Arraste qualquer item mapeado. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais. Page Up/Page Down muda a camada; com Shift envia direto para frente/fundo. Funções são protegidas.</small>
+                <small>Arraste qualquer item mapeado. Alt + clique seleciona a próxima camada abaixo. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais. Page Up/Page Down muda a camada; com Shift envia direto para frente/fundo. Funções são protegidas.</small>
             </section>
             <div class="tq-scene-dev-compact" data-dev-compact hidden>
                 <button type="button" class="tq-scene-dev-compact-current" data-dev-compact-adjust aria-label="Abrir ajustes do elemento selecionado">
@@ -594,6 +596,7 @@
         const compactUndoButton = host.querySelector("[data-dev-compact-undo]");
         const compactLockButton = host.querySelector("[data-dev-compact-lock]");
         const compactDeleteButton = host.querySelector("[data-dev-compact-delete]");
+        const selectBelowButton = host.querySelector("[data-dev-select-below]");
 
         const regionCaption = editorContext.regionId
             ? `Região ${String(editorContext.regionId).padStart(2, "0")}${editorContext.regionLabel ? " · " + editorContext.regionLabel : ""}`
@@ -772,6 +775,7 @@
                     input.disabled = true;
                 });
                 layerButtons.forEach((button) => button.disabled = true);
+                selectBelowButton.disabled = true;
                 layerValue.textContent = "";
                 syncEditorChrome();
                 return;
@@ -788,6 +792,7 @@
             [inputX, inputY, inputSx, inputSy].forEach((input) => input.disabled = locked);
             const layerable = isLayerableVisual(selected);
             layerButtons.forEach((button) => button.disabled = !layerable);
+            selectBelowButton.disabled = false;
             layerValue.textContent = layerable ? "z " + readLayer(selected.element) : "protegido";
             syncEditorChrome();
         }
@@ -970,6 +975,82 @@
             scheduleOverlay();
         }
 
+        function selectableNodeFromElement(element) {
+            const mapped = element?.closest?.("[data-tq-dev-id]");
+            if (!mapped || !appRoot.contains(mapped)) return null;
+            const node = nodeById.get(mapped.dataset.tqDevId);
+            if (!node || isDeleted(node.element)) return null;
+            if (functionsHidden && node.kind === "function") return null;
+            return node;
+        }
+
+        function nodesAtPoint(clientX, clientY) {
+            const stack = [];
+            const seen = new Set();
+
+            const append = (node) => {
+                if (!node || seen.has(node.id)) return;
+                seen.add(node.id);
+                stack.push(node);
+            };
+
+            if (typeof document.elementsFromPoint === "function") {
+                document.elementsFromPoint(clientX, clientY)
+                    .forEach((element) => append(selectableNodeFromElement(element)));
+            }
+
+            // elementsFromPoint ignores pointer-events:none. Add geometric matches
+            // as a fallback so backgrounds/overlays never become unreachable.
+            nodes.forEach((node) => {
+                if (seen.has(node.id) || isDeleted(node.element)) return;
+                if (functionsHidden && node.kind === "function") return;
+                const rect = node.element.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+                if (
+                    clientX >= rect.left && clientX <= rect.right
+                    && clientY >= rect.top && clientY <= rect.bottom
+                ) append(node);
+            });
+
+            return stack;
+        }
+
+        function selectBelowAtPoint(clientX, clientY, fromNode = selected) {
+            const stack = nodesAtPoint(clientX, clientY);
+            if (!stack.length) {
+                status.textContent = "Nenhuma camada editável neste ponto";
+                return null;
+            }
+
+            const currentIndex = fromNode
+                ? stack.findIndex((node) => node.id === fromNode.id)
+                : -1;
+            const next = currentIndex >= 0
+                ? stack[currentIndex + 1]
+                : stack[0];
+
+            if (!next) {
+                status.textContent = "Não há outra camada abaixo neste ponto";
+                return null;
+            }
+
+            if (filterSelect.value !== "all" && next.kind !== filterSelect.value) {
+                filterSelect.value = "all";
+                refreshList();
+            }
+            selectNode(next);
+            status.textContent = "Camada abaixo · " + next.label;
+            return next;
+        }
+
+        function selectBelowCurrent() {
+            if (!selected) return;
+            const rect = selected.element.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            selectBelowAtPoint(x, y, selected);
+        }
+
         function startInteraction(event, node, mode, handle = "") {
             if (!opened || !node) return;
             selectNode(node);
@@ -1016,11 +1097,26 @@
             if (!element || !appRoot.contains(element)) return;
             const node = nodeById.get(element.dataset.tqDevId);
             if (!node || (functionsHidden && node.kind === "function")) return;
+
+            if (event.altKey) {
+                event.preventDefault();
+                event.stopPropagation();
+                selectBelowAtPoint(event.clientX, event.clientY, node);
+                return;
+            }
+
             startInteraction(event, node, "move");
         }
 
         function onSelectionOverlayDown(event) {
             if (!opened || !selected) return;
+
+            if (event.altKey) {
+                event.preventDefault();
+                event.stopPropagation();
+                selectBelowAtPoint(event.clientX, event.clientY, selected);
+                return;
+            }
 
             const handle = event.target.closest("[data-dev-handle]")?.dataset.devHandle;
             if (handle) {
@@ -1337,6 +1433,7 @@
         layerDownButton.addEventListener("click", () => changeSelectedLayer("down"));
         layerUpButton.addEventListener("click", () => changeSelectedLayer("up"));
         layerFrontButton.addEventListener("click", () => changeSelectedLayer("front"));
+        selectBelowButton.addEventListener("click", selectBelowCurrent);
 
         host.querySelector("[data-dev-undo]").addEventListener("click", undoLastChange);
         lockItemButton.addEventListener("click", toggleSelectedLock);
