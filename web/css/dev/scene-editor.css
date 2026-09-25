@@ -405,6 +405,38 @@
     display: none !important;
 }
 
+/* Editor-only visibility.
+   Hidden assets stay bound and keep geometry/layer/CENA settings.
+   They disappear only while UX editing is active. */
+.tq-dev-scene-editing [data-tq-dev-hidden="true"] {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.tq-scene-dev-visibility {
+    border-color: rgba(132, 216, 255, .52) !important;
+    color: #dff5ff !important;
+    background: rgba(13, 73, 101, .48) !important;
+}
+
+.tq-scene-dev-visibility[aria-pressed="true"] {
+    border-color: rgba(255, 225, 138, .72) !important;
+    color: #fff0b5 !important;
+    background: rgba(112, 79, 18, .52) !important;
+}
+
+.tq-scene-dev-show-all {
+    border-color: rgba(149, 229, 188, .52) !important;
+    color: #e3fff0 !important;
+    background: rgba(30, 103, 74, .48) !important;
+}
+
+.tq-scene-dev-show-all:disabled,
+.tq-scene-dev-visibility:disabled {
+    opacity: .34 !important;
+    cursor: not-allowed;
+}
+
 
 .tq-scene-dev-layer-tools {
     display: grid;
