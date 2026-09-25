@@ -59,16 +59,23 @@
             stage.dataset.safeViewportScale = String(geometry.scale);
 
             if (mode === "scale") {
+                const logicalHeight = Math.max(
+                    designHeight,
+                    safeArea.clientHeight / geometry.scale
+                );
+
                 stage.style.width = designWidth + "px";
-                stage.style.height = designHeight + "px";
+                stage.style.height = logicalHeight + "px";
                 stage.style.transformOrigin = "0 0";
                 stage.style.transform = "scale(" + geometry.scale + ")";
+                stage.dataset.safeViewportLogicalHeight = String(logicalHeight);
             } else {
                 // Size-mode screens are percentage-driven. Let them consume the full
                 // usable height instead of preserving a fixed aspect-ratio letterbox.
                 stage.style.width = geometry.renderWidth + "px";
                 stage.style.height = safeArea.clientHeight + "px";
                 stage.style.transform = "none";
+                stage.dataset.safeViewportLogicalHeight = String(safeArea.clientHeight);
             }
         }
 
