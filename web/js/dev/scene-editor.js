@@ -742,6 +742,28 @@
         let history = [];
         let raf = 0;
 
+        function linkedPairNodes(node) {
+            if (!node?.element) return node ? [node] : [];
+            const pairId = node.element.dataset.tqPairId;
+            if (!pairId) return [node];
+            const linked = nodes.filter((candidate) =>
+                candidate?.element?.dataset?.tqPairId === pairId
+            );
+            return linked.length ? linked : [node];
+        }
+
+        function applyGeometryLinked(node, geometry) {
+            linkedPairNodes(node).forEach((candidate) => {
+                applyGeometry(candidate.element, geometry);
+            });
+        }
+
+        function clearGeometryLinked(node) {
+            linkedPairNodes(node).forEach((candidate) => {
+                clearGeometry(candidate.element);
+            });
+        }
+
         function snapshot(targetNodes = nodes) {
             return Object.fromEntries(targetNodes
                 .filter((node) => node?.id && node?.element instanceof Element)
@@ -759,7 +781,7 @@
         function pushHistory(targetNodes = null) {
             const capturedNodes = Array.isArray(targetNodes)
                 ? targetNodes
-                : (selected ? [selected] : nodes);
+                : (selected ? linkedPairNodes(selected) : nodes);
 
             history.push({
                 version: 1,
@@ -1255,7 +1277,7 @@
             const scaleY = Math.abs(scale.y) > .0001 ? scale.y : 1;
 
             if (interaction.mode === "move") {
-                applyGeometry(node.element, {
+                applyGeometryLinked(node, {
                     ...interaction.geometry,
                     x: interaction.geometry.x + dx / scaleX,
                     y: interaction.geometry.y + dy / scaleY
@@ -1286,7 +1308,7 @@
                 const moveX = handle.includes("w") ? (interaction.rect.width - width) / scaleX : 0;
                 const moveY = handle.includes("n") ? (interaction.rect.height - height) / scaleY : 0;
 
-                applyGeometry(node.element, {
+                applyGeometryLinked(node, {
                     x: interaction.geometry.x + moveX,
                     y: interaction.geometry.y + moveY,
                     sx,
@@ -1323,7 +1345,7 @@
             pushHistory();
             const sx = Math.max(.05, number(inputSx.value, 100) / 100);
             const sy = lockRatio.checked ? sx : Math.max(.05, number(inputSy.value, 100) / 100);
-            applyGeometry(selected.element, {
+            applyGeometryLinked(selected, {
                 x: number(inputX.value, 0),
                 y: number(inputY.value, 0),
                 sx,
@@ -1455,7 +1477,7 @@
             if (event.key === "ArrowRight") geometry.x += step;
             if (event.key === "ArrowUp") geometry.y -= step;
             if (event.key === "ArrowDown") geometry.y += step;
-            applyGeometry(selected.element, geometry);
+            applyGeometryLinked(selected, geometry);
             persist();
             refreshInspector();
             scheduleOverlay();
@@ -1524,7 +1546,7 @@
         host.querySelector("[data-dev-reset]").addEventListener("click", () => {
             if (!selected) return;
             pushHistory();
-            clearGeometry(selected.element);
+            clearGeometryLinked(selected);
             clearLayer(selected.element);
             setDeleted(selected.element, false);
             setLocked(selected.element, false);
