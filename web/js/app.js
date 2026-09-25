@@ -33,6 +33,7 @@
     let appRenderToken = 0;
     let activeOceanController = null;
     let activeDepthController = null;
+    let activeCompositionController = null;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function syncStatus() {
@@ -1100,6 +1101,8 @@
         activeOceanController = null;
         activeDepthController?.destroy?.();
         activeDepthController = null;
+        activeCompositionController?.destroy?.();
+        activeCompositionController = null;
 
         await screens.render(renderScreen, context);
         if (renderToken !== appRenderToken) return;
@@ -1113,49 +1116,80 @@
         const editorScreenId = screenRoot.dataset.tqDevScreenId || screenId;
         const editorContext = resolveDevelopmentEditorContext(screenRoot, context, screenId);
         const editorStorageScope = resolveDevelopmentStorageScope(editorScreenId, editorContext);
+        const compositionRegistry = TQ.content?.screenComposition || null;
+        const compositionScreenType = compositionRegistry?.resolveScreenType?.(editorScreenId) || null;
+        const screenAllowsFx = (fxId) =>
+            !compositionScreenType || compositionRegistry.screenAllowsFx(compositionScreenType, fxId);
 
-        activeOceanController = TQ.core?.oceanScene?.mount?.({
+        activeCompositionController = TQ.core?.screenCompositionRuntime?.mount?.({
             screenRoot,
-            scopeId: editorStorageScope,
-            regionId: editorContext.regionId
-        }) || null;
-
-        activeDepthController = TQ.core?.depthScene?.mount?.({
-            screenRoot,
-            scopeId: editorStorageScope,
             screenId: editorScreenId,
+            scopeId: editorStorageScope,
             regionId: editorContext.regionId
         }) || null;
+
+        if (TQ.content.development?.shortcutsEnabled) {
+            await TQ.dev?.assetUploader?.restoreLocalLayers?.({
+                screenId: editorStorageScope,
+                compositionScreenId: editorScreenId,
+                screenRoot
+            });
+        }
+
+        if (screenAllowsFx("ocean")) {
+            activeOceanController = TQ.core?.oceanScene?.mount?.({
+                screenRoot,
+                scopeId: editorStorageScope,
+                regionId: editorContext.regionId
+            }) || null;
+        }
+
+        if (screenAllowsFx("depth") || screenAllowsFx("ship-rock")) {
+            activeDepthController = TQ.core?.depthScene?.mount?.({
+                screenRoot,
+                scopeId: editorStorageScope,
+                screenId: editorScreenId,
+                regionId: editorContext.regionId
+            }) || null;
+        }
 
         if (!TQ.content.development?.shortcutsEnabled) return;
-
-        await TQ.dev?.assetUploader?.restoreLocalLayers?.({
-            screenId: editorStorageScope,
-            screenRoot
-        });
-        activeDepthController?.refresh?.();
         TQ.dev?.sceneEditor?.mount(appRoot, {
             screenId: editorScreenId,
             storageScopeId: editorStorageScope,
             editorContext,
             screenRoot
         });
-        mountParallaxPrototype(editorScreenId, screenRoot, {
-            regionId: editorContext.regionId
-        });
-        TQ.dev?.oceanEditor?.mount?.({
-            screenRoot,
-            scopeId: editorStorageScope,
-            regionId: editorContext.regionId,
-            controller: activeOceanController
-        });
-        TQ.dev?.depthEditor?.mount?.({
-            screenRoot,
-            scopeId: editorStorageScope,
-            screenId: editorScreenId,
-            regionId: editorContext.regionId,
-            controller: activeDepthController
-        });
+        if (screenAllowsFx("parallax")) {
+            mountParallaxPrototype(editorScreenId, screenRoot, {
+                regionId: editorContext.regionId
+            });
+        } else {
+            document.querySelector(".tq-parallax-dev")?.remove();
+        }
+
+        if (screenAllowsFx("ocean")) {
+            TQ.dev?.oceanEditor?.mount?.({
+                screenRoot,
+                scopeId: editorStorageScope,
+                regionId: editorContext.regionId,
+                controller: activeOceanController
+            });
+        } else {
+            document.querySelector(".tq-ocean-dev")?.remove();
+        }
+
+        if (screenAllowsFx("depth") || screenAllowsFx("ship-rock")) {
+            TQ.dev?.depthEditor?.mount?.({
+                screenRoot,
+                scopeId: editorStorageScope,
+                screenId: editorScreenId,
+                regionId: editorContext.regionId,
+                controller: activeDepthController
+            });
+        } else {
+            document.querySelector(".tq-depth-dev")?.remove();
+        }
         TQ.dev?.settingsPanel?.mount({
             getState: () => state,
             onCommit: commitSettingsState,
@@ -1171,7 +1205,8 @@
             rootPath: "web/assets",
             appRoot,
             screenRoot,
-            screenId: editorStorageScope
+            screenId: editorStorageScope,
+            compositionScreenId: editorScreenId
         });
         mountDevelopmentExit();
     }
