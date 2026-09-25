@@ -31,6 +31,7 @@
     let authRestoreRequired = false;
     let authErrorCode = "";
     let appRenderToken = 0;
+    let activeOceanController = null;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
 
     function syncStatus() {
