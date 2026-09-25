@@ -1,7 +1,7 @@
 @import url("./tokens.css");
-@import url("./base.css?v=20260924-galaxy-a15-physical-v3");
+@import url("./base.css?v=20260924-useful-area-v1");
 @import url("./screens/auth.css?v=20260922-safe-viewport-v1");
-@import url("./screens/home.css?v=20260924-home-layout-v10");
+@import url("./screens/home.css?v=20260924-useful-area-v1");
 @import url("./screens/crew.css?v=20260923-tavern-calibration-v5");
 @import url("./screens/collectibles.css?v=20260922-collectibles-arrow-mask");
 @import url("./screens/items.css?v=20260924-inventory-art-v1");
@@ -12,7 +12,7 @@
 @import url("./screens/vertical-slice.css?v=20260924-challenge-calibration-v1");
 
 @import url("./screens/ruby-shop.css?v=20260921-1545");
-@import url("./dev/scene-editor.css?v=20260924-mobile-save-next-v1");
+@import url("./dev/scene-editor.css?v=20260924-useful-area-v1");
 @import url("./dev/settings-panel.css?v=20260924-settings-v2");
 @import url("./dev/asset-uploader.css?v=20260924-mobile-tools-v2");
 
