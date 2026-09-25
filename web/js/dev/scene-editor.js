@@ -333,7 +333,7 @@
         // coordinate system. They are rulers, not editable artwork.
         // Clear any stale DEV geometry left by older editor versions and
         // ignore legacy saved entries for those structural nodes.
-        [screenRoot, ...screenRoot.querySelectorAll(".tq-safe-visual-area, .tq-canonical-stage")]
+        [screenRoot, ...screenRoot.querySelectorAll(".tq-safe-visual-area, .tq-canonical-stage, [data-tq-dev-ignore]")]
             .forEach((element) => {
                 clearGeometry(element);
                 clearLayer(element);
@@ -347,6 +347,8 @@
             id === normalizedToken(screenId, "screen") + ".auto."
             || id.includes("tq-safe-visual-area")
             || id.includes("tq-canonical-stage")
+            || id.includes("home-world")
+            || id === "home.background.bleed"
         );
         if (legacyStructuralIds.length) {
             legacyStructuralIds.forEach((id) => delete saved[id]);
