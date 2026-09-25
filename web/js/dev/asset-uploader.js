@@ -621,6 +621,7 @@
             || compositionScreenId;
         const composition = compositionRegistry?.getScreen?.(resolvedCompositionScreenId) || null;
         const compositionSlots = compositionRegistry?.getAssetSlots?.(resolvedCompositionScreenId) || [];
+        const compositionVariantId = String(options.compositionVariantId || "").trim();
 
         let replacementPreview = null;
         const localLayers = [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
@@ -685,7 +686,7 @@
                         </small>
 
                         <label data-upload-variant-row hidden>
-                            Qual fundo?
+                            Composição da Home
                             <input
                                 data-upload-variant-id
                                 type="text"
@@ -892,7 +893,10 @@
                 const knownIds = (current?.variants || []).map((variant) => variant.id);
                 const localVariant = localLayers.find((item) => item.slotId === slot.id)?.variantId;
                 if (!variantInput.value) {
-                    variantInput.value = localVariant || knownIds[0] || "default";
+                    variantInput.value = compositionVariantId
+                        || localVariant
+                        || knownIds[0]
+                        || "default";
                 }
             }
             if (slotInfo) {
