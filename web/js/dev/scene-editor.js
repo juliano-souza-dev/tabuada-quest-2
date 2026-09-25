@@ -328,19 +328,106 @@
         })[kind] || kind;
     }
 
+    const SCREEN_TYPE_LABELS = Object.freeze({
+        home: "Home",
+        islands: "Mapa de ilhas",
+        "world-map": "Mapa mundo",
+        regions: "Mapa mundo",
+        "development-regions": "Seleção DEV de regiões",
+        travel: "Viagem entre ilhas",
+        challenge: "Desafio",
+        "special-mission": "Missão especial",
+        chest: "Recompensa · baú",
+        pet: "Recompensa · PET",
+        "map-reward": "Recompensa · mapa",
+        result: "Resultado",
+        shop: "Loja",
+        "ruby-shop": "Loja Rubi",
+        items: "Itens",
+        collectibles: "Colecionáveis",
+        crew: "Tripulação",
+        shipyard: "Estaleiro",
+        profile: "Perfil",
+        "profile-setup": "Criação de perfil",
+        auth: "Autenticação",
+        "auth-restore": "Restauração de sessão",
+        "region-builder-preview": "Construtor de região"
+    });
+
+    function positiveInteger(value) {
+        const parsed = Number(value);
+        return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    function screenTypeLabel(screenType) {
+        return SCREEN_TYPE_LABELS[screenType] || String(screenType || "Tela");
+    }
+
+    function resolveRegionLabel(regionId, suppliedLabel) {
+        if (suppliedLabel) return String(suppliedLabel);
+        if (!regionId) return null;
+
+        const worldRegion = TQ.content?.getWorldRegion?.(regionId);
+        if (worldRegion?.label) return worldRegion.label;
+
+        const region = Array.isArray(TQ.content?.regions)
+            ? TQ.content.regions.find((item) => Number(item?.id) === regionId)
+            : null;
+        return region?.label || null;
+    }
+
+    function formatLocalTimestamp(date) {
+        try {
+            return new Intl.DateTimeFormat("pt-BR", {
+                dateStyle: "short",
+                timeStyle: "medium",
+                hour12: false
+            }).format(date);
+        } catch (_) {
+            return date.toLocaleString();
+        }
+    }
+
+    function resolveEditorContext(screenId, storageScopeId, screenRoot, options) {
+        const supplied = options.editorContext && typeof options.editorContext === "object"
+            ? options.editorContext
+            : {};
+        const screenType = String(supplied.screenType || screenId || "screen");
+        const regionId = positiveInteger(
+            supplied.regionId ?? screenRoot.dataset.regionId
+        );
+        const regionPage = String(
+            supplied.regionPage || screenRoot.dataset.regionPage || ""
+        ).trim() || null;
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+
+        return Object.freeze({
+            screenType,
+            screenTypeLabel: String(supplied.screenTypeLabel || screenTypeLabel(screenType)),
+            storageScopeId,
+            regionId,
+            regionLabel: resolveRegionLabel(regionId, supplied.regionLabel),
+            regionPage,
+            developmentMode: Boolean(supplied.developmentMode),
+            timeZone
+        });
+    }
+
     function mount(appRoot, options = {}) {
         activeCleanup?.();
         activeCleanup = null;
 
         const screenId = String(options.screenId || "screen");
+        const storageScopeId = String(options.storageScopeId || screenId);
         const screenRoot = options.screenRoot instanceof Element
             ? options.screenRoot
             : appRoot.firstElementChild || appRoot;
+        const editorContext = resolveEditorContext(screenId, storageScopeId, screenRoot, options);
         const nodes = collectNodes(screenRoot, screenId);
         if (!nodes.length) return;
 
         let store = readStore();
-        const saved = store.screens[screenId] || {};
+        const saved = store.screens[storageScopeId] || {};
 
         // The screen shell, safe visual area and canonical stage define the
         // coordinate system. They are rulers, not editable artwork.
@@ -370,7 +457,7 @@
         });
         if (legacyStructuralIds.length) {
             legacyStructuralIds.forEach((id) => delete saved[id]);
-            store.screens[screenId] = saved;
+            store.screens[storageScopeId] = saved;
             writeStore(store);
         }
 
@@ -390,7 +477,7 @@
         const host = document.createElement("aside");
         host.className = "tq-scene-dev";
         host.innerHTML = `
-            <button type="button" class="tq-scene-dev-toggle">UX</button>
+            <button type="button" class="tq-scene-dev-toggle" data-dev-toggle>UX</button>
             <section class="tq-scene-dev-panel" hidden>
                 <header>
                     <strong>UX · Editor visual</strong>
@@ -399,6 +486,15 @@
                         <button type="button" class="tq-scene-dev-collapse" data-dev-collapse aria-label="Recolher editor">Recolher</button>
                     </div>
                 </header>
+                <div class="tq-scene-dev-context" data-dev-context>
+                    <strong data-dev-context-title></strong>
+                    <div class="tq-scene-dev-context-grid">
+                        <span data-dev-context-type></span>
+                        <span data-dev-context-region></span>
+                    </div>
+                    <small data-dev-context-page></small>
+                    <time data-dev-context-clock></time>
+                </div>
                 <label>Mostrar
                     <select data-dev-filter>
                         <option value="all">Tudo</option>
@@ -457,7 +553,7 @@
             <div class="tq-scene-dev-compact" data-dev-compact hidden>
                 <button type="button" class="tq-scene-dev-compact-current" data-dev-compact-adjust aria-label="Abrir ajustes do elemento selecionado">
                     <span data-dev-compact-name>Nenhum selecionado</span>
-                    <small>Ajustar</small>
+                    <small data-dev-compact-context>Ajustar</small>
                 </button>
                 <button type="button" data-dev-compact-save aria-label="Salvar item e selecionar outro" title="Salvar e próximo">✓</button>
                 <button type="button" data-dev-compact-undo aria-label="Desfazer última alteração" title="Desfazer">↶</button>
@@ -484,13 +580,49 @@
         const filterSelect = host.querySelector("[data-dev-filter]");
         const nodeSelect = host.querySelector("[data-dev-node]");
         const status = host.querySelector("[data-dev-status]");
+        const contextTitle = host.querySelector("[data-dev-context-title]");
+        const contextType = host.querySelector("[data-dev-context-type]");
+        const contextRegion = host.querySelector("[data-dev-context-region]");
+        const contextPage = host.querySelector("[data-dev-context-page]");
+        const contextClock = host.querySelector("[data-dev-context-clock]");
+        const toggleButton = host.querySelector("[data-dev-toggle]");
         const compactBar = host.querySelector("[data-dev-compact]");
         const compactName = host.querySelector("[data-dev-compact-name]");
+        const compactContext = host.querySelector("[data-dev-compact-context]");
         const compactAdjustButton = host.querySelector("[data-dev-compact-adjust]");
         const compactSaveButton = host.querySelector("[data-dev-compact-save]");
         const compactUndoButton = host.querySelector("[data-dev-compact-undo]");
         const compactLockButton = host.querySelector("[data-dev-compact-lock]");
         const compactDeleteButton = host.querySelector("[data-dev-compact-delete]");
+
+        const regionCaption = editorContext.regionId
+            ? `Região ${String(editorContext.regionId).padStart(2, "0")}${editorContext.regionLabel ? " · " + editorContext.regionLabel : ""}`
+            : "Sem região";
+        const contextCaption = editorContext.regionId
+            ? `R${editorContext.regionId} · ${editorContext.screenTypeLabel}`
+            : editorContext.screenTypeLabel;
+
+        contextTitle.textContent = contextCaption;
+        contextType.textContent = "Tela: " + editorContext.screenTypeLabel;
+        contextRegion.textContent = "Região: " + (editorContext.regionId ? String(editorContext.regionId) : "—");
+        contextRegion.title = regionCaption;
+        contextPage.textContent = editorContext.regionPage ? "Página/variante: " + editorContext.regionPage : "";
+        contextPage.hidden = !editorContext.regionPage;
+        compactContext.textContent = editorContext.regionId
+            ? `R${editorContext.regionId} · ${editorContext.screenType}`
+            : editorContext.screenType;
+        toggleButton.textContent = editorContext.regionId ? `UX R${editorContext.regionId}` : "UX";
+        toggleButton.title = `${editorContext.screenTypeLabel} · ${regionCaption}`;
+
+        function refreshContextClock() {
+            const now = new Date();
+            contextClock.dateTime = now.toISOString();
+            contextClock.textContent = formatLocalTimestamp(now)
+                + (editorContext.timeZone ? " · " + editorContext.timeZone : "");
+        }
+
+        refreshContextClock();
+        const contextClockTimer = root.setInterval(refreshContextClock, 1000);
         const compactCloseButton = host.querySelector("[data-dev-compact-close]");
         const lockItemButton = host.querySelector("[data-dev-lock-item]");
         const deleteButton = host.querySelector("[data-dev-delete]");
@@ -558,10 +690,10 @@
             // replacing the whole screen record. Conditional/dynamic elements may
             // disappear during a game-state render and must keep their geometry
             // for when they return.
-            const previous = store.screens[screenId] && typeof store.screens[screenId] === "object"
-                ? store.screens[screenId]
+            const previous = store.screens[storageScopeId] && typeof store.screens[storageScopeId] === "object"
+                ? store.screens[storageScopeId]
                 : {};
-            store.screens[screenId] = {
+            store.screens[storageScopeId] = {
                 ...previous,
                 ...snapshot()
             };
@@ -1232,11 +1364,11 @@
             });
 
             store = readStore();
-            delete store.screens[screenId];
+            delete store.screens[storageScopeId];
             writeStore(store);
 
             try {
-                await TQ.dev?.assetUploader?.clearLocalLayersForScreen?.(screenId, screenRoot);
+                await TQ.dev?.assetUploader?.clearLocalLayersForScreen?.(storageScopeId, screenRoot);
             } catch (error) {
                 console.warn("Falha ao limpar assets locais antes do reset:", error);
             }
@@ -1245,7 +1377,23 @@
             root.setTimeout(() => root.location.reload(), 80);
         });
         host.querySelector("[data-dev-copy]").addEventListener("click", async () => {
-            const payload = JSON.stringify({ screen: screenId, nodes: snapshot() }, null, 2);
+            const capturedAt = new Date();
+            const payload = JSON.stringify({
+                screen: screenId,
+                scope: storageScopeId,
+                context: {
+                    screenType: editorContext.screenType,
+                    screenTypeLabel: editorContext.screenTypeLabel,
+                    regionId: editorContext.regionId,
+                    regionLabel: editorContext.regionLabel,
+                    regionPage: editorContext.regionPage,
+                    developmentMode: editorContext.developmentMode,
+                    capturedAt: capturedAt.toISOString(),
+                    capturedAtLocal: formatLocalTimestamp(capturedAt),
+                    timeZone: editorContext.timeZone
+                },
+                nodes: snapshot()
+            }, null, 2);
             try {
                 await navigator.clipboard.writeText(payload);
                 status.textContent = "Layout copiado";
@@ -1289,6 +1437,7 @@
 
         activeCleanup = () => {
             if (raf) root.cancelAnimationFrame(raf);
+            root.clearInterval(contextClockTimer);
             appRoot.classList.remove("tq-dev-scene-editing");
             appRoot.classList.remove("tq-dev-functions-hidden");
             document.body.classList.remove("tq-dev-scene-editing-active");
