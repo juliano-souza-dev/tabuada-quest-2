@@ -41,7 +41,9 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: #0b2b3d;
+    /* The full-bleed artwork below is the fallback. Never expose a blue
+       structural canvas when an editable background is moved/resized. */
+    background: transparent;
 }
 
 .home-background-image {
