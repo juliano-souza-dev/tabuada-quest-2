@@ -183,7 +183,11 @@
         }
 
         function ensureController() {
-            if (controller?.webgl) return controller;
+            const liveCanvas = screenRoot?.querySelector(
+                '[data-tq-semantic-type="ocean"] [data-tq-ocean-scene]'
+            );
+            if (controller?.webgl && liveCanvas?.isConnected) return controller;
+
             const hasOcean = Boolean(
                 screenRoot?.querySelector('[data-tq-semantic-type="ocean"] img')
             );
