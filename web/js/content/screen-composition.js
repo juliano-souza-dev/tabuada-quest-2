@@ -126,7 +126,7 @@
         assetSlot("home.header.avatar", "Avatar", "avatar", { required: true, group: "header" }),
         assetSlot("home.header.logo", "Logo", "logo", { required: true, group: "header" }),
 
-        homeBackgroundPart("home.background.ocean", "Oceano", "ocean", { required: true }),
+        homeBackgroundPart("home.background.ocean", "Oceano", "ocean", { required: true, group: "background-ocean" }),
         ...Array.from({ length: 10 }, (_, index) =>
             homeBackgroundPart(
                 "home.background.cloud." + (index + 1),
@@ -140,7 +140,10 @@
                 "home.background.ship." + (index + 1),
                 "Navio " + (index + 1),
                 "ship",
-                { group: "background-ships" }
+                {
+                    group: "background-ships",
+                    required: index === 0
+                }
             )
         ),
         ...Array.from({ length: 3 }, (_, index) =>
@@ -211,6 +214,12 @@
             id: "home",
             label: "Home",
             assets: homeSlots,
+            assetLimits: Object.freeze({
+                "background-ocean": Object.freeze({ label: "Oceano", min: 1, max: 1 }),
+                "background-clouds": Object.freeze({ label: "Nuvens", min: 0, max: 10 }),
+                "background-ships": Object.freeze({ label: "Navios", min: 1, max: 5 }),
+                "background-islands": Object.freeze({ label: "Ilhas", min: 0, max: 3 })
+            }),
             compositions: Object.freeze([
                 Object.freeze({
                     id: HOME_BACKGROUND_COMPOSITION_ID,
@@ -247,6 +256,10 @@
             id: "region-map",
             label: "Região",
             assets: Object.freeze(regionSlots),
+            assetLimits: Object.freeze({
+                clouds: Object.freeze({ label: "Nuvens", min: 0, max: 10 }),
+                environment: Object.freeze({ label: "Elementos de ambiente", min: 0, max: 10 })
+            }),
             functions: Object.freeze([
                 functionSlot("regions.fn.back", "Voltar", "back"),
                 functionSlot("regions.fn.nautical-chart", "Abrir carta náutica", "open-nautical-chart"),
@@ -265,6 +278,9 @@
             id: "island-game",
             label: "Ilha · jogo",
             assets: islandGameSlots,
+            assetLimits: Object.freeze({
+                clouds: Object.freeze({ label: "Nuvens", min: 0, max: 10 })
+            }),
             functions: Object.freeze([
                 functionSlot("island-game.fn.answer.1", "Alternativa 1", "answer-1"),
                 functionSlot("island-game.fn.answer.2", "Alternativa 2", "answer-2"),
@@ -314,6 +330,14 @@
 
     function getDynamicSlots(screenId) {
         return getScreen(screenId)?.dynamic || [];
+    }
+
+    function getAssetLimits(screenId) {
+        return getScreen(screenId)?.assetLimits || Object.freeze({});
+    }
+
+    function getAssetLimit(screenId, groupId) {
+        return getAssetLimits(screenId)?.[String(groupId || "")] || null;
     }
 
     function getCompositions(screenId) {
@@ -624,6 +648,8 @@
         getAssetSlots,
         getFunctionSlots,
         getDynamicSlots,
+        getAssetLimits,
+        getAssetLimit,
         getCompositions,
         getComposition,
         getSlot,
