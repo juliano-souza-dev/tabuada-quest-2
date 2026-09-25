@@ -33,6 +33,7 @@
     let appRenderToken = 0;
     let activeOceanController = null;
     let activeDepthController = null;
+    let activeAudioController = null;
     let activeCompositionController = null;
     let activeDevelopmentNavigatorCleanup = null;
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
@@ -725,6 +726,8 @@
         activeOceanController = null;
         activeDepthController?.destroy?.();
         activeDepthController = null;
+        activeAudioController?.destroy?.();
+        activeAudioController = null;
         activeCompositionController?.destroy?.();
         activeCompositionController = null;
 
@@ -752,6 +755,10 @@
                 activeRenderState?.ui?.homeBackgroundId || "default"
             ) || "default"
             : null;
+        const activeHomeBackgroundGroup = activeHomeBackgroundId
+            ? compositionRegistry?.HOME_BACKGROUND_GROUP_CATALOG?.[activeHomeBackgroundId] || null
+            : null;
+        const audioCatalogUrl = activeHomeBackgroundGroup?.manifest || null;
         const compositionScreenType = compositionRegistry?.resolveScreenType?.(editorScreenId) || null;
         const screenAllowsFx = (fxId) =>
             !compositionScreenType || compositionRegistry.screenAllowsFx(compositionScreenType, fxId);
@@ -802,6 +809,12 @@
             }) || null;
         }
 
+        activeAudioController = TQ.core?.audioScene?.mount?.({
+            scopeId: editorEffectScope,
+            screenId: editorScreenId,
+            regionId: editorContext.regionId
+        }) || null;
+
         if (!TQ.content.development?.shortcutsEnabled) return;
         TQ.dev?.sceneEditor?.mount(appRoot, {
             screenId: editorScreenId,
@@ -836,6 +849,16 @@
         } else {
             document.querySelector(".tq-depth-dev")?.remove();
         }
+
+        TQ.dev?.audioEditor?.mount?.({
+            screenRoot,
+            scopeId: editorEffectScope,
+            screenId: editorScreenId,
+            regionId: editorContext.regionId,
+            controller: activeAudioController,
+            catalogUrl: audioCatalogUrl
+        });
+
         TQ.dev?.settingsPanel?.mount({
             getState: () => state,
             onCommit: commitSettingsState,
