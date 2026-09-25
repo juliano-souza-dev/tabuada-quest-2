@@ -40,7 +40,7 @@
             window.visualViewport?.addEventListener("resize", syncAppViewport, { passive: true });
         })();
     </script>
-    <link rel="stylesheet" href="./css/app.css?v=20260925-single-stage-v2">
+    <link rel="stylesheet" href="./css/app.css?v=20260925-region-builder-v1">
 </head>
 <body>
     <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
@@ -50,6 +50,7 @@
 
     <script src="./vendor/lottie.min.js"></script>
     <script src="./js/content/game-content.js?v=20260924-night-port-v1"></script>
+    <script src="./js/content/region-schema.js?v=20260925-region-builder-v1"></script>
     <script src="./js/content/collectibles-assets.js?v=20260922-collectibles-shelf"></script>
     <script src="./js/content/challenge-effects.js?v=20260921-2359"></script>
     <script src="./js/domain/world-structure.js?v=20260921-1020"></script>
@@ -74,6 +75,7 @@
     <script src="./js/screens/ruby-shop-screen.js?v=20260921-1545"></script>
     <script src="./js/screens/world-map-screen.js?v=20260923-ocean-loader-v3"></script>
     <script src="./js/screens/development-regions-screen.js?v=20260922-dev-regions-fix"></script>
+    <script src="./js/screens/development-region-builder-screen.js?v=20260925-region-builder-v1"></script>
     <script src="./js/screens/regions-screen.js?v=20260921-1202"></script>
     <script src="./js/screens/islands-screen.js?v=20260924-parallax-scope-v1"></script>
     <script src="./js/screens/travel-screen.js?v=20260923-pixi-gsap-travel-v3"></script>
@@ -86,7 +88,8 @@
     <script src="./js/dev/scene-editor.js?v=20260925-layout-persistence-v1"></script>
     <script src="./js/dev/settings-panel.js?v=20260925-lock-progress-v1"></script>
     <script src="./js/dev/asset-uploader.js?v=20260924-night-port-v1"></script>
-    <script src="./js/app.js?v=20260924-reset-web-v1"></script>
+    <script src="./js/dev/region-builder.js?v=20260925-region-builder-v1"></script>
+    <script src="./js/app.js?v=20260925-region-builder-v1"></script>
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", async () => {
