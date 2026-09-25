@@ -357,7 +357,7 @@
         image.style.objectFit = "contain";
         image.style.objectPosition = "center";
         image.style.zIndex = "500";
-        image.style.pointerEvents = "auto";
+        image.style.pointerEvents = record.slotId ? "none" : "auto";
         image.style.userSelect = "none";
 
         return { image, objectUrl };
