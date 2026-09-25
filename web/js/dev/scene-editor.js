@@ -1151,7 +1151,7 @@
         }
 
         function closeOtherToolPanels() {
-            document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel").forEach((candidate) => {
+            document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel, .tq-region-builder-panel").forEach((candidate) => {
                 if (candidate !== panel) candidate.hidden = true;
             });
         }
