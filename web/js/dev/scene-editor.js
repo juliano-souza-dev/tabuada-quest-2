@@ -1,7 +1,25 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     const STORAGE_KEY = "tq2.dev.scene-layout.v2";
+    const PARALLAX_STORAGE_KEY = "tq2.dev.parallax.effects.v4";
     let activeCleanup = null;
+
+    function readScopedParallax(screenId, editorContext) {
+        try {
+            const parsed = JSON.parse(root.localStorage.getItem(PARALLAX_STORAGE_KEY) || "[]");
+            const effects = Array.isArray(parsed) ? parsed : [];
+            return effects.filter((fx) => {
+                if (!fx || typeof fx !== "object") return false;
+                if (String(fx.backgroundId || "") !== String(screenId || "")) return false;
+                if (screenId === "islands") {
+                    return Number(fx.regionId) === Number(editorContext?.regionId);
+                }
+                return true;
+            });
+        } catch (_) {
+            return [];
+        }
+    }
 
     function readStore() {
         try {
@@ -1489,11 +1507,16 @@
                     capturedAtLocal: formatLocalTimestamp(capturedAt),
                     timeZone: editorContext.timeZone
                 },
-                nodes: snapshot()
+                nodes: snapshot(),
+                parallax: {
+                    version: 1,
+                    storageVersion: 4,
+                    effects: readScopedParallax(screenId, editorContext)
+                }
             }, null, 2);
             try {
                 await navigator.clipboard.writeText(payload);
-                status.textContent = "Layout copiado";
+                status.textContent = "Layout + parallax copiados";
             } catch (_) {
                 const area = document.createElement("textarea");
                 area.value = payload;
@@ -1501,7 +1524,7 @@
                 area.select();
                 document.execCommand("copy");
                 area.remove();
-                status.textContent = "Layout copiado";
+                status.textContent = "Layout + parallax copiados";
             }
         });
 
