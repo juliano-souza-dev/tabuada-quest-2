@@ -434,6 +434,22 @@
             for (const record of ordered) {
                 const localFileName = String(record.fileName || "").trim().toLowerCase();
 
+                // One-time promotion cleanup for the Home background that was first
+                // positioned as local 48378.png and is now an official WebP asset.
+                if (screenId === "home" && (record.id === "home.local.48378-png.1790304073944" || localFileName === "48378.png")) {
+                    try {
+                        const storageKey = "tq2.dev.scene-layout.v2";
+                        const sceneStore = JSON.parse(root.localStorage.getItem(storageKey) || "{}");
+                        if (sceneStore?.screens?.[screenId]?.[record.id]) {
+                            delete sceneStore.screens[screenId][record.id];
+                            root.localStorage.setItem(storageKey, JSON.stringify(sceneStore));
+                        }
+                    } catch (_) {}
+                    await deleteLocalLayerRecord(record.id);
+                    releaseRuntimeUrl(record.id);
+                    continue;
+                }
+
                 if (localFileName && webBackedByFileName.has(localFileName)) {
                     const promotedTarget = webBackedByFileName.get(localFileName);
                     promoteSavedSceneLayout(screenId, record.id, promotedTarget);
