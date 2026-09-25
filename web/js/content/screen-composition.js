@@ -6,24 +6,13 @@
         ocean: "Mar",
         depth: "Profundidade",
         "ship-rock": "Balanço do navio",
-        "background-animation": "Animações do fundo"
     });
 
     const SEMANTIC_TYPES = Object.freeze({
         frame: Object.freeze({ label: "Placa / moldura", fx: Object.freeze([]), defaultZ: 40 }),
         avatar: Object.freeze({ label: "Avatar", fx: Object.freeze([]), defaultZ: 41 }),
         logo: Object.freeze({ label: "Logo", fx: Object.freeze([]), defaultZ: 42 }),
-        home_background: Object.freeze({
-            label: "Composição do fundo",
-            fx: Object.freeze([]),
-            defaultZ: 1
-        }),
-        home_backdrop: Object.freeze({
-            label: "Fundo base / céu",
-            fx: Object.freeze(["depth", "background-animation"]),
-            depthRoles: Object.freeze(["sky", "custom"]),
-            defaultZ: 1
-        }),
+        level_plate: Object.freeze({ label: "Plaquinha de nível", fx: Object.freeze([]), defaultZ: 43 }),
         ui_button: Object.freeze({ label: "Botão visual", fx: Object.freeze([]), defaultZ: 30 }),
         ocean: Object.freeze({ label: "Oceano", fx: Object.freeze(["ocean"]), defaultZ: 1 }),
         island_state: Object.freeze({
@@ -146,6 +135,7 @@
         assetSlot("home.header.frame", "Placa moldura", "frame", { required: true, group: "header" }),
         assetSlot("home.header.avatar", "Avatar", "avatar", { required: true, group: "header" }),
         assetSlot("home.header.logo", "Logo", "logo", { required: true, group: "header" }),
+        assetSlot("home.header.level-plate", "Plaquinha de nível", "level_plate", { required: true, group: "header" }),
 
         homeBackgroundPart("home.background.ocean", "Oceano", "ocean", { required: true, group: "background-ocean" }),
         ...Array.from({ length: 10 }, (_, index) =>
