@@ -299,7 +299,7 @@
         bottom: max(8px, var(--tq-safe-bottom, 0px));
         z-index: 100005;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 46px 46px 46px 46px;
+        grid-template-columns: minmax(0, 1fr) repeat(5, 42px);
         gap: 6px;
         min-height: 52px;
         padding: 6px;
@@ -442,4 +442,34 @@
     border-color: rgba(149, 229, 188, .66);
     color: #dfffea;
     background: rgba(31, 104, 74, .58);
+}
+
+
+/* Per-item edit lock */
+.tq-scene-dev-lock[aria-pressed="true"],
+.tq-scene-dev-compact-lock:not(:disabled):has(+ .tq-scene-dev-compact-delete) {
+    border-color: rgba(149, 229, 188, .56);
+}
+
+.tq-scene-dev-lock[aria-pressed="true"] {
+    color: #e4fff0;
+    background: rgba(30, 103, 74, .58);
+}
+
+.tq-scene-dev-selection--locked {
+    border-style: dashed;
+    border-color: rgba(149, 229, 188, .95);
+}
+
+.tq-scene-dev-selection--locked [data-dev-handle] {
+    display: none !important;
+}
+
+.tq-scene-dev-selection--locked .tq-scene-dev-selection-move-surface {
+    cursor: not-allowed;
+}
+
+.tq-scene-dev-selection--locked .tq-scene-dev-selection-label {
+    background: #95e5bc;
+    cursor: not-allowed;
 }
