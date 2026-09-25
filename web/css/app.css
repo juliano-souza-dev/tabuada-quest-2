@@ -266,3 +266,63 @@
     background-image: none !important;
     box-shadow: none !important;
 }
+
+
+/* Semantic orphan slots · full layout reset */
+.tq-composition-runtime-layer {
+    pointer-events: none;
+}
+
+.tq-composition-slot {
+    box-sizing: border-box;
+    min-width: 1px;
+    min-height: 1px;
+    background: transparent;
+    border: 0;
+    outline: 0;
+}
+
+.tq-composition-slot > .tq-composition-bound-asset {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.tq-dev-scene-editing .tq-composition-slot {
+    pointer-events: auto !important;
+}
+
+.tq-dev-scene-editing .tq-composition-slot[data-tq-slot-empty="true"] {
+    min-width: 96px;
+    min-height: 72px;
+    border: 2px dashed rgba(135, 217, 241, .8);
+    background: rgba(8, 39, 56, .28);
+}
+
+.tq-dev-scene-editing .tq-composition-slot[data-tq-slot-empty="true"]::after {
+    content: attr(data-tq-dev-label);
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 6px;
+    color: rgba(235, 250, 255, .92);
+    font: 800 10px/1.2 system-ui, sans-serif;
+    text-align: center;
+    pointer-events: none;
+}
+
+.tq-composition-reset [data-tq-composition-function] {
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    text-shadow: none !important;
+}
+
+.tq-composition-reset [data-tq-composition-function] > img,
+.tq-composition-reset [data-tq-composition-function] > svg,
+.tq-composition-reset [data-tq-composition-function] > picture {
+    display: none !important;
+}
