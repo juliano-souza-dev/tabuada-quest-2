@@ -590,7 +590,12 @@
 
             stage = sourceStillVisible
                 ? resolveStage(visual)
-                : (activeRoot.querySelector(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']") || activeRoot);
+                : (
+                    activeRoot.querySelector(".tq-canonical-stage")
+                    || activeRoot.querySelector("[class*='-stage']")
+                    || activeRoot.querySelector(".tq-safe-visual-area")
+                    || activeRoot
+                );
 
             const stageRect = stage.getBoundingClientRect();
             if (!stageRect.width || !stageRect.height) return null;
