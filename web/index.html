@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=contain">
     <meta name="theme-color" content="#071d2c">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="./manifest.webmanifest">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="./manifest.webmanifest?v=20260925-prod-v1">
     <title>Tabuada Quest 2.0</title>
     <script>
         try {
@@ -23,7 +23,24 @@
             }
         } catch (_) {}
     </script>
-    <link rel="stylesheet" href="./css/app.css?v=20260924-inventory-art-v1">
+    <script>
+        (function () {
+            function syncAppViewport() {
+                var vv = window.visualViewport;
+                var width = vv && vv.width ? vv.width : window.innerWidth;
+                var height = vv && vv.height ? vv.height : window.innerHeight;
+
+                // The browser/standalone PWA viewport is the app rectangle.
+                // Physical screen bars/cutouts stay outside this coordinate system.
+                document.documentElement.style.setProperty("--tq-app-width", Math.round(width) + "px");
+                document.documentElement.style.setProperty("--tq-app-height", Math.round(height) + "px");
+            }
+            syncAppViewport();
+            window.addEventListener("resize", syncAppViewport, { passive: true });
+            window.visualViewport?.addEventListener("resize", syncAppViewport, { passive: true });
+        })();
+    </script>
+    <link rel="stylesheet" href="./css/app.css?v=20260925-prod-v1">
 </head>
 <body>
     <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
@@ -32,32 +49,32 @@
     </div>
 
     <script src="./vendor/lottie.min.js"></script>
-    <script src="./js/content/game-content.js?v=20260924-nameplates-default-v2"></script>
+    <script src="./js/content/game-content.js?v=20260925-prod-v1"></script>
     <script src="./js/content/collectibles-assets.js?v=20260922-collectibles-shelf"></script>
     <script src="./js/content/challenge-effects.js?v=20260921-2359"></script>
     <script src="./js/domain/world-structure.js?v=20260921-1020"></script>
     <script src="./js/domain/scheduler.js?v=20260921-1020"></script>
     <script src="./js/domain/gameplay-session.js?v=20260921-1020"></script>
     <script src="./js/domain/special-mission.js?v=20260921-1202"></script>
-    <script src="./js/domain/player-state.js?v=20260924-nameplates-default-v2"></script>
+    <script src="./js/domain/player-state.js?v=20260925-prod-v1"></script>
     <script src="./js/persistence/local-storage.js?v=20260922-dev-exit"></script>
     <script src="./js/core/screen-manager.js?v=20260923-asset-gate-v1"></script>
     <script src="./js/core/ocean-loader.js?v=20260923-2"></script>
-    <script src="./js/core/safe-viewport.js?v=20260922-safe-viewport-v1"></script>
+    <script src="./js/core/safe-viewport.js?v=20260925-prod-v1"></script>
     <script src="./js/core/challenge-effect-renderer.js?v=20260921-2214"></script>
     <script src="./js/core/world-map.js?v=20260922-world-map-v1"></script>
     <script src="./js/screens/auth-screen.js?v=20260922-auth-gate"></script>
     <script src="./js/screens/profile-screen.js?v=20260922-profile-setup"></script>
-    <script src="./js/screens/home-screen.js?v=20260923-nameplate-v1"></script>
+    <script src="./js/screens/home-screen.js?v=20260925-prod-v1"></script>
     <script src="./js/screens/tavern-screen.js?v=20260923-tavern-v1"></script>
     <script src="./js/screens/crew-screen.js?v=20260923-tavern-art-v4"></script>
-    <script src="./js/screens/collectibles-screen.js?v=20260922-collected-only"></script>
-    <script src="./js/screens/shop-screen.js?v=20260924-nameplates-shop-v1"></script>
-    <script src="./js/screens/items-screen.js?v=20260924-inventory-art-v1"></script>
+    <script src="./js/screens/collectibles-screen.js?v=20260925-prod-v1"></script>
+    <script src="./js/screens/shop-screen.js?v=20260925-prod-v1"></script>
+    <script src="./js/screens/items-screen.js?v=20260925-prod-v1"></script>
     <script src="./js/screens/ruby-shop-screen.js?v=20260921-1545"></script>
     <script src="./js/screens/world-map-screen.js?v=20260923-ocean-loader-v3"></script>
     <script src="./js/screens/regions-screen.js?v=20260921-1202"></script>
-    <script src="./js/screens/islands-screen.js?v=20260923-dev-travel-el-colombo-v2"></script>
+    <script src="./js/screens/islands-screen.js?v=20260924-parallax-scope-v1"></script>
     <script src="./js/screens/travel-screen.js?v=20260923-pixi-gsap-travel-v3"></script>
     <script src="./js/screens/challenge-screen.js?v=20260923-colombo-bg-direction-v1"></script>
     <script src="./js/screens/special-mission-screen.js?v=20260921-2214"></script>
@@ -65,7 +82,7 @@
     <script src="./js/screens/pet-screen.js?v=20260922-safe-viewport-v1"></script>
     <script src="./js/screens/map-reward-screen.js?v=20260921-2204"></script>
     <script src="./js/screens/result-screen.js?v=20260922-safe-viewport-v1"></script>
-    <script src="./js/app.js?v=20260923-tavern-v1"></script>
+    <script src="./js/app.js?v=20260925-prod-v1"></script>
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", async () => {
