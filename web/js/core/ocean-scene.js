@@ -47,26 +47,7 @@
         })
     });
 
-    const PUBLISHED_CONFIGS = Object.freeze({
-        "islands.region-1": Object.freeze({
-            version: 1,
-            enabled: true,
-            preset: "adventure",
-            movement: 52,
-            speed: 44,
-            shine: 62,
-            foam: 28,
-            ripples: true,
-            shipWake: true,
-            quality: "balanced",
-            area: Object.freeze([
-                Object.freeze({ x: 0, y: 0.19 }),
-                Object.freeze({ x: 1, y: 0.19 }),
-                Object.freeze({ x: 1, y: 1 }),
-                Object.freeze({ x: 0, y: 1 })
-            ])
-        })
-    });
+    const PUBLISHED_CONFIGS = Object.freeze({});
 
     function clone(value) {
         return JSON.parse(JSON.stringify(value));
