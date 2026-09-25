@@ -56,6 +56,16 @@
     }
 
     function actionDevId(action, draft = getActiveDraft()) {
+        if (action?.type === "open_island") {
+            const island = (draft?.islands || []).find((item) => item.id === action.targetId);
+            const order = Number(island?.order);
+            if (Number.isInteger(order) && order >= 1 && order <= 5) {
+                return "regions.fn.island." + order;
+            }
+        }
+        if (action?.type === "go_back") return "regions.fn.back";
+        if (action?.type === "open_world_map") return "regions.fn.nautical-chart";
+        if (action?.type === "open_merchant") return "regions.fn.merchant";
         return getEditorScreenId(draft) + ".action." + String(action?.id || "action");
     }
 
