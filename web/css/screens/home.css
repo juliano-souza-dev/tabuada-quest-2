@@ -787,8 +787,8 @@ html.tq-pwa-runtime .home-safe-visual-area {
 }
 
 .hud-level-slot > img {
-    translate: -202.39199073697756px 362.3066900634766px;
-    scale: 0.3571385369630572 0.05;
+    translate: 0 0;
+    scale: 1 1;
     transform-origin: top left;
 }
 
