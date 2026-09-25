@@ -1,0 +1,195 @@
+.tq-audio-dev {
+    position: fixed;
+    right: 16px;
+    bottom: 464px;
+    z-index: 100008;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    color: #fff7de;
+    font: 600 12px/1.3 Arial, sans-serif;
+}
+
+.tq-audio-dev-toggle {
+    width: 54px;
+    height: 54px;
+    border: 2px solid #e5bd54;
+    border-radius: 50%;
+    color: #fff6dc;
+    background: #644523;
+    font-weight: 900;
+    letter-spacing: .03em;
+    box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    cursor: pointer;
+}
+
+.tq-audio-dev-panel {
+    position: fixed;
+    top: max(12px, var(--tq-safe-top, 0px));
+    right: 82px;
+    bottom: max(12px, var(--tq-safe-bottom, 0px));
+    width: min(390px, calc(100vw - 104px));
+    margin: 0;
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    align-content: start;
+    box-sizing: border-box;
+    border: 1px solid #d7b554;
+    border-radius: 14px;
+    background: rgba(5,29,41,.985);
+    box-shadow: 0 12px 34px rgba(0,0,0,.42);
+}
+
+.tq-audio-dev-panel[hidden] { display: none; }
+
+.tq-audio-dev-panel > header {
+    position: sticky;
+    top: -12px;
+    z-index: 4;
+    margin: -12px -12px 2px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(5,29,41,.995);
+    border-bottom: 1px solid rgba(229,189,84,.22);
+}
+
+.tq-audio-dev-panel > header span {
+    color: #95e5bc;
+    font-size: 10px;
+    text-align: right;
+}
+
+.tq-audio-dev-panel label { display: grid; gap: 4px; }
+
+.tq-audio-dev-panel input,
+.tq-audio-dev-panel select,
+.tq-audio-dev-panel button {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 36px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 9px;
+    color: #fff8df;
+    background: rgba(255,255,255,.08);
+    font: inherit;
+}
+
+.tq-audio-dev-panel input[type="text"],
+.tq-audio-dev-panel select { padding: 7px 9px; }
+
+.tq-audio-dev-panel select {
+    color-scheme: dark;
+    background: #102f3f;
+    border-color: rgba(229,189,84,.58);
+}
+
+.tq-audio-dev-panel input[type="range"] {
+    min-height: 26px;
+    padding: 0;
+    accent-color: #e5bd54;
+}
+
+.tq-audio-dev-panel input[type="checkbox"] {
+    width: 18px;
+    min-height: 18px;
+    accent-color: #e5bd54;
+}
+
+.tq-audio-dev-panel button { padding: 7px 9px; cursor: pointer; }
+
+.tq-audio-switch {
+    grid-template-columns: auto minmax(0,1fr);
+    align-items: center;
+    gap: 8px !important;
+}
+
+.tq-audio-library,
+.tq-audio-tracks,
+.tq-audio-dev-panel fieldset {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid rgba(229,189,84,.25);
+    border-radius: 10px;
+}
+
+.tq-audio-dev-panel legend,
+.tq-audio-library > strong,
+.tq-audio-tracks > strong {
+    color: #fff1b8;
+    font-weight: 900;
+}
+
+.tq-audio-catalog-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 5px 10px;
+    align-items: center;
+    text-align: left;
+    margin-top: 6px;
+}
+
+.tq-audio-catalog-item strong { min-width: 0; }
+.tq-audio-catalog-item small { color: #95e5bc; }
+.tq-audio-catalog-item:disabled { opacity: .48; cursor: default; }
+
+.tq-audio-track {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.055);
+}
+
+.tq-audio-track > small {
+    overflow: hidden;
+    color: #91aeb8;
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tq-audio-volume {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+}
+
+.tq-audio-volume input { grid-column: 1 / -1; }
+.tq-audio-volume span { color: #95e5bc; font-variant-numeric: tabular-nums; }
+
+.tq-audio-track-actions,
+.tq-audio-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.tq-audio-note { color: #b7d1d9; line-height: 1.45; }
+
+@media (max-width: 620px) {
+    .tq-audio-dev { right: 8px; bottom: 456px; }
+
+    .tq-audio-dev-panel {
+        top: auto;
+        left: 8px;
+        right: 70px;
+        bottom: max(8px, var(--tq-safe-bottom, 0px));
+        width: auto;
+        max-height: min(72dvh, 620px);
+    }
+
+    .tq-audio-dev-panel button,
+    .tq-audio-dev-panel select { min-height: 44px; }
+
+    .tq-audio-track-actions,
+    .tq-audio-actions { grid-template-columns: 1fr; }
+}
