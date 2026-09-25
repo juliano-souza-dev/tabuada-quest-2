@@ -15,7 +15,7 @@
 @import url("./dev/scene-editor.css?v=20260925-layer-traversal-v1");
 @import url("./dev/settings-panel.css?v=20260925-lock-progress-v1");
 @import url("./dev/asset-uploader.css?v=20260924-mobile-tools-v2");
-@import url("./dev/region-builder.css?v=20260925-transparent-empty-v1");
+@import url("./dev/region-builder.css?v=20260925-transparent-empty-v1");\n@import url("./dev/ocean-editor.css?v=20260925-webgl-ocean-v1");
 
 
 /* Retorno global temporário para a Home nas telas de navegação do mundo. */
