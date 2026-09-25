@@ -421,6 +421,7 @@
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-undo>↶ Desfazer</button>
                     <button type="button" data-dev-reset>Resetar item</button>
+                    <button type="button" class="tq-scene-dev-delete" data-dev-delete aria-label="Excluir elemento visual selecionado">🗑 Excluir visual</button>
                 </div>
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-copy>Copiar layout</button>
@@ -435,6 +436,7 @@
                 </button>
                 <button type="button" data-dev-compact-save aria-label="Salvar item e selecionar outro" title="Salvar e próximo">✓</button>
                 <button type="button" data-dev-compact-undo aria-label="Desfazer última alteração" title="Desfazer">↶</button>
+                <button type="button" class="tq-scene-dev-compact-delete" data-dev-compact-delete aria-label="Excluir elemento visual selecionado" title="Excluir visual">🗑</button>
                 <button type="button" data-dev-compact-close aria-label="Sair do editor visual" title="Fechar editor">×</button>
             </div>
         `;
@@ -461,7 +463,9 @@
         const compactAdjustButton = host.querySelector("[data-dev-compact-adjust]");
         const compactSaveButton = host.querySelector("[data-dev-compact-save]");
         const compactUndoButton = host.querySelector("[data-dev-compact-undo]");
+        const compactDeleteButton = host.querySelector("[data-dev-compact-delete]");
         const compactCloseButton = host.querySelector("[data-dev-compact-close]");
+        const deleteButton = host.querySelector("[data-dev-delete]");
         const collapseButton = host.querySelector("[data-dev-collapse]");
         const name = host.querySelector("[data-dev-name]");
         const type = host.querySelector("[data-dev-type]");
@@ -617,6 +621,9 @@
             compactName.textContent = selected?.label || "Toque no próximo elemento";
             compactSaveButton.disabled = !selected;
             compactUndoButton.disabled = history.length === 0;
+            const canDelete = Boolean(selected && isDeletableVisual(selected) && !isDeleteProtected(selected));
+            compactDeleteButton.disabled = !canDelete;
+            deleteButton.disabled = !canDelete;
             host.classList.toggle("tq-scene-dev--collapsed", compactVisible);
         }
 
@@ -646,6 +653,37 @@
             const previous = history.pop();
             if (previous) applySnapshot(previous);
             else syncEditorChrome();
+        }
+
+        function deleteSelectedVisual() {
+            if (!selected) return;
+
+            if (isDeleteProtected(selected)) {
+                status.textContent = "Funções são protegidas e não podem ser excluídas";
+                syncEditorChrome();
+                return;
+            }
+
+            if (!isDeletableVisual(selected)) {
+                status.textContent = "Excluir é permitido somente para assets visuais";
+                syncEditorChrome();
+                return;
+            }
+
+            pushHistory();
+            const deletedLabel = selected.label;
+            setDeleted(selected.element, true);
+            persist("Asset excluído · Desfazer restaura");
+            refreshList();
+
+            if (!selected || isDeleted(selected.element)) {
+                const next = filteredNodes()[0] || null;
+                selectNode(next);
+            }
+
+            status.textContent = deletedLabel + " excluído · Desfazer restaura";
+            scheduleOverlay();
+            syncEditorChrome();
         }
 
         function onMobileEditorChange() {
@@ -943,28 +981,7 @@
 
             if (event.key === "Delete") {
                 event.preventDefault();
-
-                if (isDeleteProtected(selected)) {
-                    status.textContent = "Funções são protegidas e não podem ser deletadas";
-                    return;
-                }
-
-                if (!isDeletableVisual(selected)) {
-                    status.textContent = "DEL é permitido somente para assets visuais";
-                    return;
-                }
-
-                pushHistory();
-                const deletedLabel = selected.label;
-                setDeleted(selected.element, true);
-                persist("Asset deletado · Desfazer restaura");
-                refreshList();
-                if (!selected || isDeleted(selected.element)) {
-                    const next = filteredNodes()[0] || null;
-                    selectNode(next);
-                }
-                status.textContent = deletedLabel + " deletado · Desfazer restaura";
-                scheduleOverlay();
+                deleteSelectedVisual();
                 return;
             }
 
@@ -1029,6 +1046,7 @@
         compactAdjustButton.addEventListener("click", () => setCollapsed(false));
         compactSaveButton.addEventListener("click", saveAndSelectNext);
         compactUndoButton.addEventListener("click", undoLastChange);
+        compactDeleteButton.addEventListener("click", deleteSelectedVisual);
         compactCloseButton.addEventListener("click", () => setOpened(false));
         [inputX, inputY, inputSx, inputSy].forEach((input) => input.addEventListener("change", setFromInspector));
         layerBackButton.addEventListener("click", () => changeSelectedLayer("back"));
@@ -1037,6 +1055,7 @@
         layerFrontButton.addEventListener("click", () => changeSelectedLayer("front"));
 
         host.querySelector("[data-dev-undo]").addEventListener("click", undoLastChange);
+        deleteButton.addEventListener("click", deleteSelectedVisual);
         host.querySelector("[data-dev-reset]").addEventListener("click", () => {
             if (!selected) return;
             pushHistory();
