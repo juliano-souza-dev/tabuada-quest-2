@@ -528,7 +528,12 @@
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
         const screenId = String(options.screenId || "screen");
         const compositionScreenId = String(options.compositionScreenId || screenId);
-        const composition = TQ.content?.screenComposition?.getScreen?.(compositionScreenId) || null;
+        const compositionRegistry = TQ.content?.screenComposition || null;
+        const resolvedCompositionScreenId = compositionRegistry?.resolveScreenType?.(compositionScreenId)
+            || screenRoot?.dataset?.tqCompositionScreen
+            || compositionScreenId;
+        const composition = compositionRegistry?.getScreen?.(resolvedCompositionScreenId) || null;
+        const compositionVariantId = String(options.compositionVariantId || "").trim();
         if (!screenRoot) return 0;
 
         try {
@@ -560,6 +565,19 @@
 
             for (const record of ordered) {
                 const localFileName = String(record.fileName || "").trim().toLowerCase();
+
+                if (composition && record.slotId && compositionVariantId) {
+                    const semanticSlot = compositionRegistry?.getSlot?.(
+                        resolvedCompositionScreenId,
+                        record.slotId
+                    );
+                    if (
+                        semanticSlot?.bindingMode === "variants"
+                        && String(record.variantId || "default") !== compositionVariantId
+                    ) {
+                        continue;
+                    }
+                }
                 // One-time promotion cleanup for the Home background that was first
                 // positioned as local 48378.png and is now an official WebP asset.
                 if (screenId === "home" && (record.id === "home.local.48378-png.1790304073944" || localFileName === "48378.png")) {
