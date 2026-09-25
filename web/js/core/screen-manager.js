@@ -1,65 +1,4 @@
-(function (root) {
-    const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
-
-    const FULL_BLEED_SOURCE_SELECTOR = [
-        ":scope > .home-full-bleed-background",
-        ".tq-canonical-stage [data-tq-asset-role='background']",
-        ".world-map-art",
-        ".region-islands-background",
-        ".regions-map-image",
-        ".challenge-art-background",
-        ".result-art-background",
-        ".pet-rescue-background",
-        ".tavern-background"
-    ].join(",");
-
-    function disposeFullBleedBackdrop(screen) {
-        try {
-            screen?.__tqFullBleedObserver?.disconnect?.();
-        } catch (_) {}
-        if (screen) screen.__tqFullBleedObserver = null;
-    }
-
-    function ensureFullBleedBackdrop(screen) {
-        if (!(screen instanceof Element)) return;
-        if (!screen.querySelector(".tq-canonical-stage")) return;
-        if (screen.querySelector(":scope > .tq-screen-full-bleed-backdrop")) return;
-
-        const source = screen.querySelector(FULL_BLEED_SOURCE_SELECTOR);
-        if (!(source instanceof HTMLImageElement)) return;
-
-        const backdrop = document.createElement("img");
-        backdrop.className = "tq-screen-full-bleed-backdrop";
-        backdrop.alt = "";
-        backdrop.setAttribute("aria-hidden", "true");
-
-        function syncSource() {
-            const nextSrc = source.currentSrc || source.src || source.getAttribute("src") || "";
-            if (nextSrc && backdrop.src !== nextSrc) backdrop.src = nextSrc;
-            const objectPosition = getComputedStyle(source).objectPosition;
-            if (objectPosition) backdrop.style.objectPosition = objectPosition;
-        }
-
-        syncSource();
-        screen.insertBefore(backdrop, screen.firstChild);
-
-        const observer = new MutationObserver(() => {
-            if (!screen.isConnected) {
-                observer.disconnect();
-                return;
-            }
-            syncSource();
-        });
-        observer.observe(source, {
-            attributes: true,
-            attributeFilter: ["src", "srcset", "style", "class"]
-        });
-        source.addEventListener("load", syncSource);
-
-        screen.__tqFullBleedObserver = observer;
-    }
-
-    function waitForVisualAssets(node) {
+(function (root) {\n    const TQ = root.TabuadaQuest = root.TabuadaQuest || {};\n\n    function waitForVisualAssets(node) {
         const images = Array.from(node.querySelectorAll("img"));
         const imageJobs = images.map((img) => {
             if (img.complete && img.naturalWidth > 0) return Promise.resolve();
@@ -122,7 +61,6 @@
     TQ.core = TQ.core || {};
     TQ.core.screenManager = Object.freeze({
         createScreenManager,
-        waitForVisualAssets,
-        ensureFullBleedBackdrop
+        waitForVisualAssets
     });
 })(globalThis);
