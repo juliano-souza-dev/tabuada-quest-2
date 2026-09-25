@@ -69,3 +69,18 @@ test("Copiar layout inclui SOM no pacote de implementação",()=>{
     assert.match(source,/audio:\s*\{\s*version:\s*1,/);
     assert.match(source,/Layout \+ composição \+ CENA \+ MAR \+ SOM copiados/);
 });
+
+test("default publica os dois sons do cenário sem depender do manifesto",()=>{
+    const audio=loadAudioScene();
+    const config=audio.readConfig("home.background-default");
+    assert.equal(config.tracks.length,2);
+    assert.equal(config.tracks[0].src,"./assets/backgrounds/default/ocean-waves.mp3");
+    assert.equal(config.tracks[1].src,"./assets/backgrounds/default/jeanmalraux-oceano-119943.mp3");
+
+    const compositionSource=read("web/js/content/screen-composition.js");
+    assert.match(compositionSource,/id: "ocean-waves"/);
+    assert.match(compositionSource,/id: "ocean-atmosphere"/);
+
+    const appSource=read("web/js/app.js");
+    assert.match(appSource,/catalog: audioCatalog/);
+});
