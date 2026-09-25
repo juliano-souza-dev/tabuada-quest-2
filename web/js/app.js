@@ -626,7 +626,13 @@
             if (!clone) return null;
             clone.style.position="absolute"; clone.style.width=(1/r.w*100)+"%"; clone.style.height=(1/r.h*100)+"%"; clone.style.left=(-r.x/r.w*100)+"%"; clone.style.top=(-r.y/r.h*100)+"%"; clone.style.maxWidth="none"; clone.style.pointerEvents="none"; clone.style.margin="0"; el.appendChild(clone); stage.appendChild(el); el._fxAnimation=animateRegion(el,fx); return el;
         };
-        effects.filter(isActiveScope).forEach((fx)=>renderEffect(fx)); refreshSaved(); persistEffects();
+        const hasPublishedRuntimeEffect = (fx) => [...activeRoot.querySelectorAll("[data-runtime-fx-id]")]
+            .some((node) => node.dataset.runtimeFxId === fx?.id);
+        effects.filter(isActiveScope).forEach((fx) => {
+            if (!hasPublishedRuntimeEffect(fx)) renderEffect(fx);
+        });
+        refreshSaved();
+        persistEffects();
 
         host.querySelector("[data-fx-save]").onclick = () => {
             if (!draftData || !region) return;
@@ -793,7 +799,9 @@
                     node._fxAnimation?.cancel?.();
                     node.remove();
                 });
-                effects.filter(isActiveScope).forEach((fx) => renderEffect(fx));
+                effects.filter(isActiveScope).forEach((fx) => {
+                    if (!hasPublishedRuntimeEffect(fx)) renderEffect(fx);
+                });
                 refreshSaved();
 
                 const suffix = skipped
