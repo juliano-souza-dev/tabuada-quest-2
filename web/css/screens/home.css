@@ -877,3 +877,154 @@ html.tq-pwa-runtime .home-safe-visual-area {
     scale: 1 1;
     transform-origin: top left;
 }
+/* Home UX snapshot · 2026-09-25 02:08 BRT */
+/* Consolidated from the mobile UX editor. Only stable game elements are
+   promoted here. DEV lock flags and auto-mapped hidden UI are not runtime CSS. */
+
+.home-background-image {
+    display: none;
+}
+
+.home-frame {
+    translate: -1.044403076171875px -9.755546569824219px;
+    scale: 1.1288688285184267 1.3641728774500361;
+    transform-origin: top left;
+}
+
+.home-frame-art {
+    translate: -2px 2px;
+    scale: 1 0.9877003852196066;
+    transform-origin: top left;
+}
+
+.home-frame-text {
+    translate: -1164.6888523101807px 202.57785034179688px;
+    scale: 3.242612218704299 2.14049198152822;
+    transform-origin: top left;
+}
+
+.home-art-overlay {
+    translate: -118.40001010894775px -525.15549659729px;
+    scale: 2.452462951832017 3.934898876933174;
+    transform-origin: top left;
+}
+
+.profile-slot {
+    translate: -23.99999237060547px 5.422214508056641px;
+    scale: 1.674563185813407 1.674563185813407;
+    transform-origin: top left;
+}
+
+.profile-slot-avatar {
+    translate: 3.111114501953125px 0.911102294921875px;
+    scale: 0.8675785453417635 0.8675785453417635;
+    transform-origin: top left;
+}
+
+.hud-level-slot {
+    translate: 143.91107177734375px 22.555564880371094px;
+    scale: 1.1948280816488877 1.1948280816488877;
+    transform-origin: top left;
+}
+
+.hud-level-slot > img {
+    translate: -13px 0;
+    scale: 5.992070783259634 5.992070783259635;
+    transform-origin: top left;
+}
+
+.wallet-value.coins {
+    translate: 11.73333740234375px 100.62222671508789px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.wallet-value.gems {
+    translate: -92.08895874023438px -26.666664123535156px;
+    scale: 2.207251292653877 2.2072512926538774;
+    transform-origin: top left;
+}
+
+.home-hero-character {
+    translate: 2.844390869140625px 13.510971069335938px;
+    scale: 0.7939748248377893 0.7939748248377893;
+    transform-origin: top left;
+}
+
+.home-play-art {
+    translate: -102.83778496742246px 229.85218490407897px;
+    scale: 0.7922065080932824 1.2032095849053597;
+    transform-origin: top left;
+}
+
+.home-crew-art {
+    translate: 116.022216796875px 253.10446411132813px;
+    scale: 0.8818 0.8818;
+    transform-origin: top left;
+}
+
+.home-shipyard-art {
+    translate: 1.9332895922836428px 253.9916909950117px;
+    scale: 0.8818438502156271 0.8818438502156271;
+    transform-origin: top left;
+}
+
+.hotspot-background {
+    translate: 0 12px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-fashion {
+    translate: 2.288909912109375px 6.04443359375px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.play-slot {
+    translate: 48.64442825317383px -174.99018177281627px;
+    scale: 0.873823 1;
+    transform-origin: top left;
+}
+
+.hotspot-crew {
+    translate: 55px -269px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-shipyard {
+    translate: -6.3999786376953125px -193.74914508001984px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-regions {
+    translate: 0 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-daily {
+    translate: 2.4888763427734375px -5.33343505859375px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-shop {
+    translate: 0 0;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-collection {
+    translate: -1.777801513671875px -11.3778076171875px;
+    scale: 1 1;
+    transform-origin: top left;
+}
+
+.hotspot-items {
+    translate: -14.422210693359375px -170.67971602392382px;
+    scale: 1 1;
+    transform-origin: top left;
+}
