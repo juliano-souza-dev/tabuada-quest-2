@@ -317,7 +317,10 @@
             || screenRoot;
         const compositionActive = Boolean(screenRoot?.dataset?.tqCompositionScreen);
         const source = compositionActive
-            ? stage?.querySelector('[data-tq-semantic-type="ocean"]')
+            ? (
+                stage?.querySelector('[data-tq-semantic-type="ocean"]')
+                || stage?.querySelector('[data-tq-semantic-type="home_background"]')
+            )
             : stage?.querySelector(".region-islands-background");
         const regionId = Number(options.regionId || screenRoot?.dataset?.regionId) || null;
         const scopeId = String(options.scopeId || (regionId ? "islands.region-" + regionId : ""));
