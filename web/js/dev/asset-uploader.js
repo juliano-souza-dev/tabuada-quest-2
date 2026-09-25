@@ -999,6 +999,11 @@
 
             removeButton.disabled = localLayers.length === 0;
             fileName.textContent = localLayers.at(-1)?.fileName || "Nenhum arquivo local";
+            if (entry.slotId) {
+                root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                    detail: { scopeId: screenId, screenId: compositionScreenId, slotId: entry.slotId }
+                }));
+            }
             status.textContent = "Camada local removida";
         }
 
@@ -1053,7 +1058,15 @@
                         element.dataset.tqSemanticType = semanticSelect.value;
                     });
                 const entry = localLayers.find((item) => item.slotId === slot.id);
-                if (entry) entry.semanticType = semanticSelect.value;
+                if (entry) {
+                    entry.semanticType = semanticSelect.value;
+                    entry.image.style.zIndex = String(
+                        compositionRegistry.defaultLayerForSemanticType(semanticSelect.value)
+                    );
+                }
+                root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                    detail: { scopeId: screenId, screenId: compositionScreenId, slotId: slot.id }
+                }));
             }
             syncCompositionSlot();
         });
@@ -1085,6 +1098,9 @@
                 semanticSelect?.value || slot.semanticType
             );
             status.textContent = assetUrl ? "Arquivo vinculado ao destino" : "Vínculo removido";
+            root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                detail: { scopeId: screenId, screenId: compositionScreenId, slotId: slot.id }
+            }));
             syncCompositionSlot();
         });
 
