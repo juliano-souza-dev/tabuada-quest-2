@@ -3,10 +3,15 @@
     --tq-native-safe-right: 0px;
     --tq-native-safe-bottom: 0px;
     --tq-native-safe-left: 0px;
-    --tq-safe-top: env(safe-area-inset-top, 0px);
-    --tq-safe-right: env(safe-area-inset-right, 0px);
-    --tq-safe-bottom: env(safe-area-inset-bottom, 0px);
-    --tq-safe-left: env(safe-area-inset-left, 0px);
+    /*
+     * App coordinates are based on the usable browser/PWA viewport, not the
+     * physical panel. viewport-fit=contain keeps system cutouts outside it.
+     */
+    --tq-safe-top: 0px;
+    --tq-safe-right: 0px;
+    --tq-safe-bottom: 0px;
+    --tq-safe-left: 0px;
+    --tq-app-width: 100vw;
     --tq-app-height: 100dvh;
 }
 
@@ -46,14 +51,15 @@ img {
 }
 
 .app-stage {
-    width: 100%;
-    min-height: var(--tq-app-height);
+    width: var(--tq-app-width);
+    height: var(--tq-app-height);
+    min-height: 0;
 }
 
 .app-viewport {
     position: relative;
     width: 100%;
-    height: var(--tq-app-height);
+    height: 100%;
     min-height: 0;
     overflow: hidden;
     margin: 0 auto;
@@ -109,22 +115,21 @@ img {
         --tq-preview-navigation-height: 24px;
 
         /*
-         * Fixed layout coordinate system for the A15 preview.
-         * Full logical viewport: 412 × 892.6667 CSS px.
-         * Useful game rectangle: 412 × 844.6667 CSS px after the simulated
-         * 24 px status area and 24 px gesture/navigation area.
+         * The simulated OS owns the top/bottom system strips.
+         * #app receives only the usable rectangle, exactly like a normal
+         * standalone web app.
          */
         --tq-preview-useful-width: 412px;
         --tq-preview-useful-height: 844.6667px;
-        --tq-safe-top: var(--tq-preview-status-height);
-        --tq-safe-bottom: var(--tq-preview-navigation-height);
+        --tq-safe-top: 0px;
+        --tq-safe-bottom: 0px;
 
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 412px;
-        height: 892.6667px;
-        aspect-ratio: 6 / 13;
+        width: var(--tq-preview-useful-width);
+        height: var(--tq-preview-useful-height);
+        aspect-ratio: auto;
         max-width: none;
         max-height: none;
         margin: 0;
@@ -137,41 +142,37 @@ img {
         transform-origin: center;
     }
 
-    html:not(.tq-native-runtime) .app-viewport::before {
+    html:not(.tq-native-runtime) .app-stage::before {
         content: "10:20                                  ◉  Wi-Fi  ▮▮▮";
         position: absolute;
         z-index: 1000;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: var(--tq-preview-status-height);
+        left: 50%;
+        top: 7px;
+        width: calc(var(--tq-preview-useful-width) * var(--tq-device-scale));
+        height: calc(var(--tq-preview-status-height) * var(--tq-device-scale));
+        transform: translateX(-50%);
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 0 8px;
-        box-sizing: border-box;
         overflow: hidden;
         font: 700 9px/1 system-ui, sans-serif;
-        letter-spacing: .01em;
         white-space: pre;
         color: rgba(255,255,255,.94);
-        background:
-            radial-gradient(circle at 50% 0, #02080c 0 8px, transparent 9px),
-            rgba(7, 29, 41, .96);
+        background: rgba(7,29,41,.96);
         pointer-events: none;
     }
 
-    html:not(.tq-native-runtime) .app-viewport::after {
+    html:not(.tq-native-runtime) .app-stage::after {
         content: "";
         position: absolute;
         z-index: 1000;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: var(--tq-preview-navigation-height);
-        background:
-            linear-gradient(rgba(7,29,41,.94), rgba(7,29,41,.94)),
-            #071d29;
+        left: 50%;
+        bottom: 7px;
+        width: calc(var(--tq-preview-useful-width) * var(--tq-device-scale));
+        height: calc(var(--tq-preview-navigation-height) * var(--tq-device-scale));
+        transform: translateX(-50%);
+        background: rgba(7,29,41,.94);
         pointer-events: none;
     }
 
@@ -200,14 +201,21 @@ img {
     pointer-events: auto;
 }
 
-@media (display-mode: standalone), (display-mode: fullscreen) {
+@media (display-mode: standalone) {
     html,
-    body,
-    .app-stage,
-    .app-viewport {
+    body {
+        width: 100%;
         height: var(--tq-app-height);
         min-height: var(--tq-app-height);
         max-height: var(--tq-app-height);
+    }
+
+    .app-stage,
+    .app-viewport {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        max-height: none;
     }
 
     body {
@@ -215,15 +223,8 @@ img {
     }
 }
 
-/* Every game screen lives inside the OS/browser safe rectangle.
-   Full-bleed artwork must never sit underneath the status/navigation bars. */
 .tq-pwa-runtime .app-viewport {
-    height: var(--tq-app-height);
-    padding:
-        var(--tq-safe-top)
-        var(--tq-safe-right)
-        var(--tq-safe-bottom)
-        var(--tq-safe-left);
+    padding: 0;
 }
 
 .tq-pwa-runtime .app-viewport > section {
