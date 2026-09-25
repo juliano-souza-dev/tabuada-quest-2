@@ -317,10 +317,7 @@
             || screenRoot;
         const compositionActive = Boolean(screenRoot?.dataset?.tqCompositionScreen);
         const semanticHost = compositionActive
-            ? (
-                stage?.querySelector('[data-tq-semantic-type="ocean"]')
-                || stage?.querySelector('[data-tq-semantic-type="home_background"]')
-            )
+            ? stage?.querySelector('[data-tq-semantic-type="ocean"]')
             : null;
         const source = compositionActive
             ? (
@@ -343,7 +340,13 @@
         canvas.className = "region-ocean-motion";
         canvas.dataset.tqOceanScene = "true";
         canvas.setAttribute("aria-hidden", "true");
-        stage.appendChild(canvas);
+        const canvasHost = compositionActive && semanticHost instanceof HTMLElement
+            ? semanticHost
+            : stage;
+        if (canvasHost instanceof HTMLElement) {
+            canvasHost.style.overflow = "hidden";
+        }
+        canvasHost.appendChild(canvas);
 
         const gl = canvas.getContext("webgl", {
             alpha: true,
@@ -409,8 +412,11 @@
         function resize() {
             const dpr = Math.min(Math.max(root.devicePixelRatio || 1, 1), config.quality === "high" ? 1.6 : 1.25);
             const scale = qualityScale();
-            const width = Math.max(1, Math.round(DESIGN_WIDTH * dpr * scale));
-            const height = Math.max(1, Math.round(DESIGN_HEIGHT * dpr * scale));
+            const hostRect = canvasHost.getBoundingClientRect();
+            const cssWidth = hostRect.width || DESIGN_WIDTH;
+            const cssHeight = hostRect.height || DESIGN_HEIGHT;
+            const width = Math.max(1, Math.round(cssWidth * dpr * scale));
+            const height = Math.max(1, Math.round(cssHeight * dpr * scale));
             if (canvas.width !== width || canvas.height !== height) {
                 canvas.width = width;
                 canvas.height = height;
@@ -448,14 +454,14 @@
             const ship = stage.querySelector('[data-tq-semantic-type="ship"]')
                 || stage.querySelector(".region-ruby-shop-button:not(.is-locked)");
             if (!(ship instanceof Element)) return { x: -1, y: -1 };
-            const stageRect = stage.getBoundingClientRect();
+            const oceanRect = canvasHost.getBoundingClientRect();
             const shipRect = ship.getBoundingClientRect();
-            if (!stageRect.width || !stageRect.height || !shipRect.width || !shipRect.height) {
+            if (!oceanRect.width || !oceanRect.height || !shipRect.width || !shipRect.height) {
                 return { x: -1, y: -1 };
             }
             return {
-                x: clamp((shipRect.left + shipRect.width * 0.5 - stageRect.left) / stageRect.width, 0, 1),
-                y: clamp(1 - ((shipRect.top + shipRect.height * 0.68 - stageRect.top) / stageRect.height), 0, 1)
+                x: clamp((shipRect.left + shipRect.width * 0.5 - oceanRect.left) / oceanRect.width, 0, 1),
+                y: clamp(1 - ((shipRect.top + shipRect.height * 0.68 - oceanRect.top) / oceanRect.height), 0, 1)
             };
         }
 
@@ -519,8 +525,12 @@
 
         function onPointerDown(event) {
             if (!config.enabled || !config.ripples) return;
-            const rect = stage.getBoundingClientRect();
+            const rect = canvasHost.getBoundingClientRect();
             if (!rect.width || !rect.height) return;
+            if (
+                event.clientX < rect.left || event.clientX > rect.right
+                || event.clientY < rect.top || event.clientY > rect.bottom
+            ) return;
             const point = {
                 x: (event.clientX - rect.left) / rect.width,
                 y: (event.clientY - rect.top) / rect.height
