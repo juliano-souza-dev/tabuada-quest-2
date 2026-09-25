@@ -807,6 +807,60 @@
         render();
     }
 
+    function resolveDevelopmentEditorContext(screenRoot, context, screenId) {
+        const domRegionId = Number(screenRoot?.dataset?.regionId);
+        const previewRegionId = Number(context?.previewRegionId);
+        const activeRegionId = Number(context?.state?.learning?.activeSession?.regionId);
+        const currentRegionId = Number(context?.state?.campaign?.currentRegionId);
+        const regionScopedScreens = new Set([
+            "islands",
+            "travel",
+            "challenge",
+            "special-mission",
+            "chest",
+            "pet",
+            "map-reward",
+            "result",
+            "ruby-shop"
+        ]);
+
+        let regionId = Number.isInteger(domRegionId) && domRegionId > 0
+            ? domRegionId
+            : null;
+
+        if (!regionId && screenId === "islands" && Number.isInteger(previewRegionId) && previewRegionId > 0) {
+            regionId = previewRegionId;
+        }
+
+        if (!regionId && regionScopedScreens.has(screenId) && Number.isInteger(activeRegionId) && activeRegionId > 0) {
+            regionId = activeRegionId;
+        }
+
+        if (!regionId && regionScopedScreens.has(screenId) && Number.isInteger(currentRegionId) && currentRegionId > 0) {
+            regionId = currentRegionId;
+        }
+
+        const region = regionId
+            ? (TQ.content.getWorldRegion?.(regionId)
+                || TQ.content.regions?.find?.((item) => Number(item?.id) === regionId))
+            : null;
+
+        return {
+            screenType: screenId,
+            regionId,
+            regionLabel: region?.label || null,
+            regionPage: screenRoot?.dataset?.regionPage || null,
+            developmentMode: Boolean(context?.developmentMode)
+        };
+    }
+
+    function resolveDevelopmentStorageScope(editorScreenId, editorContext) {
+        if (editorScreenId === "islands" && editorContext.regionId) {
+            return `islands.region-${editorContext.regionId}`;
+        }
+        return editorScreenId;
+    }
+
     async function renderWithDevelopmentTools(renderScreen, context, screenId, renderToken) {
         await screens.render(renderScreen, context);
         if (renderToken !== appRenderToken) return;
@@ -815,17 +869,21 @@
 
         const screenRoot = appRoot.firstElementChild || appRoot;
         const editorScreenId = screenRoot.dataset.tqDevScreenId || screenId;
+        const editorContext = resolveDevelopmentEditorContext(screenRoot, context, screenId);
+        const editorStorageScope = resolveDevelopmentStorageScope(editorScreenId, editorContext);
 
         await TQ.dev?.assetUploader?.restoreLocalLayers?.({
-            screenId: editorScreenId,
+            screenId: editorStorageScope,
             screenRoot
         });
         TQ.dev?.sceneEditor?.mount(appRoot, {
             screenId: editorScreenId,
+            storageScopeId: editorStorageScope,
+            editorContext,
             screenRoot
         });
         mountParallaxPrototype(editorScreenId, screenRoot, {
-            regionId: context.state?.campaign?.currentRegionId
+            regionId: editorContext.regionId
         });
         TQ.dev?.settingsPanel?.mount({
             getState: () => state,
@@ -842,7 +900,7 @@
             rootPath: "web/assets",
             appRoot,
             screenRoot,
-            screenId: editorScreenId
+            screenId: editorStorageScope
         });
         mountDevelopmentExit();
     }
