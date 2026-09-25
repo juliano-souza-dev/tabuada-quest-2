@@ -27,8 +27,8 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     const composition=TQ.content.screenComposition;
 
     const home=composition.getAssetSlots("home");
-    assert.equal(home.length,31);
-    assert.equal(home.filter((slot)=>slot.group==="header").length,3);
+    assert.equal(home.length,32);
+    assert.equal(home.filter((slot)=>slot.group==="header").length,4);
     assert.equal(home.filter((slot)=>slot.group==="buttons").length,8);
     assert.equal(home.filter((slot)=>slot.semanticType==="ocean").length,1);
     assert.equal(home.filter((slot)=>slot.group==="background-clouds").length,10);
@@ -37,6 +37,22 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     assert.equal(home.filter((slot)=>slot.group==="background-pier").length,1);
     assert.equal(home.filter((slot)=>slot.group==="background-pier" && slot.required).length,1);
     assert.equal(home.filter((slot)=>slot.group==="background-ships" && slot.required).length,1);
+    assert.equal(home.filter((slot)=>slot.semanticType==="level_plate").length,1);
+    assert.equal(home.find((slot)=>slot.semanticType==="level_plate").required,true);
+
+    const homeBackground=composition.getComposition("home","home.background.composition");
+    const homeBackgroundSlots=composition.getCompositionSlots("home",homeBackground.id);
+    assert.equal(homeBackgroundSlots.length,20);
+    assert.deepEqual(
+        Array.from(new Set(homeBackgroundSlots.map((slot)=>slot.semanticType))).sort(),
+        ["cloud","island","ocean","pier","ship"]
+    );
+    assert.ok(homeBackgroundSlots.every((slot)=>
+        composition.compositionAcceptsSlot("home",homeBackground.id,slot)
+    ));
+    assert.ok(home.filter((slot)=>slot.group==="header").every((slot)=>
+        !composition.compositionAcceptsSlot("home",homeBackground.id,slot)
+    ));
     assert.deepEqual(
         JSON.parse(JSON.stringify(composition.getAssetLimits("home"))),
         {
