@@ -1180,13 +1180,15 @@
         const compositionScreenType = compositionRegistry?.resolveScreenType?.(editorScreenId) || null;
         const screenAllowsFx = (fxId) =>
             !compositionScreenType || compositionRegistry.screenAllowsFx(compositionScreenType, fxId);
-        const screenHasSemanticType = (semanticType) =>
-            Boolean(compositionScreenType) && compositionRegistry
-                .getAssetSlots(compositionScreenType)
-                .some((slot) =>
-                    slot.semanticType === semanticType
-                    || (slot.acceptedTypes || []).includes(semanticType)
-                );
+        const screenHasSemanticType = (semanticType) => {
+            if (!compositionScreenType) return false;
+            return Boolean(
+                screenRoot.querySelector(
+                    '[data-tq-semantic-type="' + CSS.escape(String(semanticType)) + '"]' +
+                    ':not([data-tq-slot-empty="true"])'
+                )
+            );
+        };
 
         activeCompositionController = TQ.core?.screenCompositionRuntime?.mount?.({
             screenRoot,
@@ -1286,7 +1288,8 @@
             appRoot,
             screenRoot,
             screenId: editorStorageScope,
-            compositionScreenId: editorScreenId
+            compositionScreenId: editorScreenId,
+            compositionVariantId: activeHomeBackgroundId
         });
         mountDevelopmentExit();
     }
