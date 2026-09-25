@@ -219,3 +219,49 @@
 .tq-dev-scene-editing .tq-dev-local-live-asset {
     cursor: move !important;
 }
+
+
+/* Asset classification flow */
+.tq-asset-upload-classification {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid rgba(135, 217, 241, .34);
+    border-radius: 11px;
+    background: rgba(61, 166, 198, .08);
+}
+
+.tq-asset-upload-classification legend {
+    padding: 0 6px;
+    color: #e9fbff;
+    font-weight: 900;
+}
+
+.tq-asset-upload-classification-summary {
+    display: grid;
+    gap: 3px;
+    padding: 9px 10px;
+    border-radius: 9px;
+    background: rgba(5, 29, 41, .72);
+    border: 1px solid rgba(229, 189, 84, .28);
+}
+
+.tq-asset-upload-classification-summary small {
+    color: #9fb8c0;
+}
+
+.tq-asset-upload-classification-summary strong {
+    color: #95e5bc;
+    overflow-wrap: anywhere;
+}
+
+.tq-asset-upload-classification select:disabled {
+    opacity: .78;
+    cursor: default;
+}
+
+.tq-asset-upload-dev-local > legend {
+    color: #e9fbff;
+    font-weight: 900;
+}
