@@ -9,6 +9,7 @@
             if (root.localStorage.getItem(RESET_MARKER) === "done") return;
             [
                 STORAGE_KEY,
+                "tq2.dev.scene-layout.v2",
                 "tq2.dev.parallax.effects.v4",
                 "tq2.dev.parallax.effects.v3",
                 "tq2.dev.ocean-scene.v1",
