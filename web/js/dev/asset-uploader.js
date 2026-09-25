@@ -566,13 +566,21 @@
             for (const record of ordered) {
                 const localFileName = String(record.fileName || "").trim().toLowerCase();
 
-                if (composition && record.slotId && compositionVariantId) {
+                if (composition && record.slotId) {
                     const semanticSlot = compositionRegistry?.getSlot?.(
                         resolvedCompositionScreenId,
                         record.slotId
                     );
+
+                    if (!semanticSlot) {
+                        await deleteLocalLayerRecord(record.id);
+                        releaseRuntimeUrl(record.id);
+                        continue;
+                    }
+
                     if (
-                        semanticSlot?.bindingMode === "variants"
+                        compositionVariantId
+                        && semanticSlot.bindingMode === "variants"
                         && String(record.variantId || "default") !== compositionVariantId
                     ) {
                         continue;
