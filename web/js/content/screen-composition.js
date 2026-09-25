@@ -21,6 +21,14 @@
 
     ensureCompositionReset();
 
+    const FX_LABELS = Object.freeze({
+        ocean: "Mar",
+        depth: "Profundidade",
+        parallax: "Movimento",
+        "ship-rock": "Balanço do navio",
+        "background-animation": "Animações do fundo"
+    });
+
     const SEMANTIC_TYPES = Object.freeze({
         frame: Object.freeze({ label: "Placa / moldura", fx: Object.freeze([]) }),
         avatar: Object.freeze({ label: "Avatar", fx: Object.freeze([]) }),
@@ -279,6 +287,10 @@
         return SEMANTIC_TYPES[semanticType]?.fx || Object.freeze([]);
     }
 
+    function fxLabel(fxId) {
+        return FX_LABELS[fxId] || String(fxId || "");
+    }
+
     function depthRolesForSemanticType(semanticType) {
         return SEMANTIC_TYPES[semanticType]?.depthRoles || Object.freeze([]);
     }
@@ -412,6 +424,7 @@
         SCHEMA_VERSION,
         RESET_MARKER,
         SEMANTIC_TYPES,
+        FX_LABELS,
         SCREENS,
         SCREEN_ALIASES,
         resolveScreenType,
@@ -423,6 +436,7 @@
         getPair,
         allowedFunctionActions,
         allowedFxForSemanticType,
+        fxLabel,
         depthRolesForSemanticType,
         allowedFxForSlot,
         screenAllowsFx,
