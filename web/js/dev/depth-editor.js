@@ -29,6 +29,7 @@
 
         let config = TQ.core.depthScene.readConfig(scopeId, regionId);
         const presets = TQ.core.depthScene.ROLE_PRESETS;
+        const elementTypes = TQ.core.depthScene.ELEMENT_TYPES;
         let targets = controller?.listTargets?.() || TQ.core.depthScene.collectTargets(screenRoot, screenId);
         let selectedId = targets[0]?.id || "";
 
@@ -69,11 +70,26 @@
                         <span>Usar profundidade neste elemento</span>
                     </label>
 
-                    <label>Tipo
+                    <label>Tipo de elemento
+                        <select data-depth-element-type>
+                            ${Object.entries(elementTypes).map(([id, item]) =>
+                                '<option value="' + escapeHtml(id) + '">' + escapeHtml(item.label) + '</option>'
+                            ).join("")}
+                        </select>
+                    </label>
+
+                    <label>Perfil de profundidade
                         <select data-depth-role>
                             ${Object.entries(presets).map(([id, preset]) =>
                                 '<option value="' + escapeHtml(id) + '">' + escapeHtml(preset.label) + '</option>'
                             ).join("")}
+                        </select>
+                    </label>
+
+                    <label data-depth-direction-row hidden>Sentido das nuvens
+                        <select data-depth-direction>
+                            <option value="left">← Direita para esquerda</option>
+                            <option value="right">→ Esquerda para direita</option>
                         </select>
                     </label>
 
@@ -122,7 +138,7 @@
                 <button type="button" data-depth-reset>Restaurar cena publicada</button>
 
                 <small class="tq-depth-note">
-                    Posição e tamanho continuam sendo ajustados no UX. Aqui você controla só a sensação de profundidade e movimento.
+                    Posição e tamanho continuam no UX. O tipo do elemento define seu comportamento: Nuvem atravessa a tela em fluxo contínuo, sem vai-e-volta.
                 </small>
             </section>
         `;
@@ -135,7 +151,10 @@
         const pointer = host.querySelector("[data-depth-pointer]");
         const targetSelect = host.querySelector("[data-depth-target]");
         const layerEnabled = host.querySelector("[data-depth-layer-enabled]");
+        const elementType = host.querySelector("[data-depth-element-type]");
         const role = host.querySelector("[data-depth-role]");
+        const direction = host.querySelector("[data-depth-direction]");
+        const directionRow = host.querySelector("[data-depth-direction-row]");
         const depth = host.querySelector("[data-depth-depth]");
         const drift = host.querySelector("[data-depth-drift]");
         const speed = host.querySelector("[data-depth-speed]");
@@ -158,15 +177,22 @@
             return targets.find((target) => target.id === selectedId) || null;
         }
 
-        function allowedRolesForSelected() {
-            const allowed = selectedTarget()?.depthRoles;
-            return Array.isArray(allowed) && allowed.length
-                ? allowed.filter((id) => presets[id])
-                : Object.keys(presets);
+        function defaultElementTypeForSelected() {
+            return TQ.core.depthScene.elementTypeFromSemantic(
+                selectedTarget()?.semanticType
+            );
         }
 
-        function fillRoleOptions(preferredRole = null) {
-            const allowed = allowedRolesForSelected();
+        function allowedRolesForSelected(typeOverride = null) {
+            const typeId = typeOverride
+                || elementType.value
+                || defaultElementTypeForSelected();
+            return TQ.core.depthScene.rolesForElementType(typeId)
+                .filter((id) => presets[id]);
+        }
+
+        function fillRoleOptions(preferredRole = null, typeOverride = null) {
+            const allowed = allowedRolesForSelected(typeOverride);
             role.replaceChildren(...allowed.map((id) => {
                 const option = document.createElement("option");
                 option.value = id;
@@ -181,11 +207,20 @@
         }
 
         function currentLayer() {
+            const fallbackType = defaultElementTypeForSelected();
             if (config.layers[selectedId]) {
-                return TQ.core.depthScene.normalizeLayer(config.layers[selectedId]);
+                const normalized = TQ.core.depthScene.normalizeLayer(config.layers[selectedId]);
+                return TQ.core.depthScene.normalizeLayer({
+                    ...normalized,
+                    elementType: normalized.elementType || fallbackType
+                });
             }
-            const defaultRole = allowedRolesForSelected()[0] || "custom";
-            return TQ.core.depthScene.normalizeLayer({ enabled: false, role: defaultRole });
+            const defaultRole = TQ.core.depthScene.rolesForElementType(fallbackType)[0] || "custom";
+            return TQ.core.depthScene.normalizeLayer({
+                enabled: false,
+                elementType: fallbackType,
+                role: defaultRole
+            });
         }
 
         function fillTargets(preferredId = selectedId) {
@@ -213,7 +248,9 @@
             opacityValue.textContent = opacity.value + "%";
             scaleValue.textContent = scale.value + "%";
             tiltValue.textContent = tilt.value + "%";
-            tiltRow.hidden = role.value !== "ship";
+            const currentType = elementType.value || defaultElementTypeForSelected();
+            tiltRow.hidden = currentType !== "ship";
+            directionRow.hidden = currentType !== "cloud";
         }
 
         function syncSceneControls() {
@@ -226,7 +263,10 @@
         function syncLayerControls() {
             const layer = currentLayer();
             layerEnabled.checked = Boolean(config.layers[selectedId]?.enabled);
-            fillRoleOptions(layer.role);
+            const effectiveType = layer.elementType || defaultElementTypeForSelected();
+            elementType.value = effectiveType;
+            direction.value = layer.direction === "right" ? "right" : "left";
+            fillRoleOptions(layer.role, effectiveType);
             const effectiveRole = role.value || layer.role;
             const normalizedLayer = effectiveRole === layer.role
                 ? layer
@@ -238,9 +278,10 @@
             scale.value = String(normalizedLayer.scale);
             tilt.value = String(normalizedLayer.tilt || 0);
             const disabled = !selectedId;
-            [layerEnabled, role, depth, drift, speed, opacity, scale, tilt].forEach((control) => {
-                control.disabled = disabled;
-            });
+            [layerEnabled, elementType, role, direction, depth, drift, speed, opacity, scale, tilt]
+                .forEach((control) => {
+                    control.disabled = disabled;
+                });
             syncLabels();
         }
 
@@ -257,6 +298,8 @@
         function readLayerControls() {
             return TQ.core.depthScene.normalizeLayer({
                 enabled: layerEnabled.checked,
+                elementType: elementType.value,
+                direction: direction.value,
                 role: role.value,
                 depth: Number(depth.value),
                 drift: Number(drift.value),
@@ -346,8 +389,42 @@
             layerEnabled.checked ? "Profundidade aplicada" : "Profundidade removida"
         ));
 
-        role.addEventListener("change", () => {
+        elementType.addEventListener("change", () => {
             const previous = currentLayer();
+            const next = TQ.core.depthScene.applyElementType(previous, elementType.value);
+            layerEnabled.checked = true;
+            elementType.value = next.elementType || "custom";
+            direction.value = next.direction || "left";
+            fillRoleOptions(next.role, elementType.value);
+            depth.value = String(next.depth);
+            drift.value = String(next.drift);
+            speed.value = String(next.speed);
+            opacity.value = String(next.opacity);
+            scale.value = String(next.scale);
+            tilt.value = String(next.tilt || 0);
+            syncLabels();
+            persistLayer(
+                elementType.value === "cloud"
+                    ? "Nuvem · fluxo infinito aplicado"
+                    : "Tipo de elemento aplicado"
+            );
+        });
+
+        direction.addEventListener("change", () => {
+            syncLabels();
+            persistLayer(
+                direction.value === "right"
+                    ? "Nuvens fluindo para a direita"
+                    : "Nuvens fluindo para a esquerda"
+            );
+        });
+
+        role.addEventListener("change", () => {
+            const previous = {
+                ...currentLayer(),
+                elementType: elementType.value,
+                direction: direction.value
+            };
             const next = TQ.core.depthScene.applyRole(previous, role.value);
             layerEnabled.checked = true;
             depth.value = String(next.depth);
@@ -357,7 +434,7 @@
             scale.value = String(next.scale);
             tilt.value = String(next.tilt || 0);
             syncLabels();
-            persistLayer("Tipo aplicado");
+            persistLayer("Perfil aplicado");
         });
 
         [depth, drift, speed, opacity, scale, tilt].forEach((input) => {
