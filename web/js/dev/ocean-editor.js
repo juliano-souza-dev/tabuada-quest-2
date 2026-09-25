@@ -19,6 +19,8 @@
         const stage = screenRoot?.querySelector(".tq-canonical-stage")
             || screenRoot?.querySelector(".tq-safe-visual-area")
             || screenRoot;
+        const oceanHost = screenRoot?.querySelector('[data-tq-semantic-type="ocean"]')
+            || stage;
         const scopeId = String(options.scopeId || "");
         const regionId = Number(options.regionId) || null;
         const controller = options.controller;
@@ -240,7 +242,7 @@
             overlay.appendChild(polygon);
             document.body.appendChild(overlay);
 
-            const stageRect = stage.getBoundingClientRect();
+            const stageRect = oceanHost.getBoundingClientRect();
             let drawing = false;
             let points = [];
 
