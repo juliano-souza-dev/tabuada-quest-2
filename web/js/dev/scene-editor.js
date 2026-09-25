@@ -25,6 +25,17 @@
         }
     }
 
+    function readScopedAudio(storageScopeId, editorContext) {
+        try {
+            return TQ.core?.audioScene?.readConfig?.(
+                storageScopeId,
+                editorContext?.regionId
+            ) || null;
+        } catch (_) {
+            return null;
+        }
+    }
+
     function readScopedComposition(storageScopeId, screenId, screenRoot) {
         try {
             const registry = TQ.content?.screenComposition;
@@ -1767,8 +1778,9 @@
             try {
                 TQ.core?.oceanScene?.clearConfig?.(effectsScopeId);
                 TQ.core?.depthScene?.clearConfig?.(effectsScopeId);
+                TQ.core?.audioScene?.clearConfig?.(effectsScopeId);
             } catch (error) {
-                console.warn("Falha ao limpar CENA/MAR locais na restauração:", error);
+                console.warn("Falha ao limpar CENA/MAR/SOM locais na restauração:", error);
             }
 
             status.textContent = "Recarregando original publicado...";
@@ -1802,11 +1814,15 @@
                     version: 1,
                     config: readScopedDepth(effectsScopeId, editorContext)
                 },
+                audio: {
+                    version: 1,
+                    config: readScopedAudio(effectsScopeId, editorContext)
+                },
                 composition: readScopedComposition(storageScopeId, screenId, screenRoot)
             }, null, 2);
             try {
                 await navigator.clipboard.writeText(payload);
-                status.textContent = "Layout + composição + CENA + MAR copiados";
+                status.textContent = "Layout + composição + CENA + MAR + SOM copiados";
             } catch (_) {
                 const area = document.createElement("textarea");
                 area.value = payload;
@@ -1814,7 +1830,7 @@
                 area.select();
                 document.execCommand("copy");
                 area.remove();
-                status.textContent = "Layout + composição + CENA + MAR copiados";
+                status.textContent = "Layout + composição + CENA + MAR + SOM copiados";
             }
         });
 
