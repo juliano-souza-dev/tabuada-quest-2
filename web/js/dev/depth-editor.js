@@ -293,7 +293,7 @@
 
         function closeOtherPanels() {
             document.querySelectorAll(
-                ".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel, .tq-region-builder-panel, .tq-ocean-dev-panel, .tq-depth-dev-panel"
+                ".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-region-builder-panel, .tq-ocean-dev-panel, .tq-depth-dev-panel"
             ).forEach((candidate) => {
                 if (candidate !== panel) candidate.hidden = true;
             });
