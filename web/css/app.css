@@ -148,7 +148,27 @@
 .tq-parallax-dev-panel label{display:grid;gap:4px}
 .tq-parallax-dev-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .tq-parallax-draft{position:fixed;z-index:100001;border:2px dashed #fff06a;background:rgba(255,240,106,.14);pointer-events:none}
-.tq-parallax-region{position:absolute;z-index:6;overflow:hidden;pointer-events:none;outline:1px dashed rgba(255,240,106,.65)}
+.tq-parallax-region{
+    position:absolute;
+    z-index:var(--tq-parallax-z, 1);
+    overflow:hidden;
+    pointer-events:none;
+    outline:1px dashed rgba(255,240,106,.65);
+}
+
+/* FX is a background layer, never a ceiling over scene assets.
+   Existing scene artwork and every asset promoted by the UX editor can
+   use its normal/explicit z-index above this baseline. */
+.tq-canonical-stage > .tq-parallax-region,
+[class*="-stage"] > .tq-parallax-region {
+    --tq-parallax-z: 1;
+}
+
+.tq-dev-scene-editing [data-tq-dev-kind="asset"][data-tq-dev-layered="true"],
+.tq-dev-scene-editing [data-tq-dev-kind="overlay"][data-tq-dev-layered="true"],
+.tq-dev-scene-editing [data-tq-dev-kind="background"][data-tq-dev-layered="true"] {
+    z-index: var(--tq-dev-z, 2) !important;
+}
 
 .tq-parallax-lasso{position:fixed;inset:0;width:100vw;height:100vh;z-index:100001;pointer-events:none;overflow:visible}
 .tq-parallax-lasso-shape{fill:rgba(255,240,106,.14);stroke:#fff06a;stroke-width:2;stroke-dasharray:7 5;vector-effect:non-scaling-stroke}
