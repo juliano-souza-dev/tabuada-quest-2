@@ -12,6 +12,61 @@
     let authRestoreRequired = false;
     let authErrorCode = "";
     const screens = TQ.core.screenManager.createScreenManager(appRoot);
+    let renderToken = 0;
+    let homeCompositionController = null;
+    let homeOceanController = null;
+    let homeDepthController = null;
+
+    function destroyHomeRuntime() {
+        homeOceanController?.destroy?.();
+        homeOceanController = null;
+        homeDepthController?.destroy?.();
+        homeDepthController = null;
+        homeCompositionController?.destroy?.();
+        homeCompositionController = null;
+    }
+
+    function homeEffectScope(renderState) {
+        const backgroundId = String(renderState?.ui?.homeBackgroundId || "default")
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9._-]+/g, "-")
+            .replace(/^-+|-+$/g, "") || "default";
+        return "home.background-" + backgroundId;
+    }
+
+    function mountHomeRuntime(renderState) {
+        const screenRoot = appRoot.firstElementChild;
+        if (!(screenRoot instanceof Element) || !screenRoot.classList.contains("home-screen")) return;
+
+        homeCompositionController = TQ.core?.screenCompositionRuntime?.mount?.({
+            screenRoot,
+            screenId: "home",
+            scopeId: "home",
+            state: renderState,
+            presentationRoot: screenRoot.querySelector(".home-design-stage")
+        }) || null;
+
+        const effectScope = homeEffectScope(renderState);
+        homeOceanController = TQ.core?.oceanScene?.mount?.({
+            screenRoot,
+            scopeId: effectScope,
+            regionId: null
+        }) || null;
+        homeDepthController = TQ.core?.depthScene?.mount?.({
+            screenRoot,
+            scopeId: effectScope,
+            screenId: "home",
+            regionId: null
+        }) || null;
+    }
+
+    async function renderManaged(renderScreen, context, renderState, token) {
+        await screens.render(renderScreen, context);
+        if (token !== renderToken) return;
+        destroyHomeRuntime();
+        mountHomeRuntime(renderState);
+    }
 
     function syncStatus() {
         return TQ.persistence.localStorage.getSyncStatus();
@@ -152,12 +207,13 @@
         render();
     }
 
-    function render() {
+    async function render() {
+        const token = ++renderToken;
         const renderState = state;
         const status = syncStatus();
 
         if (status.native && !status.authenticated) {
-            screens.render(TQ.screens.auth.renderAuthScreen, {
+            await renderManaged(TQ.screens.auth.renderAuthScreen, {
                 status,
                 busy: authBusy,
                 restoring: false,
@@ -165,12 +221,12 @@
                 onGoogleSignIn: startGoogleSignIn,
                 onRetryRestore: requestRemoteRestore,
                 onSignOut: signOut
-            });
+            }, renderState, token);
             return;
         }
 
         if (status.native && (authRestorePending || authRestoreRequired)) {
-            screens.render(TQ.screens.auth.renderAuthScreen, {
+            await renderManaged(TQ.screens.auth.renderAuthScreen, {
                 status,
                 busy: false,
                 restoring: authRestorePending,
@@ -178,16 +234,16 @@
                 onGoogleSignIn: startGoogleSignIn,
                 onRetryRestore: requestRemoteRestore,
                 onSignOut: signOut
-            });
+            }, renderState, token);
             return;
         }
 
         if (!renderState.player.profileCreated) {
-            screens.render(TQ.screens.profileSetup.renderProfileScreen, {
+            await renderManaged(TQ.screens.profileSetup.renderProfileScreen, {
                 state: renderState,
                 status,
                 onStateChange: save
-            });
+            }, renderState, token);
             return;
         }
 
@@ -212,7 +268,7 @@
         };
         const renderer = renderers[renderState.ui.lastScreen] || renderers.home;
 
-        screens.render(renderer, {
+        await renderManaged(renderer, {
             state: renderState,
             onStateChange: save,
             onNavigate: navigate,
@@ -221,7 +277,7 @@
             worldMapReturnScreen,
             previewRegionId: worldMapPreviewRegionId,
             onPreviewRegionChange: setWorldMapPreviewRegion
-        });
+        }, renderState, token);
     }
 
     render();
