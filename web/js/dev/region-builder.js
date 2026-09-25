@@ -224,6 +224,55 @@
         }).join("");
     }
 
+
+    function actionDisplayLabel(action, draft) {
+        if (action.type === "open_island") {
+            const island = draft.islands.find((item) => item.id === action.targetId);
+            return "Acessar " + (island?.label || action.targetId);
+        }
+        return ({
+            open_merchant: "Acessar navio mercador",
+            go_home: "Ir para Home",
+            go_back: "Voltar",
+            open_world_map: "Abrir Mapa Mundo"
+        })[action.type] || action.type;
+    }
+
+    function assetBindingsHtml(draft) {
+        const assets = Array.isArray(draft.screen?.assets) ? draft.screen.assets : [];
+        const actions = Array.isArray(draft.screen?.actions) ? draft.screen.actions : [];
+        const bindings = Array.isArray(draft.screen?.bindings) ? draft.screen.bindings : [];
+
+        if (!assets.length) {
+            return '<div class="tq-region-builder-empty">Nenhum asset nesta região. Abra a tela vazia, use UP para adicionar e depois sincronize aqui.</div>';
+        }
+
+        return assets.map((asset) => {
+            const binding = bindings.find((item) => item.assetId === asset.id);
+            const options = [
+                '<option value="">Sem função · decorativo</option>',
+                ...actions.map((action) =>
+                    '<option value="' + escapeHtml(action.id) + '"' +
+                    (binding?.actionId === action.id ? ' selected' : '') + '>' +
+                    escapeHtml(actionDisplayLabel(action, draft)) +
+                    '</option>'
+                )
+            ].join("");
+
+            return `
+                <div class="tq-region-builder-binding">
+                    <span>
+                        <strong>${escapeHtml(asset.fileName || asset.id)}</strong>
+                        <small>${escapeHtml(asset.id)}</small>
+                    </span>
+                    <select data-builder-bind-asset="${escapeHtml(asset.id)}">
+                        ${options}
+                    </select>
+                </div>
+            `;
+        }).join("");
+    }
+
     function buildExportEnvelope(draft) {
         const region = withEditorLayout(draft);
         const validation = TQ.regionSchema.validateRegionDefinition(region);
@@ -298,6 +347,40 @@
             return getActiveDraft();
         }
 
+        async function syncLocalAssetsIntoDraft() {
+            const draft = currentDraft();
+            if (!draft || typeof TQ.dev?.assetUploader?.readLocalLayerRecords !== "function") {
+                return draft;
+            }
+
+            try {
+                const records = await TQ.dev.assetUploader.readLocalLayerRecords(getEditorScreenId(draft));
+                const assetIds = new Set(records.map((record) => String(record.id)));
+
+                return updateActive((current) => {
+                    const previousById = new Map(
+                        (current.screen.assets || []).map((asset) => [String(asset.id), asset])
+                    );
+
+                    current.screen.assets = records.map((record) => ({
+                        ...(previousById.get(String(record.id)) || {}),
+                        id: String(record.id),
+                        fileName: String(record.fileName || "asset"),
+                        source: "dev-local"
+                    }));
+
+                    current.screen.bindings = (current.screen.bindings || [])
+                        .filter((binding) => assetIds.has(String(binding.assetId)));
+
+                    return current;
+                });
+            } catch (error) {
+                console.warn("Falha ao sincronizar assets da região:", error);
+                status.textContent = "Falha ao sincronizar assets";
+                return draft;
+            }
+        }
+
         function refreshDraftSelect() {
             const nextStore = readStore();
             draftSelect.replaceChildren(...nextStore.drafts.map((draft) => {
@@ -368,6 +451,18 @@
                         ${optionalActionsHtml(draft)}
                     </div>
                     <small>A tela nasce com 0 assets. As funções existem sem depender de PNG/WebP.</small>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Assets e vínculos</legend>
+                    <div class="tq-region-builder-asset-tools">
+                        <button type="button" data-builder-sync-assets>Sincronizar assets da tela</button>
+                        <span>${draft.screen.assets.length} asset(s)</span>
+                    </div>
+                    <div class="tq-region-builder-bindings">
+                        ${assetBindingsHtml(draft)}
+                    </div>
+                    <small>Asset sem vínculo é decoração. O comportamento existe na função, não na imagem.</small>
                 </fieldset>
 
                 <fieldset>
@@ -483,6 +578,30 @@
                 });
             });
 
+            body.querySelector("[data-builder-sync-assets]")?.addEventListener("click", async () => {
+                await syncLocalAssetsIntoDraft();
+                status.textContent = "Assets sincronizados";
+                refreshDraftSelect();
+                renderBody();
+            });
+
+            body.querySelectorAll("[data-builder-bind-asset]").forEach((select) => {
+                select.addEventListener("change", () => {
+                    const assetId = select.dataset.builderBindAsset;
+                    const actionId = select.value;
+
+                    saveField((draft) => {
+                        draft.screen.bindings = (draft.screen.bindings || [])
+                            .filter((binding) => binding.assetId !== assetId);
+
+                        if (actionId) {
+                            draft.screen.bindings.push({ assetId, actionId });
+                        }
+                        return draft;
+                    }, actionId ? "Asset vinculado" : "Asset definido como decorativo");
+                });
+            });
+
             body.querySelector("[data-builder-preview]")?.addEventListener("click", () => {
                 const draft = currentDraft();
                 if (!draft) return;
@@ -492,6 +611,7 @@
             });
 
             body.querySelector("[data-builder-copy]")?.addEventListener("click", async () => {
+                await syncLocalAssetsIntoDraft();
                 const draft = currentDraft();
                 if (!draft) return;
                 const payload = JSON.stringify(buildExportEnvelope(draft), null, 2);
@@ -509,7 +629,8 @@
                 }
             });
 
-            body.querySelector("[data-builder-download]")?.addEventListener("click", () => {
+            body.querySelector("[data-builder-download]")?.addEventListener("click", async () => {
+                await syncLocalAssetsIntoDraft();
                 const draft = currentDraft();
                 if (!draft) return;
                 const payload = JSON.stringify(buildExportEnvelope(draft), null, 2);
