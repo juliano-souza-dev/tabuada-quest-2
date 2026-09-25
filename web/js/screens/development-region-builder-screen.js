@@ -57,9 +57,15 @@
 
         screen.dataset.tqDevScreenId = TQ.dev.regionBuilder.getEditorScreenId(draft);
         screen.dataset.regionDraftId = draft.id;
+
+        const normalizedDraft = TQ.regionSchema.ensureRequiredActions(draft);
+        const visualAssets = Array.isArray(normalizedDraft.screen?.assets)
+            ? normalizedDraft.screen.assets
+            : [];
+        screen.dataset.tqEmptySurface = visualAssets.length ? "false" : "true";
         screen.setAttribute("aria-label", "Construção visual da região " + draft.label);
 
-        const actions = TQ.regionSchema.ensureRequiredActions(draft).screen.actions;
+        const actions = normalizedDraft.screen.actions;
         let islandIndex = 0;
 
         const actionMarkup = actions.map((action) => {
