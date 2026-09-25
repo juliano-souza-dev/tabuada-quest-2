@@ -30,7 +30,7 @@
                 screenRoot?.querySelector(
                     '[data-tq-semantic-type="ship"]:not([data-tq-slot-empty="true"])'
                 )
-            ) || options.showShipWake === true;
+            );
         }
 
         document.querySelector(".tq-ocean-dev")?.remove();
