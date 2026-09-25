@@ -664,11 +664,13 @@
             compactSaveButton.disabled = !selected;
             compactUndoButton.disabled = history.length === 0;
             compactLockButton.disabled = !selected;
-            compactLockButton.textContent = selectedLocked ? "🔓" : "🔒";
-            compactLockButton.title = selectedLocked ? "Desbloquear" : "Bloquear";
-            compactLockButton.setAttribute("aria-label", selectedLocked ? "Desbloquear elemento selecionado" : "Bloquear elemento selecionado");
+            compactLockButton.textContent = selectedLocked ? "🔒" : "🔓";
+            compactLockButton.title = selectedLocked ? "Bloqueado · toque para desbloquear" : "Livre · toque para bloquear";
+            compactLockButton.setAttribute("aria-label", selectedLocked ? "Elemento bloqueado. Toque para desbloquear" : "Elemento livre. Toque para bloquear");
+            compactLockButton.setAttribute("aria-pressed", selectedLocked ? "true" : "false");
             lockItemButton.disabled = !selected;
-            lockItemButton.textContent = selectedLocked ? "🔓 Desbloquear" : "🔒 Bloquear";
+            lockItemButton.textContent = selectedLocked ? "🔒 BLOQUEADO" : "🔓 LIVRE";
+            lockItemButton.title = selectedLocked ? "Toque para desbloquear" : "Toque para bloquear";
             lockItemButton.setAttribute("aria-pressed", selectedLocked ? "true" : "false");
             const canDelete = Boolean(selected && isDeletableVisual(selected) && !isDeleteProtected(selected));
             compactDeleteButton.disabled = !canDelete;
@@ -787,6 +789,9 @@
             selected = node || null;
             if (selected) {
                 selected.element.setAttribute("data-tq-dev-selected", "true");
+                if (isLocked(selected.element)) {
+                    status.textContent = "🔒 " + selected.label + " está bloqueado";
+                }
                 if ([...nodeSelect.options].some((option) => option.value === selected.id)) {
                     nodeSelect.value = selected.id;
                 }
