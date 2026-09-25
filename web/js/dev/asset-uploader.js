@@ -29,6 +29,7 @@
 
     const SLOT_GROUP_LABELS = Object.freeze({
         header: "Cabeçalho",
+        character: "Personagem",
         "background-composition": "Background",
         "background-ocean": "Oceano",
         "background-clouds": "Nuvens",
