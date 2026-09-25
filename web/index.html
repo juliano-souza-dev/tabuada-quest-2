@@ -40,7 +40,7 @@
             window.visualViewport?.addEventListener("resize", syncAppViewport, { passive: true });
         })();
     </script>
-    <link rel="stylesheet" href="./css/app.css?v=20260925-home-semantic-snapshot-v2">
+    <link rel="stylesheet" href="./css/app.css?v=20260925-screen-audio-v1">
 </head>
 <body>
     <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
@@ -64,6 +64,7 @@
     <script src="./js/core/ocean-loader.js?v=20260923-2"></script>
     <script src="./js/core/ocean-scene.js?v=20260925-default-effects-avatar-v2"></script>
     <script src="./js/core/depth-scene.js?v=20260925-default-effects-avatar-v2"></script>
+    <script src="./js/core/audio-scene.js?v=20260925-screen-audio-v1"></script>
     <script src="./js/core/screen-composition-runtime.js?v=20260925-default-effects-avatar-v2"></script>
     <script src="./js/core/safe-viewport.js?v=20260925-single-stage-v2"></script>
     <script src="./js/core/challenge-effect-renderer.js?v=20260921-2214"></script>
@@ -89,13 +90,14 @@
     <script src="./js/screens/pet-screen.js?v=20260922-safe-viewport-v1"></script>
     <script src="./js/screens/map-reward-screen.js?v=20260921-2204"></script>
     <script src="./js/screens/result-screen.js?v=20260922-safe-viewport-v1"></script>
-    <script src="./js/dev/scene-editor.js?v=20260925-ux-hide-assets-v1"></script>
+    <script src="./js/dev/scene-editor.js?v=20260925-screen-audio-v1"></script>
     <script src="./js/dev/settings-panel.js?v=20260925-dev-persist-v1"></script>
     <script src="./js/dev/asset-uploader.js?v=20260925-home-dual-avatar-v1"></script>
     <script src="./js/dev/region-builder.js?v=20260925-dev-persist-v1"></script>
     <script src="./js/dev/ocean-editor.js?v=20260925-dev-persist-v1"></script>
     <script src="./js/dev/depth-editor.js?v=20260925-cena-element-behavior-v1"></script>
-    <script src="./js/app.js?v=20260925-default-effects-avatar-v2"></script>
+    <script src="./js/dev/audio-editor.js?v=20260925-screen-audio-v1"></script>
+    <script src="./js/app.js?v=20260925-screen-audio-v1"></script>
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", async () => {
