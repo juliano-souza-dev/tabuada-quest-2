@@ -24,7 +24,13 @@
         const scopeId = String(options.scopeId || "");
         const regionId = Number(options.regionId) || null;
         let controller = options.controller;
-        const showShipWake = options.showShipWake !== false;
+        function hasShipAsset() {
+            return Boolean(
+                screenRoot?.querySelector(
+                    '[data-tq-semantic-type="ship"]:not([data-tq-slot-empty="true"])'
+                )
+            ) || options.showShipWake === true;
+        }
 
         document.querySelector(".tq-ocean-dev")?.remove();
 
@@ -131,7 +137,6 @@
         const ripples = host.querySelector("[data-ocean-ripples]");
         const shipWake = host.querySelector("[data-ocean-ship-wake]");
         const shipWakeLabel = shipWake?.closest("label");
-        if (shipWakeLabel) shipWakeLabel.hidden = !showShipWake;
         const quality = host.querySelector("[data-ocean-quality]");
         const movementValue = host.querySelector("[data-ocean-movement-value]");
         const speedValue = host.querySelector("[data-ocean-speed-value]");
@@ -154,7 +159,9 @@
             shine.value = String(config.shine);
             foam.value = String(config.foam);
             ripples.checked = Boolean(config.ripples);
-            shipWake.checked = showShipWake && Boolean(config.shipWake);
+            const shipAvailable = hasShipAsset();
+            if (shipWakeLabel) shipWakeLabel.hidden = !shipAvailable;
+            shipWake.checked = shipAvailable && Boolean(config.shipWake);
             quality.value = config.quality;
             syncLabels();
         }
@@ -169,7 +176,7 @@
                 shine: Number(shine.value),
                 foam: Number(foam.value),
                 ripples: ripples.checked,
-                shipWake: showShipWake ? shipWake.checked : false,
+                shipWake: hasShipAsset() ? shipWake.checked : false,
                 quality: quality.value,
                 regionId
             };
