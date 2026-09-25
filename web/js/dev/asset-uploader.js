@@ -541,8 +541,11 @@
         const screenId = String(options.screenId || "screen");
         const compositionScreenId = String(options.compositionScreenId || screenId);
         const compositionRegistry = TQ.content?.screenComposition || null;
-        const composition = compositionRegistry?.getScreen?.(compositionScreenId) || null;
-        const compositionSlots = compositionRegistry?.getAssetSlots?.(compositionScreenId) || [];
+        const resolvedCompositionScreenId = compositionRegistry?.resolveScreenType?.(compositionScreenId)
+            || screenRoot?.dataset?.tqCompositionScreen
+            || compositionScreenId;
+        const composition = compositionRegistry?.getScreen?.(resolvedCompositionScreenId) || null;
+        const compositionSlots = compositionRegistry?.getAssetSlots?.(resolvedCompositionScreenId) || [];
 
         let replacementPreview = null;
         const localLayers = [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
@@ -579,10 +582,10 @@
 
                 ${composition ? `
                     <fieldset class="tq-asset-upload-classification">
-                        <legend>1 · Classificar asset</legend>
+                        <legend>1 · Identificar asset</legend>
 
                         <label>
-                            Destino na tela
+                            Este upload é:
                             <select data-upload-slot>
                                 ${compositionSlots.map((slot) =>
                                     '<option value="' + slot.id + '">' +
@@ -593,12 +596,12 @@
                         </label>
 
                         <label>
-                            Tipo do asset
+                            Tipo
                             <select data-upload-semantic></select>
                         </label>
 
                         <div class="tq-asset-upload-classification-summary">
-                            <small>Será adicionado como</small>
+                            <small>Identidade interna</small>
                             <strong data-upload-classification></strong>
                         </div>
 
@@ -757,7 +760,7 @@
 
         function suggestedPublishedPath(slot = selectedCompositionSlot()) {
             if (!slot) return "";
-            const current = compositionRegistry.readBinding(screenId, compositionScreenId, slot.id);
+            const current = compositionRegistry.readBinding(screenId, resolvedCompositionScreenId, slot.id);
             if (slot.bindingMode === "variants") {
                 const variant = (current?.variants || []).find((item) => item.id === selectedVariantId());
                 if (variant?.asset) return variant.asset;
@@ -774,7 +777,7 @@
 
         function selectedCompositionSlot() {
             if (!composition || !slotSelect) return null;
-            return compositionRegistry.getSlot(compositionScreenId, slotSelect.value);
+            return compositionRegistry.getSlot(resolvedCompositionScreenId, slotSelect.value);
         }
 
         function syncCompositionSlot() {
@@ -790,7 +793,7 @@
                 return option;
             }));
             const current = slot
-                ? compositionRegistry.readBinding(screenId, compositionScreenId, slot.id)
+                ? compositionRegistry.readBinding(screenId, resolvedCompositionScreenId, slot.id)
                 : null;
             if (current?.semanticType && [...semanticSelect.options].some((option) => option.value === current.semanticType)) {
                 semanticSelect.value = current.semanticType;
@@ -819,14 +822,14 @@
             }
             if (slotInfo) {
                 const fx = slot
-                    ? compositionRegistry.allowedFxForSlot(compositionScreenId, slot.id, semanticSelect.value)
+                    ? compositionRegistry.allowedFxForSlot(resolvedCompositionScreenId, slot.id, semanticSelect.value)
                     : [];
                 const hasPublishedArt = Boolean(
                     current?.asset
                     || (current?.variants || []).some((variant) => variant.asset)
                 );
                 const functionSlot = slot?.action
-                    ? compositionRegistry.getFunctionSlots(compositionScreenId)
+                    ? compositionRegistry.getFunctionSlots(resolvedCompositionScreenId)
                         .find((item) => item.action === slot.action)
                     : null;
                 slotInfo.textContent = slot
@@ -887,14 +890,101 @@
         }
 
         function openExternal(url) {
-            const opened = root.open(url, "_blank");
-            if (opened) opened.opener = null;
+            const link = document.createElement("a");
+            link.href = url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.style.display = "none";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            root.setTimeout(() => {
+                if (document.hasFocus()) {
+                    status.textContent = "Upload aberto. Se a nova aba foi bloqueada, use Abrir pasta.";
+                }
+            }, 350);
         }
 
         function pickFile(mode) {
             fileInput.value = "";
             fileInput.dataset.liveMode = mode;
             fileInput.click();
+        }
+
+        const PENDING_UPLOAD_KEY = "tq2.dev.pending-semantic-upload.v1";
+
+        function persistPendingUpload(file) {
+            const slot = selectedCompositionSlot();
+            if (!slot || !(file instanceof File)) return null;
+
+            const semanticType = semanticSelect?.value || slot.semanticType;
+            const folder = currentFolder();
+            const runtimeUrl = runtimeAssetUrl(folder + "/" + file.name);
+            const payload = {
+                version: 1,
+                screenId,
+                compositionScreenId: resolvedCompositionScreenId,
+                slotId: slot.id,
+                slotLabel: slot.label,
+                semanticType,
+                fileName: file.name,
+                folder,
+                runtimeUrl,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                root.localStorage.setItem(PENDING_UPLOAD_KEY, JSON.stringify(payload));
+            } catch (_) {}
+
+            if (slot.bindingMode === "variants") {
+                compositionRegistry.bindVariant(
+                    screenId,
+                    resolvedCompositionScreenId,
+                    slot.id,
+                    selectedVariantId(),
+                    runtimeUrl,
+                    {
+                        label: selectedVariantId(),
+                        semanticType
+                    }
+                );
+            } else {
+                compositionRegistry.bindAsset(
+                    screenId,
+                    resolvedCompositionScreenId,
+                    slot.id,
+                    runtimeUrl,
+                    semanticType
+                );
+            }
+
+            if (publishedPathInput) publishedPathInput.value = runtimeUrl || "";
+            root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                detail: {
+                    scopeId: screenId,
+                    screenId: resolvedCompositionScreenId,
+                    slotId: slot.id
+                }
+            }));
+
+            return payload;
+        }
+
+        function validateClassification() {
+            if (!composition) return true;
+            const slot = selectedCompositionSlot();
+            if (!slot) {
+                status.textContent = "Escolha primeiro o que este upload é";
+                return false;
+            }
+            const semanticType = semanticSelect?.value || slot.semanticType;
+            if (!semanticType || !(slot.acceptedTypes || []).includes(semanticType)) {
+                status.textContent = "Escolha um tipo válido para este asset";
+                return false;
+            }
+            return true;
         }
 
         function stageForLocalLayer() {
@@ -957,7 +1047,7 @@
                 ? screenRoot.querySelector('.tq-engine-function-proxy[data-tq-dev-id="' + CSS.escape(functionSelect.value) + '"]')
                 : null;
             const canonicalFunction = slot?.action
-                ? compositionRegistry.getFunctionSlots(compositionScreenId)
+                ? compositionRegistry.getFunctionSlots(resolvedCompositionScreenId)
                     .find((item) => item.action === slot.action)
                 : null;
             const variantId = slot?.bindingMode === "variants" ? selectedVariantId() : null;
@@ -1000,7 +1090,7 @@
             if (slot) {
                 compositionRegistry.setSemanticType(
                     screenId,
-                    compositionScreenId,
+                    resolvedCompositionScreenId,
                     slot.id,
                     record.semanticType
                 );
@@ -1061,6 +1151,8 @@
                     : null;
                 reopenUxOn(semanticSlot || image);
             });
+
+            return { record, entry, file };
         }
 
         function replaceSelected(file) {
@@ -1181,9 +1273,25 @@
                 status.textContent = "Escolha uma imagem válida";
                 return;
             }
+            if (!validateClassification()) return;
 
-            if (mode === "replace") replaceSelected(file);
-            else await addLocalLayer(file);
+            if (mode === "replace") {
+                replaceSelected(file);
+                return;
+            }
+
+            const added = await addLocalLayer(file);
+            if (!added) return;
+
+            if (mode === "upload") {
+                const pending = persistPendingUpload(file);
+                if (!pending) {
+                    status.textContent = "Não consegui preparar a classificação do upload";
+                    return;
+                }
+                status.textContent = pending.slotLabel + " · pronto para subir";
+                openExternal(buildUploadUrl(repository, branch, pending.folder));
+            }
         }
 
         host.querySelector(".tq-asset-upload-dev-toggle").addEventListener("click", () => {
@@ -1199,7 +1307,9 @@
             panel.hidden = !opening;
             if (!panel.hidden) {
                 syncSelected();
-                status.textContent = "DEV · " + branch;
+                status.textContent = composition
+                    ? "Escolha o tipo de asset e o arquivo"
+                    : "DEV · " + branch;
             }
         });
 
@@ -1220,7 +1330,7 @@
             if (slot) {
                 compositionRegistry.setSemanticType(
                     screenId,
-                    compositionScreenId,
+                    resolvedCompositionScreenId,
                     slot.id,
                     semanticSelect.value
                 );
@@ -1265,7 +1375,7 @@
             if (slot.bindingMode === "variants") {
                 compositionRegistry.bindVariant(
                     screenId,
-                    compositionScreenId,
+                    resolvedCompositionScreenId,
                     slot.id,
                     selectedVariantId(),
                     assetUrl,
@@ -1277,7 +1387,7 @@
             } else {
                 compositionRegistry.bindAsset(
                     screenId,
-                    compositionScreenId,
+                    resolvedCompositionScreenId,
                     slot.id,
                     assetUrl,
                     semanticSelect?.value || slot.semanticType
@@ -1331,9 +1441,31 @@
         });
 
         host.querySelector("[data-upload-open]").addEventListener("click", () => {
-            const folder = currentFolder();
-            status.textContent = folder;
-            openExternal(buildUploadUrl(repository, branch, folder));
+            if (!validateClassification()) return;
+
+            const slot = selectedCompositionSlot();
+            const existing = slot
+                ? localLayers.find((item) => item.slotId === slot.id)
+                : localLayers.at(-1);
+
+            if (existing?.fileName) {
+                const recordFile = existing.image?.dataset?.tqLocalFile;
+                const pendingRecord = slot
+                    ? {
+                        slotLabel: slot.label,
+                        folder: currentFolder()
+                    }
+                    : null;
+
+                status.textContent = slot
+                    ? slot.label + " · abrindo upload"
+                    : "Abrindo upload";
+                openExternal(buildUploadUrl(repository, branch, pendingRecord?.folder || currentFolder()));
+                return;
+            }
+
+            status.textContent = "Escolha o arquivo para " + (slot?.label || "este asset");
+            pickFile("upload");
         });
 
         host.querySelector("[data-upload-browse]").addEventListener("click", () => {
