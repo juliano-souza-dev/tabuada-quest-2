@@ -174,6 +174,16 @@
         return element?.getAttribute("data-tq-dev-locked") === "true";
     }
 
+    function isEditorHidden(element) {
+        return element?.getAttribute("data-tq-dev-hidden") === "true";
+    }
+
+    function setEditorHidden(element, hidden) {
+        if (!(element instanceof Element)) return;
+        if (hidden) element.setAttribute("data-tq-dev-hidden", "true");
+        else element.removeAttribute("data-tq-dev-hidden");
+    }
+
     function setLocked(element, locked) {
         if (!(element instanceof Element)) return;
         if (locked) element.setAttribute("data-tq-dev-locked", "true");
@@ -565,6 +575,7 @@
             applyGeometry(node.element, saved[node.id]);
             setDeleted(node.element, Boolean(saved[node.id].deleted));
             setLocked(node.element, Boolean(saved[node.id].locked));
+            setEditorHidden(node.element, Boolean(saved[node.id].hidden));
             if (Number.isFinite(Number(saved[node.id].z))) {
                 applyLayer(node.element, saved[node.id].z);
             } else {
@@ -643,13 +654,17 @@
                     <button type="button" class="tq-scene-dev-delete" data-dev-delete aria-label="Excluir elemento visual selecionado">🗑 Excluir visual</button>
                 </div>
                 <div class="tq-scene-dev-actions">
+                    <button type="button" class="tq-scene-dev-visibility" data-dev-visibility aria-pressed="false">🙈 Ocultar no editor</button>
+                    <button type="button" class="tq-scene-dev-show-all" data-dev-show-all>👁 Mostrar todos</button>
+                </div>
+                <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-copy>Copiar layout</button>
                     <button type="button" data-dev-reset-screen>Restaurar original</button>
                 </div>
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-clear-functions>Limpar funções</button>
                 </div>
-                <small>Arraste qualquer item mapeado. Alt + clique seleciona a próxima camada abaixo. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais. Page Up/Page Down muda a camada; com Shift envia direto para frente/fundo. Funções são protegidas.</small>
+                <small>Arraste qualquer item mapeado. Alt + clique seleciona a próxima camada abaixo. Use as alças para redimensionar. Setas movem 1 px; Shift + setas movem 10 px. DEL remove assets visuais. Page Up/Page Down muda a camada; com Shift envia direto para frente/fundo. Ocultar afeta apenas o editor e não remove o asset. Funções são protegidas.</small>
             </section>
             <div class="tq-scene-dev-compact" data-dev-compact hidden>
                 <button type="button" class="tq-scene-dev-compact-current" data-dev-compact-adjust aria-label="Abrir ajustes do elemento selecionado">
@@ -728,6 +743,8 @@
         const compactCloseButton = host.querySelector("[data-dev-compact-close]");
         const lockItemButton = host.querySelector("[data-dev-lock-item]");
         const deleteButton = host.querySelector("[data-dev-delete]");
+        const visibilityButton = host.querySelector("[data-dev-visibility]");
+        const showAllButton = host.querySelector("[data-dev-show-all]");
         const collapseButton = host.querySelector("[data-dev-collapse]");
         const clearFunctionsButton = host.querySelector("[data-dev-clear-functions]");
         const name = host.querySelector("[data-dev-name]");
@@ -791,6 +808,7 @@
                         ...readGeometry(node.element),
                         ...(isDeleted(node.element) ? { deleted: true } : {}),
                         ...(isLocked(node.element) ? { locked: true } : {}),
+                        ...(isEditorHidden(node.element) ? { hidden: true } : {}),
                         ...(hasLayerOverride(node.element) ? { z: readLayer(node.element) } : {})
                     };
                     result[node.id] = geometry;
@@ -854,6 +872,7 @@
                 applyGeometry(node.element, geometry);
                 setDeleted(node.element, Boolean(geometry.deleted));
                 setLocked(node.element, Boolean(geometry.locked));
+                setEditorHidden(node.element, Boolean(geometry.hidden));
 
                 if (Number.isFinite(Number(geometry.z))) {
                     applyLayer(node.element, geometry.z);
@@ -885,7 +904,10 @@
             const options = available.map((node) => {
                 const option = document.createElement("option");
                 option.value = node.id;
-                option.textContent = (isLocked(node.element) ? "🔒 " : "") + node.label + " · " + kindLabel(node.kind);
+                option.textContent =
+                    (isEditorHidden(node.element) ? "🙈 " : "")
+                    + (isLocked(node.element) ? "🔒 " : "")
+                    + node.label + " · " + kindLabel(node.kind);
                 return option;
             });
             nodeSelect.replaceChildren(...options);
@@ -909,14 +931,20 @@
                 });
                 layerButtons.forEach((button) => button.disabled = true);
                 selectBelowButton.disabled = true;
+                visibilityButton.disabled = true;
+                showAllButton.disabled = !nodes.some((node) => isEditorHidden(node.element));
                 layerValue.textContent = "";
                 syncEditorChrome();
                 return;
             }
             const geometry = readGeometry(selected.element);
             const locked = isLocked(selected.element);
-            name.textContent = (locked ? "🔒 " : "") + selected.label;
-            type.textContent = kindLabel(selected.kind) + (selected.role ? " · " + selected.role : "") + (locked ? " · BLOQUEADO" : "");
+            const editorHidden = isEditorHidden(selected.element);
+            name.textContent = (editorHidden ? "🙈 " : "") + (locked ? "🔒 " : "") + selected.label;
+            type.textContent = kindLabel(selected.kind)
+                + (selected.role ? " · " + selected.role : "")
+                + (locked ? " · BLOQUEADO" : "")
+                + (editorHidden ? " · OCULTO NO EDITOR" : "");
             action.textContent = selected.action ? "Ação: " + selected.action : "";
             inputX.value = Math.round(geometry.x * 100) / 100;
             inputY.value = Math.round(geometry.y * 100) / 100;
@@ -927,12 +955,17 @@
             layerButtons.forEach((button) => button.disabled = !layerable);
             selectBelowButton.disabled = false;
             layerValue.textContent = layerable ? "z " + readLayer(selected.element) : "protegido";
+            const hideable = isDeletableVisual(selected);
+            visibilityButton.disabled = !hideable;
+            visibilityButton.textContent = editorHidden ? "👁 Mostrar no editor" : "🙈 Ocultar no editor";
+            visibilityButton.setAttribute("aria-pressed", editorHidden ? "true" : "false");
+            showAllButton.disabled = !nodes.some((node) => isEditorHidden(node.element));
             syncEditorChrome();
         }
 
         function updateOverlay() {
             raf = 0;
-            if (!opened || !selected || !selected.element.isConnected || isDeleted(selected.element)) {
+            if (!opened || !selected || !selected.element.isConnected || isDeleted(selected.element) || isEditorHidden(selected.element)) {
                 overlay.hidden = true;
                 return;
             }
@@ -966,8 +999,9 @@
             panel.hidden = !opened || compactVisible;
             compactBar.hidden = !compactVisible;
             const selectedLocked = Boolean(selected && isLocked(selected.element));
+            const selectedHidden = Boolean(selected && isEditorHidden(selected.element));
             compactName.textContent = selected
-                ? (selectedLocked ? "🔒 " : "") + selected.label
+                ? (selectedHidden ? "🙈 " : "") + (selectedLocked ? "🔒 " : "") + selected.label
                 : "Toque no próximo elemento";
             compactSaveButton.disabled = !selected;
             compactUndoButton.disabled = history.length === 0;
@@ -1031,6 +1065,49 @@
             refreshInspector();
             scheduleOverlay();
             syncEditorChrome();
+        }
+
+        function toggleSelectedEditorVisibility() {
+            if (!selected) return;
+
+            if (!isDeletableVisual(selected)) {
+                status.textContent = "Ocultar é permitido somente para assets visuais";
+                refreshInspector();
+                return;
+            }
+
+            const nextHidden = !isEditorHidden(selected.element);
+            const linked = linkedPairNodes(selected);
+            pushHistory(linked);
+            linked.forEach((node) => setEditorHidden(node.element, nextHidden));
+
+            persist(nextHidden
+                ? "Asset oculto apenas no editor"
+                : "Asset visível novamente no editor"
+            );
+            refreshList();
+            if (selected) nodeSelect.value = selected.id;
+            refreshInspector();
+            scheduleOverlay();
+            status.textContent = selected.label
+                + (nextHidden ? " · oculto no editor" : " · visível no editor");
+        }
+
+        function showAllEditorHidden() {
+            const hiddenNodes = nodes.filter((node) => isEditorHidden(node.element));
+            if (!hiddenNodes.length) {
+                status.textContent = "Nenhum asset oculto no editor";
+                refreshInspector();
+                return;
+            }
+
+            pushHistory(hiddenNodes);
+            hiddenNodes.forEach((node) => setEditorHidden(node.element, false));
+            persist("Todos os assets estão visíveis no editor");
+            refreshList();
+            if (selected) nodeSelect.value = selected.id;
+            refreshInspector();
+            scheduleOverlay();
         }
 
         function saveAndSelectNext() {
@@ -1154,7 +1231,9 @@
             selected = node || null;
             if (selected) {
                 selected.element.setAttribute("data-tq-dev-selected", "true");
-                if (isLocked(selected.element)) {
+                if (isEditorHidden(selected.element)) {
+                    status.textContent = "🙈 " + selected.label + " está oculto apenas no editor";
+                } else if (isLocked(selected.element)) {
                     status.textContent = "🔒 " + selected.label + " está bloqueado";
                 }
                 if ([...nodeSelect.options].some((option) => option.value === selected.id)) {
@@ -1169,7 +1248,7 @@
             const mapped = element?.closest?.("[data-tq-dev-id]");
             if (!mapped || !appRoot.contains(mapped)) return null;
             const node = nodeById.get(mapped.dataset.tqDevId);
-            if (!node || isDeleted(node.element)) return null;
+            if (!node || isDeleted(node.element) || isEditorHidden(node.element)) return null;
             if (functionsHidden && node.kind === "function") return null;
             return node;
         }
@@ -1628,6 +1707,8 @@
         host.querySelector("[data-dev-undo]").addEventListener("click", undoLastChange);
         lockItemButton.addEventListener("click", toggleSelectedLock);
         deleteButton.addEventListener("click", deleteSelectedVisual);
+        visibilityButton.addEventListener("click", toggleSelectedEditorVisibility);
+        showAllButton.addEventListener("click", showAllEditorHidden);
         host.querySelector("[data-dev-reset]").addEventListener("click", () => {
             if (!selected) return;
             pushHistory();
@@ -1635,6 +1716,7 @@
             clearLayer(selected.element);
             setDeleted(selected.element, false);
             setLocked(selected.element, false);
+            setEditorHidden(selected.element, false);
             persist();
             refreshInspector();
             scheduleOverlay();
