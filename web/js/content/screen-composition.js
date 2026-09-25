@@ -37,8 +37,13 @@
         avatar: Object.freeze({ label: "Avatar", fx: Object.freeze([]), defaultZ: 41 }),
         logo: Object.freeze({ label: "Logo", fx: Object.freeze([]), defaultZ: 42 }),
         home_background: Object.freeze({
-            label: "Fundo da Home",
-            fx: Object.freeze(["ocean", "depth", "parallax", "background-animation"]),
+            label: "Composição do fundo",
+            fx: Object.freeze([]),
+            defaultZ: 1
+        }),
+        home_backdrop: Object.freeze({
+            label: "Fundo base / céu",
+            fx: Object.freeze(["depth", "parallax", "background-animation"]),
             depthRoles: Object.freeze(["sky", "custom"]),
             defaultZ: 1
         }),
@@ -94,6 +99,7 @@
             pairId: options.pairId || null,
             pairState: options.pairState || null,
             group: options.group || null,
+            compositionId: options.compositionId || null,
             bindingMode: options.bindingMode === "variants" ? "variants" : "single",
             fxPerVariant: Boolean(options.fxPerVariant),
             asset: null
@@ -122,16 +128,38 @@
         );
     }
 
+    const HOME_BACKGROUND_COMPOSITION_ID = "home.background.composition";
+    const homeBackgroundPart = (id, label, semanticType, options = {}) =>
+        assetSlot(id, label, semanticType, {
+            ...options,
+            group: "background-composition",
+            compositionId: HOME_BACKGROUND_COMPOSITION_ID,
+            bindingMode: "variants",
+            fxPerVariant: true
+        });
+
     const homeSlots = Object.freeze([
         assetSlot("home.header.frame", "Placa moldura", "frame", { required: true, group: "header" }),
         assetSlot("home.header.avatar", "Avatar", "avatar", { required: true, group: "header" }),
         assetSlot("home.header.logo", "Logo", "logo", { required: true, group: "header" }),
-        assetSlot("home.background.main", "Fundo da Home", "home_background", {
-            required: true,
-            group: "background",
-            bindingMode: "variants",
-            fxPerVariant: true
-        }),
+
+        homeBackgroundPart("home.background.backdrop", "Fundo base / céu", "home_backdrop"),
+        homeBackgroundPart("home.background.ocean", "Oceano", "ocean", { required: true }),
+        ...Array.from({ length: 10 }, (_, index) =>
+            homeBackgroundPart(
+                "home.background.cloud." + (index + 1),
+                "Nuvem " + (index + 1),
+                "cloud"
+            )
+        ),
+        ...Array.from({ length: 10 }, (_, index) =>
+            homeBackgroundPart(
+                "home.background.scene." + (index + 1),
+                "Elemento de cenário " + (index + 1),
+                "environment",
+                { acceptedTypes: ["environment", "ship", "island_background"] }
+            )
+        ),
 
         assetSlot("home.button.shipyard", "Estaleiro", "ui_button", { required: true, action: "shipyard", group: "buttons" }),
         assetSlot("home.button.collectibles", "Colecionáveis", "ui_button", { required: true, action: "collectibles", group: "buttons" }),
@@ -192,6 +220,14 @@
             id: "home",
             label: "Home",
             assets: homeSlots,
+            compositions: Object.freeze([
+                Object.freeze({
+                    id: HOME_BACKGROUND_COMPOSITION_ID,
+                    label: "Fundo da Home",
+                    equipStatePath: "ui.homeBackgroundId",
+                    memberGroup: "background-composition"
+                })
+            ]),
             functions: Object.freeze([
                 functionSlot("home.fn.shipyard", "Abrir estaleiro", "shipyard"),
                 functionSlot("home.fn.collectibles", "Abrir colecionáveis", "collectibles"),
@@ -287,6 +323,15 @@
 
     function getDynamicSlots(screenId) {
         return getScreen(screenId)?.dynamic || [];
+    }
+
+    function getCompositions(screenId) {
+        return getScreen(screenId)?.compositions || [];
+    }
+
+    function getComposition(screenId, compositionId) {
+        return getCompositions(screenId)
+            .find((item) => item.id === String(compositionId || "")) || null;
     }
 
     function getSlot(screenId, slotId) {
@@ -498,6 +543,26 @@
         return bindAsset(scopeId, screenId, slotId, null);
     }
 
+    function unbindVariant(scopeId, screenId, slotId, variantId) {
+        const slot = getSlot(screenId, slotId);
+        if (!slot || slot.bindingMode !== "variants") return null;
+
+        const id = String(variantId || "default").trim() || "default";
+        const current = readBinding(scopeId, screenId, slot.id) || emptyBinding(slot);
+        const store = readStore();
+        const scope = String(scopeId || "");
+        store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
+        store.scopes[scope].bindings = store.scopes[scope].bindings || {};
+        store.scopes[scope].bindings[slot.id] = {
+            slotId: slot.id,
+            semanticType: current.semanticType || slot.semanticType,
+            asset: null,
+            variants: (current.variants || []).filter((variant) => variant.id !== id)
+        };
+        writeStore(store);
+        return clone(store.scopes[scope].bindings[slot.id]);
+    }
+
     function resetScope(scopeId, screenId) {
         const scope = String(scopeId || "");
         const store = readStore();
@@ -539,6 +604,8 @@
         getAssetSlots,
         getFunctionSlots,
         getDynamicSlots,
+        getCompositions,
+        getComposition,
         getSlot,
         getPair,
         allowedFunctionActions,
@@ -554,6 +621,7 @@
         bindVariant,
         setSemanticType,
         unbindAsset,
+        unbindVariant,
         resetScope,
         resetAll,
         describeSlot
