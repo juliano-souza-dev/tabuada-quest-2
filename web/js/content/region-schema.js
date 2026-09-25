@@ -73,7 +73,7 @@
     }
 
     function createSemanticRegionAssets() {
-        const slots = TQ.content?.screenComposition?.getAssetSlots?.("regions") || [];
+        const slots = TQ.content?.screenComposition?.getAssetSlots?.("region-map") || [];
         return slots.map((slot) => ({
             id: slot.id,
             label: slot.label,
@@ -108,7 +108,7 @@
                 createIsland(id, index + 1)
             ),
             screen: {
-                compositionType: "regions",
+                compositionType: "region-map",
                 assets: createSemanticRegionAssets(),
                 actions: [
                     ...Array.from({ length: ISLANDS_PER_REGION }, (_, index) =>
@@ -142,7 +142,7 @@
         region.islands = region.islands.map(({ _previousId, ...island }) => island);
 
         region.screen = region.screen || { assets: [], actions: [], bindings: [] };
-        region.screen.compositionType = "regions";
+        region.screen.compositionType = "region-map";
         region.screen.actions = (region.screen.actions || []).map((action) => {
             if (action.type !== "open_island") return action;
             const targetId = islandMap.get(action.targetId) || action.targetId;
