@@ -62,6 +62,66 @@
         });
     }
 
+    function orphanLegacyPresentation(screenRoot) {
+        if (!(screenRoot instanceof Element)) return;
+
+        const functions = [...screenRoot.querySelectorAll("[data-tq-composition-function]")];
+        const keep = new Set([screenRoot]);
+
+        functions.forEach((fn) => {
+            let current = fn;
+            while (current && current !== screenRoot) {
+                keep.add(current);
+                current = current.parentElement;
+            }
+        });
+
+        screenRoot
+            .querySelectorAll(".tq-safe-visual-area, .tq-canonical-stage")
+            .forEach((element) => {
+                let current = element;
+                while (current && current !== screenRoot) {
+                    keep.add(current);
+                    current = current.parentElement;
+                }
+            });
+
+        screenRoot.dataset.tqOrphanSurface = "true";
+
+        [...screenRoot.querySelectorAll("*")].forEach((element) => {
+            if (!(element instanceof HTMLElement)) return;
+            if (element.closest(".tq-composition-runtime-layer")) return;
+
+            if (element.hasAttribute("data-tq-composition-function")) {
+                element.dataset.tqOrphanFunction = "true";
+                element.style.setProperty("background", "transparent", "important");
+                element.style.setProperty("background-image", "none", "important");
+                element.style.setProperty("border-color", "transparent", "important");
+                element.style.setProperty("box-shadow", "none", "important");
+                element.style.setProperty("color", "transparent", "important");
+                element.style.setProperty("text-shadow", "none", "important");
+                return;
+            }
+
+            if (keep.has(element)) {
+                element.dataset.tqOrphanStructure = "true";
+                element.style.setProperty("background", "transparent", "important");
+                element.style.setProperty("background-image", "none", "important");
+                element.style.setProperty("border-color", "transparent", "important");
+                element.style.setProperty("box-shadow", "none", "important");
+                element.style.setProperty("color", "transparent", "important");
+                element.style.setProperty("text-shadow", "none", "important");
+                return;
+            }
+
+            element.dataset.tqOrphanLegacyChrome = "true";
+            element.style.setProperty("display", "none", "important");
+            element.style.setProperty("visibility", "hidden", "important");
+            element.style.setProperty("opacity", "0", "important");
+            element.style.setProperty("pointer-events", "none", "important");
+        });
+    }
+
     function stageFor(screenRoot) {
         return screenRoot.querySelector(".tq-canonical-stage")
             || screenRoot.querySelector(".tq-safe-visual-area")
@@ -295,6 +355,7 @@
 
         decorateFunctions(screenRoot, screenType);
         hideLegacyVisuals(screenRoot);
+        orphanLegacyPresentation(screenRoot);
 
         const stage = stageFor(screenRoot);
         if (root.getComputedStyle(stage).position === "static") {
@@ -398,6 +459,7 @@
         hideLegacyVisuals,
         decorateElement,
         decorateFunctions,
+        orphanLegacyPresentation,
         createSlotElement,
         renderSlotVisual,
         mount
