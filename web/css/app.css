@@ -139,42 +139,13 @@
 .tq-exit-dev-toggle{width:54px;height:54px;border:2px solid #e5bd54;border-radius:50%;background:#4f211c;color:#ffe5cf;font-weight:900;letter-spacing:.02em;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .tq-exit-dev-toggle:hover,.tq-exit-dev-toggle:focus-visible{background:#6d2a22;outline:2px solid rgba(255,225,138,.8);outline-offset:2px}
 .tq-exit-dev-toggle:active{transform:translateY(1px)}
-.tq-parallax-dev{position:fixed;right:16px;bottom:16px;z-index:100000;display:flex;flex-direction:column;align-items:flex-end;font:600 12px/1.25 Arial,sans-serif;color:#fff}
-.tq-parallax-dev-toggle{order:2;width:54px;height:54px;border:2px solid #e5bd54;border-radius:50%;background:#082738;color:#ffe18a;font-weight:900}
-.tq-parallax-dev-panel{order:1;width:280px;margin:0 0 8px;padding:12px;display:grid;gap:9px;border:1px solid #d7b554;border-radius:12px;background:rgba(5,29,41,.97);box-shadow:0 12px 32px rgba(0,0,0,.35)}
-.tq-parallax-dev-panel[hidden]{display:none}
-.tq-parallax-dev-panel select,.tq-parallax-dev-panel input,.tq-parallax-dev-panel button{width:100%}
-.tq-parallax-dev-panel select{color-scheme:dark;color:#fff8df;background:#102f3f;border:1px solid rgba(229,189,84,.58);border-radius:8px;min-height:34px;padding:6px 8px}
-.tq-parallax-dev-panel select option{color:#fff8df;background:#102f3f}
-.tq-parallax-dev-panel select:focus{outline:2px solid #e5bd54;outline-offset:1px}
-.tq-parallax-dev-panel label{display:grid;gap:4px}
-.tq-parallax-dev-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.tq-parallax-draft{position:fixed;z-index:100001;border:2px dashed #fff06a;background:rgba(255,240,106,.14);pointer-events:none}
-.tq-parallax-region{
-    position:absolute;
-    z-index:var(--tq-parallax-z, 1);
-    overflow:hidden;
-    pointer-events:none;
-    outline:1px dashed rgba(255,240,106,.65);
-}
-
-/* FX is a background layer, never a ceiling over scene assets.
-   Existing scene artwork and every asset promoted by the UX editor can
-   use its normal/explicit z-index above this baseline. */
-.tq-canonical-stage > .tq-parallax-region,
-[class*="-stage"] > .tq-parallax-region {
-    --tq-parallax-z: 1;
-}
-
 .tq-dev-scene-editing [data-tq-dev-kind="asset"][data-tq-dev-layered="true"],
 .tq-dev-scene-editing [data-tq-dev-kind="overlay"][data-tq-dev-layered="true"],
 .tq-dev-scene-editing [data-tq-dev-kind="background"][data-tq-dev-layered="true"] {
     z-index: var(--tq-dev-z, 2) !important;
 }
 
-.tq-parallax-lasso{position:fixed;inset:0;width:100vw;height:100vh;z-index:100001;pointer-events:none;overflow:visible}
-.tq-parallax-lasso-shape{fill:rgba(255,240,106,.14);stroke:#fff06a;stroke-width:2;stroke-dasharray:7 5;vector-effect:non-scaling-stroke}
-@media (max-width:620px){.tq-parallax-dev{right:8px;bottom:8px}.tq-exit-dev{right:8px;bottom:200px}}
+@media (max-width:620px){.tq-exit-dev{right:8px;bottom:200px}}
 
 
 /* DEV tools · single full-height lateral workspace
@@ -215,8 +186,7 @@
 @media (max-width: 620px) {
     .tq-scene-dev-panel,
     .tq-settings-dev-panel,
-    .tq-asset-upload-dev-panel,
-    .tq-parallax-dev-panel {
+    .tq-asset-upload-dev-panel {
         top: max(8px, var(--tq-safe-top, 0px));
         right: 70px;
         bottom: max(8px, var(--tq-safe-bottom, 0px));
@@ -225,8 +195,7 @@
 
     .tq-scene-dev-panel,
     .tq-settings-dev-panel,
-    .tq-asset-upload-dev-panel,
-    .tq-parallax-dev-panel {
+    .tq-asset-upload-dev-panel {
         top: auto;
         left: 8px;
         right: 70px;
