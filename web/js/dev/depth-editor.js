@@ -154,10 +154,38 @@
 
         panel.hidden = !panelOpen;
 
+        function selectedTarget() {
+            return targets.find((target) => target.id === selectedId) || null;
+        }
+
+        function allowedRolesForSelected() {
+            const allowed = selectedTarget()?.depthRoles;
+            return Array.isArray(allowed) && allowed.length
+                ? allowed.filter((id) => presets[id])
+                : Object.keys(presets);
+        }
+
+        function fillRoleOptions(preferredRole = null) {
+            const allowed = allowedRolesForSelected();
+            role.replaceChildren(...allowed.map((id) => {
+                const option = document.createElement("option");
+                option.value = id;
+                option.textContent = presets[id]?.label || id;
+                return option;
+            }));
+            if (preferredRole && allowed.includes(preferredRole)) {
+                role.value = preferredRole;
+            } else if (allowed.length) {
+                role.value = allowed[0];
+            }
+        }
+
         function currentLayer() {
-            return config.layers[selectedId]
-                ? TQ.core.depthScene.normalizeLayer(config.layers[selectedId])
-                : TQ.core.depthScene.normalizeLayer({ enabled: false, role: "custom" });
+            if (config.layers[selectedId]) {
+                return TQ.core.depthScene.normalizeLayer(config.layers[selectedId]);
+            }
+            const defaultRole = allowedRolesForSelected()[0] || "custom";
+            return TQ.core.depthScene.normalizeLayer({ enabled: false, role: defaultRole });
         }
 
         function fillTargets(preferredId = selectedId) {
@@ -198,13 +226,17 @@
         function syncLayerControls() {
             const layer = currentLayer();
             layerEnabled.checked = Boolean(config.layers[selectedId]?.enabled);
-            role.value = layer.role;
-            depth.value = String(layer.depth);
-            drift.value = String(layer.drift);
-            speed.value = String(layer.speed);
-            opacity.value = String(layer.opacity);
-            scale.value = String(layer.scale);
-            tilt.value = String(layer.tilt || 0);
+            fillRoleOptions(layer.role);
+            const effectiveRole = role.value || layer.role;
+            const normalizedLayer = effectiveRole === layer.role
+                ? layer
+                : TQ.core.depthScene.applyRole(layer, effectiveRole);
+            depth.value = String(normalizedLayer.depth);
+            drift.value = String(normalizedLayer.drift);
+            speed.value = String(normalizedLayer.speed);
+            opacity.value = String(normalizedLayer.opacity);
+            scale.value = String(normalizedLayer.scale);
+            tilt.value = String(normalizedLayer.tilt || 0);
             const disabled = !selectedId;
             [layerEnabled, role, depth, drift, speed, opacity, scale, tilt].forEach((control) => {
                 control.disabled = disabled;
@@ -304,7 +336,10 @@
         targetSelect.addEventListener("change", () => {
             selectedId = targetSelect.value;
             syncLayerControls();
-            status.textContent = "Elemento selecionado";
+            const target = selectedTarget();
+            status.textContent = target?.semanticType
+                ? "Elemento selecionado · " + (TQ.content.screenComposition.SEMANTIC_TYPES[target.semanticType]?.label || target.semanticType)
+                : "Elemento selecionado";
         });
 
         layerEnabled.addEventListener("change", () => persistLayer(
