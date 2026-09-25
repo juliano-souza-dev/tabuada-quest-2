@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "type": "background-group",
+  "id": "default",
+  "label": "Default",
+  "folder": "./assets/backgrounds/default/",
+  "runtimeAliases": [
+    "pirate-main"
+  ],
+  "slots": {
+    "ocean": [
+      "oceano.webp"
+    ],
+    "clouds": [
+      "cloud-sunset-01.webp",
+      "cloud-sunset-02.webp",
+      "cloud-sunset-03.webp",
+      "cloud-sunset-horizon.webp"
+    ],
+    "ships": [
+      "navio-pirata.webp"
+    ],
+    "islands": [
+      "island-01-unlocked.webp"
+    ],
+    "pier": [
+      "wooden-pier.webp"
+    ],
+    "scenery": [
+      "construcoes-piratas.webp",
+      "pirate-lantern.webp",
+      "home-art-overlay.webp",
+      "sky-sunset.webp"
+    ]
+  },
+  "audio": {
+    "ocean": [
+      "ocean-waves.mp3",
+      "jeanmalraux-oceano-119943.mp3"
+    ]
+  }
+}
