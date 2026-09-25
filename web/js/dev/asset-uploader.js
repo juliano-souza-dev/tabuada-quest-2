@@ -32,6 +32,44 @@
         { value: "web/assets/transitions", label: "Transições" }
     ]);
 
+    const SLOT_GROUP_LABELS = Object.freeze({
+        header: "Cabeçalho",
+        "background-composition": "Background",
+        "background-clouds": "Nuvens",
+        "background-ships": "Navios",
+        "background-islands": "Ilhas",
+        buttons: "Botões",
+        navigation: "Navegação",
+        background: "Background",
+        islands: "Ilhas",
+        clouds: "Nuvens",
+        environment: "Cenário"
+    });
+
+    function slotGroupLabel(slot) {
+        return SLOT_GROUP_LABELS[slot?.group]
+            || (slot?.compositionId ? "Background" : "Outros");
+    }
+
+    function renderSlotOptions(slots) {
+        const groups = new Map();
+        (slots || []).forEach((slot) => {
+            const label = slotGroupLabel(slot);
+            if (!groups.has(label)) groups.set(label, []);
+            groups.get(label).push(slot);
+        });
+
+        return [...groups.entries()].map(([label, items]) =>
+            '<optgroup label="' + label + '">' +
+            items.map((slot) =>
+                '<option value="' + slot.id + '">' +
+                (slot.required ? '● ' : '○ ') + slot.label +
+                '</option>'
+            ).join("") +
+            '</optgroup>'
+        ).join("");
+    }
+
     function encodePath(path) {
         return path.split("/").filter(Boolean).map(encodeURIComponent).join("/");
     }
@@ -689,11 +727,7 @@
                         <label>
                             Este upload é:
                             <select data-upload-slot>
-                                ${compositionSlots.map((slot) =>
-                                    '<option value="' + slot.id + '">' +
-                                    (slot.required ? '● ' : '○ ') + slot.label +
-                                    '</option>'
-                                ).join("")}
+                                ${renderSlotOptions(compositionSlots)}
                             </select>
                         </label>
 
@@ -708,7 +742,7 @@
                         </div>
 
                         <small data-upload-slot-info>
-                            ● obrigatório · ○ opcional
+                            ✓ ocupado · ● obrigatório vazio · ○ opcional vazio
                         </small>
 
                         <label data-upload-variant-row hidden>
@@ -882,8 +916,50 @@
             return compositionRegistry.getSlot(resolvedCompositionScreenId, slotSelect.value);
         }
 
+        function slotHasArt(slot) {
+            if (!slot) return false;
+            const current = compositionRegistry.readBinding(
+                screenId,
+                resolvedCompositionScreenId,
+                slot.id
+            );
+
+            if (slot.bindingMode === "variants") {
+                const variantId = String(
+                    variantInput?.value || compositionVariantId || "default"
+                ).trim() || "default";
+                const published = (current?.variants || [])
+                    .some((variant) => variant.id === variantId && Boolean(variant.asset));
+                const local = localLayers.some((item) =>
+                    item.slotId === slot.id
+                    && String(item.variantId || "default") === variantId
+                );
+                return published || local;
+            }
+
+            return Boolean(current?.asset)
+                || localLayers.some((item) => item.slotId === slot.id);
+        }
+
+        function refreshSlotOptionStates() {
+            if (!slotSelect) return;
+            [...slotSelect.options].forEach((option) => {
+                const slot = compositionRegistry.getSlot(
+                    resolvedCompositionScreenId,
+                    option.value
+                );
+                if (!slot) return;
+
+                const occupied = slotHasArt(slot);
+                option.dataset.occupied = occupied ? "true" : "false";
+                option.textContent = (occupied ? "✓ " : slot.required ? "● " : "○ ")
+                    + slot.label;
+            });
+        }
+
         function syncCompositionSlot() {
             if (!composition || !slotSelect || !semanticSelect) return;
+            refreshSlotOptionStates();
             const slot = selectedCompositionSlot();
             const allowedTypes = slot?.acceptedTypes?.length
                 ? slot.acceptedTypes
@@ -937,9 +1013,9 @@
                     ? compositionRegistry.getFunctionSlots(resolvedCompositionScreenId)
                         .find((item) => item.action === slot.action)
                     : null;
+                const occupied = slot ? slotHasArt(slot) : false;
                 slotInfo.textContent = slot
-                    ? (slot.required ? "Obrigatório" : "Opcional")
-                        + " · " + (hasPublishedArt ? "arte vinculada" : "sem arte")
+                    ? (occupied ? "Ocupado" : slot.required ? "Obrigatório · vazio" : "Opcional · vazio")
                         + (functionSlot ? " · função: " + functionSlot.label : "")
                         + (fx.length ? " · FX: " + fx.map((id) => compositionRegistry.fxLabel(id)).join(", ") : " · sem FX")
                     : "";
