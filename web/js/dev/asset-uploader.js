@@ -898,27 +898,12 @@
             };
 
             if (slot) {
-                if (slot.bindingMode === "variants") {
-                    compositionRegistry.bindVariant(
-                        screenId,
-                        compositionScreenId,
-                        slot.id,
-                        variantId || "default",
-                        null,
-                        {
-                            label: variantId || "default",
-                            semanticType: record.semanticType
-                        }
-                    );
-                } else {
-                    compositionRegistry.bindAsset(
-                        screenId,
-                        compositionScreenId,
-                        slot.id,
-                        null,
-                        record.semanticType
-                    );
-                }
+                compositionRegistry.setSemanticType(
+                    screenId,
+                    compositionScreenId,
+                    slot.id,
+                    record.semanticType
+                );
             }
 
             try {
