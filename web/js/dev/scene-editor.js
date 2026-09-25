@@ -4,13 +4,16 @@
     const PARALLAX_STORAGE_KEY = "tq2.dev.parallax.effects.v4";
     let activeCleanup = null;
 
-    function readScopedParallax(screenId, editorContext) {
+    function readScopedParallax(screenId, editorContext, effectsScopeId) {
         try {
             const parsed = JSON.parse(root.localStorage.getItem(PARALLAX_STORAGE_KEY) || "[]");
             const effects = Array.isArray(parsed) ? parsed : [];
             return effects.filter((fx) => {
                 if (!fx || typeof fx !== "object") return false;
-                if (String(fx.backgroundId || "") !== String(screenId || "")) return false;
+                const expectedBackgroundId = screenId === "home" && effectsScopeId
+                    ? String(effectsScopeId)
+                    : String(screenId || "");
+                if (String(fx.backgroundId || "") !== expectedBackgroundId) return false;
                 if (screenId === "islands") {
                     return Number(fx.regionId) === Number(editorContext?.regionId);
                 }
@@ -543,6 +546,7 @@
 
         const screenId = String(options.screenId || "screen");
         const storageScopeId = String(options.storageScopeId || screenId);
+        const effectsScopeId = String(options.effectsScopeId || storageScopeId);
         const screenRoot = options.screenRoot instanceof Element
             ? options.screenRoot
             : appRoot.firstElementChild || appRoot;
@@ -1644,6 +1648,8 @@
                     regionLabel: editorContext.regionLabel,
                     regionPage: editorContext.regionPage,
                     developmentMode: editorContext.developmentMode,
+                    homeBackgroundId: editorContext.homeBackgroundId || null,
+                    effectsScopeId,
                     capturedAt: capturedAt.toISOString(),
                     capturedAtLocal: formatLocalTimestamp(capturedAt),
                     timeZone: editorContext.timeZone
@@ -1652,15 +1658,15 @@
                 parallax: {
                     version: 1,
                     storageVersion: 4,
-                    effects: readScopedParallax(screenId, editorContext)
+                    effects: readScopedParallax(screenId, editorContext, effectsScopeId)
                 },
                 ocean: {
                     version: 1,
-                    config: readScopedOcean(storageScopeId, editorContext)
+                    config: readScopedOcean(effectsScopeId, editorContext)
                 },
                 depth: {
                     version: 1,
-                    config: readScopedDepth(storageScopeId, editorContext)
+                    config: readScopedDepth(effectsScopeId, editorContext)
                 },
                 composition: readScopedComposition(storageScopeId, screenId, screenRoot)
             }, null, 2);
