@@ -1220,10 +1220,29 @@
         return Math.max(0, correctAnswers - wrongAnswers);
     }
 
+    function readDevLocks(campaign) {
+        const raw = isObject(campaign?.devLocks) ? campaign.devLocks : {};
+        return {
+            regionIds: Array.isArray(raw.regionIds) ? raw.regionIds : [],
+            islandKeys: Array.isArray(raw.islandKeys) ? raw.islandKeys : []
+        };
+    }
+
+    function isDevRegionLocked(campaign, regionId) {
+        return readDevLocks(campaign).regionIds.includes(regionId);
+    }
+
+    function isDevIslandLocked(campaign, regionId, islandId) {
+        const locks = readDevLocks(campaign);
+        return locks.regionIds.includes(regionId)
+            || locks.islandKeys.includes(newIslandKey(regionId, islandId));
+    }
+
     function getIslandStatus(state, regionId, islandId) {
         const s = normalizeState(state);
         if (!Number.isInteger(regionId) || !Number.isInteger(islandId)) return "locked";
         if (regionId < 1 || regionId > TOTAL_REGIONS || islandId < 1 || islandId > ISLANDS_PER_REGION) return "locked";
+        if (isDevIslandLocked(s.campaign, regionId, islandId)) return "locked";
         if (!s.campaign.unlockedRegionIds.includes(regionId)) return "locked";
 
         const key = `region-${regionId}-island-${islandId}`;
@@ -1240,6 +1259,7 @@
     function getRegionStatus(state, regionId) {
         const s = normalizeState(state);
         if (!Number.isInteger(regionId) || regionId < 1 || regionId > TOTAL_REGIONS) return "locked";
+        if (isDevRegionLocked(s.campaign, regionId)) return "locked";
         if (s.campaign.completedRegionIds.includes(regionId)) return "completed";
         if (!s.campaign.unlockedRegionIds.includes(regionId)) return "locked";
         return s.campaign.regionProgress[String(regionId)].islandsCompleted > 0
@@ -1249,6 +1269,7 @@
 
     function selectRegion(state, regionId) {
         const s = normalizeState(state);
+        if (isDevRegionLocked(s.campaign, regionId)) return s;
         if (!s.campaign.unlockedRegionIds.includes(regionId)) return s;
         return {
             ...s,
@@ -1263,7 +1284,7 @@
         if (
             Number.isInteger(activeRegionId)
             && s.campaign.unlockedRegionIds.includes(activeRegionId)
-            && getRegionStatus(s, activeRegionId) !== "completed"
+            && ["available", "in_progress"].includes(getRegionStatus(s, activeRegionId))
         ) {
             return activeRegionId;
         }
@@ -1272,13 +1293,13 @@
         if (
             Number.isInteger(currentRegionId)
             && s.campaign.unlockedRegionIds.includes(currentRegionId)
-            && getRegionStatus(s, currentRegionId) !== "completed"
+            && ["available", "in_progress"].includes(getRegionStatus(s, currentRegionId))
         ) {
             return currentRegionId;
         }
 
         const nextPlayable = [...s.campaign.unlockedRegionIds]
-            .filter((regionId) => getRegionStatus(s, regionId) !== "completed")
+            .filter((regionId) => ["available", "in_progress"].includes(getRegionStatus(s, regionId)))
             .sort((a, b) => a - b)[0];
 
         return Number.isInteger(nextPlayable) ? nextPlayable : null;
@@ -1316,6 +1337,7 @@
         const s = normalizeState(state);
         if (!Number.isInteger(regionId) || !Number.isInteger(islandId)) return s;
         if (regionId < 1 || regionId > TOTAL_REGIONS || islandId < 1 || islandId > ISLANDS_PER_REGION) return s;
+        if (isDevIslandLocked(s.campaign, regionId, islandId)) return s;
         if (!s.campaign.unlockedRegionIds.includes(regionId)) return s;
         if (regionId === 22 && islandId === 5 && !s.campaign.finalJourney.finalIslandUnlocked) return s;
 
