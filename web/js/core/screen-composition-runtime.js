@@ -158,12 +158,9 @@
         element.style.position = "absolute";
         element.style.left = "0";
         element.style.top = "0";
-        element.style.width = slot.semanticType === "home_background" || slot.semanticType === "ocean"
-            ? "100%"
-            : "120px";
-        element.style.height = slot.semanticType === "home_background" || slot.semanticType === "ocean"
-            ? "100%"
-            : "120px";
+        const fullSize = ["home_background", "home_backdrop", "ocean"].includes(slot.semanticType);
+        element.style.width = fullSize ? "100%" : "120px";
+        element.style.height = fullSize ? "100%" : "120px";
         element.style.zIndex = String(
             TQ.content.screenComposition.defaultLayerForSemanticType(
                 binding?.semanticType || slot.semanticType
@@ -456,6 +453,7 @@
         const screenId = String(options.screenId || "");
         const scopeId = String(options.scopeId || screenId);
         const screenType = registry?.resolveScreenType?.(screenId);
+        const runtimeState = options.state || null;
 
         if (!registry || !screenRoot || !screenType) {
             return {
@@ -478,7 +476,78 @@
 
         const engine = createEngineFunctionLayer(screenRoot);
 
+        const assetLayer = document.createElement("div");
+        assetLayer.className = "tq-engine-asset-layer";
+        assetLayer.style.position = "absolute";
+        assetLayer.style.inset = "0";
+        assetLayer.style.pointerEvents = "none";
+        assetLayer.style.overflow = "visible";
+        engine.canvas.insertBefore(assetLayer, engine.canvas.firstChild);
+
+        const slotElements = new Map();
+        const slots = registry.getAssetSlots(screenType);
+
+        function resolveBinding(slot, bindings) {
+            const binding = bindings[slot.id] || {
+                slotId: slot.id,
+                semanticType: slot.semanticType,
+                asset: null
+            };
+            if (slot.bindingMode !== "variants") return binding;
+
+            const preferredId = screenType === "home"
+                ? String(runtimeState?.ui?.homeBackgroundId || "default")
+                : "default";
+            const variants = Array.isArray(binding.variants) ? binding.variants : [];
+            const activeVariant = variants.find((variant) => variant.id === preferredId)
+                || variants.find((variant) => variant.id === "default")
+                || variants.find((variant) => variant.asset)
+                || null;
+
+            return {
+                ...binding,
+                asset: activeVariant?.asset || null,
+                activeVariantId: activeVariant?.id || preferredId,
+                activeVariantEffects: activeVariant?.effects || []
+            };
+        }
+
+        slots.forEach((slot, index) => {
+            const bindings = registry.readBindings(scopeId, screenType);
+            const binding = resolveBinding(slot, bindings);
+            const slotElement = createSlotElement(slot, binding, index);
+            slotElements.set(slot.id, slotElement);
+            assetLayer.appendChild(slotElement);
+        });
+
         function refresh() {
+            const bindings = registry.readBindings(scopeId, screenType);
+
+            slots.forEach((slot) => {
+                const slotElement = slotElements.get(slot.id);
+                if (!(slotElement instanceof HTMLElement)) return;
+
+                const binding = resolveBinding(slot, bindings);
+                decorateElement(slotElement, slot, binding);
+                slotElement.style.zIndex = String(
+                    registry.defaultLayerForSemanticType(binding?.semanticType || slot.semanticType)
+                );
+
+                const localDraft = slotElement.querySelector(
+                    ".tq-dev-local-live-asset[data-tq-local-persisted='true']"
+                );
+
+                if (localDraft instanceof HTMLImageElement) {
+                    slotElement.dataset.tqSlotEmpty = "false";
+                    slotElement.dataset.tqSemanticType = localDraft.dataset.tqSemanticType
+                        || binding?.semanticType
+                        || slot.semanticType;
+                    return;
+                }
+
+                renderSlotVisual(slotElement, slot, binding);
+            });
+
             root.dispatchEvent(new CustomEvent("tq:composition-runtime-refreshed", {
                 detail: { screenType, scopeId }
             }));
@@ -497,7 +566,8 @@
             screenType,
             scopeId,
             refresh,
-            getSlots: () => [],
+            getSlots: () => slots,
+            getSlotElement: (slotId) => slotElements.get(String(slotId || "")) || null,
             destroy() {
                 root.removeEventListener("tq:composition-binding-changed", onBindingChanged);
                 engine.destroy();
