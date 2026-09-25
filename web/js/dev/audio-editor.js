@@ -64,6 +64,20 @@
         }
     }
 
+    function normalizeCatalogItems(items) {
+        return (Array.isArray(items) ? items : [])
+            .map((item, index) => ({
+                id: String(item?.id || "catalog-" + (index + 1)),
+                label: String(item?.label || item?.src || "Áudio " + (index + 1)),
+                src: String(item?.src || "").trim(),
+                role: String(item?.role || "ambient"),
+                loop: item?.loop !== false,
+                autoplay: Boolean(item?.autoplay),
+                volume: Number.isFinite(Number(item?.volume)) ? Number(item.volume) : 50
+            }))
+            .filter((item) => item.src);
+    }
+
     function mount(options = {}) {
         activeCleanup?.();
         activeCleanup = null;
@@ -73,6 +87,7 @@
         const regionId = Number(options.regionId) || null;
         const controller = options.controller || null;
         const catalogUrl = String(options.catalogUrl || "");
+        const suppliedCatalog = normalizeCatalogItems(options.catalog);
 
         document.querySelector(".tq-audio-dev")?.remove();
 
@@ -81,7 +96,7 @@
         }
 
         let config = TQ.core.audioScene.readConfig(scopeId, regionId);
-        let catalog = [];
+        let catalog = suppliedCatalog;
         let preview = null;
 
         const host = document.createElement("aside");
@@ -379,10 +394,14 @@
 
         renderTracks();
 
-        loadCatalog(catalogUrl).then((items) => {
-            catalog = items;
+        if (catalog.length) {
             renderCatalog();
-        });
+        } else {
+            loadCatalog(catalogUrl).then((items) => {
+                catalog = normalizeCatalogItems(items);
+                renderCatalog();
+            });
+        }
 
         activeCleanup = () => {
             stopPreview();
@@ -395,6 +414,7 @@
 
     TQ.dev = TQ.dev || {};
     TQ.dev.audioEditor = Object.freeze({
+        normalizeCatalogItems,
         loadCatalog,
         mount
     });
