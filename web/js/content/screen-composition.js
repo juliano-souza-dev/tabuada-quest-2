@@ -2,7 +2,7 @@
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     const STORAGE_KEY = "tq2.dev.composition-bindings.v1";
     const SCHEMA_VERSION = 1;
-    const RESET_MARKER = "tq2.dev.composition-reset.20260925.v1";
+    const RESET_MARKER = "tq2.dev.composition-reset.20260925.v2";
 
     function ensureCompositionReset() {
         try {
