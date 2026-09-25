@@ -71,6 +71,68 @@
         })
     });
 
+    const ELEMENT_TYPES = Object.freeze({
+        cloud: Object.freeze({
+            label: "Nuvem",
+            roles: Object.freeze(["cloudFar", "cloudNear"]),
+            animation: "cloud-loop"
+        }),
+        ship: Object.freeze({
+            label: "Navio",
+            roles: Object.freeze(["ship"]),
+            animation: "ship-rock"
+        }),
+        island: Object.freeze({
+            label: "Ilha",
+            roles: Object.freeze(["world", "custom"]),
+            animation: "depth"
+        }),
+        environment: Object.freeze({
+            label: "Item de cenário",
+            roles: Object.freeze(["world", "custom"]),
+            animation: "depth"
+        }),
+        pier: Object.freeze({
+            label: "Pier",
+            roles: Object.freeze(["world", "custom"]),
+            animation: "depth"
+        }),
+        avatar_full: Object.freeze({
+            label: "Avatar completo",
+            roles: Object.freeze(["custom"]),
+            animation: "depth"
+        }),
+        custom: Object.freeze({
+            label: "Personalizado",
+            roles: Object.freeze(["custom"]),
+            animation: "depth"
+        })
+    });
+
+    const ELEMENT_TYPE_ALIASES = Object.freeze({
+        island_state: "island",
+        island_background: "island"
+    });
+
+    function elementTypeFromSemantic(semanticType) {
+        const raw = String(semanticType || "");
+        const mapped = ELEMENT_TYPE_ALIASES[raw] || raw;
+        return ELEMENT_TYPES[mapped] ? mapped : "custom";
+    }
+
+    function rolesForElementType(elementType) {
+        const normalized = ELEMENT_TYPES[elementType]
+            ? elementType
+            : "custom";
+        return [...ELEMENT_TYPES[normalized].roles];
+    }
+
+    function effectiveElementType(layer, semanticType = null) {
+        return ELEMENT_TYPES[layer?.elementType]
+            ? layer.elementType
+            : elementTypeFromSemantic(semanticType);
+    }
+
     const PUBLISHED_CONFIGS = Object.freeze({});
 
     function clone(value) {
@@ -105,8 +167,13 @@
         const source = layer && typeof layer === "object" ? layer : {};
         const role = ROLE_PRESETS[source.role] ? source.role : "custom";
         const preset = ROLE_PRESETS[role];
+        const elementType = ELEMENT_TYPES[source.elementType]
+            ? source.elementType
+            : null;
         return {
             enabled: source.enabled === undefined ? true : Boolean(source.enabled),
+            elementType,
+            direction: source.direction === "right" ? "right" : "left",
             role,
             depth: percent(source.depth, preset.depth),
             drift: percent(source.drift, preset.drift),
@@ -190,6 +257,20 @@
             ...ROLE_PRESETS[selectedRole],
             role: selectedRole,
             enabled: true
+        });
+    }
+
+    function applyElementType(layer, elementType) {
+        const selectedType = ELEMENT_TYPES[elementType] ? elementType : "custom";
+        const role = rolesForElementType(selectedType)[0] || "custom";
+        const next = applyRole({
+            ...layer,
+            elementType: selectedType
+        }, role);
+        return normalizeLayer({
+            ...next,
+            elementType: selectedType,
+            direction: layer?.direction === "right" ? "right" : "left"
         });
     }
 
@@ -338,6 +419,7 @@
             element.style.opacity = original.opacity;
             element.removeAttribute("data-tq-depth-active");
             element.removeAttribute("data-tq-depth-role");
+            element.removeAttribute("data-tq-depth-element-type");
         }
 
         function restoreAll() {
@@ -366,10 +448,15 @@
 
                 if (!tracked.has(id)) {
                     const computed = root.getComputedStyle(element);
+                    const elementRect = element.getBoundingClientRect();
+                    const sceneRect = screenRoot.getBoundingClientRect();
                     tracked.set(id, {
                         id,
                         element,
+                        semanticType: target.semanticType || null,
                         phase: stablePhase(id),
+                        baseLeft: elementRect.left - sceneRect.left,
+                        baseWidth: Math.max(1, elementRect.width),
                         original: {
                             transform: element.style.transform || "",
                             transformOrigin: element.style.transformOrigin || "",
@@ -385,6 +472,7 @@
 
                 element.dataset.tqDepthActive = "true";
                 element.dataset.tqDepthRole = layer.role;
+                element.dataset.tqDepthElementType = effectiveElementType(layer, target.semanticType);
                 element.style.transformOrigin = "center center";
                 element.style.willChange = "transform, opacity";
             });
@@ -418,21 +506,37 @@
                     const drift = reducedMotion ? 0 : layer.drift / 100;
                     const speed = 0.00018 + (layer.speed / 100) * 0.00105;
                     const time = now * speed;
-                    const autoX = Math.sin(time + entry.phase) * drift * 9;
-                    const autoY = Math.cos((time * 0.72) + entry.phase) * drift * 5;
+                    const elementType = effectiveElementType(layer, entry.semanticType);
                     const pointerShiftX = config.followPointer && !reducedMotion
                         ? -pointerX * depth * intensity * 22
                         : 0;
                     const pointerShiftY = config.followPointer && !reducedMotion
                         ? -pointerY * depth * intensity * 15
                         : 0;
+
+                    let autoX = Math.sin(time + entry.phase) * drift * 9;
+                    const autoY = Math.cos((time * 0.72) + entry.phase) * drift * 5;
+
+                    if (elementType === "cloud" && !reducedMotion) {
+                        const sceneWidth = Math.max(1, screenRoot.getBoundingClientRect().width);
+                        const margin = Math.max(24, entry.baseWidth * 0.6);
+                        const travel = sceneWidth + entry.baseWidth + margin * 2;
+                        const pixelsPerMs = 0.012 + (layer.speed / 100) * 0.07;
+                        const phaseDistance = (entry.phase / 6.28) * travel;
+                        const distance = ((now * pixelsPerMs) + phaseDistance) % travel;
+                        const targetX = layer.direction === "right"
+                            ? (-entry.baseWidth - margin + distance)
+                            : (sceneWidth + margin - distance);
+                        autoX = targetX - entry.baseLeft;
+                    }
+
                     const x = pointerShiftX + autoX;
-                    const shipBob = layer.role === "ship" && !reducedMotion
+                    const shipBob = elementType === "ship" && !reducedMotion
                         ? Math.sin((time * 1.45) + entry.phase) * (2 + drift * 5)
                         : 0;
                     const y = pointerShiftY + autoY + shipBob;
                     const scale = layer.scale / 100;
-                    const tiltDegrees = layer.role === "ship" && !reducedMotion
+                    const tiltDegrees = elementType === "ship" && !reducedMotion
                         ? Math.sin((time * 1.18) + entry.phase) * (layer.tilt / 100) * 4.5
                         : 0;
                     const transform = [
@@ -489,7 +593,11 @@
     TQ.core.depthScene = Object.freeze({
         STORAGE_KEY,
         ROLE_PRESETS,
+        ELEMENT_TYPES,
         PUBLISHED_CONFIGS,
+        elementTypeFromSemantic,
+        rolesForElementType,
+        effectiveElementType,
         defaultConfig,
         normalizeLayer,
         normalizeConfig,
@@ -497,6 +605,7 @@
         saveConfig,
         clearConfig,
         applyRole,
+        applyElementType,
         collectTargets,
         mount
     });
