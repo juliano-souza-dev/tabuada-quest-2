@@ -8,8 +8,6 @@
     const LOCAL_DB_VERSION = 1;
     const LOCAL_LAYER_STORE = "layers";
     const runtimeObjectUrls = new Map();
-    const LOCAL_RESET_MARKER = "tq2.dev.local-assets-reset.20260925.engine-zero-v1";
-    let localResetPromise = null;
 
     const COMMON_FOLDERS = Object.freeze([
         { value: "web/assets", label: "Assets · raiz" },
@@ -20,9 +18,6 @@
         { value: "web/assets/avatars", label: "Avatares" },
         { value: "web/assets/backgrounds", label: "Backgrounds" },
         { value: "web/assets/backgrounds/home", label: "Backgrounds · Home" },
-        { value: "web/assets/parallax", label: "Parallax" },
-        { value: "web/assets/parallax/islands", label: "Parallax · Ilhas" },
-        { value: "web/assets/parallax/islands/region-1", label: "Parallax · Ilhas · Região 1" },
         { value: "web/assets/crew", label: "Tripulação" },
         { value: "web/assets/pets", label: "Pets" },
         { value: "web/assets/collectibles", label: "Colecionáveis" },
@@ -285,41 +280,7 @@
         }
     }
 
-    async function ensureLocalDraftReset() {
-        if (root.localStorage.getItem(LOCAL_RESET_MARKER) === "done") return 0;
-        if (localResetPromise) return localResetPromise;
-
-        localResetPromise = (async () => {
-            const db = await openLocalAssetDb();
-            try {
-                const transaction = db.transaction(LOCAL_LAYER_STORE, "readwrite");
-                const store = transaction.objectStore(LOCAL_LAYER_STORE);
-                const countRequest = store.count();
-                const count = await new Promise((resolve, reject) => {
-                    countRequest.onsuccess = () => resolve(Number(countRequest.result) || 0);
-                    countRequest.onerror = () => reject(countRequest.error || new Error("Falha ao contar drafts locais"));
-                });
-                store.clear();
-                await transactionDone(transaction);
-
-                runtimeObjectUrls.forEach((url) => URL.revokeObjectURL(url));
-                runtimeObjectUrls.clear();
-                root.localStorage.setItem(LOCAL_RESET_MARKER, "done");
-                return count;
-            } finally {
-                db.close();
-            }
-        })().catch((error) => {
-            localResetPromise = null;
-            console.warn("Falha no reset único dos assets locais DEV:", error);
-            throw error;
-        });
-
-        return localResetPromise;
-    }
-
     async function readLocalLayerRecords(screenId) {
-        await ensureLocalDraftReset();
         const db = await openLocalAssetDb();
         try {
             const transaction = db.transaction(LOCAL_LAYER_STORE, "readonly");
@@ -1676,7 +1637,6 @@
         buildUploadUrl,
         restoreLocalLayers,
         readLocalLayerRecords,
-        ensureLocalDraftReset,
         clearLocalLayersForScreen,
         removeLocalLayerBySlot,
         deleteLocalLayerRecord
