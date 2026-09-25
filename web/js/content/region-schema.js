@@ -1,13 +1,10 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
 
-    const SCHEMA_VERSION = 1;
+    const SCHEMA_VERSION = 2;
     const ISLANDS_PER_REGION = 5;
     const OPTIONAL_ACTIONS = Object.freeze([
-        Object.freeze({ type: "open_merchant", label: "Navio mercador" }),
-        Object.freeze({ type: "go_home", label: "Home" }),
-        Object.freeze({ type: "go_back", label: "Voltar" }),
-        Object.freeze({ type: "open_world_map", label: "Mapa Mundo" })
+        Object.freeze({ type: "open_merchant", label: "Navio mercador" })
     ]);
     const REWARD_TYPES = Object.freeze([
         "ruby",
@@ -60,6 +57,37 @@
         };
     }
 
+    function createRequiredNavigationActions(regionId) {
+        return [
+            {
+                id: regionId + "-go-back",
+                type: "go_back",
+                required: true
+            },
+            {
+                id: regionId + "-open-world-map",
+                type: "open_world_map",
+                required: true
+            }
+        ];
+    }
+
+    function createSemanticRegionAssets() {
+        const slots = TQ.content?.screenComposition?.getAssetSlots?.("regions") || [];
+        return slots.map((slot) => ({
+            id: slot.id,
+            label: slot.label,
+            semanticType: slot.semanticType,
+            acceptedTypes: [...(slot.acceptedTypes || [slot.semanticType])],
+            required: Boolean(slot.required),
+            action: slot.action || null,
+            pairId: slot.pairId || null,
+            pairState: slot.pairState || null,
+            group: slot.group || null,
+            asset: null
+        }));
+    }
+
     function createRegionDefinition(options = {}) {
         const order = Math.max(1, Math.trunc(Number(options.order) || 1));
         const label = String(options.label || ("Nova Região " + order)).trim() || ("Nova Região " + order);
@@ -80,10 +108,14 @@
                 createIsland(id, index + 1)
             ),
             screen: {
-                assets: [],
-                actions: Array.from({ length: ISLANDS_PER_REGION }, (_, index) =>
-                    createRequiredIslandAction(id, index + 1)
-                ),
+                compositionType: "regions",
+                assets: createSemanticRegionAssets(),
+                actions: [
+                    ...Array.from({ length: ISLANDS_PER_REGION }, (_, index) =>
+                        createRequiredIslandAction(id, index + 1)
+                    ),
+                    ...createRequiredNavigationActions(id)
+                ],
                 bindings: []
             }
         };
@@ -110,6 +142,7 @@
         region.islands = region.islands.map(({ _previousId, ...island }) => island);
 
         region.screen = region.screen || { assets: [], actions: [], bindings: [] };
+        region.screen.compositionType = "regions";
         region.screen.actions = (region.screen.actions || []).map((action) => {
             if (action.type !== "open_island") return action;
             const targetId = islandMap.get(action.targetId) || action.targetId;
@@ -121,14 +154,19 @@
             };
         });
 
-        return region;
+        return ensureRequiredActions(region);
     }
 
     function ensureRequiredActions(definition) {
         const region = clone(definition);
+        region.schemaVersion = SCHEMA_VERSION;
         region.screen = region.screen || { assets: [], actions: [], bindings: [] };
-        const optional = (region.screen.actions || []).filter((action) => action.type !== "open_island");
-        const required = (region.islands || [])
+        region.screen.compositionType = "regions";
+
+        const optional = (region.screen.actions || []).filter((action) =>
+            OPTIONAL_ACTIONS.some((item) => item.type === action.type)
+        );
+        const requiredIslands = (region.islands || [])
             .slice()
             .sort((a, b) => a.order - b.order)
             .map((island) => ({
@@ -137,9 +175,37 @@
                 targetId: island.id,
                 required: true
             }));
-        region.screen.actions = [...required, ...optional];
-        region.screen.assets = Array.isArray(region.screen.assets) ? region.screen.assets : [];
-        region.screen.bindings = Array.isArray(region.screen.bindings) ? region.screen.bindings : [];
+        region.screen.actions = [
+            ...requiredIslands,
+            ...createRequiredNavigationActions(region.id),
+            ...optional
+        ];
+
+        const previousAssets = new Map(
+            (Array.isArray(region.screen.assets) ? region.screen.assets : [])
+                .map((asset) => [String(asset?.id || ""), asset])
+        );
+        region.screen.assets = createSemanticRegionAssets().map((slot) => {
+            const previous = previousAssets.get(slot.id);
+            return {
+                ...slot,
+                semanticType: slot.acceptedTypes.includes(previous?.semanticType)
+                    ? previous.semanticType
+                    : slot.semanticType,
+                asset: typeof previous?.asset === "string" && previous.asset.trim()
+                    ? previous.asset.trim()
+                    : null,
+                localFileName: previous?.localFileName || null,
+                source: previous?.source || null
+            };
+        });
+
+        region.screen.bindings = Array.isArray(region.screen.bindings)
+            ? region.screen.bindings.filter((binding) =>
+                region.screen.assets.some((asset) => asset.id === binding?.assetId)
+                && region.screen.actions.some((action) => action.id === binding?.actionId)
+            )
+            : [];
         return region;
     }
 
@@ -214,6 +280,19 @@
 
         const assets = Array.isArray(screen.assets) ? screen.assets : [];
         const assetIds = new Set(assets.map((asset) => asset?.id).filter(Boolean));
+        const requiredSlots = createSemanticRegionAssets().filter((asset) => asset.required);
+        for (const requiredSlot of requiredSlots) {
+            if (!assetIds.has(requiredSlot.id)) {
+                errors.push("Slot obrigatório ausente: " + requiredSlot.label);
+            }
+        }
+        for (const asset of assets) {
+            if (!asset?.id) errors.push("Todo slot visual precisa de ID");
+            if (asset?.asset !== null && typeof asset?.asset !== "string") {
+                errors.push("Vínculo visual inválido em " + String(asset?.id));
+            }
+        }
+
         const bindings = Array.isArray(screen.bindings) ? screen.bindings : [];
         for (const binding of bindings) {
             if (!assetIds.has(binding?.assetId)) {
@@ -232,8 +311,9 @@
             warnings.push(unboundRequired.length + " função(ões) obrigatória(s) ainda sem asset visual");
         }
 
-        if (assets.length === 0) {
-            warnings.push("Tela com 0 assets: válido durante a construção DEV");
+        const requiredWithoutArt = assets.filter((asset) => asset.required && !asset.asset);
+        if (requiredWithoutArt.length) {
+            warnings.push(requiredWithoutArt.length + " slot(s) obrigatório(s) ainda sem arte vinculada");
         }
 
         return {
@@ -251,6 +331,7 @@
         slugify,
         clone,
         createRegionDefinition,
+        createSemanticRegionAssets,
         rebaseRegionId,
         ensureRequiredActions,
         setOptionalAction,
