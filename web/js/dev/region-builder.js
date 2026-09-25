@@ -1,8 +1,9 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     const STORAGE_KEY = "tq2.dev.region-builder.v1";
-    const STORE_VERSION = 2;
+    const STORE_VERSION = 3;
     const SCENE_LAYOUT_KEY = "tq2.dev.scene-layout.v2";
+    const VISUAL_RESET_MARKER = "tq2.dev.region-builder-visual-reset.20260925.v3";
     let activeCleanup = null;
     let panelOpen = false;
 
@@ -10,12 +11,49 @@
         return { version: STORE_VERSION, activeId: null, drafts: [] };
     }
 
+    function resetDraftVisualState(draft) {
+        const region = TQ.regionSchema.ensureRequiredActions(draft);
+        region.screen.assets = (region.screen.assets || []).map((asset) => {
+            const {
+                asset: _asset,
+                localFileName: _localFileName,
+                source: _source,
+                layout: _layout,
+                ...rest
+            } = asset || {};
+            return {
+                ...rest,
+                asset: null,
+                localFileName: null,
+                source: null
+            };
+        });
+        region.screen.bindings = [];
+        region.screen.actions = (region.screen.actions || []).map((action) => {
+            const { layout: _layout, ...rest } = action || {};
+            return rest;
+        });
+        return region;
+    }
+
     function readStore() {
         try {
             const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "{}");
             if (!parsed || typeof parsed !== "object") return emptyStore();
+            const mustResetVisuals = root.localStorage.getItem(VISUAL_RESET_MARKER) !== "done";
             const drafts = (Array.isArray(parsed.drafts) ? parsed.drafts : [])
-                .map((draft) => TQ.regionSchema.ensureRequiredActions(draft));
+                .map((draft) => mustResetVisuals
+                    ? resetDraftVisualState(draft)
+                    : TQ.regionSchema.ensureRequiredActions(draft));
+
+            if (mustResetVisuals) {
+                root.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    version: STORE_VERSION,
+                    activeId: typeof parsed.activeId === "string" ? parsed.activeId : null,
+                    drafts
+                }));
+                root.localStorage.setItem(VISUAL_RESET_MARKER, "done");
+            }
             return {
                 version: STORE_VERSION,
                 activeId: typeof parsed.activeId === "string" ? parsed.activeId : null,
