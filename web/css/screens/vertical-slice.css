@@ -1631,3 +1631,105 @@
     translate: -4.893944367026521px 220.23287923744456px;
     transform-origin: top left;
 }
+
+
+/* Islands UX snapshot · Region 1 / CORSÁRIO · 2026-09-25 */
+.region-islands-map-screen[data-region-id="1"] {
+    background-color: transparent;
+    background-image: none;
+}
+
+.region-islands-map-screen[data-region-id="1"]::before {
+    display: none;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-islands-background {
+    opacity: 0;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-published-parallax {
+    position: absolute;
+    left: 0;
+    top: 322.2473213223039px;
+    z-index: 1;
+    width: 941px;
+    height: 1349.7526786776962px;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-published-parallax > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: fill;
+    transform-origin: 50% 50%;
+    animation: tq-region-1-published-parallax 3.75s ease-in-out infinite alternate;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+@keyframes tq-region-1-published-parallax {
+    from { transform: translateX(-23px) scale(1.08); }
+    to { transform: translateX(23px) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .region-islands-map-screen[data-region-id="1"] .region-published-parallax > img {
+        animation: none;
+        transform: scale(1.08);
+    }
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-ocean-motion {
+    translate: 7.340916550539703px -58.72876779665188px;
+    scale: 1 1.030429413366141;
+    z-index: 2;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="1"] {
+    z-index: 1;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="1"] .region-island-art {
+    translate: -12.23486091756632px -12.235159957635808px;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="2"] .region-island-art {
+    translate: 9.787888734053055px 17.12922394069013px;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="3"] .region-island-art {
+    translate: 19.57577746810611px 53.83470381359756px;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="4"] .region-island-art {
+    translate: 2.446972183513264px 151.715983474684px;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-island-overlay[data-island-ui="5"] .region-island-art {
+    translate: 17.128805284592847px 220.23287923744454px;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-ruby-shop-button {
+    translate: -119.90163699214992px 203.10365529675443px;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .region-ruby-shop-asset {
+    translate: 88.0909986064775px -56.28173580512471px;
+    transform-origin: top left;
+}
+
+.region-islands-map-screen[data-region-id="1"] .global-world-map-asset {
+    translate: -22.022749651619375px 222.67991122897172px;
+    transform-origin: top left;
+}
