@@ -299,7 +299,7 @@
         bottom: max(8px, var(--tq-safe-bottom, 0px));
         z-index: 100005;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 46px 46px 46px;
+        grid-template-columns: minmax(0, 1fr) 46px 46px 46px 46px;
         gap: 6px;
         min-height: 52px;
         padding: 6px;
@@ -404,4 +404,25 @@
     color: #95e5bc;
     font-size: 10px;
     font-weight: 900;
+}
+
+
+/* Mobile-friendly delete controls. Functions/text stay protected by JS. */
+.tq-scene-dev-delete {
+    grid-column: 1 / -1;
+    border-color: rgba(255, 126, 108, .58) !important;
+    color: #ffd7d0 !important;
+    background: rgba(105, 31, 26, .58) !important;
+}
+
+.tq-scene-dev-delete:disabled,
+.tq-scene-dev-compact-delete:disabled {
+    opacity: .34 !important;
+    cursor: not-allowed;
+}
+
+.tq-scene-dev-compact-delete:not(:disabled) {
+    border-color: rgba(255, 126, 108, .7) !important;
+    color: #ffe0da !important;
+    background: rgba(105, 31, 26, .72) !important;
 }
