@@ -26,33 +26,40 @@
         logo: Object.freeze({ label: "Logo", fx: Object.freeze([]) }),
         home_background: Object.freeze({
             label: "Fundo da Home",
-            fx: Object.freeze(["depth", "parallax", "background-animation"])
+            fx: Object.freeze(["depth", "parallax", "background-animation"]),
+            depthRoles: Object.freeze(["sky", "custom"])
         }),
         ui_button: Object.freeze({ label: "Botão visual", fx: Object.freeze([]) }),
         ocean: Object.freeze({ label: "Oceano", fx: Object.freeze(["ocean"]) }),
         island_state: Object.freeze({
             label: "Ilha",
-            fx: Object.freeze(["depth", "parallax"])
+            fx: Object.freeze(["depth", "parallax"]),
+            depthRoles: Object.freeze(["world", "custom"])
         }),
         cloud: Object.freeze({
             label: "Nuvem",
-            fx: Object.freeze(["depth", "parallax"])
+            fx: Object.freeze(["depth", "parallax"]),
+            depthRoles: Object.freeze(["cloudFar", "cloudNear"])
         }),
         environment: Object.freeze({
             label: "Cenário / edifício",
-            fx: Object.freeze(["depth", "parallax"])
+            fx: Object.freeze(["depth", "parallax"]),
+            depthRoles: Object.freeze(["world", "custom"])
         }),
         ship: Object.freeze({
             label: "Navio",
-            fx: Object.freeze(["depth", "parallax", "ship-rock"])
+            fx: Object.freeze(["depth", "parallax", "ship-rock"]),
+            depthRoles: Object.freeze(["ship"])
         }),
         island_background: Object.freeze({
             label: "Ilha ao fundo",
-            fx: Object.freeze(["depth", "parallax"])
+            fx: Object.freeze(["depth", "parallax"]),
+            depthRoles: Object.freeze(["world", "custom"])
         }),
         pier: Object.freeze({
             label: "Pier",
-            fx: Object.freeze(["depth", "parallax"])
+            fx: Object.freeze(["depth", "parallax"]),
+            depthRoles: Object.freeze(["world", "custom"])
         })
     });
 
@@ -270,6 +277,10 @@
         return SEMANTIC_TYPES[semanticType]?.fx || Object.freeze([]);
     }
 
+    function depthRolesForSemanticType(semanticType) {
+        return SEMANTIC_TYPES[semanticType]?.depthRoles || Object.freeze([]);
+    }
+
     function allowedFxForSlot(screenId, slotId, semanticTypeOverride = null) {
         const slot = getSlot(screenId, slotId);
         const semanticType = semanticTypeOverride || slot?.semanticType;
@@ -410,6 +421,7 @@
         getPair,
         allowedFunctionActions,
         allowedFxForSemanticType,
+        depthRolesForSemanticType,
         allowedFxForSlot,
         screenAllowsFx,
         readBindings,
