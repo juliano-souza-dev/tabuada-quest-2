@@ -289,7 +289,7 @@
                 screenRoot
                     .querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")
                     .forEach((element) => {
-                        releaseRuntimeUrl(element.dataset.tqDevId);
+                        releaseRuntimeUrl(element.dataset.tqLocalRecordId || element.dataset.tqDevId);
                         element.remove();
                     });
 
@@ -329,11 +329,12 @@
 
         const image = document.createElement("img");
         image.className = "tq-dev-local-live-asset";
-        image.dataset.tqDevId = record.id;
+        image.dataset.tqDevId = record.slotId || record.id;
+        image.dataset.tqLocalRecordId = record.id;
         image.dataset.tqDevKind = "asset";
         image.dataset.tqDevRole = "object";
         image.dataset.tqDevLabel = record.slotLabel || ("Local · " + record.fileName);
-        image.dataset.tqAssetId = record.id;
+        image.dataset.tqAssetId = record.slotId || record.id;
         image.dataset.tqAssetRole = "object";
         image.dataset.tqAssetLabel = record.slotLabel || ("Local · " + record.fileName);
         image.dataset.tqLocalFile = record.fileName;
@@ -475,8 +476,9 @@
                     continue;
                 }
 
+                const visualId = record.slotId || record.id;
                 const duplicate = [...screenRoot.querySelectorAll("[data-tq-dev-id]")]
-                    .some((element) => element.dataset.tqDevId === record.id);
+                    .some((element) => element.dataset.tqDevId === visualId);
                 if (duplicate || !(record.blob instanceof Blob)) continue;
 
                 const { image } = createLocalLayerElement(record);
@@ -509,12 +511,17 @@
 
         let replacementPreview = null;
         const localLayers = [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
-            .map((image) => ({
-                id: image.dataset.tqDevId,
-                image,
-                objectUrl: runtimeObjectUrls.get(image.dataset.tqDevId) || image.src,
-                fileName: image.dataset.tqLocalFile || "asset local"
-            }));
+            .map((image) => {
+                const recordId = image.dataset.tqLocalRecordId || image.dataset.tqDevId;
+                return {
+                    id: recordId,
+                    slotId: image.dataset.tqCompositionSlot || null,
+                    semanticType: image.dataset.tqSemanticType || null,
+                    image,
+                    objectUrl: runtimeObjectUrls.get(recordId) || image.src,
+                    fileName: image.dataset.tqLocalFile || "asset local"
+                };
+            });
 
         const host = document.createElement("aside");
         host.className = "tq-asset-upload-dev";
@@ -813,7 +820,7 @@
                 ? semanticSelect.value
                 : null;
             const id = slot
-                ? slot.id
+                ? screenId + "::" + slot.id
                 : screenId + ".local." + slug(file.name) + "." + Date.now();
 
             if (slot) {
