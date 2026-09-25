@@ -77,6 +77,7 @@
                     pairId: slot.pairId || null,
                     pairState: slot.pairState || null,
                     group: slot.group || null,
+                    compositionId: slot.compositionId || null,
                     binding: registry.readBinding(storageScopeId, screenType, slot.id),
                     localDraft: screenRoot?.querySelector?.(
                         '[data-tq-composition-slot="' + slot.id + '"][data-tq-local-file]'
@@ -87,6 +88,10 @@
                     bindingMode: slot.bindingMode || "single",
                     fxPerVariant: Boolean(slot.fxPerVariant)
                 })),
+                compositions: registry.getCompositions?.(screenType) || [],
+                activeCompositionVariant: screenType === "home"
+                    ? (screenRoot?.dataset?.tqActiveHomeComposition || null)
+                    : null,
                 functions: registry.getFunctionSlots(screenType).map((item) => ({
                     id: item.id,
                     label: item.label,
