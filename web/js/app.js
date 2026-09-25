@@ -268,7 +268,8 @@
         const explicitAssets = compositionActive
             ? [...activeRoot.querySelectorAll("[data-tq-semantic-type][data-tq-dev-kind='asset']")]
                 .filter((element) =>
-                    compositionRegistry
+                    element.dataset.tqSlotEmpty !== "true"
+                    && compositionRegistry
                         .allowedFxForSemanticType(element.dataset.tqSemanticType)
                         .includes("parallax")
                 )
