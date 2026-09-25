@@ -34,6 +34,16 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     assert.equal(home.filter((slot)=>slot.group==="background-clouds").length,10);
     assert.equal(home.filter((slot)=>slot.group==="background-ships").length,5);
     assert.equal(home.filter((slot)=>slot.group==="background-islands").length,3);
+    assert.equal(home.filter((slot)=>slot.group==="background-ships" && slot.required).length,1);
+    assert.deepEqual(
+        JSON.parse(JSON.stringify(composition.getAssetLimits("home"))),
+        {
+            "background-ocean": {label:"Oceano",min:1,max:1},
+            "background-clouds": {label:"Nuvens",min:0,max:10},
+            "background-ships": {label:"Navios",min:1,max:5},
+            "background-islands": {label:"Ilhas",min:0,max:3}
+        }
+    );
 
     const nautical=composition.getAssetSlots("nautical-chart");
     assert.equal(nautical.length,3);
@@ -47,10 +57,19 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     assert.equal(region.filter((slot)=>slot.required).length,13);
     assert.equal(region.filter((slot)=>slot.group==="clouds").length,10);
     assert.equal(region.filter((slot)=>slot.group==="environment").length,10);
+    assert.deepEqual(
+        Array.from(region.find((slot)=>slot.group==="environment").acceptedTypes),
+        ["environment","island"]
+    );
 
     const islandGame=composition.getAssetSlots("challenge");
     assert.equal(islandGame.filter((slot)=>slot.semanticType==="ocean").length,1);
     assert.equal(islandGame.filter((slot)=>slot.semanticType==="cloud").length,10);
+    assert.equal(islandGame.filter((slot)=>slot.semanticType==="cloud" && slot.required).length,0);
+    assert.deepEqual(
+        JSON.parse(JSON.stringify(composition.getAssetLimit("challenge","clouds"))),
+        {label:"Nuvens",min:0,max:10}
+    );
     assert.ok(islandGame.some((slot)=>slot.semanticType==="island_background"));
     assert.ok(islandGame.some((slot)=>slot.semanticType==="pier"));
 });
