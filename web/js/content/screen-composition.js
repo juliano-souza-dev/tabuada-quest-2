@@ -106,21 +106,24 @@
         "background-clouds",
         "background-ships",
         "background-islands",
-        "background-pier"
+        "background-pier",
+        "background-scenery"
     ]);
     const HOME_BACKGROUND_TYPES = Object.freeze([
         "ocean",
         "cloud",
         "ship",
         "island",
-        "pier"
+        "pier",
+        "environment"
     ]);
     const HOME_BACKGROUND_LIMITS = Object.freeze({
         "background-ocean": Object.freeze({ label: "Oceano", min: 1, max: 1 }),
         "background-clouds": Object.freeze({ label: "Nuvens", min: 0, max: 10 }),
         "background-ships": Object.freeze({ label: "Navios", min: 1, max: 5 }),
         "background-islands": Object.freeze({ label: "Ilhas", min: 0, max: 3 }),
-        "background-pier": Object.freeze({ label: "Pier", min: 1, max: 1 })
+        "background-pier": Object.freeze({ label: "Pier", min: 1, max: 1 }),
+        "background-scenery": Object.freeze({ label: "Itens de cenário", min: 0, max: 20 })
     });
     const homeBackgroundPart = (id, label, semanticType, options = {}) =>
         assetSlot(id, label, semanticType, {
@@ -170,6 +173,14 @@
             "Pier",
             "pier",
             { required: true, group: "background-pier" }
+        ),
+        ...Array.from({ length: 20 }, (_, index) =>
+            homeBackgroundPart(
+                "home.background.scenery." + (index + 1),
+                "Item de cenário " + (index + 1),
+                "environment",
+                { group: "background-scenery" }
+            )
         ),
 
         assetSlot("home.button.shipyard", "Estaleiro", "ui_button", { required: true, action: "shipyard", group: "buttons" }),
