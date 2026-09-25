@@ -16,7 +16,8 @@
         activeCleanup = null;
 
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
-        const stage = screenRoot?.querySelector(".tq-canonical-stage")
+        const stage = screenRoot?.querySelector(".tq-engine-canvas")
+            || screenRoot?.querySelector(".tq-canonical-stage")
             || screenRoot?.querySelector(".tq-safe-visual-area")
             || screenRoot;
         const oceanHost = screenRoot?.querySelector('[data-tq-semantic-type="ocean"]')
