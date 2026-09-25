@@ -154,6 +154,12 @@
                 { group: "background-islands" }
             )
         ),
+        homeBackgroundPart(
+            "home.background.pier",
+            "Pier",
+            "pier",
+            { required: true, group: "background-pier" }
+        ),
 
         assetSlot("home.button.shipyard", "Estaleiro", "ui_button", { required: true, action: "shipyard", group: "buttons" }),
         assetSlot("home.button.collectibles", "Colecionáveis", "ui_button", { required: true, action: "collectibles", group: "buttons" }),
@@ -218,7 +224,8 @@
                 "background-ocean": Object.freeze({ label: "Oceano", min: 1, max: 1 }),
                 "background-clouds": Object.freeze({ label: "Nuvens", min: 0, max: 10 }),
                 "background-ships": Object.freeze({ label: "Navios", min: 1, max: 5 }),
-                "background-islands": Object.freeze({ label: "Ilhas", min: 0, max: 3 })
+                "background-islands": Object.freeze({ label: "Ilhas", min: 0, max: 3 }),
+                "background-pier": Object.freeze({ label: "Pier", min: 1, max: 1 })
             }),
             compositions: Object.freeze([
                 Object.freeze({
