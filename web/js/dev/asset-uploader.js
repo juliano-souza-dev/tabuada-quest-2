@@ -332,13 +332,17 @@
         image.dataset.tqDevId = record.id;
         image.dataset.tqDevKind = "asset";
         image.dataset.tqDevRole = "object";
-        image.dataset.tqDevLabel = "Local · " + record.fileName;
+        image.dataset.tqDevLabel = record.slotLabel || ("Local · " + record.fileName);
         image.dataset.tqAssetId = record.id;
         image.dataset.tqAssetRole = "object";
-        image.dataset.tqAssetLabel = "Local · " + record.fileName;
+        image.dataset.tqAssetLabel = record.slotLabel || ("Local · " + record.fileName);
         image.dataset.tqLocalFile = record.fileName;
         image.dataset.tqLocalPersisted = "true";
         image.dataset.tqLocalScreen = record.screenId;
+        if (record.slotId) image.dataset.tqCompositionSlot = record.slotId;
+        if (record.semanticType) image.dataset.tqSemanticType = record.semanticType;
+        if (record.pairId) image.dataset.tqPairId = record.pairId;
+        if (record.pairState) image.dataset.tqPairState = record.pairState;
         image.src = objectUrl;
         image.alt = "";
         image.draggable = false;
@@ -405,6 +409,8 @@
     async function restoreLocalLayers(options = {}) {
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
         const screenId = String(options.screenId || "screen");
+        const compositionScreenId = String(options.compositionScreenId || screenId);
+        const composition = TQ.content?.screenComposition?.getScreen?.(compositionScreenId) || null;
         if (!screenRoot) return 0;
 
         try {
@@ -436,6 +442,14 @@
 
             for (const record of ordered) {
                 const localFileName = String(record.fileName || "").trim().toLowerCase();
+
+                // Composition v1 starts from semantic slots. Old free-floating DEV
+                // layers are intentionally discarded during the refactor reset.
+                if (composition && !record.slotId) {
+                    await deleteLocalLayerRecord(record.id);
+                    releaseRuntimeUrl(record.id);
+                    continue;
+                }
 
                 // One-time promotion cleanup for the Home background that was first
                 // positioned as local 48378.png and is now an official WebP asset.
@@ -488,6 +502,10 @@
             ? options.screenRoot
             : appRoot?.firstElementChild || appRoot;
         const screenId = String(options.screenId || "screen");
+        const compositionScreenId = String(options.compositionScreenId || screenId);
+        const compositionRegistry = TQ.content?.screenComposition || null;
+        const composition = compositionRegistry?.getScreen?.(compositionScreenId) || null;
+        const compositionSlots = compositionRegistry?.getAssetSlots?.(compositionScreenId) || [];
 
         let replacementPreview = null;
         const localLayers = [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
@@ -513,6 +531,28 @@
                     <strong>UP · Assets</strong>
                     <span data-upload-status>DEV · ${branch}</span>
                 </header>
+
+                ${composition ? `
+                    <label>
+                        Destino na tela
+                        <select data-upload-slot>
+                            ${compositionSlots.map((slot) =>
+                                '<option value="' + slot.id + '">' +
+                                (slot.required ? '● ' : '○ ') + slot.label +
+                                '</option>'
+                            ).join("")}
+                        </select>
+                    </label>
+
+                    <label>
+                        Tipo
+                        <select data-upload-semantic></select>
+                    </label>
+
+                    <small data-upload-slot-info>
+                        ● obrigatório · ○ opcional
+                    </small>
+                ` : ""}
 
                 <label>
                     Pasta
@@ -601,6 +641,9 @@
 
         const panel = host.querySelector(".tq-asset-upload-dev-panel");
         const status = host.querySelector("[data-upload-status]");
+        const slotSelect = host.querySelector("[data-upload-slot]");
+        const semanticSelect = host.querySelector("[data-upload-semantic]");
+        const slotInfo = host.querySelector("[data-upload-slot-info]");
         const folderSelect = host.querySelector("[data-upload-folder]");
         const customRow = host.querySelector("[data-upload-custom-row]");
         const customInput = host.querySelector("[data-upload-custom]");
@@ -611,6 +654,38 @@
         const dropzone = host.querySelector("[data-live-dropzone]");
         const removeButton = host.querySelector("[data-live-remove]");
         const revertButton = host.querySelector("[data-live-revert]");
+
+        function selectedCompositionSlot() {
+            if (!composition || !slotSelect) return null;
+            return compositionRegistry.getSlot(compositionScreenId, slotSelect.value);
+        }
+
+        function syncCompositionSlot() {
+            if (!composition || !slotSelect || !semanticSelect) return;
+            const slot = selectedCompositionSlot();
+            semanticSelect.replaceChildren(...((slot?.acceptedTypes || []).map((type) => {
+                const option = document.createElement("option");
+                option.value = type;
+                option.textContent = compositionRegistry.SEMANTIC_TYPES[type]?.label || type;
+                return option;
+            })));
+            const current = slot
+                ? compositionRegistry.readBinding(screenId, compositionScreenId, slot.id)
+                : null;
+            if (current?.semanticType && [...semanticSelect.options].some((option) => option.value === current.semanticType)) {
+                semanticSelect.value = current.semanticType;
+            }
+            if (slotInfo) {
+                const fx = slot
+                    ? compositionRegistry.allowedFxForSlot(compositionScreenId, slot.id, semanticSelect.value)
+                    : [];
+                slotInfo.textContent = slot
+                    ? (slot.required ? "Obrigatório" : "Opcional")
+                        + " · " + (current?.asset ? "arte vinculada" : "sem arte")
+                        + (fx.length ? " · FX: " + fx.join(", ") : " · sem FX")
+                    : "";
+            }
+        }
 
         function currentFolder() {
             if (folderSelect.value === "__custom__") {
@@ -691,15 +766,56 @@
                 stage.style.position = "relative";
             }
 
-            const id = screenId + ".local." + slug(file.name) + "." + Date.now();
+            const slot = selectedCompositionSlot();
+            if (composition && !slot) {
+                status.textContent = "Escolha primeiro o destino desta arte";
+                return;
+            }
+
+            const semanticType = slot && semanticSelect
+                ? semanticSelect.value
+                : null;
+            const id = slot
+                ? slot.id
+                : screenId + ".local." + slug(file.name) + "." + Date.now();
+
+            if (slot) {
+                const previous = localLayers.find((entry) => entry.id === id);
+                if (previous) {
+                    previous.image.remove();
+                    releaseRuntimeUrl(previous.id);
+                    localLayers.splice(localLayers.indexOf(previous), 1);
+                }
+                try { await deleteLocalLayerRecord(id); } catch (_) {}
+                screenRoot.querySelectorAll('[data-tq-composition-slot="' + slot.id + '"]')
+                    .forEach((element) => {
+                        if (element.classList.contains("tq-dev-local-live-asset")) element.remove();
+                    });
+            }
+
             const record = {
                 id,
                 screenId,
                 fileName: file.name,
                 mimeType: file.type || "application/octet-stream",
                 blob: file,
-                createdAt: Date.now()
+                createdAt: Date.now(),
+                slotId: slot?.id || null,
+                slotLabel: slot?.label || null,
+                semanticType: semanticType || slot?.semanticType || null,
+                pairId: slot?.pairId || null,
+                pairState: slot?.pairState || null
             };
+
+            if (slot) {
+                compositionRegistry.bindAsset(
+                    screenId,
+                    compositionScreenId,
+                    slot.id,
+                    null,
+                    record.semanticType
+                );
+            }
 
             try {
                 await saveLocalLayerRecord(record);
@@ -712,7 +828,14 @@
             const { image, objectUrl } = createLocalLayerElement(record);
             stage.appendChild(image);
 
-            const entry = { id, image, objectUrl, fileName: file.name };
+            const entry = {
+                id,
+                image,
+                objectUrl,
+                fileName: file.name,
+                slotId: record.slotId,
+                semanticType: record.semanticType
+            };
             localLayers.push(entry);
 
             fileName.textContent = file.name;
@@ -861,6 +984,20 @@
             }
         });
 
+        slotSelect?.addEventListener("change", syncCompositionSlot);
+        semanticSelect?.addEventListener("change", () => {
+            const slot = selectedCompositionSlot();
+            if (slot) {
+                compositionRegistry.setSemanticType(
+                    screenId,
+                    compositionScreenId,
+                    slot.id,
+                    semanticSelect.value
+                );
+            }
+            syncCompositionSlot();
+        });
+
         folderSelect.addEventListener("change", syncCustomVisibility);
 
         host.querySelector("[data-upload-use-selected]").addEventListener("click", () => {
@@ -922,6 +1059,7 @@
 
         syncCustomVisibility();
         syncSelected();
+        syncCompositionSlot();
     }
 
     TQ.dev = TQ.dev || {};
