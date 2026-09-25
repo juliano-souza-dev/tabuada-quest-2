@@ -27,11 +27,14 @@
     }
 
     function homeEffectScope(renderState) {
-        const backgroundId = String(renderState?.ui?.homeBackgroundId || "default")
+        const rawBackgroundId = String(renderState?.ui?.homeBackgroundId || "default")
             .trim()
             .toLowerCase()
             .replace(/[^a-z0-9._-]+/g, "-")
             .replace(/^-+|-+$/g, "") || "default";
+        const backgroundId = TQ.content?.screenComposition?.resolveHomeBackgroundGroupId?.(
+            rawBackgroundId
+        ) || rawBackgroundId;
         return "home.background-" + backgroundId;
     }
 
