@@ -55,6 +55,7 @@
         const screen = document.createElement("section");
         screen.className = "home-screen home-premium";
         screen.setAttribute("aria-label", "Início do Tabuada Quest");
+        screen.setAttribute("data-tq-dev-screen-id", "home");
         screen.setAttribute("data-tq-dev-ignore", "true");
         screen.style.setProperty("--home-bleed-image", `url("${displayedBackgroundSrc}")`);
 
