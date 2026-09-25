@@ -16,7 +16,9 @@
         activeCleanup = null;
 
         const screenRoot = options.screenRoot instanceof Element ? options.screenRoot : null;
-        const stage = screenRoot?.querySelector(".region-islands-canonical-stage");
+        const stage = screenRoot?.querySelector(".tq-canonical-stage")
+            || screenRoot?.querySelector(".tq-safe-visual-area")
+            || screenRoot;
         const scopeId = String(options.scopeId || "");
         const regionId = Number(options.regionId) || null;
         const controller = options.controller;
