@@ -10,7 +10,35 @@
         effect: "Efeito"
     });
 
-    const PUBLISHED_CONFIGS = Object.freeze({});
+    const PUBLISHED_CONFIGS = Object.freeze({
+        "home.background-default": Object.freeze({
+            version: 1,
+            enabled: true,
+            regionId: null,
+            tracks: Object.freeze([
+                Object.freeze({
+                    id: "ocean-waves",
+                    label: "Ondas do oceano",
+                    src: "./assets/backgrounds/default/ocean-waves.mp3",
+                    role: "ambient",
+                    enabled: true,
+                    autoplay: false,
+                    loop: true,
+                    volume: 55
+                }),
+                Object.freeze({
+                    id: "ocean-atmosphere",
+                    label: "Ambiente do oceano",
+                    src: "./assets/backgrounds/default/jeanmalraux-oceano-119943.mp3",
+                    role: "ambient",
+                    enabled: true,
+                    autoplay: false,
+                    loop: true,
+                    volume: 45
+                })
+            ])
+        })
+    });
 
     function clone(value) {
         return JSON.parse(JSON.stringify(value));
