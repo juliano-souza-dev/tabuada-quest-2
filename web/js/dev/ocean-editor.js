@@ -22,6 +22,7 @@
         const scopeId = String(options.scopeId || "");
         const regionId = Number(options.regionId) || null;
         const controller = options.controller;
+        const showShipWake = options.showShipWake !== false;
 
         document.querySelector(".tq-ocean-dev")?.remove();
 
@@ -44,7 +45,7 @@
 
                 <label class="tq-ocean-switch">
                     <input type="checkbox" data-ocean-enabled>
-                    <span>Animar oceano nesta região</span>
+                    <span>Animar oceano nesta cena</span>
                 </label>
 
                 <label>Estilo
@@ -127,6 +128,8 @@
         const foam = host.querySelector("[data-ocean-foam]");
         const ripples = host.querySelector("[data-ocean-ripples]");
         const shipWake = host.querySelector("[data-ocean-ship-wake]");
+        const shipWakeLabel = shipWake?.closest("label");
+        if (shipWakeLabel) shipWakeLabel.hidden = !showShipWake;
         const quality = host.querySelector("[data-ocean-quality]");
         const movementValue = host.querySelector("[data-ocean-movement-value]");
         const speedValue = host.querySelector("[data-ocean-speed-value]");
@@ -149,7 +152,7 @@
             shine.value = String(config.shine);
             foam.value = String(config.foam);
             ripples.checked = Boolean(config.ripples);
-            shipWake.checked = Boolean(config.shipWake);
+            shipWake.checked = showShipWake && Boolean(config.shipWake);
             quality.value = config.quality;
             syncLabels();
         }
@@ -164,7 +167,7 @@
                 shine: Number(shine.value),
                 foam: Number(foam.value),
                 ripples: ripples.checked,
-                shipWake: shipWake.checked,
+                shipWake: showShipWake ? shipWake.checked : false,
                 quality: quality.value,
                 regionId
             };
