@@ -324,7 +324,7 @@
         if (isStructuralNode(element, screenRoot)) return false;
         if (element.hasAttribute("data-tq-dev-ignore")) return false;
         if (element.matches("script, style, template, source")) return false;
-        if (element.closest(".tq-scene-dev, .tq-scene-dev-selection, .tq-parallax-dev")) return false;
+        if (element.closest(".tq-scene-dev, .tq-scene-dev-selection")) return false;
         if (element.hasAttribute("data-tq-dev-id")) return true;
         if (element === screenRoot) return true;
 
@@ -1569,7 +1569,7 @@
         }
 
         function closeOtherToolPanels() {
-            document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-parallax-dev-panel, .tq-region-builder-panel").forEach((candidate) => {
+            document.querySelectorAll(".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, .tq-region-builder-panel").forEach((candidate) => {
                 if (candidate !== panel) candidate.hidden = true;
             });
         }
