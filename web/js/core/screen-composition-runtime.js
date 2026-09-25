@@ -468,6 +468,11 @@
         screenRoot.dataset.tqCompositionScreen = screenType;
         screenRoot.dataset.tqCompositionScope = scopeId;
         screenRoot.dataset.tqEngineMode = "true";
+        if (screenType === "home") {
+            screenRoot.dataset.tqActiveHomeComposition = String(
+                runtimeState?.ui?.homeBackgroundId || "default"
+            );
+        }
         screenRoot.classList.add("tq-composition-reset");
 
         decorateFunctions(screenRoot, screenType);
@@ -575,6 +580,7 @@
                 delete screenRoot.dataset.tqCompositionScreen;
                 delete screenRoot.dataset.tqCompositionScope;
                 delete screenRoot.dataset.tqEngineMode;
+                delete screenRoot.dataset.tqActiveHomeComposition;
             }
         };
     }
