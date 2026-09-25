@@ -138,7 +138,7 @@
     const homeBackgroundPart = (id, label, semanticType, options = {}) =>
         assetSlot(id, label, semanticType, {
             ...options,
-            group: "background-composition",
+            group: options.group || "background-composition",
             compositionId: HOME_BACKGROUND_COMPOSITION_ID,
             bindingMode: "variants",
             fxPerVariant: true
