@@ -798,17 +798,29 @@
         }
 
         function snapshot(targetNodes = nodes) {
-            return Object.fromEntries(targetNodes
+            const result = {};
+            const registry = TQ.content?.screenComposition;
+
+            targetNodes
                 .filter((node) => node?.id && node?.element instanceof Element)
-                .map((node) => [
-                    node.id,
-                    {
+                .forEach((node) => {
+                    const geometry = {
                         ...readGeometry(node.element),
                         ...(isDeleted(node.element) ? { deleted: true } : {}),
                         ...(isLocked(node.element) ? { locked: true } : {}),
                         ...(hasLayerOverride(node.element) ? { z: readLayer(node.element) } : {})
+                    };
+                    result[node.id] = geometry;
+
+                    const pairId = node.element.dataset.tqPairId;
+                    if (pairId && registry) {
+                        registry.getPair(screenId, pairId).forEach((slot) => {
+                            result[slot.id] = { ...geometry };
+                        });
                     }
-                ]));
+                });
+
+            return result;
         }
 
         function pushHistory(targetNodes = null) {
