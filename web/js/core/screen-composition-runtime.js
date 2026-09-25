@@ -25,7 +25,7 @@
         if (!(screenRoot instanceof Element)) return;
 
         const visuals = [
-            ...screenRoot.querySelectorAll("img, picture, video, svg")
+            ...screenRoot.querySelectorAll("img, picture, video, svg, canvas")
         ];
 
         visuals.forEach((element) => {
@@ -91,7 +91,7 @@
         image.style.objectFit = "contain";
         image.style.objectPosition = "center";
         image.style.zIndex = "20";
-        image.style.pointerEvents = "auto";
+        image.style.pointerEvents = "none";
         image.style.userSelect = "none";
         return image;
     }
@@ -273,7 +273,7 @@
                 const binding = bindings[slot.id];
                 const image = createBoundImage(slot, binding);
                 if (!image) return;
-                image.style.pointerEvents = "auto";
+                image.style.pointerEvents = "none";
                 layer.appendChild(image);
             });
             root.dispatchEvent(new CustomEvent("tq:composition-runtime-refreshed", {
