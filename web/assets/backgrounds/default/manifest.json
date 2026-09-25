@@ -37,6 +37,26 @@
     "ocean": [
       "ocean-waves.mp3",
       "jeanmalraux-oceano-119943.mp3"
+    ],
+    "catalog": [
+      {
+        "id": "ocean-waves",
+        "label": "Ondas do oceano",
+        "src": "ocean-waves.mp3",
+        "role": "ambient",
+        "loop": true,
+        "autoplay": false,
+        "volume": 55
+      },
+      {
+        "id": "ocean-atmosphere",
+        "label": "Ambiente do oceano",
+        "src": "jeanmalraux-oceano-119943.mp3",
+        "role": "ambient",
+        "loop": true,
+        "autoplay": false,
+        "volume": 45
+      }
     ]
   }
 }
