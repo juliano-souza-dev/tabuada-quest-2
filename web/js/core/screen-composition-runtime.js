@@ -158,7 +158,7 @@
         element.style.position = "absolute";
         element.style.left = "0";
         element.style.top = "0";
-        const fullSize = ["home_background", "home_backdrop", "ocean"].includes(slot.semanticType);
+        const fullSize = slot.semanticType === "ocean";
         element.style.width = fullSize ? "100%" : "120px";
         element.style.height = fullSize ? "100%" : "120px";
         element.style.zIndex = String(
