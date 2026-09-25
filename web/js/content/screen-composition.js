@@ -461,7 +461,27 @@
             label: "Default",
             folder: "./assets/backgrounds/default/",
             manifest: "./assets/backgrounds/default/manifest.json",
-            legacyIds: Object.freeze(["pirate-main"])
+            legacyIds: Object.freeze(["pirate-main"]),
+            audio: Object.freeze([
+                Object.freeze({
+                    id: "ocean-waves",
+                    label: "Ondas do oceano",
+                    src: "./assets/backgrounds/default/ocean-waves.mp3",
+                    role: "ambient",
+                    loop: true,
+                    autoplay: false,
+                    volume: 55
+                }),
+                Object.freeze({
+                    id: "ocean-atmosphere",
+                    label: "Ambiente do oceano",
+                    src: "./assets/backgrounds/default/jeanmalraux-oceano-119943.mp3",
+                    role: "ambient",
+                    loop: true,
+                    autoplay: false,
+                    volume: 45
+                })
+            ])
         })
     });
 
