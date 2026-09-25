@@ -914,13 +914,16 @@
 
         const PENDING_UPLOAD_KEY = "tq2.dev.pending-semantic-upload.v1";
 
-        function persistPendingUpload(file) {
+        function persistPendingUpload(fileOrName) {
             const slot = selectedCompositionSlot();
-            if (!slot || !(file instanceof File)) return null;
+            const fileNameValue = fileOrName instanceof File
+                ? fileOrName.name
+                : String(fileOrName || "").trim();
+            if (!slot || !fileNameValue) return null;
 
             const semanticType = semanticSelect?.value || slot.semanticType;
             const folder = currentFolder();
-            const runtimeUrl = runtimeAssetUrl(folder + "/" + file.name);
+            const runtimeUrl = runtimeAssetUrl(folder + "/" + fileNameValue);
             const payload = {
                 version: 1,
                 screenId,
@@ -928,7 +931,7 @@
                 slotId: slot.id,
                 slotLabel: slot.label,
                 semanticType,
-                fileName: file.name,
+                fileName: fileNameValue,
                 folder,
                 runtimeUrl,
                 createdAt: new Date().toISOString()
@@ -1449,18 +1452,18 @@
                 : localLayers.at(-1);
 
             if (existing?.fileName) {
-                const recordFile = existing.image?.dataset?.tqLocalFile;
-                const pendingRecord = slot
-                    ? {
-                        slotLabel: slot.label,
-                        folder: currentFolder()
-                    }
+                const pending = slot
+                    ? persistPendingUpload(existing.fileName)
                     : null;
 
-                status.textContent = slot
-                    ? slot.label + " · abrindo upload"
+                status.textContent = pending
+                    ? pending.slotLabel + " · classificado e pronto para subir"
                     : "Abrindo upload";
-                openExternal(buildUploadUrl(repository, branch, pendingRecord?.folder || currentFolder()));
+                openExternal(buildUploadUrl(
+                    repository,
+                    branch,
+                    pending?.folder || currentFolder()
+                ));
                 return;
             }
 
