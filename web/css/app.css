@@ -148,6 +148,206 @@
 @media (max-width:620px){.tq-exit-dev{right:8px;bottom:200px}}
 
 
+/* DEV context + direct navigator */
+.tq-dev-navigator {
+    position: fixed;
+    left: 24px;
+    top: 96px;
+    z-index: 100006;
+    width: min(340px, calc(50vw - 280px));
+    min-width: 260px;
+    font: 700 12px/1.35 Arial, sans-serif;
+    color: #f7fbff;
+}
+
+.tq-dev-nav-toggle {
+    display: none;
+}
+
+.tq-dev-nav-panel {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid rgba(229,189,84,.78);
+    border-radius: 14px;
+    background: rgba(5,29,41,.94);
+    box-shadow: 0 14px 34px rgba(0,0,0,.34);
+    backdrop-filter: blur(10px);
+}
+
+.tq-dev-nav-panel[hidden] {
+    display: none;
+}
+
+.tq-dev-nav-panel > header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(229,189,84,.22);
+}
+
+.tq-dev-nav-panel > header strong {
+    color: #ffe18a;
+    font-size: 13px;
+}
+
+.tq-dev-nav-panel > header small {
+    color: #8fc7d8;
+    font-size: 10px;
+}
+
+.tq-dev-nav-context {
+    display: grid;
+    gap: 5px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: rgba(69,174,207,.09);
+    border: 1px solid rgba(135,217,241,.22);
+}
+
+.tq-dev-nav-context > div {
+    display: grid;
+    grid-template-columns: 64px minmax(0,1fr);
+    gap: 8px;
+    align-items: baseline;
+}
+
+.tq-dev-nav-context span {
+    color: #8fc7d8;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.tq-dev-nav-context strong {
+    overflow: hidden;
+    color: #f5fbff;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.tq-dev-nav-panel label {
+    display: grid;
+    gap: 5px;
+    color: #c8dce3;
+}
+
+.tq-dev-nav-panel select,
+.tq-dev-nav-panel button {
+    min-height: 38px;
+    border: 1px solid rgba(229,189,84,.58);
+    border-radius: 9px;
+    color: #fff8df;
+    background: #102f3f;
+    font: 800 12px/1.2 Arial, sans-serif;
+}
+
+.tq-dev-nav-panel select {
+    padding: 6px 8px;
+    color-scheme: dark;
+}
+
+.tq-dev-nav-panel button[data-dev-nav-open] {
+    cursor: pointer;
+    background: #195f50;
+}
+
+.tq-dev-nav-panel button[data-dev-nav-open]:hover {
+    background: #237864;
+}
+
+.tq-dev-nav-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.tq-dev-mobile-context {
+    display: none;
+}
+
+@media (max-width: 1100px) {
+    .tq-dev-navigator {
+        left: auto;
+        top: auto;
+        right: 8px;
+        bottom: 456px;
+        width: auto;
+        min-width: 0;
+    }
+
+    .tq-dev-nav-toggle {
+        display: grid;
+        width: 54px;
+        height: 54px;
+        place-items: center;
+        border: 2px solid #e5bd54;
+        border-radius: 50%;
+        background: #12384c;
+        color: #ffe18a;
+        font: 900 12px/1 Arial, sans-serif;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    }
+
+    .tq-dev-nav-panel {
+        position: fixed;
+        top: max(8px, var(--tq-safe-top, 0px));
+        left: 8px;
+        right: 70px;
+        bottom: max(8px, var(--tq-safe-bottom, 0px));
+        width: auto;
+        min-width: 0;
+        max-height: none;
+        overflow-y: auto;
+        box-sizing: border-box;
+        align-content: start;
+    }
+}
+
+@media (max-width: 620px) {
+    .tq-dev-navigator {
+        bottom: 456px;
+    }
+
+    .tq-dev-nav-panel {
+        top: auto;
+        max-height: min(72dvh, 620px);
+    }
+
+    .tq-dev-nav-panel select,
+    .tq-dev-nav-panel button {
+        min-height: 44px;
+    }
+
+    .tq-dev-nav-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .tq-dev-mobile-context:not([hidden]) {
+        position: fixed;
+        top: max(8px, var(--tq-safe-top, 0px));
+        left: 50%;
+        z-index: 100050;
+        display: block;
+        max-width: calc(100vw - 32px);
+        padding: 8px 12px;
+        transform: translateX(-50%);
+        overflow: hidden;
+        border: 1px solid rgba(229,189,84,.72);
+        border-radius: 999px;
+        color: #fff8df;
+        background: rgba(5,29,41,.96);
+        box-shadow: 0 8px 24px rgba(0,0,0,.38);
+        font: 900 11px/1.2 Arial, sans-serif;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        pointer-events: none;
+    }
+}
+
 /* DEV tools · single full-height lateral workspace
    Only one tool panel stays open at a time. The active panel uses the
    entire usable vertical edge so controls are never clipped off-screen. */
