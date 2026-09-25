@@ -543,6 +543,9 @@
                 );
 
                 if (localDraft instanceof HTMLImageElement) {
+                    slotElement
+                        .querySelectorAll(".tq-composition-bound-asset")
+                        .forEach((image) => image.remove());
                     slotElement.dataset.tqSlotEmpty = "false";
                     slotElement.dataset.tqSemanticType = localDraft.dataset.tqSemanticType
                         || binding?.semanticType
