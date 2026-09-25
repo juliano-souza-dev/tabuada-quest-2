@@ -1695,7 +1695,7 @@
             }, null, 2);
             try {
                 await navigator.clipboard.writeText(payload);
-                status.textContent = "Layout + composição + FX copiados";
+                status.textContent = "Layout + composição + CENA + MAR copiados";
             } catch (_) {
                 const area = document.createElement("textarea");
                 area.value = payload;
@@ -1703,7 +1703,7 @@
                 area.select();
                 document.execCommand("copy");
                 area.remove();
-                status.textContent = "Layout + composição + FX copiados";
+                status.textContent = "Layout + composição + CENA + MAR copiados";
             }
         });
 
