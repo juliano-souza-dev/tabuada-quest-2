@@ -1,22 +1,25 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     const STORAGE_KEY = "tq2.dev.region-builder.v1";
+    const STORE_VERSION = 2;
     const SCENE_LAYOUT_KEY = "tq2.dev.scene-layout.v2";
     let activeCleanup = null;
     let panelOpen = false;
 
     function emptyStore() {
-        return { version: 1, activeId: null, drafts: [] };
+        return { version: STORE_VERSION, activeId: null, drafts: [] };
     }
 
     function readStore() {
         try {
             const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "{}");
             if (!parsed || typeof parsed !== "object") return emptyStore();
+            const drafts = (Array.isArray(parsed.drafts) ? parsed.drafts : [])
+                .map((draft) => TQ.regionSchema.ensureRequiredActions(draft));
             return {
-                version: 1,
+                version: STORE_VERSION,
                 activeId: typeof parsed.activeId === "string" ? parsed.activeId : null,
-                drafts: Array.isArray(parsed.drafts) ? parsed.drafts : []
+                drafts
             };
         } catch (_) {
             return emptyStore();
@@ -25,7 +28,7 @@
 
     function writeStore(store) {
         root.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            version: 1,
+            version: STORE_VERSION,
             activeId: store.activeId || null,
             drafts: Array.isArray(store.drafts) ? store.drafts : []
         }));
@@ -83,6 +86,20 @@
                 }
             };
         });
+        region.screen.assets = (region.screen.assets || []).map((asset) => {
+            const geometry = layout[asset.id];
+            if (!geometry) return asset;
+            return {
+                ...asset,
+                layout: {
+                    x: Number(geometry.x) || 0,
+                    y: Number(geometry.y) || 0,
+                    sx: Number(geometry.sx) || 1,
+                    sy: Number(geometry.sy) || 1,
+                    ...(Number.isFinite(Number(geometry.z)) ? { z: Number(geometry.z) } : {})
+                }
+            };
+        });
         return region;
     }
 
@@ -107,7 +124,7 @@
         const index = store.drafts.findIndex((draft) => draft.id === store.activeId);
         if (index < 0) return null;
         const current = TQ.regionSchema.clone(store.drafts[index]);
-        const next = mutator(current) || current;
+        const next = TQ.regionSchema.ensureRequiredActions(mutator(current) || current);
         store.drafts[index] = next;
         store.activeId = next.id;
         writeStore(store);
@@ -249,34 +266,31 @@
 
     function assetBindingsHtml(draft) {
         const assets = Array.isArray(draft.screen?.assets) ? draft.screen.assets : [];
-        const actions = Array.isArray(draft.screen?.actions) ? draft.screen.actions : [];
-        const bindings = Array.isArray(draft.screen?.bindings) ? draft.screen.bindings : [];
-
         if (!assets.length) {
-            return '<div class="tq-region-builder-empty">Nenhum asset nesta região. Abra a tela vazia, use UP para adicionar e depois sincronize aqui.</div>';
+            return '<div class="tq-region-builder-empty">Mapa de composição indisponível.</div>';
         }
 
         return assets.map((asset) => {
-            const binding = bindings.find((item) => item.assetId === asset.id);
-            const options = [
-                '<option value="">Sem função · decorativo</option>',
-                ...actions.map((action) =>
-                    '<option value="' + escapeHtml(action.id) + '"' +
-                    (binding?.actionId === action.id ? ' selected' : '') + '>' +
-                    escapeHtml(actionDisplayLabel(action, draft)) +
-                    '</option>'
-                )
-            ].join("");
+            const typeLabel = TQ.content?.screenComposition?.SEMANTIC_TYPES?.[asset.semanticType]?.label
+                || asset.semanticType
+                || "Asset";
+            const state = asset.asset
+                ? "Vinculado"
+                : asset.localFileName
+                    ? "Rascunho local"
+                    : "Sem arte";
+            const pair = asset.pairId
+                ? '<small>Par: ' + escapeHtml(asset.pairId) + ' · ' + escapeHtml(asset.pairState || "") + '</small>'
+                : "";
 
             return `
                 <div class="tq-region-builder-binding">
                     <span>
-                        <strong>${escapeHtml(asset.fileName || asset.id)}</strong>
-                        <small>${escapeHtml(asset.id)}</small>
+                        <strong>${asset.required ? "● " : "○ "}${escapeHtml(asset.label || asset.id)}</strong>
+                        <small>${escapeHtml(typeLabel)} · ${escapeHtml(state)}</small>
+                        ${pair}
                     </span>
-                    <select data-builder-bind-asset="${escapeHtml(asset.id)}">
-                        ${options}
-                    </select>
+                    <b>${asset.asset ? "✓" : asset.localFileName ? "LOCAL" : "NULL"}</b>
                 </div>
             `;
         }).join("");
@@ -289,7 +303,7 @@
         const beforeIslands = beforeRegions * TQ.regionSchema.ISLANDS_PER_REGION;
         const afterRegions = Math.max(beforeRegions + 1, Number(region.order) || beforeRegions + 1);
         return {
-            schemaVersion: 1,
+            schemaVersion: TQ.regionSchema.SCHEMA_VERSION,
             operation: "add_region",
             compatibility: {
                 mode: "additive",
@@ -364,23 +378,32 @@
 
             try {
                 const records = await TQ.dev.assetUploader.readLocalLayerRecords(getEditorScreenId(draft));
-                const assetIds = new Set(records.map((record) => String(record.id)));
+                const bySlot = new Map(
+                    records
+                        .filter((record) => record?.slotId)
+                        .map((record) => [String(record.slotId), record])
+                );
 
                 return updateActive((current) => {
-                    const previousById = new Map(
-                        (current.screen.assets || []).map((asset) => [String(asset.id), asset])
-                    );
-
-                    current.screen.assets = records.map((record) => ({
-                        ...(previousById.get(String(record.id)) || {}),
-                        id: String(record.id),
-                        fileName: String(record.fileName || "asset"),
-                        source: "dev-local"
-                    }));
-
-                    current.screen.bindings = (current.screen.bindings || [])
-                        .filter((binding) => assetIds.has(String(binding.assetId)));
-
+                    current.screen.assets = (current.screen.assets || []).map((asset) => {
+                        const record = bySlot.get(String(asset.id));
+                        if (!record) {
+                            return {
+                                ...asset,
+                                localFileName: null,
+                                source: asset.asset ? asset.source : null
+                            };
+                        }
+                        return {
+                            ...asset,
+                            semanticType: (asset.acceptedTypes || []).includes(record.semanticType)
+                                ? record.semanticType
+                                : asset.semanticType,
+                            localFileName: String(record.fileName || "asset"),
+                            source: "dev-local"
+                        };
+                    });
+                    current.screen.bindings = [];
                     return current;
                 });
             } catch (error) {
@@ -408,9 +431,12 @@
                 return;
             }
 
-            const validation = TQ.regionSchema.validateRegionDefinition(withEditorLayout(draft));
-            const requiredActions = draft.screen.actions.filter((action) => action.type === "open_island");
-            const optionalActions = draft.screen.actions.filter((action) => action.type !== "open_island");
+            const normalizedDraft = TQ.regionSchema.ensureRequiredActions(draft);
+            const validation = TQ.regionSchema.validateRegionDefinition(withEditorLayout(normalizedDraft));
+            const islandActions = normalizedDraft.screen.actions.filter((action) => action.type === "open_island");
+            const requiredActions = normalizedDraft.screen.actions.filter((action) => action.required);
+            const optionalActions = normalizedDraft.screen.actions.filter((action) => !action.required);
+            const linkedAssets = normalizedDraft.screen.assets.filter((asset) => asset.asset || asset.localFileName);
 
             body.innerHTML = `
                 <fieldset>
@@ -445,33 +471,35 @@
                 <fieldset>
                     <legend>Funções da tela</legend>
                     <div class="tq-region-builder-summary">
-                        <span><b>${requiredActions.length}</b> open_island obrigatórias</span>
+                        <span><b>${islandActions.length}</b> ilhas obrigatórias</span>
+                        <span><b>${requiredActions.length}</b> funções obrigatórias</span>
                         <span><b>${optionalActions.length}</b> opcionais</span>
-                        <span><b>${draft.screen.assets.length}</b> assets</span>
-                        <span><b>${draft.screen.bindings.length}</b> bindings</span>
+                        <span><b>${linkedAssets.length}/${normalizedDraft.screen.assets.length}</b> artes vinculadas</span>
                     </div>
                     <div class="tq-region-builder-required">
-                        ${requiredActions.map((action, index) =>
+                        ${islandActions.map((action, index) =>
                             '<span>Ilha ' + (index + 1) + ' → ' + escapeHtml(action.targetId) + '</span>'
                         ).join("")}
+                        <span>Voltar · obrigatório</span>
+                        <span>Mapa mundi · obrigatório</span>
                     </div>
                     <strong>Funções opcionais</strong>
                     <div class="tq-region-builder-options">
                         ${optionalActionsHtml(draft)}
                     </div>
-                    <small>A tela nasce com 0 assets. As funções existem sem depender de PNG/WebP.</small>
+                    <small>A composição nasce completa. Todas as artes começam como NULL e as funções existem independentemente delas.</small>
                 </fieldset>
 
                 <fieldset>
-                    <legend>Assets e vínculos</legend>
+                    <legend>Composição visual</legend>
                     <div class="tq-region-builder-asset-tools">
-                        <button type="button" data-builder-sync-assets>Sincronizar assets da tela</button>
-                        <span>${draft.screen.assets.length} asset(s)</span>
+                        <button type="button" data-builder-sync-assets>Atualizar vínculos da tela</button>
+                        <span>${linkedAssets.length}/${normalizedDraft.screen.assets.length} com arte</span>
                     </div>
                     <div class="tq-region-builder-bindings">
-                        ${assetBindingsHtml(draft)}
+                        ${assetBindingsHtml(normalizedDraft)}
                     </div>
-                    <small>Asset sem vínculo é decoração. O comportamento existe na função, não na imagem.</small>
+                    <small>● obrigatório · ○ opcional. O tipo do slot define os FX e comportamentos disponíveis.</small>
                 </fieldset>
 
                 <fieldset>
@@ -596,23 +624,6 @@
                 status.textContent = "Assets sincronizados";
                 refreshDraftSelect();
                 renderBody();
-            });
-
-            body.querySelectorAll("[data-builder-bind-asset]").forEach((select) => {
-                select.addEventListener("change", () => {
-                    const assetId = select.dataset.builderBindAsset;
-                    const actionId = select.value;
-
-                    saveField((draft) => {
-                        draft.screen.bindings = (draft.screen.bindings || [])
-                            .filter((binding) => binding.assetId !== assetId);
-
-                        if (actionId) {
-                            draft.screen.bindings.push({ assetId, actionId });
-                        }
-                        return draft;
-                    }, actionId ? "Asset vinculado" : "Asset definido como decorativo");
-                });
             });
 
             body.querySelector("[data-builder-preview]")?.addEventListener("click", () => {
