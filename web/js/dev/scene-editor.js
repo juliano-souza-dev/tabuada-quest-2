@@ -328,6 +328,9 @@
 
     function collectNodes(screenRoot, screenId) {
         const seen = new Set();
+        const compositionActive = Boolean(
+            TQ.content?.screenComposition?.getScreen?.(screenId)
+        );
         const candidates = [screenRoot, ...screenRoot.querySelectorAll("*")]
             .filter((element) => shouldAutoMap(element, screenRoot));
 
@@ -336,21 +339,48 @@
                 const explicitId = element.dataset.tqDevId;
                 const id = explicitId || generatedId(element, screenRoot, screenId);
                 if (!id || seen.has(id)) return null;
+
+                const kind = inferKind(element);
+                if (compositionActive) {
+                    const semanticAsset = Boolean(element.dataset.tqCompositionSlot);
+                    const declaredFunction = Boolean(element.dataset.tqCompositionFunction);
+                    const declaredDynamic = Boolean(element.dataset.tqCompositionDynamic);
+
+                    if (["asset", "overlay", "background"].includes(kind) && !semanticAsset && !declaredDynamic) {
+                        return null;
+                    }
+                    if (kind === "function" && !declaredFunction) {
+                        return null;
+                    }
+                    if (kind === "dynamicText" && !declaredDynamic) {
+                        return null;
+                    }
+                    if (kind === "container") {
+                        return null;
+                    }
+                }
+
                 seen.add(id);
 
                 if (!explicitId) {
                     element.dataset.tqDevId = id;
                     element.dataset.tqDevGenerated = "true";
-                    element.dataset.tqDevKind = inferKind(element);
+                    element.dataset.tqDevKind = kind;
                     element.dataset.tqDevLabel = inferLabel(element);
                 }
 
                 return {
                     id,
-                    kind: inferKind(element),
+                    kind,
                     label: inferLabel(element),
-                    role: element.dataset.tqDevRole || element.dataset.tqAssetRole || element.tagName.toLowerCase(),
-                    action: element.dataset.tqDevAction || element.dataset.action || "",
+                    role: element.dataset.tqSemanticType
+                        || element.dataset.tqDevRole
+                        || element.dataset.tqAssetRole
+                        || element.tagName.toLowerCase(),
+                    action: element.dataset.tqCompositionFunction
+                        || element.dataset.tqDevAction
+                        || element.dataset.action
+                        || "",
                     generated: !explicitId,
                     element
                 };
