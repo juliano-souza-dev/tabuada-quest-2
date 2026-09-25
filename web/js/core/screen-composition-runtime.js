@@ -270,6 +270,11 @@
             layer.replaceChildren();
             const bindings = registry.readBindings(scopeId, screenType);
             registry.getAssetSlots(screenType).forEach((slot) => {
+                const localDraft = screenRoot.querySelector(
+                    '.tq-dev-local-live-asset[data-tq-composition-slot="' + slot.id + '"]'
+                );
+                if (localDraft) return;
+
                 const binding = bindings[slot.id];
                 const image = createBoundImage(slot, binding);
                 if (!image) return;
@@ -281,6 +286,12 @@
             }));
         }
 
+        function onBindingChanged(event) {
+            if (String(event.detail?.scopeId || "") !== scopeId) return;
+            refresh();
+        }
+
+        root.addEventListener("tq:composition-binding-changed", onBindingChanged);
         refresh();
 
         return {
@@ -290,6 +301,7 @@
             refresh,
             getSlots: () => registry.getAssetSlots(screenType),
             destroy() {
+                root.removeEventListener("tq:composition-binding-changed", onBindingChanged);
                 layer.remove();
                 screenRoot.classList.remove("tq-composition-reset");
                 delete screenRoot.dataset.tqCompositionScreen;
