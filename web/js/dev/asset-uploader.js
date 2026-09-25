@@ -342,6 +342,7 @@
         image.dataset.tqLocalScreen = record.screenId;
         if (record.slotId) image.dataset.tqCompositionSlot = record.slotId;
         if (record.semanticType) image.dataset.tqSemanticType = record.semanticType;
+        if (record.variantId) image.dataset.tqCompositionVariant = record.variantId;
         if (record.pairId) image.dataset.tqPairId = record.pairId;
         if (record.pairState) image.dataset.tqPairState = record.pairState;
         image.src = objectUrl;
@@ -521,6 +522,7 @@
                     id: recordId,
                     slotId: image.dataset.tqCompositionSlot || null,
                     semanticType: image.dataset.tqSemanticType || null,
+                    variantId: image.dataset.tqCompositionVariant || null,
                     image,
                     objectUrl: runtimeObjectUrls.get(recordId) || image.src,
                     fileName: image.dataset.tqLocalFile || "asset local"
@@ -563,6 +565,16 @@
                     <small data-upload-slot-info>
                         ● obrigatório · ○ opcional
                     </small>
+
+                    <label data-upload-variant-row hidden>
+                        Qual fundo?
+                        <input
+                            data-upload-variant-id
+                            type="text"
+                            spellcheck="false"
+                            autocomplete="off"
+                            placeholder="Ex.: pirate-main">
+                    </label>
 
                     <label>
                         Arquivo publicado
@@ -670,6 +682,8 @@
         const slotInfo = host.querySelector("[data-upload-slot-info]");
         const publishedPathInput = host.querySelector("[data-upload-published-path]");
         const bindPublishedButton = host.querySelector("[data-upload-bind-published]");
+        const variantRow = host.querySelector("[data-upload-variant-row]");
+        const variantInput = host.querySelector("[data-upload-variant-id]");
         const folderSelect = host.querySelector("[data-upload-folder]");
         const customRow = host.querySelector("[data-upload-custom-row]");
         const customInput = host.querySelector("[data-upload-custom]");
@@ -691,11 +705,23 @@
             return raw.startsWith("./") ? raw : "./" + raw.replace(/^\/+/, "");
         }
 
+        function selectedVariantId() {
+            return String(variantInput?.value || "default").trim() || "default";
+        }
+
         function suggestedPublishedPath(slot = selectedCompositionSlot()) {
             if (!slot) return "";
             const current = compositionRegistry.readBinding(screenId, compositionScreenId, slot.id);
-            if (current?.asset) return current.asset;
-            const entry = localLayers.find((item) => item.slotId === slot.id);
+            if (slot.bindingMode === "variants") {
+                const variant = (current?.variants || []).find((item) => item.id === selectedVariantId());
+                if (variant?.asset) return variant.asset;
+            } else if (current?.asset) {
+                return current.asset;
+            }
+            const entry = localLayers.find((item) =>
+                item.slotId === slot.id
+                && (slot.bindingMode !== "variants" || String(item.variantId || "default") === selectedVariantId())
+            ) || localLayers.find((item) => item.slotId === slot.id);
             if (!entry?.fileName) return "";
             return runtimeAssetUrl(currentFolder() + "/" + entry.fileName) || "";
         }
@@ -720,13 +746,25 @@
             if (current?.semanticType && [...semanticSelect.options].some((option) => option.value === current.semanticType)) {
                 semanticSelect.value = current.semanticType;
             }
+            const usesVariants = slot?.bindingMode === "variants";
+            if (variantRow) variantRow.hidden = !usesVariants;
+            if (variantInput && usesVariants) {
+                const knownIds = (current?.variants || []).map((variant) => variant.id);
+                if (!variantInput.value || !knownIds.includes(variantInput.value)) {
+                    variantInput.value = knownIds[0] || "default";
+                }
+            }
             if (slotInfo) {
                 const fx = slot
                     ? compositionRegistry.allowedFxForSlot(compositionScreenId, slot.id, semanticSelect.value)
                     : [];
+                const hasPublishedArt = Boolean(
+                    current?.asset
+                    || (current?.variants || []).some((variant) => variant.asset)
+                );
                 slotInfo.textContent = slot
                     ? (slot.required ? "Obrigatório" : "Opcional")
-                        + " · " + (current?.asset ? "arte vinculada" : "sem arte")
+                        + " · " + (hasPublishedArt ? "arte vinculada" : "sem arte")
                         + (fx.length ? " · " + fx.map((id) => compositionRegistry.fxLabel(id)).join(" · ") : " · sem efeito")
                     : "";
             }
@@ -823,8 +861,9 @@
             const semanticType = slot && semanticSelect
                 ? semanticSelect.value
                 : null;
+            const variantId = slot?.bindingMode === "variants" ? selectedVariantId() : null;
             const id = slot
-                ? screenId + "::" + slot.id
+                ? screenId + "::" + slot.id + (variantId ? "::" + variantId : "")
                 : screenId + ".local." + slug(file.name) + "." + Date.now();
 
             if (slot) {
@@ -851,6 +890,7 @@
                 slotId: slot?.id || null,
                 slotLabel: slot?.label || null,
                 semanticType: semanticType || slot?.semanticType || null,
+                variantId,
                 pairId: slot?.pairId || null,
                 pairState: slot?.pairState || null
             };
@@ -882,7 +922,8 @@
                 objectUrl,
                 fileName: file.name,
                 slotId: record.slotId,
-                semanticType: record.semanticType
+                semanticType: record.semanticType,
+                variantId: record.variantId || null
             };
             localLayers.push(entry);
 
@@ -1043,6 +1084,10 @@
         });
 
         slotSelect?.addEventListener("change", syncCompositionSlot);
+        variantInput?.addEventListener("change", () => {
+            if (publishedPathInput) publishedPathInput.value = suggestedPublishedPath();
+            syncCompositionSlot();
+        });
         semanticSelect?.addEventListener("change", () => {
             const slot = selectedCompositionSlot();
             if (slot) {
@@ -1090,13 +1135,27 @@
                 return;
             }
             const assetUrl = runtimeAssetUrl(publishedPathInput?.value);
-            compositionRegistry.bindAsset(
-                screenId,
-                compositionScreenId,
-                slot.id,
-                assetUrl,
-                semanticSelect?.value || slot.semanticType
-            );
+            if (slot.bindingMode === "variants") {
+                compositionRegistry.bindVariant(
+                    screenId,
+                    compositionScreenId,
+                    slot.id,
+                    selectedVariantId(),
+                    assetUrl,
+                    {
+                        label: selectedVariantId(),
+                        semanticType: semanticSelect?.value || slot.semanticType
+                    }
+                );
+            } else {
+                compositionRegistry.bindAsset(
+                    screenId,
+                    compositionScreenId,
+                    slot.id,
+                    assetUrl,
+                    semanticSelect?.value || slot.semanticType
+                );
+            }
             status.textContent = assetUrl ? "Arquivo vinculado ao destino" : "Vínculo removido";
             root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
                 detail: { scopeId: screenId, screenId: compositionScreenId, slotId: slot.id }
