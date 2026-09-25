@@ -743,10 +743,12 @@
             editorStorageScope,
             activeRenderState
         );
-        const activeHomeBackgroundId = editorScreenId === "home"
-            ? String(activeRenderState?.ui?.homeBackgroundId || "default")
-            : null;
         const compositionRegistry = TQ.content?.screenComposition || null;
+        const activeHomeBackgroundId = editorScreenId === "home"
+            ? compositionRegistry?.resolveHomeBackgroundGroupId?.(
+                activeRenderState?.ui?.homeBackgroundId || "default"
+            ) || "default"
+            : null;
         const compositionScreenType = compositionRegistry?.resolveScreenType?.(editorScreenId) || null;
         const screenAllowsFx = (fxId) =>
             !compositionScreenType || compositionRegistry.screenAllowsFx(compositionScreenType, fxId);

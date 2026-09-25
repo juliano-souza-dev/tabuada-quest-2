@@ -470,7 +470,9 @@
         screenRoot.dataset.tqEngineMode = "true";
         if (screenType === "home") {
             screenRoot.dataset.tqActiveHomeComposition = String(
-                runtimeState?.ui?.homeBackgroundId || "default"
+                registry.resolveHomeBackgroundGroupId?.(
+                    runtimeState?.ui?.homeBackgroundId || "default"
+                ) || "default"
             );
         }
         screenRoot.classList.add("tq-composition-reset");
@@ -501,7 +503,9 @@
             if (slot.bindingMode !== "variants") return binding;
 
             const preferredId = screenType === "home"
-                ? String(runtimeState?.ui?.homeBackgroundId || "default")
+                ? registry.resolveHomeBackgroundGroupId?.(
+                    runtimeState?.ui?.homeBackgroundId || "default"
+                ) || "default"
                 : "default";
             const variants = Array.isArray(binding.variants) ? binding.variants : [];
             const activeVariant = variants.find((variant) => variant.id === preferredId)

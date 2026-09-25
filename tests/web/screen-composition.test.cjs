@@ -214,10 +214,34 @@ test("Home usa bindings publicados sem impedir reset explícito",()=>{
     const frame=composition.readBinding("home","home","home.header.frame");
     assert.equal(frame.asset,"./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp");
 
+    assert.equal(composition.resolveHomeBackgroundGroupId("pirate-main"),"default");
+    assert.equal(composition.HOME_BACKGROUND_GROUP_CATALOG.default.folder,"./assets/backgrounds/default/");
+
+    const ocean=composition.readBinding("home","home","home.background.ocean");
+    assert.equal(ocean.variants.length,1);
+    assert.equal(ocean.variants[0].id,"default");
+    assert.equal(ocean.variants[0].asset,"./assets/backgrounds/default/oceano.webp");
+
+    const cloud1=composition.readBinding("home","home","home.background.cloud.1");
+    assert.equal(cloud1.variants[0].asset,"./assets/backgrounds/default/cloud-sunset-01.webp");
+
+    const ship1=composition.readBinding("home","home","home.background.ship.1");
+    assert.equal(ship1.variants[0].asset,"./assets/backgrounds/default/navio-pirata.webp");
+
+    const island1=composition.readBinding("home","home","home.background.island.1");
+    assert.equal(island1.variants[0].asset,"./assets/backgrounds/default/island-01-unlocked.webp");
+
+    const pier=composition.readBinding("home","home","home.background.pier");
+    assert.equal(pier.variants[0].asset,"./assets/backgrounds/default/wooden-pier.webp");
+
+    const scenery1=composition.readBinding("home","home","home.background.scenery.1");
+    const scenery2=composition.readBinding("home","home","home.background.scenery.2");
+    const scenery3=composition.readBinding("home","home","home.background.scenery.3");
     const sky=composition.readBinding("home","home","home.background.scenery.4");
-    assert.equal(sky.variants.length,1);
-    assert.equal(sky.variants[0].id,"pirate-main");
-    assert.equal(sky.variants[0].asset,"./assets/backgrounds/home/home-pirate-sky.webp");
+    assert.equal(scenery1.variants[0].asset,"./assets/backgrounds/default/construcoes-piratas.webp");
+    assert.equal(scenery2.variants[0].asset,"./assets/backgrounds/default/pirate-lantern.webp");
+    assert.equal(scenery3.variants[0].asset,"./assets/backgrounds/default/home-art-overlay.webp");
+    assert.equal(sky.variants[0].asset,"./assets/backgrounds/default/sky-sunset.webp");
 
     const play=composition.readBinding("home","home","home.button.play");
     const regions=composition.readBinding("home","home","home.button.regions");
