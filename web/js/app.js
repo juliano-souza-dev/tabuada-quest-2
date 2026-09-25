@@ -868,6 +868,11 @@
         if (!TQ.content.development?.shortcutsEnabled) return;
 
         const screenRoot = appRoot.firstElementChild || appRoot;
+        const emptySurfaceActive = screenRoot.dataset.tqEmptySurface === "true";
+        document.body.classList.toggle("tq-empty-surface-active", emptySurfaceActive);
+        appRoot.classList.toggle("tq-empty-surface-active", emptySurfaceActive);
+        appRoot.parentElement?.classList.toggle("tq-empty-surface-active", emptySurfaceActive);
+
         const editorScreenId = screenRoot.dataset.tqDevScreenId || screenId;
         const editorContext = resolveDevelopmentEditorContext(screenRoot, context, screenId);
         const editorStorageScope = resolveDevelopmentStorageScope(editorScreenId, editorContext);
