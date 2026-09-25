@@ -466,6 +466,17 @@
                     src="${visualPage.background}"
                     alt=""
                     aria-hidden="true">
+                ${regionId === 1 ? `
+                    <div class="region-published-parallax"
+                        data-runtime-fx-id="fx_1790339938294"
+                        data-runtime-fx-src="./assets/parallax/islands/region-1/parallax-islands-region-1-fx_1790339938294.webp"
+                        aria-hidden="true">
+                        <img src="./assets/parallax/islands/region-1/parallax-islands-region-1-fx_1790339938294.webp"
+                            alt=""
+                            aria-hidden="true">
+                    </div>
+                    <canvas class="region-ocean-motion" aria-hidden="true"></canvas>
+                ` : ""}
 
                 ${visualPage.hideBack ? "" : `
                     <button class="region-back-hitbox"
@@ -512,6 +523,58 @@
         const stage = screen.querySelector(".region-islands-canonical-stage");
 
         const regionLoader = screen.querySelector(".region-assets-loader");
+
+        if (regionId === 1 && stage) {
+            const oceanCanvas = stage.querySelector(".region-ocean-motion");
+            const backgroundImage = stage.querySelector(".region-islands-background");
+            const context = oceanCanvas?.getContext("2d", { alpha: true });
+            let oceanFrame = 0;
+            let startedAt = 0;
+
+            const resizeOceanCanvas = () => {
+                if (!oceanCanvas || !context) return;
+                const ratio = Math.min(Math.max(root.devicePixelRatio || 1, 1), 2);
+                oceanCanvas.width = Math.round(REGION_LAYOUT.viewport.width * ratio);
+                oceanCanvas.height = Math.round(REGION_LAYOUT.viewport.height * ratio);
+                context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            };
+
+            const renderOcean = (time) => {
+                if (!oceanCanvas?.isConnected || !backgroundImage?.complete || !backgroundImage.naturalWidth) return;
+                if (!startedAt) startedAt = time;
+                const t = (time - startedAt) / 1000;
+                const width = REGION_LAYOUT.viewport.width;
+                const height = REGION_LAYOUT.viewport.height;
+                context.clearRect(0, 0, width, height);
+
+                const bandTop = height * 0.20;
+                const bandBottom = height * 0.97;
+                const bandHeight = 18;
+                for (let y = bandTop, index = 0; y < bandBottom; y += bandHeight, index += 1) {
+                    const waveX = Math.sin(t * 1.05 + index * 0.58) * 9.5;
+                    const waveY = Math.sin(t * 0.72 + index * 0.41) * 3.2;
+                    context.globalAlpha = 0.62;
+                    context.drawImage(
+                        backgroundImage,
+                        0, y, width, Math.min(bandHeight + 2, height - y),
+                        waveX, y + waveY, width, Math.min(bandHeight + 2, height - y)
+                    );
+                }
+                context.globalAlpha = 1;
+                oceanFrame = root.requestAnimationFrame(renderOcean);
+            };
+
+            const startOcean = () => {
+                resizeOceanCanvas();
+                if (!oceanFrame && !root.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+                    oceanFrame = root.requestAnimationFrame(renderOcean);
+                }
+            };
+
+            if (backgroundImage?.complete && backgroundImage.naturalWidth > 0) startOcean();
+            else backgroundImage?.addEventListener("load", startOcean, { once: true });
+        }
+
         const regionImages = Array.from(stage?.querySelectorAll("img") || []);
         const waitForImage = (image) => {
             if (image.complete && image.naturalWidth > 0) return Promise.resolve();
