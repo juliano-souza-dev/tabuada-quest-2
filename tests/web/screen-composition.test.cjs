@@ -27,9 +27,13 @@ test("mapa semantico das telas respeita a composicao declarada",()=>{
     const composition=TQ.content.screenComposition;
 
     const home=composition.getAssetSlots("home");
-    assert.equal(home.length,12);
+    assert.equal(home.length,30);
     assert.equal(home.filter((slot)=>slot.group==="header").length,3);
     assert.equal(home.filter((slot)=>slot.group==="buttons").length,8);
+    assert.equal(home.filter((slot)=>slot.semanticType==="ocean").length,1);
+    assert.equal(home.filter((slot)=>slot.group==="background-clouds").length,10);
+    assert.equal(home.filter((slot)=>slot.group==="background-ships").length,5);
+    assert.equal(home.filter((slot)=>slot.group==="background-islands").length,3);
 
     const nautical=composition.getAssetSlots("nautical-chart");
     assert.equal(nautical.length,3);
@@ -94,7 +98,7 @@ test("navio e nuvem recebem somente efeitos compativeis",()=>{
 
     assert.deepEqual(
         Array.from(composition.allowedFxForSemanticType("ship")),
-        ["depth","parallax","ship-rock"]
+        ["depth","ship-rock"]
     );
     assert.deepEqual(
         Array.from(composition.depthRolesForSemanticType("ship")),
@@ -110,10 +114,10 @@ test("navio e nuvem recebem somente efeitos compativeis",()=>{
     );
 });
 
-test("fundo da Home suporta variantes e efeitos por fundo",()=>{
+test("composição da Home mantém variantes por peça e restaura só a ativa",()=>{
     const TQ=loadComposition();
     const composition=TQ.content.screenComposition;
-    const slot=composition.getSlot("home","home.background.main");
+    const slot=composition.getSlot("home","home.background.ocean");
 
     assert.equal(slot.bindingMode,"variants");
     assert.equal(slot.fxPerVariant,true);
@@ -123,21 +127,37 @@ test("fundo da Home suporta variantes e efeitos por fundo",()=>{
         "home",
         slot.id,
         "pirate-main",
-        "./assets/backgrounds/main.webp",
-        {effects:[{id:"clouds"}]}
+        "./assets/ocean-main.webp"
     );
     composition.bindVariant(
         "home",
         "home",
         slot.id,
         "pirate-bay",
-        "./assets/backgrounds/bay.webp",
-        {effects:[{id:"fog"}]}
+        "./assets/ocean-bay.webp"
     );
+
+    composition.resetScopeVariant("home","home","pirate-main");
 
     const binding=composition.readBinding("home","home",slot.id);
     assert.equal(binding.asset,null);
-    assert.equal(binding.variants.length,2);
-    assert.equal(binding.variants[0].effects.length,1);
-    assert.equal(binding.variants[1].effects.length,1);
+    assert.equal(binding.variants.length,1);
+    assert.equal(binding.variants[0].id,"pirate-bay");
+});
+
+test("carregamento não contém reset automático de composição ou drafts locais",()=>{
+    const compositionJs=read("web/js/content/screen-composition.js");
+    const uploaderJs=read("web/js/dev/asset-uploader.js");
+
+    assert.doesNotMatch(compositionJs,/ensureCompositionReset/);
+    assert.doesNotMatch(compositionJs,/localStorage\.removeItem/);
+    assert.doesNotMatch(uploaderJs,/ensureLocalDraftReset/);
+
+    const restoreStart=uploaderJs.indexOf("async function restoreLocalLayers");
+    const restoreEnd=uploaderJs.indexOf("\n    function mount(",restoreStart);
+    const restoreBody=uploaderJs.slice(restoreStart,restoreEnd);
+
+    assert.doesNotMatch(restoreBody,/deleteLocalLayerRecord/);
+    assert.doesNotMatch(restoreBody,/\.clear\(\)/);
+    assert.doesNotMatch(restoreBody,/localStorage\.removeItem/);
 });
