@@ -70,6 +70,9 @@
             element.dataset.tqPairState = slot.pairState || "";
         }
         if (slot.action) element.dataset.tqCompositionAction = slot.action;
+        if (binding?.activeVariantId) {
+            element.dataset.tqCompositionVariant = binding.activeVariantId;
+        }
         return element;
     }
 
@@ -233,6 +236,7 @@
         const screenId = String(options.screenId || "");
         const scopeId = String(options.scopeId || screenId);
         const screenType = registry?.resolveScreenType?.(screenId);
+        const runtimeState = options.state || null;
 
         if (!registry || !screenRoot || !screenType) {
             return {
@@ -275,7 +279,22 @@
                 );
                 if (localDraft) return;
 
-                const binding = bindings[slot.id];
+                let binding = bindings[slot.id];
+                if (slot.bindingMode === "variants") {
+                    const variants = Array.isArray(binding?.variants) ? binding.variants : [];
+                    const preferredId = String(runtimeState?.ui?.homeBackgroundId || "");
+                    const activeVariant = variants.find((variant) => variant.id === preferredId)
+                        || variants.find((variant) => variant.id === "default")
+                        || variants.find((variant) => variant.asset)
+                        || variants[0]
+                        || null;
+                    binding = {
+                        ...binding,
+                        asset: activeVariant?.asset || null,
+                        activeVariantId: activeVariant?.id || null,
+                        activeVariantEffects: activeVariant?.effects || []
+                    };
+                }
                 const image = createBoundImage(slot, binding);
                 if (!image) return;
                 image.style.pointerEvents = "none";
