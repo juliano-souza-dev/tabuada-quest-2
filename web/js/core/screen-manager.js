@@ -24,9 +24,7 @@
                 const token = ++transitionToken;
                 const previous = rootElement.firstElementChild;
                 const next = renderScreen(context);
-                ensureFullBleedBackdrop(next);
-
-                if (!previous) {
+if (!previous) {
                     rootElement.appendChild(next);
                     return;
                 }
@@ -46,14 +44,12 @@
                 if (token !== transitionToken) {
                     stopLoader?.();
                     loader.remove();
-                    disposeFullBleedBackdrop(next);
-                    next.remove();
+next.remove();
                     return;
                 }
 
                 await new Promise((resolve) => root.requestAnimationFrame(() => root.requestAnimationFrame(resolve)));
-                disposeFullBleedBackdrop(previous);
-                previous.remove();
+previous.remove();
                 next.classList.remove("tq-screen-preparing");
                 stopLoader?.();
                 loader.remove();
