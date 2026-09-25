@@ -55,11 +55,13 @@
         const screen = document.createElement("section");
         screen.className = "home-screen home-premium";
         screen.setAttribute("aria-label", "Início do Tabuada Quest");
+        screen.setAttribute("data-tq-dev-ignore", "true");
         screen.style.setProperty("--home-bleed-image", `url("${displayedBackgroundSrc}")`);
 
         screen.innerHTML = `
             <img
                 class="home-full-bleed-background"
+                data-tq-dev-ignore="true"
                 data-tq-asset-id="home.background.bleed" data-tq-asset-role="background" data-tq-asset-label="Fundo externo da Home" data-tq-dev-id="home.background.bleed" data-tq-dev-kind="background" data-tq-dev-role="background" data-tq-dev-label="Fundo externo da Home"
                 src="${displayedBackgroundSrc}"
                 data-default-src="${defaultBackground?.src || displayedBackgroundSrc}"
@@ -67,9 +69,9 @@
                 aria-hidden="true"
                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;pointer-events:none;user-select:none;"
             >
-            <div class="tq-safe-visual-area home-safe-visual-area">
-            <div class="home-design-stage tq-canonical-stage">
-                <div class="home-world" aria-hidden="true">
+            <div class="tq-safe-visual-area home-safe-visual-area" data-tq-dev-ignore="true">
+            <div class="home-design-stage tq-canonical-stage" data-tq-dev-ignore="true">
+                <div class="home-world" data-tq-dev-ignore="true" aria-hidden="true">
                     <img class="home-background-image"
                          data-tq-asset-id="home.background.main" data-tq-asset-role="background" data-tq-asset-label="Background principal" data-tq-dev-id="home.background.main" data-tq-dev-kind="background" data-tq-dev-role="background" data-tq-dev-label="Background principal"
                          src="${displayedBackgroundSrc}"
