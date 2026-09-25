@@ -537,6 +537,12 @@
             const open = Boolean(nextOpen);
             panel.hidden = !open;
             if (open) {
+                document.querySelectorAll(
+                    ".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, "
+                    + ".tq-region-builder-panel, .tq-ocean-dev-panel, .tq-depth-dev-panel"
+                ).forEach((candidate) => {
+                    candidate.hidden = true;
+                });
                 root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
                     detail: { tool: "nav" }
                 }));
