@@ -245,3 +245,24 @@
     z-index: 9000 !important;
     pointer-events: auto !important;
 }
+
+
+/* Semantic reset: functions remain active even when every visual slot is NULL. */
+.tq-composition-reset [data-tq-composition-legacy="true"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.tq-composition-reset [data-tq-composition-function] {
+    background-image: none !important;
+}
+
+.tq-composition-reset [data-tq-composition-function]::before,
+.tq-composition-reset [data-tq-composition-function]::after {
+    content: none !important;
+    background: none !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
