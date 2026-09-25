@@ -526,8 +526,7 @@
         };
     }
 
-    TQ.content = TQ.content || {};
-    TQ.content.screenComposition = Object.freeze({
+    const screenComposition = Object.freeze({
         STORAGE_KEY,
         SCHEMA_VERSION,
         RESET_MARKER,
@@ -558,5 +557,10 @@
         resetScope,
         resetAll,
         describeSlot
+    });
+
+    TQ.content = Object.freeze({
+        ...(TQ.content || {}),
+        screenComposition
     });
 })(globalThis);
