@@ -567,6 +567,36 @@
         return readBindings(scope, screenId);
     }
 
+    function resetScopeVariant(scopeId, screenId, variantId = null) {
+        const scope = String(scopeId || "");
+        const store = readStore();
+        const screenType = resolveScreenType(screenId);
+        const slots = getAssetSlots(screenId);
+        const currentBindings = store.scopes[scope]?.bindings || {};
+        const wantedVariant = variantId === null ? null : (String(variantId || "default").trim() || "default");
+
+        const nextBindings = Object.fromEntries(slots.map((slot) => {
+            if (slot.bindingMode !== "variants" || wantedVariant === null) {
+                return [slot.id, emptyBinding(slot)];
+            }
+
+            const current = currentBindings[slot.id] || emptyBinding(slot);
+            return [slot.id, {
+                slotId: slot.id,
+                semanticType: current.semanticType || slot.semanticType,
+                asset: null,
+                variants: (current.variants || []).filter((variant) => variant.id !== wantedVariant)
+            }];
+        }));
+
+        store.scopes[scope] = {
+            screenType,
+            bindings: nextBindings
+        };
+        writeStore(store);
+        return readBindings(scope, screenId);
+    }
+
     function resetAll() {
         writeStore({ version: SCHEMA_VERSION, scopes: {} });
     }
@@ -613,6 +643,7 @@
         unbindAsset,
         unbindVariant,
         resetScope,
+        resetScopeVariant,
         resetAll,
         describeSlot
     });
