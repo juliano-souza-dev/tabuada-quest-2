@@ -500,7 +500,7 @@
             "home.header.avatar": Object.freeze({
                 slotId: "home.header.avatar",
                 semanticType: "avatar",
-                asset: "./assets/avatars/avatar-sofia-pirata-rosto.png"
+                asset: "./assets/avatars/avatar-sofia-pirata-rosto.webp"
             }),
             "home.header.logo": Object.freeze({
                 slotId: "home.header.logo",

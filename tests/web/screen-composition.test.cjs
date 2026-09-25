@@ -214,6 +214,9 @@ test("Home usa bindings publicados sem impedir reset explícito",()=>{
     const frame=composition.readBinding("home","home","home.header.frame");
     assert.equal(frame.asset,"./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp");
 
+    const avatar=composition.readBinding("home","home","home.header.avatar");
+    assert.equal(avatar.asset,"./assets/avatars/avatar-sofia-pirata-rosto.webp");
+
     assert.equal(composition.resolveHomeBackgroundGroupId("pirate-main"),"default");
     assert.equal(composition.HOME_BACKGROUND_GROUP_CATALOG.default.folder,"./assets/backgrounds/default/");
 
@@ -274,7 +277,10 @@ test("Home publica oceano e profundidade da composição pirate-main",()=>{
 
     vm.runInContext(read("web/js/core/ocean-scene.js"),context);
     const ocean=context.TabuadaQuest.core.oceanScene.readConfig("home.background-pirate-main",null);
+    const oceanDefault=context.TabuadaQuest.core.oceanScene.readConfig("home.background-default",null);
     assert.equal(ocean.enabled,true);
+    assert.equal(oceanDefault.enabled,true);
+    assert.equal(oceanDefault.movement,52);
     assert.equal(ocean.preset,"adventure");
     assert.equal(ocean.movement,52);
     assert.equal(ocean.speed,44);
@@ -287,7 +293,10 @@ test("Home publica oceano e profundidade da composição pirate-main",()=>{
 
     vm.runInContext(read("web/js/core/depth-scene.js"),context);
     const depth=context.TabuadaQuest.core.depthScene.readConfig("home.background-pirate-main",null);
+    const depthDefault=context.TabuadaQuest.core.depthScene.readConfig("home.background-default",null);
     assert.equal(depth.enabled,true);
+    assert.equal(depthDefault.enabled,true);
+    assert.equal(depthDefault.intensity,84);
     assert.equal(depth.intensity,84);
     assert.equal(depth.followPointer,false);
     assert.equal(depth.layers["home.background.ship.1"].role,"ship");

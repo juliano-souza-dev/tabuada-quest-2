@@ -329,12 +329,27 @@
         }));
     }
 
+    const EFFECT_SCOPE_ALIASES = Object.freeze({
+        "home.background-default": "home.background-pirate-main"
+    });
+
+    function effectScopeCandidates(scopeId) {
+        const scope = String(scopeId || "");
+        const legacy = EFFECT_SCOPE_ALIASES[scope];
+        return legacy ? [scope, legacy] : [scope];
+    }
+
     function readConfig(scopeId, regionId) {
-        const key = String(scopeId || "");
-        const local = readStore().scopes[key];
-        if (local) return normalizeConfig(local, regionId);
-        const published = PUBLISHED_CONFIGS[key];
-        if (published) return normalizeConfig(clone(published), regionId);
+        const candidates = effectScopeCandidates(scopeId);
+        const store = readStore();
+        for (const key of candidates) {
+            const local = store.scopes[key];
+            if (local) return normalizeConfig(local, regionId);
+        }
+        for (const key of candidates) {
+            const published = PUBLISHED_CONFIGS[key];
+            if (published) return normalizeConfig(clone(published), regionId);
+        }
         return defaultConfig(regionId);
     }
 
