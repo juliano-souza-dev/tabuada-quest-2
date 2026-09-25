@@ -644,7 +644,7 @@
                 </div>
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-copy>Copiar layout</button>
-                    <button type="button" data-dev-reset-screen>Resetar tela</button>
+                    <button type="button" data-dev-reset-screen>Restaurar original</button>
                 </div>
                 <div class="tq-scene-dev-actions">
                     <button type="button" data-dev-clear-functions>Limpar funções</button>
@@ -1640,28 +1640,57 @@
             scheduleOverlay();
         });
         host.querySelector("[data-dev-reset-screen]").addEventListener("click", async () => {
-            pushHistory(nodes);
-            status.textContent = "Limpando dados locais...";
+            const homeVariant = screenId === "home"
+                ? String(editorContext.homeBackgroundId || "default")
+                : null;
+            const scopeLabel = homeVariant
+                ? "a Home e a composição \"" + homeVariant + "\""
+                : "esta tela";
 
-            nodes.forEach((node) => {
-                clearGeometry(node.element);
-                clearLayer(node.element);
-                setDeleted(node.element, false);
-                setLocked(node.element, false);
-            });
+            if (!root.confirm(
+                "Restaurar original vai descartar as alterações locais de "
+                + scopeLabel
+                + " e recarregar o que está publicado. Continuar?"
+            )) {
+                status.textContent = "Restauração cancelada";
+                return;
+            }
+
+            status.textContent = "Restaurando versão publicada...";
 
             store = readStore();
             delete store.screens[storageScopeId];
             writeStore(store);
 
             try {
-                await TQ.dev?.assetUploader?.clearLocalLayersForScreen?.(storageScopeId, screenRoot);
+                await TQ.dev?.assetUploader?.clearLocalLayersForRestore?.(
+                    storageScopeId,
+                    homeVariant,
+                    screenRoot
+                );
             } catch (error) {
-                console.warn("Falha ao limpar assets locais antes do reset:", error);
+                console.warn("Falha ao limpar drafts locais na restauração:", error);
             }
 
-            status.textContent = "Recarregando versão da web...";
-            root.setTimeout(() => root.location.reload(), 80);
+            try {
+                TQ.content?.screenComposition?.resetScopeVariant?.(
+                    storageScopeId,
+                    screenId,
+                    homeVariant
+                );
+            } catch (error) {
+                console.warn("Falha ao limpar vínculos locais na restauração:", error);
+            }
+
+            try {
+                TQ.core?.oceanScene?.clearConfig?.(effectsScopeId);
+                TQ.core?.depthScene?.clearConfig?.(effectsScopeId);
+            } catch (error) {
+                console.warn("Falha ao limpar CENA/MAR locais na restauração:", error);
+            }
+
+            status.textContent = "Recarregando original publicado...";
+            root.setTimeout(() => root.location.reload(), 120);
         });
         host.querySelector("[data-dev-copy]").addEventListener("click", async () => {
             const capturedAt = new Date();
