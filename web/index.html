@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=contain">
     <meta name="theme-color" content="#071d2c">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="./manifest.webmanifest">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="./manifest.webmanifest?v=20260924-usable-viewport-v2">
     <title>Tabuada Quest 2.0</title>
     <script>
         try {
@@ -27,7 +27,12 @@
         (function () {
             function syncAppViewport() {
                 var vv = window.visualViewport;
+                var width = vv && vv.width ? vv.width : window.innerWidth;
                 var height = vv && vv.height ? vv.height : window.innerHeight;
+
+                // The browser/standalone PWA viewport is the app rectangle.
+                // Physical screen bars/cutouts stay outside this coordinate system.
+                document.documentElement.style.setProperty("--tq-app-width", Math.round(width) + "px");
                 document.documentElement.style.setProperty("--tq-app-height", Math.round(height) + "px");
             }
             syncAppViewport();
@@ -35,7 +40,7 @@
             window.visualViewport?.addEventListener("resize", syncAppViewport, { passive: true });
         })();
     </script>
-    <link rel="stylesheet" href="./css/app.css?v=20260924-structural-blue-fix-v1">
+    <link rel="stylesheet" href="./css/app.css?v=20260924-usable-viewport-v2">
 </head>
 <body>
     <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
