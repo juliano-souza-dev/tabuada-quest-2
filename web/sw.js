@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260925-screen-audio-v1";
+const CACHE_VERSION = "tq2-dev-assets-20260925-default-audio-v2";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
