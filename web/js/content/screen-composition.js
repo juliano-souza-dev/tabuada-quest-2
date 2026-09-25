@@ -191,7 +191,7 @@
         home: Object.freeze({
             id: "home",
             label: "Home",
-            assets: Object.freeze([]),
+            assets: homeSlots,
             functions: Object.freeze([
                 functionSlot("home.fn.shipyard", "Abrir estaleiro", "shipyard"),
                 functionSlot("home.fn.collectibles", "Abrir colecionáveis", "collectibles"),
@@ -207,7 +207,7 @@
         "nautical-chart": Object.freeze({
             id: "nautical-chart",
             label: "Carta náutica",
-            assets: Object.freeze([]),
+            assets: nauticalSlots,
             functions: Object.freeze([
                 functionSlot("nautical.fn.back", "Voltar", "back"),
                 functionSlot("nautical.fn.next", "Avançar carta", "next-chart"),
@@ -219,7 +219,7 @@
         "region-map": Object.freeze({
             id: "region-map",
             label: "Região",
-            assets: Object.freeze([]),
+            assets: Object.freeze(regionSlots),
             functions: Object.freeze([
                 functionSlot("regions.fn.back", "Voltar", "back"),
                 functionSlot("regions.fn.nautical-chart", "Abrir carta náutica", "open-nautical-chart"),
@@ -237,7 +237,7 @@
         "island-game": Object.freeze({
             id: "island-game",
             label: "Ilha · jogo",
-            assets: Object.freeze([]),
+            assets: islandGameSlots,
             functions: Object.freeze([
                 functionSlot("island-game.fn.answer.1", "Alternativa 1", "answer-1"),
                 functionSlot("island-game.fn.answer.2", "Alternativa 2", "answer-2"),
@@ -325,9 +325,11 @@
 
     function screenAllowsFx(screenId, fxId) {
         const wanted = String(fxId || "");
-        if (!getScreen(screenId)) return false;
-        return Object.values(SEMANTIC_TYPES).some((type) =>
-            Array.isArray(type.fx) && type.fx.includes(wanted)
+        return getAssetSlots(screenId).some((slot) =>
+            allowedFxForSemanticType(slot.semanticType).includes(wanted)
+            || (slot.acceptedTypes || []).some((type) =>
+                allowedFxForSemanticType(type).includes(wanted)
+            )
         );
     }
 
