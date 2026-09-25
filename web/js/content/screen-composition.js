@@ -12,8 +12,6 @@
                 "tq2.dev.composition-bindings.v1",
                 "tq2.dev.scene-layout.v2",
                 "tq2.dev.scene-layout.v3",
-                "tq2.dev.parallax.effects.v4",
-                "tq2.dev.parallax.effects.v3",
                 "tq2.dev.ocean-scene.v1",
                 "tq2.dev.depth-scene.v1",
                 "tq2.dev.region-builder.v1"
@@ -27,7 +25,6 @@
     const FX_LABELS = Object.freeze({
         ocean: "Mar",
         depth: "Profundidade",
-        parallax: "Movimento",
         "ship-rock": "Balanço do navio",
         "background-animation": "Animações do fundo"
     });
@@ -43,7 +40,7 @@
         }),
         home_backdrop: Object.freeze({
             label: "Fundo base / céu",
-            fx: Object.freeze(["depth", "parallax", "background-animation"]),
+            fx: Object.freeze(["depth", "background-animation"]),
             depthRoles: Object.freeze(["sky", "custom"]),
             defaultZ: 1
         }),
@@ -51,43 +48,43 @@
         ocean: Object.freeze({ label: "Oceano", fx: Object.freeze(["ocean"]), defaultZ: 1 }),
         island_state: Object.freeze({
             label: "Ilha",
-            fx: Object.freeze(["depth", "parallax"]),
+            fx: Object.freeze(["depth"]),
             depthRoles: Object.freeze(["world", "custom"]),
             defaultZ: 20
         }),
         cloud: Object.freeze({
             label: "Nuvem",
-            fx: Object.freeze(["depth", "parallax"]),
+            fx: Object.freeze(["depth"]),
             depthRoles: Object.freeze(["cloudFar", "cloudNear"]),
             defaultZ: 12
         }),
         environment: Object.freeze({
             label: "Cenário / edifício",
-            fx: Object.freeze(["depth", "parallax"]),
+            fx: Object.freeze(["depth"]),
             depthRoles: Object.freeze(["world", "custom"]),
             defaultZ: 22
         }),
         ship: Object.freeze({
             label: "Navio",
-            fx: Object.freeze(["depth", "parallax", "ship-rock"]),
+            fx: Object.freeze(["depth", "ship-rock"]),
             depthRoles: Object.freeze(["ship"]),
             defaultZ: 24
         }),
         island: Object.freeze({
             label: "Ilha",
-            fx: Object.freeze(["depth", "parallax"]),
+            fx: Object.freeze(["depth"]),
             depthRoles: Object.freeze(["world", "custom"]),
             defaultZ: 20
         }),
         island_background: Object.freeze({
             label: "Ilha ao fundo",
-            fx: Object.freeze(["depth", "parallax"]),
+            fx: Object.freeze(["depth"]),
             depthRoles: Object.freeze(["world", "custom"]),
             defaultZ: 10
         }),
         pier: Object.freeze({
             label: "Pier",
-            fx: Object.freeze(["depth", "parallax"]),
+            fx: Object.freeze(["depth"]),
             depthRoles: Object.freeze(["world", "custom"]),
             defaultZ: 25
         })
