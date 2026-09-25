@@ -153,8 +153,7 @@
    entire usable vertical edge so controls are never clipped off-screen. */
 .tq-scene-dev-panel,
 .tq-settings-dev-panel,
-.tq-asset-upload-dev-panel,
-.tq-parallax-dev-panel {
+.tq-asset-upload-dev-panel {
     position: fixed;
     top: max(12px, var(--tq-safe-top, 0px));
     right: 82px;
