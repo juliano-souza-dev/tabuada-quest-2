@@ -73,6 +73,12 @@
             depthRoles: Object.freeze(["ship"]),
             defaultZ: 24
         }),
+        island: Object.freeze({
+            label: "Ilha",
+            fx: Object.freeze(["depth", "parallax"]),
+            depthRoles: Object.freeze(["world", "custom"]),
+            defaultZ: 20
+        }),
         island_background: Object.freeze({
             label: "Ilha ao fundo",
             fx: Object.freeze(["depth", "parallax"]),
@@ -157,7 +163,7 @@
                 "home.background.scene." + (index + 1),
                 "Elemento de cenário " + (index + 1),
                 "environment",
-                { acceptedTypes: ["environment", "ship", "island_background"] }
+                { acceptedTypes: ["environment", "ship", "island"] }
             )
         ),
 
