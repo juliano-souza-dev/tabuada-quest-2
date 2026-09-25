@@ -994,6 +994,13 @@
                     slot.id,
                     semanticSelect.value
                 );
+                screenRoot
+                    .querySelectorAll('[data-tq-composition-slot="' + slot.id + '"]')
+                    .forEach((element) => {
+                        element.dataset.tqSemanticType = semanticSelect.value;
+                    });
+                const entry = localLayers.find((item) => item.slotId === slot.id);
+                if (entry) entry.semanticType = semanticSelect.value;
             }
             syncCompositionSlot();
         });
