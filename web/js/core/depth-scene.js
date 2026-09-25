@@ -269,6 +269,7 @@
                 if (!compositionActive) return true;
                 const semanticType = element.dataset.tqSemanticType;
                 if (!element.dataset.tqCompositionSlot || !semanticType) return false;
+                if (element.dataset.tqSlotEmpty === "true") return false;
                 const fx = registry.allowedFxForSemanticType(semanticType);
                 return fx.includes("depth") || fx.includes("ship-rock");
             });
