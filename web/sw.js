@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260925-dev-context-nav-v1";
+const CACHE_VERSION = "tq2-dev-assets-20260925-home-pier-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
