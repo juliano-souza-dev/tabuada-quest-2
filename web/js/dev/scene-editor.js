@@ -15,7 +15,10 @@
     }
 
     function writeStore(store) {
-        root.localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+        root.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            ...store,
+            version: 3
+        }));
     }
 
     function number(value, fallback) {
@@ -353,14 +356,18 @@
                 element.removeAttribute("data-tq-dev-label");
             });
 
-        const legacyStructuralIds = Object.keys(saved).filter((id) =>
-            id === normalizedToken(screenId, "screen") + ".auto."
-            || id.includes("tq-safe-visual-area")
-            || id.includes("tq-canonical-stage")
-            || id.includes("home-world")
-            || id === "home.background.bleed"
-            || id === "home.level.badge.image"
-        );
+        const legacyStructuralIds = Object.keys(saved).filter((id) => {
+            if (id === normalizedToken(screenId, "screen") + ".auto.") return true;
+            if (id === "home.background.bleed") return true;
+
+            // Generated descendant ids contain their entire ancestry. Looking for
+            // "tq-safe-visual-area" anywhere in the id therefore deletes every
+            // child asset as well. Only the LAST path segment may be structural.
+            const tail = String(id).split(">").pop() || "";
+            return tail.includes("tq-safe-visual-area")
+                || tail.includes("tq-canonical-stage")
+                || tail.includes("home-world");
+        });
         if (legacyStructuralIds.length) {
             legacyStructuralIds.forEach((id) => delete saved[id]);
             store.screens[screenId] = saved;
@@ -546,7 +553,19 @@
 
         function persist(message = "Salvo") {
             store = readStore();
-            store.screens[screenId] = snapshot();
+
+            // Merge the currently mounted scene into the saved layout instead of
+            // replacing the whole screen record. Conditional/dynamic elements may
+            // disappear during a game-state render and must keep their geometry
+            // for when they return.
+            const previous = store.screens[screenId] && typeof store.screens[screenId] === "object"
+                ? store.screens[screenId]
+                : {};
+            store.screens[screenId] = {
+                ...previous,
+                ...snapshot()
+            };
+
             writeStore(store);
             status.textContent = message;
         }
