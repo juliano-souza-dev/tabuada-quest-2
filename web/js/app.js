@@ -433,6 +433,16 @@
         const editorContext = options.editorContext || {};
         const actualScreenId = String(editorContext.screenType || options.screenId || "home");
         const currentLabel = developmentScreenLabel(actualScreenId);
+        const islandScopedContext = new Set([
+            "travel",
+            "challenge",
+            "special-mission",
+            "chest",
+            "pet",
+            "map-reward",
+            "result"
+        ]).has(actualScreenId);
+        const displayedIslandId = islandScopedContext ? editorContext.islandId : null;
         const totalRegions = Math.max(1, Number(TQ.domain.playerState.TOTAL_REGIONS) || 1);
         const islandsPerRegion = Math.max(1, Number(TQ.domain.playerState.ISLANDS_PER_REGION) || 1);
         const currentRegionId = Math.max(
@@ -514,8 +524,8 @@
         }
 
         const currentIslandRow = host.querySelector("[data-dev-nav-current-island-row]");
-        if (editorContext.islandId) {
-            host.querySelector("[data-dev-nav-current-island]").textContent = "Ilha " + editorContext.islandId;
+        if (displayedIslandId) {
+            host.querySelector("[data-dev-nav-current-island]").textContent = "Ilha " + displayedIslandId;
         } else {
             currentIslandRow.hidden = true;
         }
@@ -600,7 +610,7 @@
             const toolLabel = TOOL_LABELS[event.detail?.tool] || "DEV";
             const parts = [toolLabel, currentLabel];
             if (editorContext.regionId) parts.push("R" + editorContext.regionId);
-            if (editorContext.islandId) parts.push("Ilha " + editorContext.islandId);
+            if (displayedIslandId) parts.push("Ilha " + displayedIslandId);
             mobileBadge.textContent = parts.join(" · ");
             mobileBadge.hidden = false;
             root.clearTimeout(mobileBadgeTimer);
