@@ -1066,7 +1066,9 @@
         const domRegionId = Number(screenRoot?.dataset?.regionId);
         const previewRegionId = Number(context?.previewRegionId);
         const activeRegionId = Number(context?.state?.learning?.activeSession?.regionId);
+        const activeIslandId = Number(context?.state?.learning?.activeSession?.islandId);
         const currentRegionId = Number(context?.state?.campaign?.currentRegionId);
+        const currentIslandId = Number(context?.state?.campaign?.currentIslandId);
         const regionScopedScreens = new Set([
             "islands",
             "travel",
@@ -1095,6 +1097,13 @@
             regionId = currentRegionId;
         }
 
+        let islandId = null;
+        if (regionScopedScreens.has(screenId) && Number.isInteger(activeIslandId) && activeIslandId > 0) {
+            islandId = activeIslandId;
+        } else if (regionScopedScreens.has(screenId) && Number.isInteger(currentIslandId) && currentIslandId > 0) {
+            islandId = currentIslandId;
+        }
+
         const region = regionId
             ? (TQ.content.getWorldRegion?.(regionId)
                 || TQ.content.regions?.find?.((item) => Number(item?.id) === regionId))
@@ -1103,6 +1112,7 @@
         return {
             screenType: screenId,
             regionId,
+            islandId,
             regionLabel: region?.label || null,
             regionPage: screenRoot?.dataset?.regionPage || null,
             developmentMode: Boolean(context?.developmentMode)
@@ -1112,6 +1122,13 @@
     function resolveDevelopmentStorageScope(editorScreenId, editorContext) {
         if (editorScreenId === "islands" && editorContext.regionId) {
             return `islands.region-${editorContext.regionId}`;
+        }
+        if (
+            editorScreenId === "challenge"
+            && editorContext.regionId
+            && editorContext.islandId
+        ) {
+            return `challenge.region-${editorContext.regionId}.island-${editorContext.islandId}`;
         }
         return editorScreenId;
     }
