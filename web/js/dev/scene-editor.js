@@ -77,7 +77,12 @@
                     binding: registry.readBinding(storageScopeId, screenType, slot.id),
                     localDraft: screenRoot?.querySelector?.(
                         '[data-tq-composition-slot="' + slot.id + '"][data-tq-local-file]'
-                    )?.dataset?.tqLocalFile || null
+                    )?.dataset?.tqLocalFile || null,
+                    localDraftVariant: screenRoot?.querySelector?.(
+                        '[data-tq-composition-slot="' + slot.id + '"][data-tq-local-file]'
+                    )?.dataset?.tqCompositionVariant || null,
+                    bindingMode: slot.bindingMode || "single",
+                    fxPerVariant: Boolean(slot.fxPerVariant)
                 })),
                 functions: registry.getFunctionSlots(screenType).map((item) => ({
                     id: item.id,
