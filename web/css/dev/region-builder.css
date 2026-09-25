@@ -227,7 +227,7 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: #071d2c;
+    background: transparent;
 }
 
 .region-builder-preview-stage {
@@ -235,11 +235,15 @@
     width: 941px;
     height: 1672px;
     overflow: visible;
-    background:
-        linear-gradient(rgba(132,216,255,.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(132,216,255,.05) 1px, transparent 1px),
-        #0b2636;
-    background-size: 47px 47px;
+    background: transparent;
+}
+
+/* Empty scenes must not invent visual content. Assets define the artwork;
+   zero visual assets means a genuinely transparent canvas. */
+.region-builder-preview-screen[data-tq-empty-surface="true"],
+.region-builder-preview-screen[data-tq-empty-surface="true"] .region-builder-preview-stage {
+    background: transparent !important;
+    background-image: none !important;
 }
 
 .region-builder-preview-grid {
