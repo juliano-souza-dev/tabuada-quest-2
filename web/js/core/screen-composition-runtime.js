@@ -24,25 +24,38 @@
     function hideLegacyVisuals(screenRoot) {
         if (!(screenRoot instanceof Element)) return;
 
-        const visuals = [
-            ...screenRoot.querySelectorAll("img, picture, video, svg, canvas")
-        ];
+        const isSemantic = (element) =>
+            Boolean(
+                element?.closest?.(".tq-composition-runtime-layer")
+                || element?.hasAttribute?.("data-tq-composition-slot")
+            );
 
-        visuals.forEach((element) => {
-            if (element.closest(".tq-composition-runtime-layer")) return;
-            if (element.hasAttribute("data-tq-composition-slot")) return;
+        const hideVisual = (element) => {
+            if (!(element instanceof HTMLElement) || isSemantic(element)) return;
             element.dataset.tqCompositionLegacy = "true";
-            element.style.visibility = "hidden";
-            element.style.pointerEvents = "none";
-        });
+            element.style.setProperty("display", "none", "important");
+            element.style.setProperty("visibility", "hidden", "important");
+            element.style.setProperty("opacity", "0", "important");
+            element.style.setProperty("pointer-events", "none", "important");
+        };
+
+        const legacyVisuals = new Set([
+            ...screenRoot.querySelectorAll("img, picture, video, svg, canvas"),
+            ...screenRoot.querySelectorAll(
+                '[data-tq-dev-kind="asset"], [data-tq-dev-kind="overlay"], [data-tq-dev-kind="background"], ' +
+                '[data-tq-asset-role="object"], [data-tq-asset-role="overlay"], [data-tq-asset-role="background"], ' +
+                '.region-island-art-shell, .region-fallback-lock'
+            )
+        ]);
+
+        legacyVisuals.forEach(hideVisual);
 
         [screenRoot, ...screenRoot.querySelectorAll("*")].forEach((element) => {
-            if (element.closest?.(".tq-composition-runtime-layer")) return;
-            if (element.hasAttribute?.("data-tq-composition-slot")) return;
+            if (isSemantic(element)) return;
             if (hasUrlBackground(element)) {
                 element.dataset.tqCompositionLegacyBackground = "true";
                 if (element instanceof HTMLElement) {
-                    element.style.backgroundImage = "none";
+                    element.style.setProperty("background-image", "none", "important");
                 }
             }
             clearInlineUrlProperties(element);
