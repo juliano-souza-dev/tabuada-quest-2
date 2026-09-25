@@ -326,3 +326,60 @@
 .tq-composition-reset [data-tq-composition-function] > picture {
     display: none !important;
 }
+
+
+/* Orphan surface: keep behavior, remove inherited presentation. */
+[data-tq-orphan-surface="true"] [data-tq-orphan-function="true"] {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    text-shadow: none !important;
+    filter: none !important;
+}
+
+[data-tq-orphan-surface="true"] [data-tq-orphan-function="true"] > *,
+[data-tq-orphan-surface="true"] [data-tq-orphan-function="true"]::before,
+[data-tq-orphan-surface="true"] [data-tq-orphan-function="true"]::after {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    content: none !important;
+    background: none !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+[data-tq-orphan-surface="true"] [data-tq-orphan-structure="true"] {
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    text-shadow: none !important;
+}
+
+[data-tq-orphan-surface="true"] [data-tq-orphan-structure="true"]::before,
+[data-tq-orphan-surface="true"] [data-tq-orphan-structure="true"]::after {
+    content: none !important;
+    background: none !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+[data-tq-orphan-surface="true"] [data-tq-orphan-legacy-chrome="true"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* UX can still reveal the invisible function geometry while editing. */
+.tq-dev-scene-editing[data-tq-orphan-surface="true"] [data-tq-orphan-function="true"],
+[data-tq-orphan-surface="true"].tq-dev-scene-editing [data-tq-orphan-function="true"] {
+    outline: 2px dashed rgba(100,220,255,.82) !important;
+    outline-offset: -2px;
+    background-color: rgba(31,163,208,.16) !important;
+}
