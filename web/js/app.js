@@ -439,7 +439,8 @@
                 <div class="tq-parallax-dev-actions"><button type="button" data-fx-play>▶ Aplicar</button><button type="button" data-fx-clear>Excluir rascunho</button></div>
                 <label>Efeitos salvos <select data-fx-saved><option value="">Nenhum</option></select></label>
                 <div class="tq-parallax-dev-actions"><button type="button" data-fx-load>Editar</button><button type="button" data-fx-delete>Excluir salvo</button></div>
-                <div class="tq-parallax-dev-actions"><button type="button" data-fx-export>📤 Exportar</button><button type="button" data-fx-import>📥 Importar</button></div>
+                <div class="tq-parallax-dev-actions"><button type="button" data-fx-export>📤 Exportar JSON</button><button type="button" data-fx-import>📥 Importar</button></div>
+                <button type="button" data-fx-export-image>🖼 Exportar imagem do parallax</button>
                 <input type="file" data-fx-import-file accept=".json,application/json,text/json" hidden>
                 <small>Escopo atual: <b data-fx-scope></b></small>
                 <small>Os efeitos salvos persistem no navegador e podem coexistir no mesmo asset.</small>
@@ -636,7 +637,109 @@
         host.querySelector("[data-fx-delete]").onclick = () => { const id=savedSelect.value;if(!id)return;effects=effects.filter(f=>f.id!==id);persistEffects();const savedRegion=activeRoot.querySelector('[data-fx-id="'+id+'"]');savedRegion?._fxAnimation?.cancel();savedRegion?.remove();refreshSaved(); };
         host.querySelector("[data-fx-load]").onclick = () => { const fx=effects.find(f=>f.id===savedSelect.value);if(!fx)return;host.querySelector("[data-fx-asset]").value=fx.assetId;host.querySelector("[data-fx-mode]").value=fx.mode||"alternate";host.querySelector("[data-fx-direction]").value=fx.direction||(fx.axis==="y"?"up":"left");host.querySelector("[data-fx-distance]").value=fx.distance;host.querySelector("[data-fx-duration]").value=fx.duration;syncModeUi(); };
 
+        const sourceUrlFromSnapshot = (snapshot) => {
+            if (!snapshot || typeof snapshot !== "object") return "";
+            if (snapshot.kind === "image") return String(snapshot.src || "");
+            if (snapshot.kind === "background") {
+                const match = /url\((['"]?)(.*?)\1\)/.exec(String(snapshot.backgroundImage || ""));
+                return match?.[2] || "";
+            }
+            return "";
+        };
+
+        const loadExportImage = (src) => new Promise((resolve, reject) => {
+            if (!src) {
+                reject(new Error("Fonte visual ausente"));
+                return;
+            }
+
+            const image = new Image();
+            image.decoding = "async";
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error("Não foi possível carregar a imagem-base do parallax"));
+            image.src = src;
+        });
+
+        const exportParallaxImage = async () => {
+            const selectedFx = effects.find((fx) => fx.id === savedSelect.value)
+                || (draftData ? { ...draftData, ...currentEffectConfig() } : null);
+
+            if (!selectedFx) {
+                root.alert("Selecione um efeito salvo ou crie um parallax antes de exportar a imagem.");
+                return;
+            }
+
+            const sourceUrl = sourceUrlFromSnapshot(selectedFx.sourceVisual);
+            if (!sourceUrl) {
+                root.alert("Este efeito antigo ainda não possui uma imagem-fonte persistida. Reabra/refaça o efeito e salve novamente.");
+                return;
+            }
+
+            try {
+                const image = await loadExportImage(sourceUrl);
+                const bounds = selectedFx.bounds || { x: 0, y: 0, w: 1, h: 1 };
+                const cropX = Math.max(0, bounds.x * image.naturalWidth);
+                const cropY = Math.max(0, bounds.y * image.naturalHeight);
+                const cropW = Math.max(1, Math.min(image.naturalWidth - cropX, bounds.w * image.naturalWidth));
+                const cropH = Math.max(1, Math.min(image.naturalHeight - cropY, bounds.h * image.naturalHeight));
+
+                const canvas = document.createElement("canvas");
+                canvas.width = Math.max(1, Math.round(cropW));
+                canvas.height = Math.max(1, Math.round(cropH));
+                const context = canvas.getContext("2d", { alpha: true });
+                if (!context) throw new Error("Canvas indisponível");
+
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                const points = Array.isArray(selectedFx.points) ? selectedFx.points : [];
+                if (points.length >= 3 && bounds.w > 0 && bounds.h > 0) {
+                    context.save();
+                    context.beginPath();
+                    points.forEach((point, index) => {
+                        const x = ((point.x - bounds.x) / bounds.w) * canvas.width;
+                        const y = ((point.y - bounds.y) / bounds.h) * canvas.height;
+                        if (index === 0) context.moveTo(x, y);
+                        else context.lineTo(x, y);
+                    });
+                    context.closePath();
+                    context.clip();
+                    context.drawImage(
+                        image,
+                        cropX, cropY, cropW, cropH,
+                        0, 0, canvas.width, canvas.height
+                    );
+                    context.restore();
+                } else {
+                    context.drawImage(
+                        image,
+                        cropX, cropY, cropW, cropH,
+                        0, 0, canvas.width, canvas.height
+                    );
+                }
+
+                const blob = await new Promise((resolve) => {
+                    canvas.toBlob(resolve, "image/webp", .94);
+                });
+                if (!blob) throw new Error("Falha ao gerar WebP");
+
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement("a");
+                const regionSuffix = activeRegionId ? "-region-" + activeRegionId : "";
+                const safeFxId = String(selectedFx.id || "draft").replace(/[^a-z0-9_-]+/gi, "-");
+                anchor.href = url;
+                anchor.download = "parallax-" + activeScreenId + regionSuffix + "-" + safeFxId + ".webp";
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 0);
+            } catch (error) {
+                console.error("Falha ao exportar imagem do parallax:", error);
+                root.alert("Não foi possível exportar a imagem deste parallax.");
+            }
+        };
+
         const importFile = host.querySelector("[data-fx-import-file]");
+        host.querySelector("[data-fx-export-image]").onclick = exportParallaxImage;
         host.querySelector("[data-fx-export]").onclick = () => {
             const payload = {
                 version: 5,
