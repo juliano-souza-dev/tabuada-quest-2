@@ -614,7 +614,11 @@
             if (!assetRect || !assetRect.width || !assetRect.height) return null;
 
             const r = fx.bounds;
-            const el = document.createElement("div"); el.className = "tq-parallax-region" + (editable ? " is-editing" : ""); el.dataset.fxId = fx.id;
+            const el = document.createElement("div");
+            el.className = "tq-parallax-region" + (editable ? " is-editing" : "");
+            el.dataset.fxId = fx.id;
+            el.dataset.tqVisualLayer = "parallax";
+            el.style.setProperty("--tq-parallax-z", String(Number.isFinite(Number(fx.z)) ? Number(fx.z) : 1));
             el.style.left=((assetRect.left-stageRect.left+r.x*assetRect.width)/stageRect.width*100)+"%"; el.style.top=((assetRect.top-stageRect.top+r.y*assetRect.height)/stageRect.height*100)+"%"; el.style.width=(r.w*assetRect.width/stageRect.width*100)+"%"; el.style.height=(r.h*assetRect.height/stageRect.height*100)+"%";
             const poly=fx.points.map(p=>(((p.x-r.x)/r.w)*100).toFixed(2)+"% "+(((p.y-r.y)/r.h)*100).toFixed(2)+"%").join(","); el.style.clipPath="polygon("+poly+")"; el.style.webkitClipPath=el.style.clipPath;
             const clone=cloneVisualLayer(sourceStillVisible ? visual : null, fx.sourceVisual);
@@ -769,6 +773,8 @@
                     if (width > 8 && height > 8) {
                         region = document.createElement("div");
                         region.className = "tq-parallax-region";
+                        region.dataset.tqVisualLayer = "parallax";
+                        region.style.setProperty("--tq-parallax-z", "1");
                         const stageRect = stage.getBoundingClientRect();
                         region.style.left = ((minX-stageRect.left)/stageRect.width*100)+"%";
                         region.style.top = ((minY-stageRect.top)/stageRect.height*100)+"%";
