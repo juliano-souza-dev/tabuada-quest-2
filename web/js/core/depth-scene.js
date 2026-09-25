@@ -143,6 +143,8 @@
             layers: Object.freeze({
                 "home.background.ship.1": Object.freeze({
                     enabled: true,
+                    elementType: null,
+                    direction: "left",
                     role: "ship",
                     depth: 16,
                     drift: 0,
@@ -153,6 +155,8 @@
                 }),
                 "home.background.scenery.1": Object.freeze({
                     enabled: true,
+                    elementType: null,
+                    direction: "left",
                     role: "world",
                     depth: 12,
                     drift: 3,
@@ -163,6 +167,8 @@
                 }),
                 "home.background.scenery.2": Object.freeze({
                     enabled: false,
+                    elementType: null,
+                    direction: "left",
                     role: "world",
                     depth: 12,
                     drift: 3,
@@ -173,6 +179,8 @@
                 }),
                 "home.background.scenery.3": Object.freeze({
                     enabled: false,
+                    elementType: null,
+                    direction: "left",
                     role: "world",
                     depth: 12,
                     drift: 3,
@@ -181,15 +189,53 @@
                     scale: 101,
                     tilt: 0
                 }),
-                "home.background.cloud.2": Object.freeze({
+                "home.background.cloud.1": Object.freeze({
                     enabled: true,
+                    elementType: "cloud",
+                    direction: "right",
                     role: "cloudFar",
-                    depth: 88,
-                    drift: 77,
-                    speed: 14,
+                    depth: 23,
+                    drift: 12,
+                    speed: 1,
+                    opacity: 34,
+                    scale: 107,
+                    tilt: 0
+                }),
+                "home.background.cloud.2": Object.freeze({
+                    enabled: false,
+                    elementType: "cloud",
+                    direction: "left",
+                    role: "cloudFar",
+                    depth: 0,
+                    drift: 0,
+                    speed: 0,
                     opacity: 72,
-                    scale: 124,
-                    tilt: 82
+                    scale: 110,
+                    tilt: 45
+                }),
+                "home.background.pier": Object.freeze({
+                    enabled: false,
+                    elementType: "pier",
+                    direction: "right",
+                    role: "world",
+                    depth: 12,
+                    drift: 3,
+                    speed: 10,
+                    opacity: 100,
+                    scale: 101,
+                    tilt: 0
+                }),
+                "home.background.cloud.3": Object.freeze({
+                    enabled: false,
+                    elementType: "cloud",
+                    direction: "left",
+                    role: "cloudFar",
+                    depth: 22,
+                    drift: 18,
+                    speed: 0,
+                    opacity: 72,
+                    scale: 106,
+                    tilt: 0
                 })
             })
         })

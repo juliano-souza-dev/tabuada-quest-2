@@ -484,6 +484,46 @@
                         effects: Object.freeze([])
                     })
                 ])
+            }),
+            "home.button.shipyard": Object.freeze({
+                slotId: "home.button.shipyard",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/estaleiro.webp"
+            }),
+            "home.button.collectibles": Object.freeze({
+                slotId: "home.button.collectibles",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/colecionaveis.webp"
+            }),
+            "home.button.crew": Object.freeze({
+                slotId: "home.button.crew",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/tripulacao.webp"
+            }),
+            "home.button.shop": Object.freeze({
+                slotId: "home.button.shop",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/loja.webp"
+            }),
+            "home.button.items": Object.freeze({
+                slotId: "home.button.items",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/itens.webp"
+            }),
+            "home.button.daily-reward": Object.freeze({
+                slotId: "home.button.daily-reward",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/recompensa-diaria.webp"
+            }),
+            "home.button.regions": Object.freeze({
+                slotId: "home.button.regions",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/regioes.webp"
+            }),
+            "home.button.play": Object.freeze({
+                slotId: "home.button.play",
+                semanticType: "ui_button",
+                asset: "./assets/ui/icons/jogar.webp"
             })
         })
     });

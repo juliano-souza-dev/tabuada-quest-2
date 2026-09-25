@@ -219,6 +219,11 @@ test("Home usa bindings publicados sem impedir reset explícito",()=>{
     assert.equal(sky.variants[0].id,"pirate-main");
     assert.equal(sky.variants[0].asset,"./assets/backgrounds/home/home-pirate-sky.webp");
 
+    const play=composition.readBinding("home","home","home.button.play");
+    const regions=composition.readBinding("home","home","home.button.regions");
+    assert.equal(play.asset,"./assets/ui/icons/jogar.webp");
+    assert.equal(regions.asset,"./assets/ui/icons/regioes.webp");
+
     composition.resetScope("home","home");
 
     assert.equal(
@@ -262,8 +267,14 @@ test("Home publica oceano e profundidade da composição pirate-main",()=>{
     assert.equal(depth.intensity,84);
     assert.equal(depth.followPointer,false);
     assert.equal(depth.layers["home.background.ship.1"].role,"ship");
-    assert.equal(depth.layers["home.background.cloud.2"].role,"cloudFar");
-    assert.equal(depth.layers["home.background.cloud.2"].opacity,72);
+    assert.equal(depth.layers["home.background.cloud.1"].elementType,"cloud");
+    assert.equal(depth.layers["home.background.cloud.1"].direction,"right");
+    assert.equal(depth.layers["home.background.cloud.1"].depth,23);
+    assert.equal(depth.layers["home.background.cloud.1"].opacity,34);
+    assert.equal(depth.layers["home.background.cloud.2"].enabled,false);
+    assert.equal(depth.layers["home.background.cloud.2"].tilt,45);
+    assert.equal(depth.layers["home.background.pier"].elementType,"pier");
+    assert.equal(depth.layers["home.background.pier"].direction,"right");
     assert.ok(!Object.keys(depth.layers).some((id)=>id.includes(".auto.")));
 });
 
