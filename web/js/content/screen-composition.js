@@ -91,6 +91,8 @@
             pairId: options.pairId || null,
             pairState: options.pairState || null,
             group: options.group || null,
+            bindingMode: options.bindingMode === "variants" ? "variants" : "single",
+            fxPerVariant: Boolean(options.fxPerVariant),
             asset: null
         });
     }
@@ -121,7 +123,12 @@
         assetSlot("home.header.frame", "Placa moldura", "frame", { required: true, group: "header" }),
         assetSlot("home.header.avatar", "Avatar", "avatar", { required: true, group: "header" }),
         assetSlot("home.header.logo", "Logo", "logo", { required: true, group: "header" }),
-        assetSlot("home.background.main", "Fundo da Home", "home_background", { required: true, group: "background" }),
+        assetSlot("home.background.main", "Fundo da Home", "home_background", {
+            required: true,
+            group: "background",
+            bindingMode: "variants",
+            fxPerVariant: true
+        }),
 
         assetSlot("home.button.shipyard", "Estaleiro", "ui_button", { required: true, action: "shipyard", group: "buttons" }),
         assetSlot("home.button.collectibles", "Colecionáveis", "ui_button", { required: true, action: "collectibles", group: "buttons" }),
@@ -343,7 +350,8 @@
         return {
             slotId: slot.id,
             semanticType: slot.semanticType,
-            asset: null
+            asset: null,
+            ...(slot.bindingMode === "variants" ? { variants: [] } : {})
         };
     }
 
@@ -356,13 +364,26 @@
             const semanticType = slot.acceptedTypes.includes(current?.semanticType)
                 ? current.semanticType
                 : slot.semanticType;
-            result[slot.id] = {
+            const baseBinding = {
                 slotId: slot.id,
                 semanticType,
                 asset: typeof current?.asset === "string" && current.asset.trim()
                     ? current.asset.trim()
                     : null
             };
+            if (slot.bindingMode === "variants") {
+                baseBinding.variants = (Array.isArray(current?.variants) ? current.variants : [])
+                    .filter((variant) => variant && typeof variant === "object" && String(variant.id || "").trim())
+                    .map((variant) => ({
+                        id: String(variant.id).trim(),
+                        label: String(variant.label || variant.id).trim(),
+                        asset: typeof variant.asset === "string" && variant.asset.trim()
+                            ? variant.asset.trim()
+                            : null,
+                        effects: Array.isArray(variant.effects) ? clone(variant.effects) : []
+                    }));
+            }
+            result[slot.id] = baseBinding;
         });
         return result;
     }
@@ -377,6 +398,18 @@
         const slot = getSlot(screenId, slotId);
         if (!slot) return null;
         const type = slot.acceptedTypes.includes(semanticType) ? semanticType : slot.semanticType;
+
+        if (slot.bindingMode === "variants") {
+            return bindVariant(
+                scopeId,
+                screenId,
+                slotId,
+                "default",
+                asset,
+                { label: "Padrão", semanticType: type }
+            );
+        }
+
         const store = readStore();
         const scope = String(scopeId || "");
         store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
@@ -391,13 +424,71 @@
         return clone(store.scopes[scope].bindings[slot.id]);
     }
 
+    function bindVariant(scopeId, screenId, slotId, variantId, asset, options = {}) {
+        const slot = getSlot(screenId, slotId);
+        if (!slot || slot.bindingMode !== "variants") return null;
+
+        const id = String(variantId || "default").trim() || "default";
+        const current = readBinding(scopeId, screenId, slot.id) || emptyBinding(slot);
+        const semanticType = slot.acceptedTypes.includes(options.semanticType)
+            ? options.semanticType
+            : current.semanticType || slot.semanticType;
+        const variants = (current.variants || []).filter((variant) => variant.id !== id);
+        variants.push({
+            id,
+            label: String(options.label || id).trim() || id,
+            asset: typeof asset === "string" && asset.trim() ? asset.trim() : null,
+            effects: Array.isArray(options.effects) ? clone(options.effects) : []
+        });
+
+        const store = readStore();
+        const scope = String(scopeId || "");
+        store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
+        store.scopes[scope].screenType = resolveScreenType(screenId);
+        store.scopes[scope].bindings = store.scopes[scope].bindings || {};
+        store.scopes[scope].bindings[slot.id] = {
+            slotId: slot.id,
+            semanticType,
+            asset: null,
+            variants
+        };
+        writeStore(store);
+        return clone(store.scopes[scope].bindings[slot.id]);
+    }
+
     function setSemanticType(scopeId, screenId, slotId, semanticType) {
+        const slot = getSlot(screenId, slotId);
         const current = readBinding(scopeId, screenId, slotId);
-        if (!current) return null;
-        return bindAsset(scopeId, screenId, slotId, current.asset, semanticType);
+        if (!slot || !current) return null;
+        const type = slot.acceptedTypes.includes(semanticType) ? semanticType : slot.semanticType;
+
+        if (slot.bindingMode === "variants") {
+            const store = readStore();
+            const scope = String(scopeId || "");
+            store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
+            store.scopes[scope].bindings = store.scopes[scope].bindings || {};
+            store.scopes[scope].bindings[slot.id] = {
+                ...current,
+                semanticType: type
+            };
+            writeStore(store);
+            return clone(store.scopes[scope].bindings[slot.id]);
+        }
+        return bindAsset(scopeId, screenId, slotId, current.asset, type);
     }
 
     function unbindAsset(scopeId, screenId, slotId) {
+        const slot = getSlot(screenId, slotId);
+        if (!slot) return null;
+        if (slot.bindingMode === "variants") {
+            const store = readStore();
+            const scope = String(scopeId || "");
+            store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
+            store.scopes[scope].bindings = store.scopes[scope].bindings || {};
+            store.scopes[scope].bindings[slot.id] = emptyBinding(slot);
+            writeStore(store);
+            return clone(store.scopes[scope].bindings[slot.id]);
+        }
         return bindAsset(scopeId, screenId, slotId, null);
     }
 
@@ -455,6 +546,7 @@
         readBindings,
         readBinding,
         bindAsset,
+        bindVariant,
         setSemanticType,
         unbindAsset,
         resetScope,
