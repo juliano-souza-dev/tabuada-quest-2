@@ -261,17 +261,31 @@
 
     function collectTargets(screenRoot, screenId) {
         if (!(screenRoot instanceof Element)) return [];
+        const registry = TQ.content?.screenComposition || null;
+        const compositionActive = Boolean(registry?.getScreen?.(screenId));
         const candidates = [screenRoot, ...screenRoot.querySelectorAll("*")]
-            .filter(isVisualTarget);
+            .filter(isVisualTarget)
+            .filter((element) => {
+                if (!compositionActive) return true;
+                const semanticType = element.dataset.tqSemanticType;
+                if (!element.dataset.tqCompositionSlot || !semanticType) return false;
+                const fx = registry.allowedFxForSemanticType(semanticType);
+                return fx.includes("depth") || fx.includes("ship-rock");
+            });
         const seen = new Set();
 
         return candidates.map((element) => {
             const id = targetId(element, screenRoot, screenId);
             if (!id || seen.has(id)) return null;
             seen.add(id);
+            const semanticType = element.dataset.tqSemanticType || null;
             return {
                 id,
                 label: targetLabel(element, id),
+                semanticType,
+                depthRoles: semanticType && registry
+                    ? [...registry.depthRolesForSemanticType(semanticType)]
+                    : [],
                 element
             };
         }).filter(Boolean);
