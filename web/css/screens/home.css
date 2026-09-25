@@ -731,7 +731,8 @@ html.tq-pwa-runtime .home-safe-visual-area {
 
 /* Home UX snapshot · 2026-09-24 21:03 BRT */
 .home-screen {
-    translate: 1px -10px;
+    /* Structural viewport: never move/scale this from a UX snapshot. */
+    translate: 0 0;
     scale: 1 1;
     transform-origin: top left;
 }
@@ -743,8 +744,9 @@ html.tq-pwa-runtime .home-safe-visual-area {
 }
 
 .home-safe-visual-area {
+    /* Fixed useful area. Child artwork may move; this coordinate system may not. */
     translate: 0 0;
-    scale: 1.0364055488242507 1;
+    scale: 1 1;
     transform-origin: top left;
 }
 
