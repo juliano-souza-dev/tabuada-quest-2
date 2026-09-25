@@ -56,6 +56,39 @@
         }
     }
 
+    function readScopedComposition(storageScopeId, screenId) {
+        try {
+            const registry = TQ.content?.screenComposition;
+            const screenType = registry?.resolveScreenType?.(screenId);
+            if (!registry || !screenType) return null;
+            return {
+                version: registry.SCHEMA_VERSION,
+                screenType,
+                assets: registry.getAssetSlots(screenType).map((slot) => ({
+                    id: slot.id,
+                    label: slot.label,
+                    semanticType: slot.semanticType,
+                    acceptedTypes: [...(slot.acceptedTypes || [])],
+                    required: Boolean(slot.required),
+                    action: slot.action || null,
+                    pairId: slot.pairId || null,
+                    pairState: slot.pairState || null,
+                    group: slot.group || null,
+                    binding: registry.readBinding(storageScopeId, screenType, slot.id)
+                })),
+                functions: registry.getFunctionSlots(screenType).map((item) => ({
+                    id: item.id,
+                    label: item.label,
+                    action: item.action,
+                    required: Boolean(item.required)
+                })),
+                dynamic: registry.getDynamicSlots(screenType)
+            };
+        } catch (_) {
+            return null;
+        }
+    }
+
     function readStore() {
         try {
             const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "{}");
@@ -1607,11 +1640,12 @@
                 depth: {
                     version: 1,
                     config: readScopedDepth(storageScopeId, editorContext)
-                }
+                },
+                composition: readScopedComposition(storageScopeId, screenId)
             }, null, 2);
             try {
                 await navigator.clipboard.writeText(payload);
-                status.textContent = "Layout + parallax + mar + cena copiados";
+                status.textContent = "Layout + composição + FX copiados";
             } catch (_) {
                 const area = document.createElement("textarea");
                 area.value = payload;
@@ -1619,7 +1653,7 @@
                 area.select();
                 document.execCommand("copy");
                 area.remove();
-                status.textContent = "Layout + parallax + mar + cena copiados";
+                status.textContent = "Layout + composição + FX copiados";
             }
         });
 
