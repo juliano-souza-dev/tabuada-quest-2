@@ -578,59 +578,57 @@
                 </header>
 
                 ${composition ? `
-                    <label>
-                        Destino na tela
-                        <select data-upload-slot>
-                            <option value="">Novo asset livre</option>
-                            ${compositionSlots.map((slot) =>
-                                '<option value="' + slot.id + '">' +
-                                (slot.required ? '● ' : '○ ') + slot.label +
-                                '</option>'
-                            ).join("")}
-                        </select>
-                    </label>
+                    <fieldset class="tq-asset-upload-classification">
+                        <legend>1 · Classificar asset</legend>
 
-                    <label>
-                        Tipo do asset
-                        <select data-upload-semantic></select>
-                    </label>
+                        <label>
+                            Destino na tela
+                            <select data-upload-slot>
+                                ${compositionSlots.map((slot) =>
+                                    '<option value="' + slot.id + '">' +
+                                    (slot.required ? '● ' : '○ ') + slot.label +
+                                    '</option>'
+                                ).join("")}
+                            </select>
+                        </label>
 
-                    <label>
-                        Função
-                        <select data-upload-function>
-                            <option value="">Nenhuma · decorativo</option>
-                            ${[...screenRoot.querySelectorAll(".tq-engine-function-proxy")].map((fn) =>
-                                '<option value="' + fn.dataset.tqDevId + '">' + (fn.dataset.tqDevLabel || fn.dataset.tqDevAction || fn.dataset.tqDevId) + '</option>'
-                            ).join("")}
-                        </select>
-                    </label>
+                        <label>
+                            Tipo do asset
+                            <select data-upload-semantic></select>
+                        </label>
 
-                    <small data-upload-slot-info>
-                        ● obrigatório · ○ opcional
-                    </small>
+                        <div class="tq-asset-upload-classification-summary">
+                            <small>Será adicionado como</small>
+                            <strong data-upload-classification></strong>
+                        </div>
 
-                    <label data-upload-variant-row hidden>
-                        Qual fundo?
-                        <input
-                            data-upload-variant-id
-                            type="text"
-                            spellcheck="false"
-                            autocomplete="off"
-                            placeholder="Ex.: pirate-main">
-                    </label>
+                        <small data-upload-slot-info>
+                            ● obrigatório · ○ opcional
+                        </small>
 
-                    <label>
-                        Arquivo publicado
-                        <input
-                            data-upload-published-path
-                            type="text"
-                            spellcheck="false"
-                            autocomplete="off"
-                            placeholder="Será preenchido a partir da pasta e do arquivo">
-                    </label>
-                    <button type="button" data-upload-bind-published>
-                        Vincular arquivo publicado
-                    </button>
+                        <label data-upload-variant-row hidden>
+                            Qual fundo?
+                            <input
+                                data-upload-variant-id
+                                type="text"
+                                spellcheck="false"
+                                autocomplete="off"
+                                placeholder="Ex.: pirate-main">
+                        </label>
+
+                        <label>
+                            Arquivo publicado
+                            <input
+                                data-upload-published-path
+                                type="text"
+                                spellcheck="false"
+                                autocomplete="off"
+                                placeholder="Será preenchido a partir da pasta e do arquivo">
+                        </label>
+                        <button type="button" data-upload-bind-published>
+                            Vincular arquivo publicado
+                        </button>
+                    </fieldset>
                 ` : ""}
 
                 <label>
@@ -662,21 +660,22 @@
                 </button>
 
                 <fieldset class="tq-asset-upload-dev-local" data-live-dropzone>
-                    <legend>Arquivo local · tempo real</legend>
+                    <legend>${composition ? "2 · Escolher arquivo" : "Arquivo local · tempo real"}</legend>
 
                     <strong data-live-file-name>Nenhum arquivo local</strong>
 
                     <small>
-                        <b>Adicionar por cima</b> cria uma nova camada visível sobre a arte,
-                        salva neste dispositivo e restaura após F5. Ela abre automaticamente no UX.
+                        ${composition
+                            ? "<b>Adicionar ao destino</b> usa o slot e o tipo escolhidos acima. A arte fica salva localmente e abre no UX."
+                            : "<b>Adicionar por cima</b> cria uma nova camada visual e salva neste dispositivo."}
                     </small>
 
                     <div class="tq-asset-upload-dev-actions">
                         <button type="button" class="is-primary" data-live-add>
-                            ➕ Adicionar por cima
+                            ${composition ? "➕ Adicionar ao destino" : "➕ Adicionar por cima"}
                         </button>
                         <button type="button" data-live-replace>
-                            ⇄ Trocar selecionado
+                            ${composition ? "⇄ Trocar arte do destino" : "⇄ Trocar selecionado"}
                         </button>
                     </div>
 
@@ -696,7 +695,9 @@
                         hidden>
 
                     <small class="tq-asset-upload-dev-drop-hint">
-                        Arrastar uma imagem para este bloco também adiciona uma camada por cima.
+                        ${composition
+                            ? "Arraste uma imagem aqui para adicioná-la usando o destino e o tipo escolhidos acima."
+                            : "Arrastar uma imagem para este bloco também adiciona uma camada por cima."}
                     </small>
                 </fieldset>
 
@@ -723,6 +724,7 @@
         const slotSelect = host.querySelector("[data-upload-slot]");
         const semanticSelect = host.querySelector("[data-upload-semantic]");
         const functionSelect = host.querySelector("[data-upload-function]");
+        const classificationLabel = host.querySelector("[data-upload-classification]");
         const slotInfo = host.querySelector("[data-upload-slot-info]");
         const publishedPathInput = host.querySelector("[data-upload-published-path]");
         const bindPublishedButton = host.querySelector("[data-upload-bind-published]");
@@ -780,19 +782,32 @@
             const slot = selectedCompositionSlot();
             const allowedTypes = slot?.acceptedTypes?.length
                 ? slot.acceptedTypes
-                : Object.keys(compositionRegistry.SEMANTIC_TYPES || {});
-            semanticSelect.replaceChildren(...((allowedTypes).map((type) => {
+                : [];
+            semanticSelect.replaceChildren(...allowedTypes.map((type) => {
                 const option = document.createElement("option");
                 option.value = type;
                 option.textContent = compositionRegistry.SEMANTIC_TYPES[type]?.label || type;
                 return option;
-            })));
+            }));
             const current = slot
                 ? compositionRegistry.readBinding(screenId, compositionScreenId, slot.id)
                 : null;
             if (current?.semanticType && [...semanticSelect.options].some((option) => option.value === current.semanticType)) {
                 semanticSelect.value = current.semanticType;
+            } else if (slot?.semanticType) {
+                semanticSelect.value = slot.semanticType;
             }
+            semanticSelect.disabled = allowedTypes.length <= 1;
+
+            const typeLabel = compositionRegistry.SEMANTIC_TYPES[semanticSelect.value]?.label
+                || semanticSelect.value
+                || "Sem tipo";
+            if (classificationLabel) {
+                classificationLabel.textContent = slot
+                    ? slot.label + " · " + typeLabel
+                    : "Escolha um destino";
+            }
+
             const usesVariants = slot?.bindingMode === "variants";
             if (variantRow) variantRow.hidden = !usesVariants;
             if (variantInput && usesVariants) {
@@ -810,10 +825,15 @@
                     current?.asset
                     || (current?.variants || []).some((variant) => variant.asset)
                 );
+                const functionSlot = slot?.action
+                    ? compositionRegistry.getFunctionSlots(compositionScreenId)
+                        .find((item) => item.action === slot.action)
+                    : null;
                 slotInfo.textContent = slot
                     ? (slot.required ? "Obrigatório" : "Opcional")
                         + " · " + (hasPublishedArt ? "arte vinculada" : "sem arte")
-                        + (fx.length ? " · " + fx.map((id) => compositionRegistry.fxLabel(id)).join(" · ") : " · sem efeito")
+                        + (functionSlot ? " · função: " + functionSlot.label : "")
+                        + (fx.length ? " · FX: " + fx.map((id) => compositionRegistry.fxLabel(id)).join(", ") : " · sem FX")
                     : "";
             }
             if (publishedPathInput) {
@@ -833,9 +853,21 @@
         }
 
         function syncSelected() {
+            const selected = selectedAssetElement();
             const folder = selectedAssetFolder(rootPath);
             selectedLabel.textContent = selectedAssetLabel();
             selectedPath.textContent = folder || "Sem pasta detectável";
+
+            const selectedSlotId = selected?.dataset?.tqCompositionSlot;
+            if (
+                composition
+                && slotSelect
+                && selectedSlotId
+                && [...slotSelect.options].some((option) => option.value === selectedSlotId)
+            ) {
+                slotSelect.value = selectedSlotId;
+                syncCompositionSlot();
+            }
             return folder;
         }
 
@@ -902,9 +934,31 @@
             }
 
             const slot = selectedCompositionSlot();
-            const semanticType = semanticSelect?.value || slot?.semanticType || "environment";
-            const selectedFunction = functionSelect?.value
+            if (composition && !slot) {
+                status.textContent = "Escolha o destino do asset";
+                return;
+            }
+
+            const semanticType = semanticSelect?.value || slot?.semanticType || null;
+            if (!semanticType) {
+                status.textContent = "Escolha o tipo do asset";
+                return;
+            }
+            if (
+                slot
+                && Array.isArray(slot.acceptedTypes)
+                && !slot.acceptedTypes.includes(semanticType)
+            ) {
+                status.textContent = "Esse tipo não é permitido neste destino";
+                return;
+            }
+
+            const selectedFunction = !slot && functionSelect?.value
                 ? screenRoot.querySelector('.tq-engine-function-proxy[data-tq-dev-id="' + CSS.escape(functionSelect.value) + '"]')
+                : null;
+            const canonicalFunction = slot?.action
+                ? compositionRegistry.getFunctionSlots(compositionScreenId)
+                    .find((item) => item.action === slot.action)
                 : null;
             const variantId = slot?.bindingMode === "variants" ? selectedVariantId() : null;
             const id = slot
@@ -936,8 +990,8 @@
                 slotId: slot?.id || null,
                 slotLabel: slot?.label || null,
                 semanticType: semanticType || null,
-                boundFunctionId: selectedFunction?.dataset?.tqDevId || null,
-                boundAction: selectedFunction?.dataset?.tqDevAction || null,
+                boundFunctionId: canonicalFunction?.id || selectedFunction?.dataset?.tqDevId || null,
+                boundAction: slot?.action || selectedFunction?.dataset?.tqDevAction || null,
                 variantId,
                 pairId: slot?.pairId || null,
                 pairState: slot?.pairState || null
@@ -1132,13 +1186,20 @@
             }
         });
 
-        slotSelect?.addEventListener("change", syncCompositionSlot);
+        slotSelect?.addEventListener("change", () => {
+            syncCompositionSlot();
+            status.textContent = "Destino definido";
+        });
         variantInput?.addEventListener("change", () => {
             if (publishedPathInput) publishedPathInput.value = suggestedPublishedPath();
             syncCompositionSlot();
         });
         semanticSelect?.addEventListener("change", () => {
             const slot = selectedCompositionSlot();
+            if (!slot) {
+                syncCompositionSlot();
+                return;
+            }
             if (slot) {
                 compositionRegistry.setSemanticType(
                     screenId,
