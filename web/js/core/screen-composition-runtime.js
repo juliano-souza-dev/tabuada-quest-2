@@ -522,6 +522,18 @@
                 return { ...binding, asset: TQ.content?.levelBadges?.[level - 1] || binding?.asset || null };
             }
             if (slot.id === "home.character.avatar-full") return { ...binding, asset: heroAsset };
+            if (slot.id === "home.background.ship.1") {
+                const defaultShipId = TQ.content?.defaultShipId || "ship-colombo";
+                const equippedShipId = String(runtimeState?.shop?.equippedShipId || defaultShipId);
+                const ships = TQ.content?.shopCatalog?.ships || [];
+                const equippedShip = ships.find?.((item) => item.id === equippedShipId)
+                    || ships.find?.((item) => item.id === defaultShipId)
+                    || ships.find?.((item) => item.isDefault)
+                    || ships[0]
+                    || null;
+                if (equippedShip?.id) screenRoot.dataset.tqEquippedShipId = equippedShip.id;
+                return { ...binding, asset: equippedShip?.asset || binding?.asset || null };
+            }
             return binding;
         }
 
