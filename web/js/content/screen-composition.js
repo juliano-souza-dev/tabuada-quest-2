@@ -693,6 +693,8 @@
                     slotId: slot.id,
                     semanticType,
                     asset: null,
+                    removed: Boolean(storedBinding?.removed),
+                    removedVariants: [...removedVariants],
                     variants: [...variantsById.values()]
                 };
                 return;
@@ -710,7 +712,8 @@
                 semanticType,
                 asset: storedBinding?.removed
                     ? null
-                    : storedAsset || publishedAsset || null
+                    : storedAsset || publishedAsset || null,
+                removed: Boolean(storedBinding?.removed)
             };
         });
 
@@ -747,7 +750,8 @@
         store.scopes[scope].bindings[slot.id] = {
             slotId: slot.id,
             semanticType: type,
-            asset: typeof asset === "string" && asset.trim() ? asset.trim() : null
+            asset: typeof asset === "string" && asset.trim() ? asset.trim() : null,
+            removed: false
         };
         writeStore(store);
         return clone(store.scopes[scope].bindings[slot.id]);
