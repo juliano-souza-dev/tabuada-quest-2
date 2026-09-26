@@ -111,10 +111,18 @@
                 </label>
 
                 <fieldset>
-                    <legend>Área da água</legend>
-                    <p>Desenhe sobre a parte do cenário que deve se mexer. As ilhas continuam independentes por cima.</p>
+                    <legend>Área do efeito</legend>
+                    <p>Escolha a forma de seleção. Ponto a ponto é ideal para contornar ilhas, costas e pier.</p>
+                    <label>Forma de seleção
+                        <select data-ocean-area-mode>
+                            <option value="freehand">Livre · desenhar</option>
+                            <option value="polygon">Ponto a ponto · polígono</option>
+                            <option value="rectangle">Retângulo</option>
+                            <option value="ellipse">Elipse</option>
+                        </select>
+                    </label>
                     <div class="tq-ocean-actions">
-                        <button type="button" data-ocean-mark-area>Marcar área da água</button>
+                        <button type="button" data-ocean-mark-area>Marcar área do efeito</button>
                         <button type="button" data-ocean-default-area>Usar área padrão</button>
                     </div>
                 </fieldset>
@@ -139,6 +147,7 @@
         const shipWake = host.querySelector("[data-ocean-ship-wake]");
         const shipWakeLabel = shipWake?.closest("label");
         const quality = host.querySelector("[data-ocean-quality]");
+        const areaMode = host.querySelector("[data-ocean-area-mode]");
         const movementValue = host.querySelector("[data-ocean-movement-value]");
         const speedValue = host.querySelector("[data-ocean-speed-value]");
         const shineValue = host.querySelector("[data-ocean-shine-value]");
@@ -261,19 +270,53 @@
         }
 
         function startAreaSelection() {
+            const mode = String(areaMode?.value || "freehand");
             openPanel(false);
-            status.textContent = "Desenhe a área da água";
+
+            const modeLabel = {
+                freehand: "Livre",
+                polygon: "Ponto a ponto",
+                rectangle: "Retângulo",
+                ellipse: "Elipse"
+            }[mode] || "Livre";
+
+            status.textContent = mode === "polygon"
+                ? "Toque ponto a ponto ao redor da área"
+                : "Marque a área · " + modeLabel;
 
             const overlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             overlay.classList.add("tq-ocean-area-lasso");
             overlay.setAttribute("aria-hidden", "true");
+
             const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             polygon.classList.add("tq-ocean-area-lasso-shape");
             overlay.appendChild(polygon);
-            document.body.appendChild(overlay);
+
+            const pointsLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            pointsLayer.classList.add("tq-ocean-area-points");
+            overlay.appendChild(pointsLayer);
+
+            const controls = document.createElement("div");
+            controls.className = "tq-ocean-area-controls";
+            controls.innerHTML = `
+                <strong>${modeLabel}</strong>
+                <button type="button" data-ocean-area-undo>Desfazer ponto</button>
+                <button type="button" data-ocean-area-finish>Concluir</button>
+                <button type="button" data-ocean-area-cancel>Cancelar</button>
+            `;
+
+            document.body.append(overlay, controls);
+
+            const undoButton = controls.querySelector("[data-ocean-area-undo]");
+            const finishButton = controls.querySelector("[data-ocean-area-finish]");
+            const cancelButton = controls.querySelector("[data-ocean-area-cancel]");
+
+            undoButton.hidden = mode !== "polygon";
+            finishButton.hidden = mode !== "polygon";
 
             const stageRect = oceanHost.getBoundingClientRect();
             let drawing = false;
+            let startPoint = null;
             let points = [];
 
             function pointFromEvent(event) {
@@ -290,8 +333,57 @@
                     && event.clientY <= stageRect.bottom;
             }
 
+            function pointsForRectangle(a, b) {
+                const left = Math.min(a.x, b.x);
+                const right = Math.max(a.x, b.x);
+                const top = Math.min(a.y, b.y);
+                const bottom = Math.max(a.y, b.y);
+                return [
+                    { x: left, y: top },
+                    { x: right, y: top },
+                    { x: right, y: bottom },
+                    { x: left, y: bottom }
+                ];
+            }
+
+            function pointsForEllipse(a, b, count = 40) {
+                const left = Math.min(a.x, b.x);
+                const right = Math.max(a.x, b.x);
+                const top = Math.min(a.y, b.y);
+                const bottom = Math.max(a.y, b.y);
+                const cx = (left + right) / 2;
+                const cy = (top + bottom) / 2;
+                const rx = Math.max(1, (right - left) / 2);
+                const ry = Math.max(1, (bottom - top) / 2);
+                return Array.from({ length: count }, (_, index) => {
+                    const angle = (Math.PI * 2 * index) / count;
+                    return {
+                        x: cx + Math.cos(angle) * rx,
+                        y: cy + Math.sin(angle) * ry
+                    };
+                });
+            }
+
             function redraw() {
-                polygon.setAttribute("points", points.map((point) => point.x + "," + point.y).join(" "));
+                polygon.setAttribute(
+                    "points",
+                    points.map((point) => point.x + "," + point.y).join(" ")
+                );
+
+                pointsLayer.replaceChildren();
+                if (mode !== "polygon") return;
+
+                points.forEach((point, index) => {
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.classList.add("tq-ocean-area-point");
+                    circle.setAttribute("cx", String(point.x));
+                    circle.setAttribute("cy", String(point.y));
+                    circle.setAttribute("r", index === 0 ? "7" : "5");
+                    pointsLayer.appendChild(circle);
+                });
+
+                finishButton.disabled = points.length < 3;
+                undoButton.disabled = points.length === 0;
             }
 
             function cleanup() {
@@ -301,6 +393,7 @@
                 root.removeEventListener("pointercancel", onUp, true);
                 root.removeEventListener("keydown", onKeyDown, true);
                 overlay.remove();
+                controls.remove();
             }
 
             function cancel() {
@@ -309,35 +402,10 @@
                 openPanel(true);
             }
 
-            function onDown(event) {
-                if (!insideStage(event)) return;
-                drawing = true;
-                points = [pointFromEvent(event)];
-                redraw();
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
-            function onMove(event) {
-                if (!drawing) return;
-                const point = pointFromEvent(event);
-                const last = points[points.length - 1];
-                if (Math.hypot(point.x - last.x, point.y - last.y) < 4) return;
-                points.push(point);
-                redraw();
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
-            function onUp(event) {
-                if (!drawing) return;
-                drawing = false;
-                event.preventDefault();
-                event.stopPropagation();
-
+            function saveArea(message = "Área do efeito salva") {
                 if (points.length < 3) {
-                    cancel();
-                    return;
+                    status.textContent = "Marque pelo menos 3 pontos";
+                    return false;
                 }
 
                 config.area = points.map((point) => ({
@@ -347,14 +415,121 @@
 
                 cleanup();
                 openPanel(true);
-                persist("Área da água salva");
+                persist(message);
+                return true;
+            }
+
+            function onDown(event) {
+                if (event.target?.closest?.(".tq-ocean-area-controls")) return;
+                if (!insideStage(event)) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const point = pointFromEvent(event);
+
+                if (mode === "polygon") {
+                    if (
+                        points.length >= 3
+                        && Math.hypot(point.x - points[0].x, point.y - points[0].y) <= 18
+                    ) {
+                        saveArea("Área ponto a ponto salva");
+                        return;
+                    }
+                    points.push(point);
+                    redraw();
+                    status.textContent = points.length < 3
+                        ? "Adicione mais " + (3 - points.length) + " ponto(s)"
+                        : "Continue contornando ou toque Concluir";
+                    return;
+                }
+
+                drawing = true;
+                startPoint = point;
+                points = mode === "freehand" ? [point] : pointsForRectangle(point, point);
+                redraw();
+            }
+
+            function onMove(event) {
+                if (!drawing || mode === "polygon") return;
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const point = pointFromEvent(event);
+
+                if (mode === "freehand") {
+                    const last = points[points.length - 1];
+                    if (Math.hypot(point.x - last.x, point.y - last.y) < 4) return;
+                    points.push(point);
+                } else if (mode === "rectangle") {
+                    points = pointsForRectangle(startPoint, point);
+                } else if (mode === "ellipse") {
+                    points = pointsForEllipse(startPoint, point);
+                }
+
+                redraw();
+            }
+
+            function onUp(event) {
+                if (!drawing || mode === "polygon") return;
+
+                drawing = false;
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (mode === "freehand" && points.length < 3) {
+                    cancel();
+                    return;
+                }
+
+                saveArea(
+                    mode === "ellipse" ? "Área elíptica salva"
+                    : mode === "rectangle" ? "Área retangular salva"
+                    : "Área livre salva"
+                );
             }
 
             function onKeyDown(event) {
-                if (event.key !== "Escape") return;
-                event.preventDefault();
-                cancel();
+                if (event.key === "Escape") {
+                    event.preventDefault();
+                    cancel();
+                    return;
+                }
+
+                if (mode === "polygon" && event.key === "Enter") {
+                    event.preventDefault();
+                    saveArea("Área ponto a ponto salva");
+                    return;
+                }
+
+                if (mode === "polygon" && (event.key === "Backspace" || event.key === "Delete")) {
+                    event.preventDefault();
+                    points.pop();
+                    redraw();
+                }
             }
+
+            undoButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                points.pop();
+                redraw();
+            });
+
+            finishButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                saveArea("Área ponto a ponto salva");
+            });
+
+            cancelButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                cancel();
+            });
+
+            redraw();
 
             root.addEventListener("pointerdown", onDown, true);
             root.addEventListener("pointermove", onMove, true);
