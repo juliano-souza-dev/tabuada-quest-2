@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260926-zip-group-validation-v2";
+const CACHE_VERSION = "tq2-dev-assets-20260926-ocean-area-touch-v2";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
