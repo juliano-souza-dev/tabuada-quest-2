@@ -149,6 +149,16 @@
             source: "Apple HIG"
         }),
 
+        "galaxy-a15-a16": profile({
+            id: "galaxy-a15-a16",
+            label: "Galaxy A15 / A16 · 412 × 893",
+            group: "Android de referência",
+            width: 412,
+            height: 892.6667,
+            dpr: 2.621,
+            radius: 24,
+            source: "Preset histórico medido no projeto"
+        }),
         "galaxy-s24": profile({
             id: "galaxy-s24",
             label: "Galaxy S24 · ~360 × 800",
@@ -322,25 +332,23 @@
     }
 
     function computePreviewFit(profileValue, viewportWidth, viewportHeight) {
-        const bezel = profileValue.type === "desktop" ? 4 : 18;
-        const horizontalPadding = 36;
-        const verticalPadding = 104;
+        // Keep the original DEV scale contract so existing tooling/tests remain
+        // stable. Only the iframe viewport changed; logical dimensions are still
+        // scaled uniformly to fit inside the host browser.
+        const horizontalPadding = 32;
+        const verticalPadding = 86;
         const availableWidth = Math.max(1, viewportWidth - horizontalPadding);
         const availableHeight = Math.max(1, viewportHeight - verticalPadding);
-        const outerWidth = profileValue.width + bezel * 2;
-        const outerHeight = profileValue.height + bezel * 2;
         const scale = Math.min(
             1,
-            availableWidth / outerWidth,
-            availableHeight / outerHeight
+            availableWidth / profileValue.width,
+            availableHeight / profileValue.height
         );
 
         return Object.freeze({
             scale,
-            renderWidth: outerWidth * scale,
-            renderHeight: outerHeight * scale,
-            outerWidth,
-            outerHeight,
+            renderWidth: profileValue.width * scale,
+            renderHeight: profileValue.height * scale,
             aspectRatio: profileValue.width / profileValue.height
         });
     }
@@ -383,8 +391,9 @@
 
         if (simulatorRefs) {
             const { shell, frame, iframe, metrics, source, rotate } = simulatorRefs;
-            shell.style.width = fit.renderWidth + "px";
-            shell.style.height = fit.renderHeight + "px";
+            const bezel = 18;
+            shell.style.width = (fit.renderWidth + bezel * fit.scale) + "px";
+            shell.style.height = (fit.renderHeight + bezel * fit.scale) + "px";
             frame.style.width = logical.width + "px";
             frame.style.height = logical.height + "px";
             frame.style.borderRadius = logical.radius + "px";
