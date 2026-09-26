@@ -1,0 +1,126 @@
+/* DEV preview v4: logical viewport is exact; only the outer frame scales. */
+.tq-preview-dev {
+    position: fixed;
+    z-index: 100020;
+    top: 10px;
+    left: 10px;
+    display: none;
+    grid-template-columns: auto minmax(170px, auto) auto;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 9px;
+    border: 1px solid rgba(229,189,84,.58);
+    border-radius: 10px;
+    color: #fff8df;
+    background: rgba(5,29,41,.96);
+    box-shadow: 0 8px 24px rgba(0,0,0,.32);
+    font: 700 11px/1.2 system-ui, sans-serif;
+}
+
+.tq-preview-dev strong {
+    color: #ffe18a;
+    letter-spacing: .05em;
+}
+
+.tq-preview-dev select,
+.tq-preview-dev input {
+    min-height: 32px;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 7px;
+    color: #fff8df;
+    background: #102f3f;
+    font: inherit;
+}
+
+.tq-preview-dev select { padding: 0 8px; }
+
+.tq-preview-dev [data-preview-custom] {
+    display: grid;
+    grid-template-columns: 64px auto 70px;
+    align-items: center;
+    gap: 4px;
+}
+
+.tq-preview-dev [data-preview-custom][hidden] { display: none; }
+.tq-preview-dev input { width: 100%; padding: 0 6px; box-sizing: border-box; }
+.tq-preview-dev small { color: #b9d3dc; white-space: nowrap; }
+
+@media (min-width: 700px) {
+    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) body {
+        display: grid;
+        place-items: start center;
+        min-height: 100dvh;
+        padding: 56px 16px 16px;
+        overflow: auto;
+        box-sizing: border-box;
+    }
+
+    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .tq-preview-dev {
+        display: grid;
+    }
+
+    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-stage {
+        position: relative;
+        display: block;
+        width: var(--tq-preview-panel-width);
+        height: var(--tq-preview-panel-height);
+        min-width: var(--tq-preview-panel-width);
+        min-height: var(--tq-preview-panel-height);
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: var(--tq-preview-radius);
+        background: #081117;
+        box-shadow: 0 30px 90px rgba(0,0,0,.46), 0 0 0 4px rgba(3,9,13,.96);
+        transform: scale(var(--tq-preview-scale));
+        transform-origin: top center;
+        margin-bottom: calc((var(--tq-preview-panel-height) * (1 - var(--tq-preview-scale))) * -1);
+    }
+
+    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-viewport {
+        position: absolute;
+        left: 0;
+        top: var(--tq-preview-status-height);
+        width: var(--tq-preview-app-width);
+        height: var(--tq-preview-app-height);
+        min-width: 0;
+        min-height: 0;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        border: 0;
+        border-radius: 0;
+        transform: none;
+        aspect-ratio: auto;
+    }
+
+    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-stage::before {
+        content: "";
+        position: absolute;
+        z-index: 1000;
+        inset: 0 0 auto;
+        height: var(--tq-preview-status-height);
+        background: rgba(7,29,41,.96);
+        pointer-events: none;
+    }
+
+    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-stage::after {
+        content: "";
+        position: absolute;
+        z-index: 1000;
+        inset: auto 0 0;
+        height: var(--tq-preview-navigation-height);
+        background: rgba(7,29,41,.96);
+        pointer-events: none;
+    }
+
+    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-viewport > section {
+        height: 100%;
+        min-height: 0;
+    }
+}
+
+@media (max-width: 699px) {
+    .tq-preview-dev { display: none !important; }
+}
