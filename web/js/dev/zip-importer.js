@@ -321,8 +321,16 @@
             });
 
         if (groupId === "scene" || groupId === "mixed") {
+            const relevantGroups = new Set(
+                relevant.map((slot) => String(slot.group || "")).filter(Boolean)
+            );
+
             Object.entries(limits).forEach(([group, limit]) => {
-                const groupSlotsList = slots.filter((slot) => slot.group === group);
+                // Package validation must never leak rules from another package.
+                // Example: importing "Cenário" must not require "Avatar completo".
+                if (!relevantGroups.has(group)) return;
+
+                const groupSlotsList = relevant.filter((slot) => slot.group === group);
                 if (!groupSlotsList.length) return;
                 const count = groupSlotsList.filter((slot) => occupied.has(slot.id)).length;
                 const min = Number(limit?.min);
