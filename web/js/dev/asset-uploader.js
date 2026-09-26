@@ -872,7 +872,7 @@
 
                     <div class="tq-asset-upload-dev-actions">
                         <button type="button" data-live-remove disabled>
-                            🗑 Remover camada
+                            ${composition ? "🗑 Remover arte do destino" : "🗑 Remover camada"}
                         </button>
                         <button type="button" data-live-revert disabled>
                             ↩ Desfazer troca
@@ -1078,6 +1078,9 @@
             }
             if (publishedPathInput) {
                 publishedPathInput.value = suggestedPublishedPath(slot);
+            }
+            if (removeButton) {
+                removeButton.disabled = slot ? !slotHasArt(slot) : true;
             }
         }
 
@@ -1677,6 +1680,64 @@
         }
 
         async function removeLastLayer() {
+            const slot = selectedCompositionSlot();
+
+            if (composition && slot) {
+                const variantId = slot.bindingMode === "variants"
+                    ? selectedVariantId()
+                    : null;
+
+                try {
+                    await removeLocalLayerBySlot(
+                        screenId,
+                        slot.id,
+                        variantId,
+                        screenRoot
+                    );
+                } catch (error) {
+                    console.warn("Falha ao remover asset local persistido do destino:", error);
+                }
+
+                for (let index = localLayers.length - 1; index >= 0; index -= 1) {
+                    const item = localLayers[index];
+                    if (item.slotId !== slot.id) continue;
+                    if (
+                        variantId !== null
+                        && String(item.variantId || "default") !== String(variantId || "default")
+                    ) continue;
+                    localLayers.splice(index, 1);
+                }
+
+                if (slot.bindingMode === "variants") {
+                    compositionRegistry.unbindVariant(
+                        screenId,
+                        resolvedCompositionScreenId,
+                        slot.id,
+                        variantId
+                    );
+                } else {
+                    compositionRegistry.unbindAsset(
+                        screenId,
+                        resolvedCompositionScreenId,
+                        slot.id
+                    );
+                }
+
+                const slotElement = semanticSlotElement(screenRoot, slot.id);
+                if (slotElement instanceof HTMLElement) {
+                    slotElement.dataset.tqSlotEmpty = "true";
+                }
+
+                root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                    detail: { scopeId: screenId, screenId: compositionScreenId, slotId: slot.id }
+                }));
+
+                fileName.textContent = localLayers.at(-1)?.fileName || "Nenhum arquivo local";
+                status.textContent = slot.label + " · arte removida";
+                syncCompositionSlot();
+                return;
+            }
+
             const entry = localLayers.pop();
             if (!entry) return;
 
@@ -1691,38 +1752,7 @@
 
             removeButton.disabled = localLayers.length === 0;
             fileName.textContent = localLayers.at(-1)?.fileName || "Nenhum arquivo local";
-            if (entry.slotId) {
-                const slot = compositionRegistry?.getSlot?.(
-                    resolvedCompositionScreenId,
-                    entry.slotId
-                );
-                if (slot?.bindingMode === "variants") {
-                    compositionRegistry.unbindVariant(
-                        screenId,
-                        resolvedCompositionScreenId,
-                        slot.id,
-                        entry.variantId || selectedVariantId()
-                    );
-                } else if (slot) {
-                    compositionRegistry.unbindAsset(
-                        screenId,
-                        resolvedCompositionScreenId,
-                        slot.id
-                    );
-                }
-
-                const slotElement = semanticSlotElement(screenRoot, entry.slotId);
-                if (slotElement instanceof HTMLElement) {
-                    slotElement.dataset.tqSlotEmpty = "true";
-                }
-
-                root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
-                    detail: { scopeId: screenId, screenId: compositionScreenId, slotId: entry.slotId }
-                }));
-                status.textContent = "Arte removida do destino";
-            } else {
-                status.textContent = "Camada local removida";
-            }
+            status.textContent = "Camada local removida";
         }
 
         function validImage(file) {
@@ -1857,7 +1887,22 @@
                 return;
             }
             const assetUrl = runtimeAssetUrl(publishedPathInput?.value);
-            if (slot.bindingMode === "variants") {
+            if (!assetUrl) {
+                if (slot.bindingMode === "variants") {
+                    compositionRegistry.unbindVariant(
+                        screenId,
+                        resolvedCompositionScreenId,
+                        slot.id,
+                        selectedVariantId()
+                    );
+                } else {
+                    compositionRegistry.unbindAsset(
+                        screenId,
+                        resolvedCompositionScreenId,
+                        slot.id
+                    );
+                }
+            } else if (slot.bindingMode === "variants") {
                 compositionRegistry.bindVariant(
                     screenId,
                     resolvedCompositionScreenId,
@@ -1973,7 +2018,9 @@
             openExternal(buildFolderUrl(repository, branch, folder));
         });
 
-        removeButton.disabled = localLayers.length === 0;
+        removeButton.disabled = composition
+            ? !slotHasArt(selectedCompositionSlot())
+            : localLayers.length === 0;
         if (localLayers.length) {
             fileName.textContent = localLayers.at(-1)?.fileName || "Asset local restaurado";
         }
