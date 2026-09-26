@@ -545,6 +545,19 @@
                     runtimeAsset = TQ.content?.assets?.homeHeroes?.[avatarId]
                         || TQ.content?.assets?.homeHeroes?.sofia
                         || binding.asset;
+                } else if (slot.id === "home.background.ship.1") {
+                    const defaultShipId = TQ.content?.defaultShipId || "ship-colombo";
+                    const equippedShipId = String(runtimeState?.shop?.equippedShipId || defaultShipId);
+                    const ships = TQ.content?.shopCatalog?.ships || [];
+                    const equippedShip = ships.find?.((item) => item.id === equippedShipId)
+                        || ships.find?.((item) => item.id === defaultShipId)
+                        || ships.find?.((item) => item.isDefault)
+                        || ships[0]
+                        || null;
+                    runtimeAsset = equippedShip?.asset || binding.asset;
+                    if (runtimeAsset) {
+                        screenRoot.dataset.tqEquippedShipId = equippedShip?.id || defaultShipId;
+                    }
                 }
 
                 if (runtimeAsset) {
