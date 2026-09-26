@@ -263,6 +263,7 @@
         ".tq-asset-upload-dev",
         ".tq-settings-dev",
         ".tq-scene-dev",
+        ".tq-region-builder-dev",
         ".tq-dev-navigator",
         ".tq-exit-dev"
     ]);
@@ -274,6 +275,7 @@
         ".tq-asset-upload-dev-panel",
         ".tq-settings-dev-panel",
         ".tq-scene-dev-panel",
+        ".tq-region-builder-panel",
         ".tq-dev-nav-panel"
     ].join(", ");
 
@@ -284,6 +286,7 @@
         ".tq-asset-upload-dev-toggle",
         ".tq-settings-dev-toggle",
         ".tq-scene-dev-toggle",
+        ".tq-region-builder-toggle",
         ".tq-dev-nav-toggle",
         ".tq-exit-dev-toggle"
     ].join(", ");
