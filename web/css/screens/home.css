@@ -1168,18 +1168,16 @@ html.tq-pwa-runtime .home-safe-visual-area {
 
 
 /* ==========================================================
-   HOME DEFAULT · composição publicada por código · 2026-09-26 · v2
-   Cena pensada em planos: céu -> mar -> porto/navio -> pier -> personagem -> UI.
+   HOME DEFAULT · composição publicada por código · 2026-09-26 · v3
+   Fundo limpo: céu + mar + navio equipado + pier + personagem + UI.
    ========================================================== */
 
-.home-screen[data-tq-engine-mode="true"] .tq-engine-canvas {
-    z-index: 2;
-    overflow: hidden !important;
-}
-
+.home-screen[data-tq-engine-mode="true"] .tq-engine-canvas,
 .home-screen[data-tq-engine-mode="true"] .tq-engine-asset-layer {
     overflow: hidden !important;
 }
+
+.home-screen[data-tq-engine-mode="true"] .tq-engine-canvas { z-index: 2; }
 
 .home-screen[data-tq-engine-mode="true"] .tq-composition-slot {
     box-sizing: border-box;
@@ -1187,50 +1185,37 @@ html.tq-pwa-runtime .home-safe-visual-area {
 }
 
 .home-screen[data-tq-engine-mode="true"] .tq-composition-bound-asset {
-    object-fit: contain !important;
     object-position: center !important;
 }
 
-/* PLANO 0 · céu e horizonte */
+/* céu */
 .home-screen [data-tq-composition-slot="home.background.scenery.4"] {
-    left: -3% !important;
-    top: -3% !important;
-    width: 106% !important;
-    height: 64% !important;
-    translate: 0 0;
-    scale: 1 1;
+    left: -2% !important;
+    top: -2% !important;
+    width: 104% !important;
+    height: 62% !important;
+    translate: 0 0 !important;
+    scale: 1 1 !important;
     z-index: 1 !important;
 }
 .home-screen [data-tq-composition-slot="home.background.scenery.4"] > img {
     object-fit: cover !important;
+    object-position: center top !important;
 }
 
-.home-screen [data-tq-composition-slot="home.background.cloud.4"] {
-    left: -10% !important;
-    top: 17% !important;
-    width: 120% !important;
-    height: 24% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 3 !important;
-}
-.home-screen [data-tq-composition-slot="home.background.cloud.4"] > img {
-    object-fit: cover !important;
-}
-
-/* PLANO 1 · oceano com WebGL */
+/* oceano */
 .home-screen [data-tq-composition-slot="home.background.ocean"] {
-    left: -6% !important;
-    top: 29% !important;
-    width: 112% !important;
-    height: 65% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 5 !important;
+    left: -2% !important;
+    top: 31% !important;
+    width: 104% !important;
+    height: 52% !important;
+    translate: 0 0 !important;
+    scale: 1 1 !important;
+    z-index: 4 !important;
     overflow: hidden !important;
 }
 .home-screen [data-tq-composition-slot="home.background.ocean"] > img {
-    object-fit: cover !important;
+    object-fit: fill !important;
 }
 .home-screen [data-tq-composition-slot="home.background.ocean"] > .region-ocean-motion {
     position: absolute;
@@ -1241,88 +1226,42 @@ html.tq-pwa-runtime .home-safe-visual-area {
     pointer-events: auto;
 }
 
-/* nuvens, com menos peso para o céu continuar respirando */
-.home-screen [data-tq-composition-slot="home.background.cloud.1"] {
-    left: -13% !important;
-    top: 4% !important;
-    width: 49% !important;
-    height: 16% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 7 !important;
-}
-.home-screen [data-tq-composition-slot="home.background.cloud.2"] {
-    left: 62% !important;
-    top: 8% !important;
-    width: 42% !important;
-    height: 16% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 6 !important;
-}
-.home-screen [data-tq-composition-slot="home.background.cloud.3"] {
-    left: 17% !important;
-    top: 23% !important;
-    width: 32% !important;
-    height: 12% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 6 !important;
-}
-
-/* PLANO 2 · porto distante e navio. Sem ilha de campanha na Home. */
-.home-screen [data-tq-composition-slot="home.background.scenery.1"] {
-    left: -7% !important;
-    top: 35% !important;
-    width: 53% !important;
-    height: 24% !important;
-    translate: 0 0;
-    scale: 1 1;
+/* navio equipado, distante e sem disputar o personagem */
+.home-screen [data-tq-composition-slot="home.background.ship.1"] {
+    left: 67% !important;
+    top: 43% !important;
+    width: 20% !important;
+    height: 13% !important;
+    translate: 0 0 !important;
+    scale: 1 1 !important;
     z-index: 10 !important;
 }
-.home-screen [data-tq-composition-slot="home.background.ship.1"] {
-    left: 59% !important;
-    top: 44% !important;
-    width: 24% !important;
-    height: 15% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 12 !important;
+.home-screen [data-tq-composition-slot="home.background.ship.1"] > img {
+    object-fit: contain !important;
 }
 
-/* PLANO 3 · pier e cenário de primeiro plano */
+/* pier */
 .home-screen [data-tq-composition-slot="home.background.pier"] {
-    left: -11% !important;
+    left: -9% !important;
     top: 57% !important;
-    width: 122% !important;
+    width: 118% !important;
     height: 45% !important;
-    translate: 0 0;
-    scale: 1 1;
+    translate: 0 0 !important;
+    scale: 1 1 !important;
     z-index: 18 !important;
 }
 .home-screen [data-tq-composition-slot="home.background.pier"] > img {
     object-fit: fill !important;
 }
 
-/* lanterna/prop lateral */
-.home-screen [data-tq-composition-slot="home.background.scenery.2"] {
-    left: 80% !important;
-    top: 55% !important;
-    width: 18% !important;
-    height: 27% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 29 !important;
-}
-
-/* overlay original Aprender / Explorar / Conquistar */
+/* overlay visual principal da Home */
 .home-screen [data-tq-composition-slot="home.background.scenery.3"] {
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    translate: 0 0;
-    scale: 1 1;
+    translate: 0 0 !important;
+    scale: 1 1 !important;
     z-index: 22 !important;
     pointer-events: none !important;
 }
@@ -1330,35 +1269,25 @@ html.tq-pwa-runtime .home-safe-visual-area {
     object-fit: fill !important;
 }
 
-/* personagem central, inteiro visível sobre o pier */
+/* personagem */
 .home-screen [data-tq-composition-slot="home.character.avatar-full"] {
     left: 39% !important;
-    top: 51% !important;
+    top: 52% !important;
     width: 22% !important;
-    height: 31% !important;
-    translate: 0 0;
-    scale: 1 1;
+    height: 30% !important;
+    translate: 0 0 !important;
+    scale: 1 1 !important;
     z-index: 27 !important;
 }
 
 /* HUD */
 .home-screen [data-tq-composition-slot="home.header.frame"] {
-    left: 1.5% !important;
-    top: 1.3% !important;
-    width: 32% !important;
-    height: 12% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 42 !important;
+    left: 1.5% !important; top: 1.3% !important; width: 32% !important; height: 12% !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 42 !important;
 }
 .home-screen [data-tq-composition-slot="home.header.avatar"] {
-    left: 4.5% !important;
-    top: 2.7% !important;
-    width: 12.5% !important;
-    height: 8.2% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 43 !important;
+    left: 4.5% !important; top: 2.7% !important; width: 12.5% !important; height: 8.2% !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 43 !important;
 }
 .home-screen [data-tq-composition-slot="home.header.avatar"] > img {
     border-radius: 50%;
@@ -1366,101 +1295,69 @@ html.tq-pwa-runtime .home-safe-visual-area {
     object-position: top center !important;
 }
 .home-screen [data-tq-composition-slot="home.header.logo"] {
-    left: 35% !important;
-    top: 1.7% !important;
-    width: 30% !important;
-    height: 9% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 41 !important;
+    left: 35% !important; top: 1.7% !important; width: 30% !important; height: 9% !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 41 !important;
 }
 .home-screen [data-tq-composition-slot="home.header.level-plate"] {
-    left: 70% !important;
-    top: 2.2% !important;
-    width: 27% !important;
-    height: 8% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 42 !important;
+    left: 70% !important; top: 2.2% !important; width: 27% !important; height: 8% !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 42 !important;
 }
 
 .home-screen [data-tq-composition-dynamic="home.text.player-name"] {
     position: absolute !important;
-    left: 17% !important;
-    top: 4.6% !important;
-    width: 18% !important;
-    z-index: 46 !important;
-    color: #4b240d !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: flex !important;
-    translate: 0 0 !important;
-    scale: 1 1 !important;
+    left: 17% !important; top: 4.6% !important; width: 18% !important;
+    z-index: 46 !important; color: #4b240d !important;
+    opacity: 1 !important; visibility: visible !important; display: flex !important;
+    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen [data-tq-composition-dynamic="home.text.coins"] {
-    left: 76% !important;
-    top: 10.2% !important;
-    width: 9% !important;
-    z-index: 46 !important;
-    color: #ffe4a0 !important;
-    text-shadow: 0 1px 3px #39200d;
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: flex !important;
-    translate: 0 0 !important;
-    scale: 1 1 !important;
+    left: 76% !important; top: 10.2% !important; width: 9% !important;
+    z-index: 46 !important; color: #ffe4a0 !important; text-shadow: 0 1px 3px #39200d;
+    opacity: 1 !important; visibility: visible !important; display: flex !important;
 }
 .home-screen [data-tq-composition-dynamic="home.text.gems"] {
-    left: 87% !important;
-    top: 10.2% !important;
-    width: 9% !important;
-    z-index: 46 !important;
-    color: #b9f3ff !important;
-    text-shadow: 0 1px 3px #083d59;
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: flex !important;
-    translate: 0 0 !important;
-    scale: 1 1 !important;
+    left: 87% !important; top: 10.2% !important; width: 9% !important;
+    z-index: 46 !important; color: #b9f3ff !important; text-shadow: 0 1px 3px #083d59;
+    opacity: 1 !important; visibility: visible !important; display: flex !important;
 }
 
 /* ações principais */
 .home-screen [data-tq-composition-slot="home.button.crew"] {
     left: 4% !important; top: 72% !important; width: 28% !important; height: 10% !important;
-    translate: 0 0; scale: 1 1; z-index: 38 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 38 !important;
 }
 .home-screen [data-tq-composition-slot="home.button.play"] {
     left: 36% !important; top: 71% !important; width: 28% !important; height: 11% !important;
-    translate: 0 0; scale: 1 1; z-index: 40 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 40 !important;
 }
 .home-screen [data-tq-composition-slot="home.button.shipyard"] {
     left: 68% !important; top: 72% !important; width: 28% !important; height: 10% !important;
-    translate: 0 0; scale: 1 1; z-index: 38 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 38 !important;
 }
 
 /* navegação inferior */
 .home-screen [data-tq-composition-slot="home.button.regions"] {
     left: 1% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0; scale: 1 1; z-index: 40 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 40 !important;
 }
 .home-screen [data-tq-composition-slot="home.button.daily-reward"] {
     left: 20.5% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0; scale: 1 1; z-index: 40 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 40 !important;
 }
 .home-screen [data-tq-composition-slot="home.button.shop"] {
     left: 40% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0; scale: 1 1; z-index: 40 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 40 !important;
 }
 .home-screen [data-tq-composition-slot="home.button.collectibles"] {
     left: 59.5% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0; scale: 1 1; z-index: 40 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 40 !important;
 }
 .home-screen [data-tq-composition-slot="home.button.items"] {
     left: 79% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0; scale: 1 1; z-index: 40 !important;
+    translate: 0 0 !important; scale: 1 1 !important; z-index: 40 !important;
 }
 
-/* hitboxes seguem as artes */
+/* hitboxes */
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="crew"] {
     left: 4% !important; top: 72% !important; width: 28% !important; height: 10% !important;
 }
