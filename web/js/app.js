@@ -774,7 +774,7 @@
 
         if (editorScreenId === "home") {
             const compositionBuildKey = "tq2.dev.home-composition-build";
-            const compositionBuild = "20260926-home-default-v1";
+            const compositionBuild = "20260926-home-default-v3";
             if (root.localStorage.getItem(compositionBuildKey) !== compositionBuild) {
                 ["tq2.dev.scene-layout.v3", "tq2.dev.scene-layout.v2", "tq2.dev.scene-layout.v1"]
                     .forEach((key) => {
