@@ -740,6 +740,8 @@
         let uploadIntent = null;
         let uploadBusy = false;
         let uploadSequence = 0;
+        let zipReviewState = null;
+        const zipImporter = TQ.dev?.zipImporter || null;
         function scanLocalLayersFromDom() {
             return [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
                 .map((image) => {
@@ -832,6 +834,49 @@
                         <button type="button" data-upload-bind-published>
                             Vincular arquivo publicado
                         </button>
+                    </fieldset>
+
+                    <fieldset class="tq-asset-upload-zip">
+                        <legend>Pacote ZIP</legend>
+                        <small>
+                            Importe vários assets de uma vez. Nada é aplicado antes da revisão.
+                        </small>
+
+                        <label>
+                            Grupo do pacote
+                            <select data-zip-group>
+                                <option value="header">Header</option>
+                                <option value="scene">Cenário</option>
+                                <option value="buttons">UI Buttons</option>
+                                <option value="mixed">Misto</option>
+                            </select>
+                        </label>
+
+                        <button type="button" class="is-primary" data-zip-open>
+                            📦 Importar ZIP
+                        </button>
+                        <input
+                            data-zip-file
+                            type="file"
+                            accept=".zip,application/zip,application/x-zip-compressed"
+                            hidden>
+
+                        <section class="tq-asset-upload-zip-review" data-zip-review hidden>
+                            <header>
+                                <strong data-zip-name></strong>
+                                <span data-zip-summary></span>
+                            </header>
+                            <div class="tq-asset-upload-zip-list" data-zip-list></div>
+                            <small class="tq-asset-upload-zip-validation" data-zip-validation></small>
+                            <div class="tq-asset-upload-dev-actions">
+                                <button type="button" class="is-primary" data-zip-confirm>
+                                    ✓ Importar selecionados
+                                </button>
+                                <button type="button" data-zip-cancel>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </section>
                     </fieldset>
                 ` : ""}
 
@@ -948,6 +993,16 @@
         const browseButton = host.querySelector("[data-upload-browse]");
         const removeButton = host.querySelector("[data-live-remove]");
         const revertButton = host.querySelector("[data-live-revert]");
+        const zipGroupSelect = host.querySelector("[data-zip-group]");
+        const zipOpenButton = host.querySelector("[data-zip-open]");
+        const zipFileInput = host.querySelector("[data-zip-file]");
+        const zipReview = host.querySelector("[data-zip-review]");
+        const zipName = host.querySelector("[data-zip-name]");
+        const zipSummary = host.querySelector("[data-zip-summary]");
+        const zipList = host.querySelector("[data-zip-list]");
+        const zipValidation = host.querySelector("[data-zip-validation]");
+        const zipConfirmButton = host.querySelector("[data-zip-confirm]");
+        const zipCancelButton = host.querySelector("[data-zip-cancel]");
 
         function runtimeAssetUrl(value) {
             const raw = String(value || "").trim().replace(/\\/g, "/");
@@ -1339,7 +1394,11 @@
                 variantInput,
                 folderSelect,
                 customInput,
-                bindPublishedButton
+                bindPublishedButton,
+                zipGroupSelect,
+                zipOpenButton,
+                zipConfirmButton,
+                zipCancelButton
             ].filter(Boolean);
 
             controls.forEach((control) => {
@@ -1621,12 +1680,14 @@
 
                 status.textContent = "UP 4/4 · pronto · " + (slot?.label || file.name);
 
-                root.requestAnimationFrame(() => {
-                    const semanticSlot = slot
-                        ? semanticSlotElement(screenRoot, slot.id)
-                        : null;
-                    selectUxOn(semanticSlot || image);
-                });
+                if (!intent?.suppressSelection) {
+                    root.requestAnimationFrame(() => {
+                        const semanticSlot = slot
+                            ? semanticSlotElement(screenRoot, slot.id)
+                            : null;
+                        selectUxOn(semanticSlot || image);
+                    });
+                }
 
                 return { record, entry, file };
             } catch (error) {
@@ -1801,6 +1862,265 @@
             removeButton.disabled = localLayers.length === 0;
             fileName.textContent = localLayers.at(-1)?.fileName || "Nenhum arquivo local";
             status.textContent = "Camada local removida";
+        }
+
+        function releaseZipPreviewUrls() {
+            (zipReviewState?.previewUrls || []).forEach((url) => {
+                try { URL.revokeObjectURL(url); } catch (_) {}
+            });
+        }
+
+        function resetZipReview() {
+            releaseZipPreviewUrls();
+            zipReviewState = null;
+            if (zipReview) zipReview.hidden = true;
+            if (zipList) zipList.replaceChildren();
+            if (zipName) zipName.textContent = "";
+            if (zipSummary) zipSummary.textContent = "";
+            if (zipValidation) {
+                zipValidation.textContent = "";
+                zipValidation.removeAttribute("data-state");
+            }
+            if (zipFileInput) zipFileInput.value = "";
+        }
+
+        function zipEligibleSlots(groupId = zipGroupSelect?.value || "mixed") {
+            if (!zipImporter || !composition) return [];
+            return zipImporter.groupSlots(compositionSlots, groupId);
+        }
+
+        function zipOccupiedSlotIds() {
+            return compositionSlots
+                .filter((slot) => slotHasArt(slot))
+                .map((slot) => slot.id);
+        }
+
+        function validateZipReview() {
+            if (!zipReviewState || !zipImporter) return null;
+            const result = zipImporter.validateAssignments({
+                assignments: zipReviewState.assignments,
+                slots: compositionSlots,
+                groupId: zipReviewState.groupId,
+                limits: compositionRegistry?.getAssetLimits?.(resolvedCompositionScreenId) || {},
+                occupiedSlotIds: zipOccupiedSlotIds()
+            });
+
+            if (zipValidation) {
+                if (result.valid) {
+                    zipValidation.textContent = result.selectedCount
+                        + " asset(s) pronto(s) para importar.";
+                    zipValidation.dataset.state = "ok";
+                } else {
+                    zipValidation.textContent = result.errors.join(" · ");
+                    zipValidation.dataset.state = "error";
+                }
+            }
+            if (zipSummary) {
+                zipSummary.textContent = result.selectedCount + "/"
+                    + zipReviewState.assignments.length + " selecionados";
+            }
+            if (zipConfirmButton) zipConfirmButton.disabled = !result.valid || uploadBusy;
+            return result;
+        }
+
+        function zipSlotOption(slot) {
+            const option = document.createElement("option");
+            option.value = slot.id;
+            option.textContent = (slotHasArt(slot) ? "✓ " : slot.required ? "● " : "○ ")
+                + slot.label;
+            return option;
+        }
+
+        function renderZipReview() {
+            if (!zipReviewState || !zipList) return;
+            const eligibleSlots = zipEligibleSlots(zipReviewState.groupId);
+            zipList.replaceChildren();
+
+            zipReviewState.assignments.forEach((assignment, index) => {
+                const row = document.createElement("article");
+                row.className = "tq-asset-upload-zip-row";
+
+                const check = document.createElement("input");
+                check.type = "checkbox";
+                check.checked = assignment.included !== false;
+                check.disabled = Boolean(assignment.imported);
+                check.setAttribute("aria-label", "Importar " + assignment.entry.name);
+
+                const preview = document.createElement("img");
+                preview.alt = "";
+                preview.loading = "lazy";
+                const previewUrl = URL.createObjectURL(assignment.entry.file);
+                zipReviewState.previewUrls.push(previewUrl);
+                preview.src = previewUrl;
+
+                const meta = document.createElement("div");
+                meta.className = "tq-asset-upload-zip-meta";
+                const strong = document.createElement("strong");
+                strong.textContent = assignment.entry.name;
+                const small = document.createElement("small");
+                small.textContent = assignment.imported
+                    ? "Importado"
+                    : assignment.confidence === "suggested"
+                        ? "Destino sugerido · confirme antes de importar"
+                        : "Revise o destino";
+                meta.append(strong, small);
+
+                const select = document.createElement("select");
+                select.disabled = Boolean(assignment.imported);
+                select.setAttribute("aria-label", "Destino de " + assignment.entry.name);
+
+                const placeholder = document.createElement("option");
+                placeholder.value = "";
+                placeholder.textContent = "Escolha o destino";
+                select.appendChild(placeholder);
+                eligibleSlots.forEach((slot) => select.appendChild(zipSlotOption(slot)));
+                select.value = assignment.slotId || "";
+
+                check.addEventListener("change", () => {
+                    assignment.included = check.checked;
+                    select.disabled = !check.checked || Boolean(assignment.imported);
+                    validateZipReview();
+                });
+
+                select.addEventListener("change", () => {
+                    assignment.slotId = select.value || null;
+                    assignment.confidence = "reviewed";
+                    small.textContent = assignment.slotId
+                        ? "Destino revisado"
+                        : "Revise o destino";
+                    validateZipReview();
+                });
+
+                row.append(check, preview, meta, select);
+                zipList.appendChild(row);
+            });
+
+            if (zipName) zipName.textContent = zipReviewState.fileName;
+            if (zipReview) zipReview.hidden = false;
+            validateZipReview();
+        }
+
+        async function prepareZipReview(file) {
+            if (!composition || !zipImporter) {
+                status.textContent = "Importação ZIP indisponível nesta tela";
+                return;
+            }
+            if (!(file instanceof File) || !/\.zip$/i.test(file.name)) {
+                status.textContent = "Escolha um arquivo .zip";
+                return;
+            }
+
+            resetZipReview();
+            status.textContent = "ZIP · extraindo no navegador...";
+
+            try {
+                const entries = await zipImporter.extractImages(file);
+                const groupId = zipGroupSelect?.value || "mixed";
+                const assignments = zipImporter.suggestAssignments(
+                    entries,
+                    compositionSlots,
+                    groupId
+                );
+
+                zipReviewState = {
+                    fileName: file.name,
+                    entries,
+                    assignments,
+                    groupId,
+                    previewUrls: []
+                };
+
+                renderZipReview();
+                status.textContent = "ZIP extraído · revise cada asset antes de confirmar";
+            } catch (error) {
+                console.error("Falha ao importar ZIP:", error);
+                resetZipReview();
+                status.textContent = "ZIP falhou · " + (error?.message || "arquivo inválido");
+            }
+        }
+
+        function reclassifyZipReview() {
+            if (!zipReviewState || !zipImporter) return;
+            releaseZipPreviewUrls();
+            zipReviewState.previewUrls = [];
+            zipReviewState.groupId = zipGroupSelect?.value || "mixed";
+            zipReviewState.assignments = zipImporter.suggestAssignments(
+                zipReviewState.entries,
+                compositionSlots,
+                zipReviewState.groupId
+            );
+            renderZipReview();
+            status.textContent = "Grupo alterado · revise os destinos";
+        }
+
+        async function confirmZipImport() {
+            if (!zipReviewState || !zipImporter) return;
+            const validation = validateZipReview();
+            if (!validation?.valid) {
+                status.textContent = "Revise o pacote antes de importar";
+                return;
+            }
+
+            const pending = zipReviewState.assignments
+                .filter((assignment) => assignment.included && !assignment.imported);
+
+            if (!pending.length) return;
+
+            uploadBusy = true;
+            if (zipConfirmButton) zipConfirmButton.disabled = true;
+            if (zipOpenButton) zipOpenButton.disabled = true;
+            let completed = 0;
+
+            try {
+                for (const assignment of pending) {
+                    const slot = compositionRegistry.getSlot(
+                        resolvedCompositionScreenId,
+                        assignment.slotId
+                    );
+                    if (!slot) throw new Error("Destino desapareceu: " + assignment.slotId);
+
+                    status.textContent = "ZIP " + (completed + 1) + "/" + pending.length
+                        + " · " + assignment.entry.name;
+
+                    const intent = {
+                        transactionId: ++uploadSequence,
+                        mode: "add",
+                        screenId,
+                        compositionScreenId: resolvedCompositionScreenId,
+                        slotId: slot.id,
+                        slotLabel: slot.label,
+                        semanticType: slot.semanticType,
+                        variantId: slot.bindingMode === "variants"
+                            ? selectedVariantId()
+                            : null,
+                        folder: currentFolder(),
+                        selectedDevId: null,
+                        functionId: null,
+                        suppressSelection: true
+                    };
+
+                    await addLocalLayer(assignment.entry.file, intent);
+                    assignment.imported = true;
+                    assignment.included = false;
+                    completed += 1;
+                }
+
+                syncLocalLayersFromDom();
+                syncCompositionSlot();
+                const packageName = zipReviewState.fileName;
+                resetZipReview();
+                status.textContent = "ZIP pronto · " + completed
+                    + " asset(s) importado(s) de " + packageName;
+            } catch (error) {
+                console.error("Falha na importação em lote:", error);
+                renderZipReview();
+                status.textContent = "ZIP parcial · " + completed
+                    + " importado(s) · " + (error?.message || "erro desconhecido");
+            } finally {
+                uploadBusy = false;
+                if (zipOpenButton) zipOpenButton.disabled = false;
+                validateZipReview();
+            }
         }
 
         function validImage(file) {
@@ -1989,6 +2309,26 @@
             status.textContent = "Pasta detectada";
         });
 
+        zipOpenButton?.addEventListener("click", () => {
+            if (!zipImporter) {
+                status.textContent = "Importador ZIP não carregado";
+                return;
+            }
+            zipFileInput.value = "";
+            zipFileInput.click();
+        });
+        zipFileInput?.addEventListener("change", () => {
+            void prepareZipReview(zipFileInput.files?.[0]);
+        });
+        zipGroupSelect?.addEventListener("change", reclassifyZipReview);
+        zipConfirmButton?.addEventListener("click", () => {
+            void confirmZipImport();
+        });
+        zipCancelButton?.addEventListener("click", () => {
+            resetZipReview();
+            status.textContent = "Importação ZIP cancelada";
+        });
+
         addButton.addEventListener("click", () => pickFile("add"));
         replaceButton.addEventListener("click", () => pickFile("replace"));
         removeButton.addEventListener("click", removeLastLayer);
@@ -2076,6 +2416,11 @@
         syncCustomVisibility();
         syncSelected();
         syncCompositionSlot();
+
+        if (composition && !zipImporter && zipOpenButton) {
+            zipOpenButton.disabled = true;
+            zipOpenButton.textContent = "ZIP indisponível";
+        }
     }
 
     TQ.dev = TQ.dev || {};
