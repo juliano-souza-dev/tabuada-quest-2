@@ -5,14 +5,19 @@ const path=require("node:path");
 
 const read=(p)=>fs.readFileSync(path.join(__dirname,"../../",p),"utf8");
 
-test("UX aceita assets visuais já renderizados pelo site",()=>{
+test("UX aceita mídia visual já renderizada pelo site sem regra por tela",()=>{
   const source=read("web/js/dev/scene-editor.js");
 
   assert.match(source,/function isSiteVisualAsset\(element\)/);
+  assert.match(source,/element\.matches\("img, picture, svg, canvas, video"\)/);
   assert.match(source,/element\.hasAttribute\("data-tq-asset-id"\)/);
-  assert.match(source,/region-island-art/);
-  assert.match(source,/region-islands-background/);
-  assert.match(source,/siteVisualAsset && kind === "container"/);
+  assert.doesNotMatch(
+    source.slice(
+      source.indexOf("function isSiteVisualAsset"),
+      source.indexOf("function shouldAutoMap")
+    ),
+    /region-island-art|region-islands-background/
+  );
 });
 
 test("filtro de composição não descarta asset visual legado do site",()=>{
@@ -30,11 +35,4 @@ test("imagem interna de slot semântico não vira seleção duplicada",()=>{
   assert.match(source,/function isSemanticSlotInnerVisual\(element\)/);
   assert.match(source,/const slot = element\.closest\("\[data-tq-composition-slot\]"\)/);
   assert.match(source,/if \(isSemanticSlotInnerVisual\(element\)\) return false/);
-});
-
-test("Região possui background DEV e artes de ilha renderizadas pelo site",()=>{
-  const source=read("web/js/screens/islands-screen.js");
-
-  assert.match(source,/data-tq-dev-id="islands\.region\.background"/);
-  assert.match(source,/class="region-island-art"/);
 });
