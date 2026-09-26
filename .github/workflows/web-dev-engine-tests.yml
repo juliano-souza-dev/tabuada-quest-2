@@ -1,0 +1,56 @@
+name: Web DEV Engine Tests
+
+on:
+  push:
+    branches: [develop, "feat/**", "fix/**"]
+    paths:
+      - "web/**"
+      - "tests/web/**"
+      - "tests/e2e/**"
+      - ".github/workflows/web-dev-engine-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Validate JavaScript syntax
+        run: |
+          find web/js -type f -name '*.js' -print0 | while IFS= read -r -d '' file; do node --check "$file"; done
+      - name: Run all web unit tests
+        run: node --test tests/web/*.test.cjs
+
+  mobile-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 4173 -d web >/tmp/tq-http.log 2>&1 &
+          echo $! >/tmp/tq-http.pid
+          for i in {1..20}; do curl -fsS http://127.0.0.1:4173/dev-engine-harness.html >/dev/null && exit 0; sleep 1; done
+          cat /tmp/tq-http.log
+          exit 1
+      - name: Run mobile interaction and preview tests
+        run: node tests/e2e/dev-engine-v4.mjs
+      - name: Upload visual smoke screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-engine-mobile-visual
+          path: test-results/dev-engine-mobile.png
+          if-no-files-found: ignore
