@@ -1261,6 +1261,16 @@
             selected = node || null;
             if (selected) {
                 selected.element.setAttribute("data-tq-dev-selected", "true");
+                if (selected.kind !== "function") {
+                    if (!selected.element.hasAttribute("tabindex")) {
+                        selected.element.tabIndex = -1;
+                    }
+                    try {
+                        selected.element.focus({ preventScroll: true });
+                    } catch (_) {
+                        selected.element.focus?.();
+                    }
+                }
                 if (isEditorHidden(selected.element)) {
                     status.textContent = "🙈 " + selected.label + " está oculto apenas no editor";
                 } else if (isLocked(selected.element)) {
@@ -1782,51 +1792,46 @@
                 : "esta tela";
 
             if (!root.confirm(
-                "Restaurar original vai descartar as alterações locais de "
+                "Restaurar original vai descartar todas as alterações locais de "
                 + scopeLabel
-                + " e recarregar o que está publicado. Continuar?"
+                + " e remontar o que está publicado. Continuar?"
             )) {
                 status.textContent = "Restauração cancelada";
                 return;
             }
 
-            status.textContent = "Restaurando versão publicada...";
-
-            store = readStore();
-            delete store.screens[storageScopeId];
-            writeStore(store);
-
-            try {
-                await TQ.dev?.assetUploader?.clearLocalLayersForRestore?.(
-                    storageScopeId,
-                    homeVariant,
-                    screenRoot
-                );
-            } catch (error) {
-                console.warn("Falha ao limpar drafts locais na restauração:", error);
+            const reset = TQ.dev?.developmentReset;
+            if (!reset?.resetScreen) {
+                status.textContent = "Erro: serviço de restauração indisponível";
+                return;
             }
 
+            status.textContent = "Limpando UX, UP, composição, MAR, CENA e SOM...";
+
             try {
-                TQ.content?.screenComposition?.resetScopeVariant?.(
+                const report = await reset.resetScreen({
                     storageScopeId,
                     screenId,
-                    homeVariant
-                );
-            } catch (error) {
-                console.warn("Falha ao limpar vínculos locais na restauração:", error);
-            }
+                    effectsScopeId,
+                    homeBackgroundId: homeVariant,
+                    screenRoot
+                });
 
-            try {
-                TQ.core?.oceanScene?.clearConfig?.(effectsScopeId);
-                TQ.core?.depthScene?.clearConfig?.(effectsScopeId);
-                TQ.core?.audioScene?.clearConfig?.(effectsScopeId);
+                status.textContent = "Original restaurado · remontando tela...";
+                root.dispatchEvent(new CustomEvent("tq:dev-remount-request", {
+                    detail: {
+                        screenId,
+                        storageScopeId,
+                        effectsScopeId,
+                        report
+                    }
+                }));
             } catch (error) {
-                console.warn("Falha ao limpar CENA/MAR/SOM locais na restauração:", error);
+                console.error("Falha ao restaurar versão publicada:", error);
+                status.textContent = "Falha ao restaurar · " + (error?.message || "erro desconhecido");
             }
-
-            status.textContent = "Recarregando original publicado...";
-            root.setTimeout(() => root.location.reload(), 120);
         });
+
         host.querySelector("[data-dev-copy]").addEventListener("click", async () => {
             const capturedAt = new Date();
             const payload = JSON.stringify({
