@@ -365,37 +365,76 @@
         if (!(element instanceof Element)) return false;
         if (isSemanticSlotInnerVisual(element)) return false;
 
-        const tagIsMedia = element.matches("img, picture, svg, canvas, video");
+        // Global rule: visible media is an editable visual asset. Functions remain
+        // separate even when the media happens to live inside a button/hitbox.
+        if (element.matches("img, picture, svg, canvas, video")) return true;
+        if (element.hasAttribute("data-tq-asset-id")) return true;
+
         const className = typeof element.className === "string"
             ? element.className.toLowerCase()
             : "";
-
-        if (element.hasAttribute("data-tq-asset-id")) return true;
-        if (
+        return Boolean(
             element.hasAttribute("data-tq-dev-id")
-            && (
-                tagIsMedia
-                || /(asset|art|background|backdrop|hero|island|region|map|pet|chest|reward)/.test(className)
-            )
-        ) {
-            return true;
+            && /(asset|art|background|backdrop|hero|island|region|map|pet|chest|reward)/.test(className)
+        );
+    }
+
+    function isGeometryBoundary(element, screenRoot) {
+        if (!(element instanceof Element)) return true;
+        if (element === screenRoot) return true;
+        return element.matches(
+            ".tq-canonical-stage, .tq-safe-visual-area, "
+            + "[data-tq-composition-screen], .tq-engine-canvas, "
+            + ".tq-engine-asset-layer, .tq-engine-function-layer"
+        );
+    }
+
+    function isInteractiveGeometryBoundary(element) {
+        if (!(element instanceof Element)) return false;
+        return element.matches(
+            "button, a, input, select, textarea, [role='button'], "
+            + "[data-action], [data-tq-composition-function]"
+        );
+    }
+
+    function resolveGeometryElement(element, screenRoot) {
+        if (!(element instanceof Element)) return element;
+        if (element.hasAttribute("data-tq-composition-slot")) return element;
+
+        // Containers/direct assets already own their geometry.
+        if (!element.matches("img, picture, svg, canvas, video")) return element;
+
+        const elementRect = element.getBoundingClientRect();
+        if (!elementRect.width || !elementRect.height) return element;
+
+        let parent = element.parentElement;
+        while (parent && !isGeometryBoundary(parent, screenRoot)) {
+            if (isInteractiveGeometryBoundary(parent)) {
+                // Asset and function are separate concepts. Never move the
+                // function/hitbox just because its visual child is selected.
+                break;
+            }
+
+            const style = root.getComputedStyle(parent);
+            const rect = parent.getBoundingClientRect();
+            const positioned = ["absolute", "fixed", "relative", "sticky"].includes(style.position);
+            const widthDelta = Math.abs(rect.width - elementRect.width);
+            const heightDelta = Math.abs(rect.height - elementRect.height);
+            const sameVisualBox = (
+                rect.width > 0
+                && rect.height > 0
+                && widthDelta <= Math.max(3, rect.width * .06)
+                && heightDelta <= Math.max(3, rect.height * .06)
+            );
+
+            if (positioned && sameVisualBox) {
+                return parent;
+            }
+
+            parent = parent.parentElement;
         }
 
-        if (
-            tagIsMedia
-            && /(region-island-art|region-islands-background|region-ruby-shop-asset|global-world-map-asset|asset|art|background|backdrop|hero|pet|chest|reward)/.test(className)
-        ) {
-            return true;
-        }
-
-        if (
-            /(art-shell|asset-shell|background-shell|hero-shell)/.test(className)
-            && element.querySelector(":scope > img, :scope > picture, :scope > svg, :scope > canvas, :scope > video")
-        ) {
-            return true;
-        }
-
-        return false;
+        return element;
     }
 
     function shouldAutoMap(element, screenRoot) {
@@ -652,14 +691,15 @@
 
         nodes.forEach((node) => {
             if (!saved[node.id]) return;
-            applyGeometry(node.element, saved[node.id]);
+            const geometryElement = resolveGeometryElement(node.element, screenRoot);
+            applyGeometry(geometryElement, saved[node.id]);
             setDeleted(node.element, Boolean(saved[node.id].deleted));
             setLocked(node.element, Boolean(saved[node.id].locked));
             setEditorHidden(node.element, Boolean(saved[node.id].hidden));
             if (Number.isFinite(Number(saved[node.id].z))) {
-                applyLayer(node.element, saved[node.id].z);
+                applyLayer(geometryElement, saved[node.id].z);
             } else {
-                clearLayer(node.element);
+                clearLayer(geometryElement);
             }
         });
 
@@ -856,6 +896,10 @@
         let history = [];
         let raf = 0;
 
+        function geometryTarget(node) {
+            return resolveGeometryElement(node?.element, screenRoot) || node?.element || null;
+        }
+
         function linkedPairNodes(node) {
             if (!node?.element) return node ? [node] : [];
             const pairId = node.element.dataset.tqPairId;
@@ -868,13 +912,13 @@
 
         function applyGeometryLinked(node, geometry) {
             linkedPairNodes(node).forEach((candidate) => {
-                applyGeometry(candidate.element, geometry);
+                applyGeometry(geometryTarget(candidate), geometry);
             });
         }
 
         function clearGeometryLinked(node) {
             linkedPairNodes(node).forEach((candidate) => {
-                clearGeometry(candidate.element);
+                clearGeometry(geometryTarget(candidate));
             });
         }
 
@@ -885,12 +929,13 @@
             targetNodes
                 .filter((node) => node?.id && node?.element instanceof Element)
                 .forEach((node) => {
+                    const geometryElement = geometryTarget(node);
                     const geometry = {
-                        ...readGeometry(node.element),
+                        ...readGeometry(geometryElement),
                         ...(isDeleted(node.element) ? { deleted: true } : {}),
                         ...(isLocked(node.element) ? { locked: true } : {}),
                         ...(isEditorHidden(node.element) ? { hidden: true } : {}),
-                        ...(hasLayerOverride(node.element) ? { z: readLayer(node.element) } : {})
+                        ...(hasLayerOverride(geometryElement) ? { z: readLayer(geometryElement) } : {})
                     };
                     result[node.id] = geometry;
 
@@ -950,15 +995,16 @@
                 const node = nodeById.get(id);
                 if (!node || !geometry) return;
 
-                applyGeometry(node.element, geometry);
+                const geometryElement = geometryTarget(node);
+                applyGeometry(geometryElement, geometry);
                 setDeleted(node.element, Boolean(geometry.deleted));
                 setLocked(node.element, Boolean(geometry.locked));
                 setEditorHidden(node.element, Boolean(geometry.hidden));
 
                 if (Number.isFinite(Number(geometry.z))) {
-                    applyLayer(node.element, geometry.z);
+                    applyLayer(geometryElement, geometry.z);
                 } else {
-                    clearLayer(node.element);
+                    clearLayer(geometryElement);
                 }
             });
 
@@ -1035,7 +1081,8 @@
                 syncEditorChrome();
                 return;
             }
-            const geometry = readGeometry(selected.element);
+            const geometryElement = geometryTarget(selected);
+            const geometry = readGeometry(geometryElement);
             const locked = isLocked(selected.element);
             const editorHidden = isEditorHidden(selected.element);
             name.textContent = (editorHidden ? "🙈 " : "") + (locked ? "🔒 " : "") + selected.label;
@@ -1052,7 +1099,7 @@
             const layerable = isLayerableVisual(selected);
             layerButtons.forEach((button) => button.disabled = !layerable);
             selectBelowButton.disabled = false;
-            layerValue.textContent = layerable ? "z " + readLayer(selected.element) : "protegido";
+            layerValue.textContent = layerable ? "z " + readLayer(geometryElement) : "protegido";
             const hideable = isDeletableVisual(selected);
             visibilityButton.disabled = !hideable;
             visibilityButton.textContent = editorHidden ? "👁 Mostrar no editor" : "🙈 Ocultar no editor";
@@ -1067,7 +1114,7 @@
                 overlay.hidden = true;
                 return;
             }
-            const rect = selected.element.getBoundingClientRect();
+            const rect = geometryTarget(selected).getBoundingClientRect();
             overlay.hidden = false;
             const locked = isLocked(selected.element);
             overlay.classList.toggle("tq-scene-dev-selection--compact", rect.width < 72 || rect.height < 72);
@@ -1378,16 +1425,26 @@
 
             // elementsFromPoint ignores pointer-events:none. Add geometric matches
             // as a fallback so backgrounds/overlays never become unreachable.
-            nodes.forEach((node) => {
-                if (seen.has(node.id) || isDeleted(node.element) || isInactiveCompositionSlot(node)) return;
-                if (functionsHidden && node.kind === "function") return;
-                const rect = node.element.getBoundingClientRect();
-                if (!rect.width || !rect.height) return;
-                if (
-                    clientX >= rect.left && clientX <= rect.right
-                    && clientY >= rect.top && clientY <= rect.bottom
-                ) append(node);
-            });
+            const geometricMatches = nodes
+                .filter((node) => {
+                    if (seen.has(node.id) || isDeleted(node.element) || isInactiveCompositionSlot(node)) return false;
+                    if (functionsHidden && node.kind === "function") return false;
+                    const rect = geometryTarget(node).getBoundingClientRect();
+                    if (!rect.width || !rect.height) return false;
+                    return clientX >= rect.left && clientX <= rect.right
+                        && clientY >= rect.top && clientY <= rect.bottom;
+                })
+                .sort((a, b) => {
+                    const targetA = geometryTarget(a);
+                    const targetB = geometryTarget(b);
+                    const zDelta = readLayer(targetB) - readLayer(targetA);
+                    if (zDelta) return zDelta;
+                    const rectA = targetA.getBoundingClientRect();
+                    const rectB = targetB.getBoundingClientRect();
+                    return (rectA.width * rectA.height) - (rectB.width * rectB.height);
+                });
+
+            geometricMatches.forEach(append);
 
             return stack;
         }
@@ -1422,7 +1479,7 @@
 
         function selectBelowCurrent() {
             if (!selected) return;
-            const rect = selected.element.getBoundingClientRect();
+            const rect = geometryTarget(selected).getBoundingClientRect();
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
             selectBelowAtPoint(x, y, selected);
@@ -1440,8 +1497,9 @@
                 return;
             }
 
-            const rect = node.element.getBoundingClientRect();
-            const stage = node.element.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
+            const geometryElement = geometryTarget(node);
+            const rect = geometryElement.getBoundingClientRect();
+            const stage = geometryElement.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
                 || screenRoot;
             const pointerTarget = typeof node.element?.setPointerCapture === "function"
                 ? node.element
@@ -1464,8 +1522,8 @@
                 startY: event.clientY,
                 rect,
                 stageRect: stage?.getBoundingClientRect() || null,
-                scale: stageScale(node.element),
-                geometry: readGeometry(node.element),
+                scale: stageScale(geometryElement),
+                geometry: readGeometry(geometryElement),
                 changed: false
             };
         }
@@ -1473,10 +1531,7 @@
         function onPointerDown(event) {
             if (!opened) return;
 
-            const directElement = event.target.closest?.("[data-tq-dev-id]");
-            let node = directElement && appRoot.contains(directElement)
-                ? nodeById.get(directElement.dataset.tqDevId)
-                : null;
+            let node = selectableNodeFromElement(event.target);
 
             // Mobile/WebView can report the canvas/container as event.target even
             // when the finger is visibly over an asset. Fall back to geometry.
@@ -1650,15 +1705,18 @@
         }
 
         function layerPeers(node) {
-            if (!node?.element?.parentElement) return [];
+            const target = geometryTarget(node);
+            if (!(target instanceof Element) || !target.parentElement) return [];
 
-            const parent = node.element.parentElement;
-            return nodes.filter((candidate) =>
-                candidate !== node
-                && isLayerableVisual(candidate)
-                && !isDeleted(candidate.element)
-                && candidate.element.parentElement === parent
-            );
+            const parent = target.parentElement;
+            return nodes.filter((candidate) => {
+                if (candidate === node || !isLayerableVisual(candidate) || isDeleted(candidate.element)) {
+                    return false;
+                }
+                const candidateTarget = geometryTarget(candidate);
+                return candidateTarget instanceof Element
+                    && candidateTarget.parentElement === parent;
+            });
         }
 
         function changeSelectedLayer(actionName) {
@@ -1674,9 +1732,9 @@
                 return;
             }
 
-            const current = readLayer(selected.element);
+            const current = readLayer(geometryTarget(selected));
             const byLayer = peers
-                .map((node) => ({ node, z: readLayer(node.element) }))
+                .map((node) => ({ node, z: readLayer(geometryTarget(node)) }))
                 .sort((a, b) => a.z - b.z);
 
             let targetEntry = null;
@@ -1700,11 +1758,11 @@
             if (targetZ === current) {
                 const delta = actionName === "back" || actionName === "down" ? -1 : 1;
                 pushHistory([selected]);
-                applyLayer(selected.element, clamp(current + delta, 0, 9999));
+                applyLayer(geometryTarget(selected), clamp(current + delta, 0, 9999));
             } else {
                 pushHistory([selected, targetEntry.node]);
-                applyLayer(selected.element, targetZ);
-                applyLayer(targetEntry.node.element, current);
+                applyLayer(geometryTarget(selected), targetZ);
+                applyLayer(geometryTarget(targetEntry.node), current);
             }
 
             persist(
@@ -1765,7 +1823,7 @@
             }
             pushHistory();
             const step = event.shiftKey ? 10 : 1;
-            const geometry = readGeometry(selected.element);
+            const geometry = readGeometry(geometryTarget(selected));
             if (event.key === "ArrowLeft") geometry.x -= step;
             if (event.key === "ArrowRight") geometry.x += step;
             if (event.key === "ArrowUp") geometry.y -= step;
