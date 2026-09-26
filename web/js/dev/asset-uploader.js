@@ -586,6 +586,9 @@
         const composition = compositionRegistry?.getScreen?.(resolvedCompositionScreenId) || null;
         const compositionVariantId = String(options.compositionVariantId || "").trim();
         const effectsScopeId = String(options.effectsScopeId || screenId);
+        const editorContext = options.editorContext && typeof options.editorContext === "object"
+            ? options.editorContext
+            : {};
         if (!screenRoot) return 0;
 
         try {
@@ -1207,7 +1210,13 @@
             ) return;
 
             TQ.dev?.sceneEditor?.mount(appRoot, {
-                screenId,
+                // screenId is the semantic screen identity. screenId from this
+                // uploader is intentionally the persistence scope (e.g.
+                // islands.region-1), so never use it as the editor screen type.
+                screenId: compositionScreenId,
+                storageScopeId: screenId,
+                effectsScopeId,
+                editorContext,
                 screenRoot,
                 initialSelectedId: element.dataset.tqDevId,
                 initialOpen: true
