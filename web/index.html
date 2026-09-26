@@ -91,9 +91,9 @@
     <script src="./js/screens/map-reward-screen.js?v=20260921-2204"></script>
     <script src="./js/screens/result-screen.js?v=20260922-safe-viewport-v1"></script>    <script src="./js/dev/development-reset.js?v=20260925-central-reset-focus-v1"></script>
 
-    <script src="./js/dev/scene-editor.js?v=20260925-rollback-pinch-v1"></script>
+    <script src="./js/dev/scene-editor.js?v=20260925-region-up-visible-slot-v1"></script>
     <script src="./js/dev/settings-panel.js?v=20260925-dev-persist-v1"></script>
-    <script src="./js/dev/asset-uploader.js?v=20260925-region-up-scope-v1"></script>
+    <script src="./js/dev/asset-uploader.js?v=20260925-region-up-visible-slot-v1"></script>
     <script src="./js/dev/region-builder.js?v=20260925-dev-persist-v1"></script>
     <script src="./js/dev/ocean-editor.js?v=20260925-rollback-pinch-v1"></script>
     <script src="./js/dev/depth-editor.js?v=20260925-active-slots-v2-hard"></script>
@@ -103,7 +103,7 @@
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", async () => {
                 try {
-                    const registration = await navigator.serviceWorker.register("./sw.js?v=20260925-region-up-scope-v1", { scope: "./" });
+                    const registration = await navigator.serviceWorker.register("./sw.js?v=20260925-region-up-visible-slot-v1", { scope: "./" });
                     const installButton = document.getElementById("pwa-install-button");
                     let installPrompt = null;
                     const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches
