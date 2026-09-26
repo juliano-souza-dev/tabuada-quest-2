@@ -728,6 +728,10 @@
         const composition = compositionRegistry?.getScreen?.(resolvedCompositionScreenId) || null;
         const compositionSlots = compositionRegistry?.getAssetSlots?.(resolvedCompositionScreenId) || [];
         const compositionVariantId = String(options.compositionVariantId || "").trim();
+        const effectsScopeId = String(options.effectsScopeId || screenId);
+        const editorContext = options.editorContext && typeof options.editorContext === "object"
+            ? options.editorContext
+            : {};
 
         let replacementPreview = null;
         let uploadIntent = null;
