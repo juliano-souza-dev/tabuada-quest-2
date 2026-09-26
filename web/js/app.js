@@ -632,6 +632,11 @@
             }
 
             if (!root.matchMedia("(max-width: 620px)").matches) return;
+            if (event.detail?.tool === "nav" && !panel.hidden) {
+                mobileBadge.hidden = true;
+                return;
+            }
+
             const toolLabel = TOOL_LABELS[event.detail?.tool] || null;
             mobileBadge.hidden = false;
             syncMobileGuide(toolLabel);
