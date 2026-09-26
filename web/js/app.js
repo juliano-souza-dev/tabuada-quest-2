@@ -463,6 +463,7 @@
                 <header>
                     <strong>DEV · Contexto</strong>
                     <small>Navegação direta</small>
+                    <button type="button" class="tq-dev-nav-close" data-dev-nav-close aria-label="Fechar navegação">×</button>
                 </header>
                 <div class="tq-dev-nav-context">
                     <div><span>Tela</span><strong data-dev-nav-current-screen></strong></div>
@@ -500,9 +501,11 @@
             </section>
         `;
 
-        const mobileBadge = document.createElement("div");
+        const mobileBadge = document.createElement("button");
+        mobileBadge.type = "button";
         mobileBadge.className = "tq-dev-mobile-context";
-        mobileBadge.hidden = true;
+        mobileBadge.hidden = false;
+        mobileBadge.setAttribute("aria-label", "Abrir navegação direta DEV");
         document.body.append(host, mobileBadge);
 
         const panel = host.querySelector(".tq-dev-nav-panel");
@@ -538,6 +541,20 @@
             currentBackgroundRow.hidden = true;
         }
 
+        const mobileContextParts = [currentLabel];
+        if (editorContext.regionId) mobileContextParts.push("R" + editorContext.regionId);
+        if (displayedIslandId) mobileContextParts.push("Ilha " + displayedIslandId);
+        if (options.homeBackgroundId) mobileContextParts.push("Fundo " + options.homeBackgroundId);
+
+        function syncMobileGuide(activeTool = null) {
+            const parts = [...mobileContextParts];
+            if (activeTool) parts.push(activeTool);
+            parts.push("NAV ›");
+            mobileBadge.textContent = parts.join(" · ");
+        }
+
+        syncMobileGuide();
+
         const currentTarget = DEV_NAV_TARGETS.find((item) => item.id === actualScreenId)
             || DEV_NAV_TARGETS.find((item) =>
                 actualScreenId === "regions" && item.id === "world-map"
@@ -557,20 +574,27 @@
         function openNavigator(nextOpen) {
             const open = Boolean(nextOpen);
             panel.hidden = !open;
+            const compactMobile = root.matchMedia("(max-width: 620px)").matches;
+            if (compactMobile) mobileBadge.hidden = open;
             if (open) {
                 document.querySelectorAll(
                     ".tq-scene-dev-panel, .tq-settings-dev-panel, .tq-asset-upload-dev-panel, "
-                    + ".tq-region-builder-panel, .tq-ocean-dev-panel, .tq-depth-dev-panel"
+                    + ".tq-region-builder-panel, .tq-ocean-dev-panel, .tq-depth-dev-panel, .tq-audio-dev-panel"
                 ).forEach((candidate) => {
                     candidate.hidden = true;
                 });
                 root.dispatchEvent(new CustomEvent("tq:dev-tool-activate", {
                     detail: { tool: "nav" }
                 }));
+            } else if (compactMobile) {
+                mobileBadge.hidden = false;
+                syncMobileGuide();
             }
         }
 
         toggle.addEventListener("click", () => openNavigator(panel.hidden));
+        mobileBadge.addEventListener("click", () => openNavigator(true));
+        host.querySelector("[data-dev-nav-close]")?.addEventListener("click", () => openNavigator(false));
         screenSelect.addEventListener("change", syncTargetFields);
         host.querySelector("[data-dev-nav-open]").addEventListener("click", () => {
             directDevelopmentNavigate(
@@ -592,13 +616,13 @@
         }
         syncTargetFields();
 
-        let mobileBadgeTimer = null;
         const TOOL_LABELS = Object.freeze({
             depth: "CENA",
             ocean: "MAR",
             assets: "UP",
             ux: "UX",
             settings: "SET",
+            audio: "SOM",
             nav: "NAV"
         });
 
@@ -608,23 +632,15 @@
             }
 
             if (!root.matchMedia("(max-width: 620px)").matches) return;
-            const toolLabel = TOOL_LABELS[event.detail?.tool] || "DEV";
-            const parts = [toolLabel, currentLabel];
-            if (editorContext.regionId) parts.push("R" + editorContext.regionId);
-            if (displayedIslandId) parts.push("Ilha " + displayedIslandId);
-            mobileBadge.textContent = parts.join(" · ");
+            const toolLabel = TOOL_LABELS[event.detail?.tool] || null;
             mobileBadge.hidden = false;
-            root.clearTimeout(mobileBadgeTimer);
-            mobileBadgeTimer = root.setTimeout(() => {
-                mobileBadge.hidden = true;
-            }, 3200);
+            syncMobileGuide(toolLabel);
         }
 
         root.addEventListener("tq:dev-tool-activate", onToolActivate);
 
         activeDevelopmentNavigatorCleanup = () => {
             root.removeEventListener("tq:dev-tool-activate", onToolActivate);
-            root.clearTimeout(mobileBadgeTimer);
             if (typeof desktopQuery.removeEventListener === "function") {
                 desktopQuery.removeEventListener("change", syncDesktopMode);
             } else {
