@@ -50,7 +50,7 @@
             Object.freeze({ id: "background-horizonte-celeste", type: "background", label: "Horizonte Celeste", price: 1800, asset: null })
         ]),
         ships: Object.freeze([
-            Object.freeze({ id: "ship-colombo", type: "ship", label: "El Colombo", price: 1000, asset: "./assets/transitions/el-colombo/images/el-colombo.webp", travelAnimation: "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json", travelBackground: "./assets/transitions/el-colombo/images/ocean-background.webp" }),
+            Object.freeze({ id: "ship-colombo", type: "ship", label: "El Colombo", price: 1000, asset: "./assets/transitions/el-colombo/images/el-colombo.webp", travelAnimation: "./assets/transitions/el-colombo/el-colombo-ocean-navigation.json", travelBackground: "./assets/transitions/el-colombo/images/ocean-background.webp", isDefault: true }),
             Object.freeze({ id: "ship-rosa-intenso", type: "ship", label: "Rosa Intenso", price: 3000, asset: null, travelAnimation: null }),
             Object.freeze({ id: "ship-cristal-queen", type: "ship", label: "Cristal Queen", price: 9000, asset: null, travelAnimation: null })
         ]),
@@ -780,6 +780,7 @@
         getChestKit,
         defaultHomeBackgroundId: "pirate-main",
         defaultFrameId: "frame-chaves-tesouro-tropical",
+        defaultShipId: "ship-colombo",
         assets: Object.freeze({
             avatars: Object.freeze({
                 sofia: "./assets/avatars/avatar-sofia-pirata-rosto.webp"
