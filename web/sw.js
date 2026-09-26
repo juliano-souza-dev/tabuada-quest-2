@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260925-mobile-pointer-v1";
+const CACHE_VERSION = "tq2-dev-assets-20260925-binding-fallback-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
