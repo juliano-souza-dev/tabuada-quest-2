@@ -947,6 +947,11 @@
             homeBackgroundId: activeHomeBackgroundId
         });
         mountDevelopmentExit();
+
+        // In the desktop simulator the phone must contain only the game.
+        // Move the DEV controls to the outer desktop workspace while keeping
+        // UX editing overlays attached to the simulated viewport.
+        TQ.dev?.previewController?.portalDevelopmentUi?.();
     }
 
     async function render() {
