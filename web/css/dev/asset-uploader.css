@@ -426,3 +426,10 @@
         height: 46px;
     }
 }
+
+
+.tq-asset-upload-dev-panel button:disabled {
+    opacity: .42;
+    cursor: not-allowed;
+    filter: saturate(.45);
+}
