@@ -203,8 +203,9 @@ test("composição da Home mantém variantes por peça e restaura só a ativa",(
 
     const binding=composition.readBinding("home","home",slot.id);
     assert.equal(binding.asset,null);
-    assert.equal(binding.variants.length,1);
-    assert.equal(binding.variants[0].id,"pirate-bay");
+    assert.ok(binding.variants.some((variant)=>variant.id==="default"));
+    assert.ok(binding.variants.some((variant)=>variant.id==="pirate-bay"));
+    assert.ok(!binding.variants.some((variant)=>variant.id==="pirate-main"));
 });
 
 test("Home usa bindings publicados sem impedir reset explícito",()=>{
@@ -255,11 +256,11 @@ test("Home usa bindings publicados sem impedir reset explícito",()=>{
 
     assert.equal(
         composition.readBinding("home","home","home.header.frame").asset,
-        null
+        "./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp"
     );
-    assert.deepEqual(
-        Array.from(composition.readBinding("home","home","home.background.scenery.4").variants),
-        []
+    assert.equal(
+        composition.readBinding("home","home","home.background.scenery.4").variants[0].asset,
+        "./assets/backgrounds/default/sky-sunset.webp"
     );
 });
 
@@ -326,4 +327,51 @@ test("carregamento não contém reset automático de composição ou drafts loca
     assert.doesNotMatch(restoreBody,/deleteLocalLayerRecord/);
     assert.doesNotMatch(restoreBody,/\.clear\(\)/);
     assert.doesNotMatch(restoreBody,/localStorage\.removeItem/);
+});
+
+test("binding local vazio antigo não mascara asset publicado",()=>{
+    const TQ=loadComposition();
+    const composition=TQ.content.screenComposition;
+
+    const key=composition.STORAGE_KEY;
+    globalThis.__noop=null;
+
+    const contextFrame=composition.readBinding("home","home","home.header.frame");
+    assert.equal(contextFrame.asset,"./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp");
+
+    composition.bindAsset("home","home","home.header.frame",null);
+    const stale=composition.readBinding("home","home","home.header.frame");
+    assert.equal(stale.asset,"./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp");
+
+    composition.unbindAsset("home","home","home.header.frame");
+    assert.equal(composition.readBinding("home","home","home.header.frame").asset,null);
+
+    composition.resetScope("home","home");
+    assert.equal(
+        composition.readBinding("home","home","home.header.frame").asset,
+        "./assets/ui/plaquinhas/coroa_da_rosa_dos_ventos.webp"
+    );
+});
+
+test("remoção explícita de variante publicada usa tombstone e reset restaura",()=>{
+    const TQ=loadComposition();
+    const composition=TQ.content.screenComposition;
+    const slotId="home.background.ocean";
+
+    assert.ok(
+        composition.readBinding("home","home",slotId).variants
+            .some((variant)=>variant.id==="default")
+    );
+
+    composition.unbindVariant("home","home",slotId,"default");
+    assert.ok(
+        !composition.readBinding("home","home",slotId).variants
+            .some((variant)=>variant.id==="default")
+    );
+
+    composition.resetScopeVariant("home","home","default");
+    assert.ok(
+        composition.readBinding("home","home",slotId).variants
+            .some((variant)=>variant.id==="default")
+    );
 });
