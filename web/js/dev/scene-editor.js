@@ -7,6 +7,174 @@
         return;
     }
     let activeCleanup = null;
+    const imageAlphaBoundsCache = new WeakMap();
+
+    function normalizedImageAlphaBounds(image) {
+        if (!(image instanceof HTMLImageElement)) return null;
+        if (!image.complete || !image.naturalWidth || !image.naturalHeight) return null;
+
+        const sourceKey = String(
+            image.currentSrc || image.getAttribute("src") || ""
+        ) + "|" + image.naturalWidth + "x" + image.naturalHeight;
+        const cached = imageAlphaBoundsCache.get(image);
+        if (cached?.key === sourceKey) return cached.bounds;
+
+        let bounds = null;
+        try {
+            const maximumSampleSide = 320;
+            const sampleScale = Math.min(
+                1,
+                maximumSampleSide / Math.max(image.naturalWidth, image.naturalHeight)
+            );
+            const width = Math.max(1, Math.round(image.naturalWidth * sampleScale));
+            const height = Math.max(1, Math.round(image.naturalHeight * sampleScale));
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext("2d", { willReadFrequently: true });
+            if (!context) throw new Error("canvas 2D indisponível");
+            context.clearRect(0, 0, width, height);
+            context.drawImage(image, 0, 0, width, height);
+
+            const pixels = context.getImageData(0, 0, width, height).data;
+            let minX = width;
+            let minY = height;
+            let maxX = -1;
+            let maxY = -1;
+            const alphaThreshold = 8;
+
+            for (let y = 0; y < height; y += 1) {
+                for (let x = 0; x < width; x += 1) {
+                    const alpha = pixels[(y * width + x) * 4 + 3];
+                    if (alpha <= alphaThreshold) continue;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+
+            if (maxX >= minX && maxY >= minY) {
+                bounds = Object.freeze({
+                    left: minX / width,
+                    top: minY / height,
+                    right: (maxX + 1) / width,
+                    bottom: (maxY + 1) / height
+                });
+            }
+        } catch (_) {
+            // Cross-origin or unsupported image reads simply fall back to the
+            // painted image rectangle. Selection must never break because of it.
+            bounds = null;
+        }
+
+        imageAlphaBoundsCache.set(image, { key: sourceKey, bounds });
+        return bounds;
+    }
+
+    function objectPositionOffset(token, freeSpace, axis) {
+        const value = String(token || "").trim().toLowerCase();
+        if (!value || value === "center") return freeSpace * .5;
+        if (value === "left" || value === "top") return 0;
+        if (value === "right" || value === "bottom") return freeSpace;
+        if (value.endsWith("%")) {
+            const percent = Number.parseFloat(value);
+            return Number.isFinite(percent) ? freeSpace * percent / 100 : freeSpace * .5;
+        }
+        if (value.endsWith("px")) {
+            const pixels = Number.parseFloat(value);
+            return Number.isFinite(pixels) ? pixels : freeSpace * .5;
+        }
+        if (axis === "x" && value === "start") return 0;
+        if (axis === "x" && value === "end") return freeSpace;
+        return freeSpace * .5;
+    }
+
+    function imagePaintedClientRect(image) {
+        if (!(image instanceof HTMLImageElement)) return null;
+        const rect = image.getBoundingClientRect();
+        if (!rect.width || !rect.height) return rect;
+
+        const boxWidth = Math.max(1, image.clientWidth || image.offsetWidth || rect.width);
+        const boxHeight = Math.max(1, image.clientHeight || image.offsetHeight || rect.height);
+        const naturalWidth = Math.max(1, image.naturalWidth || boxWidth);
+        const naturalHeight = Math.max(1, image.naturalHeight || boxHeight);
+        const style = root.getComputedStyle(image);
+        const fit = String(style.objectFit || "fill").toLowerCase();
+
+        let contentWidth = boxWidth;
+        let contentHeight = boxHeight;
+
+        if (fit !== "fill") {
+            const containScale = Math.min(
+                boxWidth / naturalWidth,
+                boxHeight / naturalHeight
+            );
+            const coverScale = Math.max(
+                boxWidth / naturalWidth,
+                boxHeight / naturalHeight
+            );
+            let scale = 1;
+
+            if (fit === "contain") scale = containScale;
+            else if (fit === "cover") scale = coverScale;
+            else if (fit === "scale-down") scale = Math.min(1, containScale);
+            else if (fit === "none") scale = 1;
+            else scale = containScale;
+
+            contentWidth = naturalWidth * scale;
+            contentHeight = naturalHeight * scale;
+        }
+
+        const positionTokens = String(style.objectPosition || "50% 50%")
+            .trim()
+            .split(/\s+/);
+        const positionX = positionTokens[0] || "50%";
+        const positionY = positionTokens[1] || positionTokens[0] || "50%";
+        const contentLeft = objectPositionOffset(
+            positionX,
+            boxWidth - contentWidth,
+            "x"
+        );
+        const contentTop = objectPositionOffset(
+            positionY,
+            boxHeight - contentHeight,
+            "y"
+        );
+
+        const alpha = normalizedImageAlphaBounds(image);
+        let localLeft = contentLeft + (alpha?.left ?? 0) * contentWidth;
+        let localTop = contentTop + (alpha?.top ?? 0) * contentHeight;
+        let localRight = contentLeft + (alpha?.right ?? 1) * contentWidth;
+        let localBottom = contentTop + (alpha?.bottom ?? 1) * contentHeight;
+
+        // Replaced content is visually clipped by its own box. Keep the
+        // selection around pixels that can actually be seen.
+        localLeft = Math.max(0, Math.min(boxWidth, localLeft));
+        localTop = Math.max(0, Math.min(boxHeight, localTop));
+        localRight = Math.max(localLeft, Math.min(boxWidth, localRight));
+        localBottom = Math.max(localTop, Math.min(boxHeight, localBottom));
+
+        const scaleX = rect.width / boxWidth;
+        const scaleY = rect.height / boxHeight;
+        const left = rect.left + localLeft * scaleX;
+        const top = rect.top + localTop * scaleY;
+        const right = rect.left + localRight * scaleX;
+        const bottom = rect.top + localBottom * scaleY;
+
+        if (right - left < 1 || bottom - top < 1) return rect;
+
+        return {
+            left,
+            top,
+            right,
+            bottom,
+            width: right - left,
+            height: bottom - top,
+            x: left,
+            y: top
+        };
+    }
 
     function readScopedOcean(storageScopeId, editorContext) {
         try {
@@ -985,6 +1153,86 @@
             return resolveGeometryElement(node?.element, screenRoot) || node?.element || null;
         }
 
+        function isVisibleVisualElement(element) {
+            if (!(element instanceof Element) || !element.isConnected) return false;
+            if (element.hidden) return false;
+            const style = root.getComputedStyle(element);
+            if (
+                style.display === "none"
+                || style.visibility === "hidden"
+                || Number(style.opacity || 1) <= .001
+            ) {
+                return false;
+            }
+            const rect = element.getBoundingClientRect?.();
+            return Boolean(rect && rect.width > 0 && rect.height > 0);
+        }
+
+        function appendVisualCandidate(list, element) {
+            if (!(element instanceof Element)) return;
+            const visual = element.matches("picture")
+                ? element.querySelector("img")
+                : element;
+            if (
+                visual instanceof Element
+                && !list.includes(visual)
+                && isVisibleVisualElement(visual)
+            ) {
+                list.push(visual);
+            }
+        }
+
+        function visualElement(node) {
+            const element = node?.element;
+            if (!(element instanceof Element)) return null;
+
+            const candidates = [];
+            if (element.matches("img, svg, canvas, video, picture")) {
+                appendVisualCandidate(candidates, element);
+            }
+
+            // Composition slots are geometry owners, not necessarily the actual
+            // painted asset. Prefer the live local draft, then the bound image.
+            [
+                ".tq-dev-local-live-asset[data-tq-local-persisted='true']",
+                ".tq-dev-local-live-asset",
+                ".tq-composition-bound-asset",
+                "picture img",
+                "img",
+                "svg:not([data-tq-ocean-scene])",
+                "video"
+            ].forEach((selector) => {
+                element.querySelectorAll?.(selector)
+                    .forEach((candidate) => appendVisualCandidate(candidates, candidate));
+            });
+
+            const id = String(node.id || element.dataset.tqDevId || "").trim();
+            if (id) {
+                const escapedId = CSS.escape(id);
+                screenRoot.querySelectorAll(
+                    '.tq-dev-local-live-asset[data-tq-composition-slot="' + escapedId + '"], '
+                    + '.tq-dev-localized-external-asset[data-tq-dev-id="' + escapedId + '"]'
+                ).forEach((candidate) => appendVisualCandidate(candidates, candidate));
+            }
+
+            return candidates[0] || null;
+        }
+
+        function visualClientRect(node) {
+            const visual = visualElement(node);
+            if (visual instanceof HTMLImageElement) {
+                const painted = imagePaintedClientRect(visual);
+                if (painted?.width > 0 && painted?.height > 0) return painted;
+            }
+            if (visual instanceof Element) {
+                const rect = visual.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) return rect;
+            }
+
+            const target = geometryTarget(node);
+            return target?.getBoundingClientRect?.() || null;
+        }
+
         function linkedPairNodes(node) {
             if (!node?.element) return node ? [node] : [];
             const pairId = node.element.dataset.tqPairId;
@@ -1204,7 +1452,11 @@
                 overlay.hidden = true;
                 return;
             }
-            const rect = geometryTarget(selected).getBoundingClientRect();
+            const rect = visualClientRect(selected);
+            if (!rect?.width || !rect?.height) {
+                overlay.hidden = true;
+                return;
+            }
             overlay.hidden = false;
             const locked = isLocked(selected.element);
             overlay.classList.toggle("tq-scene-dev-selection--compact", rect.width < 72 || rect.height < 72);
@@ -1519,8 +1771,8 @@
                 .filter((node) => {
                     if (seen.has(node.id) || isDeleted(node.element) || isInactiveCompositionSlot(node)) return false;
                     if (functionsHidden && node.kind === "function") return false;
-                    const rect = geometryTarget(node).getBoundingClientRect();
-                    if (!rect.width || !rect.height) return false;
+                    const rect = visualClientRect(node);
+                    if (!rect?.width || !rect?.height) return false;
                     return clientX >= rect.left && clientX <= rect.right
                         && clientY >= rect.top && clientY <= rect.bottom;
                 })
@@ -1529,8 +1781,8 @@
                     const targetB = geometryTarget(b);
                     const zDelta = readLayer(targetB) - readLayer(targetA);
                     if (zDelta) return zDelta;
-                    const rectA = targetA.getBoundingClientRect();
-                    const rectB = targetB.getBoundingClientRect();
+                    const rectA = visualClientRect(a) || targetA.getBoundingClientRect();
+                    const rectB = visualClientRect(b) || targetB.getBoundingClientRect();
                     return (rectA.width * rectA.height) - (rectB.width * rectB.height);
                 });
 
@@ -1569,7 +1821,8 @@
 
         function selectBelowCurrent() {
             if (!selected) return;
-            const rect = geometryTarget(selected).getBoundingClientRect();
+            const rect = visualClientRect(selected)
+                || geometryTarget(selected).getBoundingClientRect();
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
             selectBelowAtPoint(x, y, selected);
@@ -1607,7 +1860,8 @@
             }
 
             const geometryElement = geometryTarget(node);
-            const rect = geometryElement.getBoundingClientRect();
+            const geometryRect = geometryElement.getBoundingClientRect();
+            const rect = visualClientRect(node) || geometryRect;
             const coordinateSpace = sceneEngine.stageCoordinateSpace(geometryElement, screenRoot);
             const stage = coordinateSpace.stage || screenRoot;
             const pointerTarget = typeof node.element?.setPointerCapture === "function"
@@ -1631,6 +1885,7 @@
                 startX: event.clientX,
                 startY: event.clientY,
                 rect,
+                geometryRect,
                 stageRect: stage?.getBoundingClientRect() || null,
                 coordinateSpace,
                 geometry: readGeometry(geometryElement),
@@ -1646,15 +1901,16 @@
             if (touches.length !== 2) return false;
 
             const geometryElement = geometryTarget(node);
-            const rect = geometryElement.getBoundingClientRect();
+            const geometryRect = geometryElement.getBoundingClientRect();
+            const rect = visualClientRect(node) || geometryRect;
             const startDistance = sceneEngine.pointerDistance(touches[0], touches[1]);
             if (startDistance < 4) return false;
 
             const startCenter = sceneEngine.pointerCenter(touches[0], touches[1]);
             const coordinateSpace = sceneEngine.stageCoordinateSpace(geometryElement, screenRoot);
             const anchorLocal = coordinateSpace.clientDeltaToLocal(
-                startCenter.x - rect.left,
-                startCenter.y - rect.top
+                startCenter.x - geometryRect.left,
+                startCenter.y - geometryRect.top
             );
 
             interaction = {
@@ -1664,6 +1920,7 @@
                 pointerIds: touches.map((pointer) => pointer.id),
                 pointerTarget: null,
                 rect,
+                geometryRect,
                 stageRect: coordinateSpace.stage?.getBoundingClientRect() || null,
                 coordinateSpace,
                 geometry: readGeometry(geometryElement),
@@ -1699,7 +1956,8 @@
             let node = nodeAtPointer(event);
 
             if (event.pointerType === "touch" && activePointers.size === 1 && selected) {
-                const rect = geometryTarget(selected).getBoundingClientRect();
+                const rect = visualClientRect(selected)
+                    || geometryTarget(selected).getBoundingClientRect();
                 const insideSelected = event.clientX >= rect.left
                     && event.clientX <= rect.right
                     && event.clientY >= rect.top
@@ -1893,14 +2151,37 @@
                     else width = height * ratio;
                 }
 
-                const sx = Math.max(.05, interaction.geometry.sx * (width / Math.max(1, interaction.rect.width)));
-                const sy = Math.max(.05, interaction.geometry.sy * (height / Math.max(1, interaction.rect.height)));
-                const moveX = handle.includes("w") ? rawLocalDelta.x : 0;
-                const moveY = handle.includes("n") ? rawLocalDelta.y : 0;
+                const factorX = width / Math.max(1, interaction.rect.width);
+                const factorY = height / Math.max(1, interaction.rect.height);
+                const sx = Math.max(.05, interaction.geometry.sx * factorX);
+                const sy = Math.max(.05, interaction.geometry.sy * factorY);
+
+                // Handles are drawn around the painted asset, while transforms
+                // are stored on the geometry owner. Compensate for any gap
+                // between those two boxes (object-fit, transparent pixels, etc.)
+                // so the opposite visible edge stays anchored while resizing.
+                const geometryRect = interaction.geometryRect || interaction.rect;
+                const offsetLeft = interaction.rect.left - geometryRect.left;
+                const offsetTop = interaction.rect.top - geometryRect.top;
+
+                const predictedLeft = geometryRect.left + offsetLeft * factorX;
+                const predictedTop = geometryRect.top + offsetTop * factorY;
+
+                const desiredLeft = handle.includes("w")
+                    ? interaction.rect.right - width
+                    : interaction.rect.left;
+                const desiredTop = handle.includes("n")
+                    ? interaction.rect.bottom - height
+                    : interaction.rect.top;
+
+                const anchorShift = interaction.coordinateSpace.clientDeltaToLocal(
+                    desiredLeft - predictedLeft,
+                    desiredTop - predictedTop
+                );
 
                 applyGeometryLinked(node, {
-                    x: interaction.geometry.x + moveX,
-                    y: interaction.geometry.y + moveY,
+                    x: interaction.geometry.x + anchorShift.x,
+                    y: interaction.geometry.y + anchorShift.y,
                     sx,
                     sy
                 });
