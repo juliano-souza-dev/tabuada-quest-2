@@ -985,5 +985,9 @@
         }, screenId, renderToken);
     }
 
+    root.addEventListener("tq:dev-remount-request", () => {
+        render();
+    });
+
     render();
 })(globalThis);
