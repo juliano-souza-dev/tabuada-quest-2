@@ -41,6 +41,7 @@
 
         let config = TQ.core.oceanScene.readConfig(scopeId, regionId);
         const presets = TQ.core.oceanScene.PRESETS;
+        let areaSelectionCleanup = null;
 
         const host = document.createElement("aside");
         host.className = "tq-ocean-dev";
@@ -261,19 +262,41 @@
         }
 
         function startAreaSelection() {
+            areaSelectionCleanup?.();
+            areaSelectionCleanup = null;
+
+            const stageRect = oceanHost?.getBoundingClientRect?.();
+            if (
+                !stageRect
+                || !Number.isFinite(stageRect.width)
+                || !Number.isFinite(stageRect.height)
+                || stageRect.width <= 1
+                || stageRect.height <= 1
+            ) {
+                status.textContent = "Não encontrei a área visual do oceano";
+                return;
+            }
+
             openPanel(false);
             status.textContent = "Desenhe a área da água";
 
             const overlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             overlay.classList.add("tq-ocean-area-lasso");
-            overlay.setAttribute("aria-hidden", "true");
+            overlay.setAttribute("aria-label", "Desenhar área da água");
+            overlay.setAttribute("role", "application");
+
             const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             polygon.classList.add("tq-ocean-area-lasso-shape");
             overlay.appendChild(polygon);
-            document.body.appendChild(overlay);
 
-            const stageRect = oceanHost.getBoundingClientRect();
+            const hint = document.createElement("div");
+            hint.className = "tq-ocean-area-lasso-hint";
+            hint.textContent = "Desenhe sobre a água · solte para salvar";
+
+            document.body.append(overlay, hint);
+
             let drawing = false;
+            let pointerId = null;
             let points = [];
 
             function pointFromEvent(event) {
@@ -291,52 +314,84 @@
             }
 
             function redraw() {
-                polygon.setAttribute("points", points.map((point) => point.x + "," + point.y).join(" "));
+                polygon.setAttribute(
+                    "points",
+                    points.map((point) => point.x + "," + point.y).join(" ")
+                );
             }
 
             function cleanup() {
-                root.removeEventListener("pointerdown", onDown, true);
-                root.removeEventListener("pointermove", onMove, true);
-                root.removeEventListener("pointerup", onUp, true);
-                root.removeEventListener("pointercancel", onUp, true);
+                overlay.removeEventListener("pointerdown", onDown);
+                overlay.removeEventListener("pointermove", onMove);
+                overlay.removeEventListener("pointerup", onUp);
+                overlay.removeEventListener("pointercancel", onCancel);
                 root.removeEventListener("keydown", onKeyDown, true);
+
+                if (pointerId !== null && overlay.hasPointerCapture?.(pointerId)) {
+                    try { overlay.releasePointerCapture(pointerId); } catch (_) {}
+                }
+
                 overlay.remove();
+                hint.remove();
+                drawing = false;
+                pointerId = null;
+                areaSelectionCleanup = null;
             }
 
-            function cancel() {
+            function cancel(message = "Marcação cancelada") {
                 cleanup();
-                status.textContent = "Marcação cancelada";
+                status.textContent = message;
                 openPanel(true);
             }
 
             function onDown(event) {
-                if (!insideStage(event)) return;
+                if (!insideStage(event)) {
+                    event.preventDefault();
+                    return;
+                }
+
                 drawing = true;
+                pointerId = event.pointerId;
                 points = [pointFromEvent(event)];
+
+                try { overlay.setPointerCapture(event.pointerId); } catch (_) {}
+
                 redraw();
                 event.preventDefault();
                 event.stopPropagation();
             }
 
             function onMove(event) {
-                if (!drawing) return;
+                if (!drawing || event.pointerId !== pointerId) return;
+
                 const point = pointFromEvent(event);
                 const last = points[points.length - 1];
-                if (Math.hypot(point.x - last.x, point.y - last.y) < 4) return;
+                if (last && Math.hypot(point.x - last.x, point.y - last.y) < 3) {
+                    event.preventDefault();
+                    return;
+                }
+
                 points.push(point);
                 redraw();
                 event.preventDefault();
                 event.stopPropagation();
             }
 
-            function onUp(event) {
-                if (!drawing) return;
-                drawing = false;
+            function finish(event) {
+                if (!drawing || event.pointerId !== pointerId) return;
+
+                const finalPoint = pointFromEvent(event);
+                const last = points[points.length - 1];
+                if (!last || Math.hypot(finalPoint.x - last.x, finalPoint.y - last.y) >= 2) {
+                    points.push(finalPoint);
+                    redraw();
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
 
                 if (points.length < 3) {
-                    cancel();
+                    cancel("Faça um traço maior para marcar a água");
                     return;
                 }
 
@@ -350,17 +405,28 @@
                 persist("Área da água salva");
             }
 
+            function onUp(event) {
+                finish(event);
+            }
+
+            function onCancel(event) {
+                if (event.pointerId !== pointerId) return;
+                cancel();
+            }
+
             function onKeyDown(event) {
                 if (event.key !== "Escape") return;
                 event.preventDefault();
                 cancel();
             }
 
-            root.addEventListener("pointerdown", onDown, true);
-            root.addEventListener("pointermove", onMove, true);
-            root.addEventListener("pointerup", onUp, true);
-            root.addEventListener("pointercancel", onUp, true);
+            overlay.addEventListener("pointerdown", onDown, { passive: false });
+            overlay.addEventListener("pointermove", onMove, { passive: false });
+            overlay.addEventListener("pointerup", onUp, { passive: false });
+            overlay.addEventListener("pointercancel", onCancel, { passive: false });
             root.addEventListener("keydown", onKeyDown, true);
+
+            areaSelectionCleanup = () => cancel();
         }
 
         host.querySelector(".tq-ocean-dev-toggle").addEventListener("click", () => openPanel(!panelOpen));
@@ -398,6 +464,8 @@
         syncControls();
 
         activeCleanup = () => {
+            areaSelectionCleanup?.();
+            areaSelectionCleanup = null;
             root.removeEventListener("tq:dev-tool-activate", onOtherTool);
             controller?.destroy?.();
             host.remove();
