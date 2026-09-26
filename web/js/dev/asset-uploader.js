@@ -8,6 +8,7 @@
     const LOCAL_DB_VERSION = 1;
     const LOCAL_LAYER_STORE = "layers";
     const runtimeObjectUrls = new Map();
+    let activeMountCleanup = null;
 
     const COMMON_FOLDERS = Object.freeze([
         { value: "web/assets", label: "Assets · raiz" },
@@ -710,6 +711,8 @@
     }
 
     function mount(options = {}) {
+        activeMountCleanup?.();
+        activeMountCleanup = null;
         document.querySelector(".tq-asset-upload-dev")?.remove();
 
         const repository = String(options.repository || DEFAULT_REPOSITORY);
@@ -737,21 +740,31 @@
         let uploadIntent = null;
         let uploadBusy = false;
         let uploadSequence = 0;
-        const localLayers = [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
-            .map((image) => {
-                const recordId = image.dataset.tqLocalRecordId || image.dataset.tqDevId;
-                return {
-                    id: recordId,
-                    slotId: image.dataset.tqCompositionSlot || null,
-                    semanticType: image.dataset.tqSemanticType || null,
-                    boundFunctionId: image.dataset.tqBoundFunctionId || null,
-                    boundAction: image.dataset.tqBoundAction || null,
-                    variantId: image.dataset.tqCompositionVariant || null,
-                    image,
-                    objectUrl: runtimeObjectUrls.get(recordId) || image.src,
-                    fileName: image.dataset.tqLocalFile || "asset local"
-                };
-            });
+        function scanLocalLayersFromDom() {
+            return [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
+                .map((image) => {
+                    const recordId = image.dataset.tqLocalRecordId || image.dataset.tqDevId;
+                    return {
+                        id: recordId,
+                        slotId: image.dataset.tqCompositionSlot || null,
+                        semanticType: image.dataset.tqSemanticType || null,
+                        boundFunctionId: image.dataset.tqBoundFunctionId || null,
+                        boundAction: image.dataset.tqBoundAction || null,
+                        variantId: image.dataset.tqCompositionVariant || null,
+                        image,
+                        objectUrl: runtimeObjectUrls.get(recordId) || image.src,
+                        fileName: image.dataset.tqLocalFile || "asset local"
+                    };
+                });
+        }
+
+        const localLayers = scanLocalLayersFromDom();
+
+        function syncLocalLayersFromDom() {
+            const latest = scanLocalLayersFromDom();
+            localLayers.splice(0, localLayers.length, ...latest);
+            return localLayers;
+        }
 
         const host = document.createElement("aside");
         host.className = "tq-asset-upload-dev";
@@ -1083,6 +1096,41 @@
                 removeButton.disabled = slot ? !slotHasArt(slot) : true;
             }
         }
+
+        function onCompositionBindingChanged(event) {
+            if (!composition || !compositionRegistry) return;
+
+            const changedSlotId = String(event?.detail?.slotId || "").trim();
+            if (
+                changedSlotId
+                && !compositionRegistry.getSlot?.(resolvedCompositionScreenId, changedSlotId)
+            ) {
+                return;
+            }
+
+            syncLocalLayersFromDom();
+            syncCompositionSlot();
+
+            if (changedSlotId) {
+                const changedSlot = compositionRegistry.getSlot(
+                    resolvedCompositionScreenId,
+                    changedSlotId
+                );
+                const occupied = changedSlot ? slotHasArt(changedSlot) : false;
+                status.textContent = changedSlot
+                    ? changedSlot.label + (occupied ? " · atualizado no UP" : " · removido no UX")
+                    : "UP sincronizado";
+            }
+
+            fileName.textContent = localLayers.at(-1)?.fileName || "Nenhum arquivo local";
+        }
+
+        root.addEventListener("tq:composition-binding-changed", onCompositionBindingChanged);
+
+        activeMountCleanup = () => {
+            root.removeEventListener("tq:composition-binding-changed", onCompositionBindingChanged);
+            if (host.isConnected) host.remove();
+        };
 
         function currentFolder() {
             if (folderSelect.value === "__custom__") {
