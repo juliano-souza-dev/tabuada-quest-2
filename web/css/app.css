@@ -13,6 +13,7 @@
 
 @import url("./screens/ruby-shop.css?v=20260921-1545");
 @import url("./dev/scene-editor.css?v=20260925-ux-hide-assets-v1");
+@import url("./dev/preview-controller.css?v=20260926-dev-engine-v4");
 @import url("./dev/settings-panel.css?v=20260925-lock-progress-v1");
 @import url("./dev/asset-uploader.css?v=20260925-asset-classify-v1");
 @import url("./dev/region-builder.css?v=20260925-transparent-empty-v1");
