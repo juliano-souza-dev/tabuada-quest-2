@@ -40,7 +40,7 @@
             window.visualViewport?.addEventListener("resize", syncAppViewport, { passive: true });
         })();
     </script>
-    <link rel="stylesheet" href="./css/app.css?v=20260926-home-visual-v2">
+    <link rel="stylesheet" href="./css/app.css?v=20260926-home-v3-dynamic-ship">
 </head>
 <body>
     <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
@@ -49,8 +49,8 @@
     </div>
 
     <script src="./vendor/lottie.min.js"></script>
-    <script src="./js/content/game-content.js?v=20260924-night-port-v1"></script>
-    <script src="./js/content/screen-composition.js?v=20260926-home-visual-v2"></script>
+    <script src="./js/content/game-content.js?v=20260926-home-v3-dynamic-ship"></script>
+    <script src="./js/content/screen-composition.js?v=20260926-home-v3-dynamic-ship"></script>
     <script src="./js/content/region-schema.js?v=20260925-full-layout-reset-v1"></script>
     <script src="./js/content/collectibles-assets.js?v=20260922-collectibles-shelf"></script>
     <script src="./js/content/challenge-effects.js?v=20260921-2359"></script>
@@ -62,16 +62,16 @@
     <script src="./js/persistence/local-storage.js?v=20260922-dev-exit"></script>
     <script src="./js/core/screen-manager.js?v=20260925-single-stage-v3"></script>
     <script src="./js/core/ocean-loader.js?v=20260923-2"></script>
-    <script src="./js/core/ocean-scene.js?v=20260926-home-visual-v2"></script>
+    <script src="./js/core/ocean-scene.js?v=20260926-home-v3-dynamic-ship"></script>
     <script src="./js/core/depth-scene.js?v=20260925-default-effects-avatar-v2"></script>
     <script src="./js/core/audio-scene.js?v=20260925-default-audio-v2"></script>
-    <script src="./js/core/screen-composition-runtime.js?v=20260926-home-default-composition-v1"></script>
+    <script src="./js/core/screen-composition-runtime.js?v=20260926-home-v3-dynamic-ship"></script>
     <script src="./js/core/safe-viewport.js?v=20260925-single-stage-v2"></script>
     <script src="./js/core/challenge-effect-renderer.js?v=20260921-2214"></script>
     <script src="./js/core/world-map.js?v=20260922-world-map-v1"></script>
     <script src="./js/screens/auth-screen.js?v=20260922-auth-gate"></script>
     <script src="./js/screens/profile-screen.js?v=20260922-profile-setup"></script>
-    <script src="./js/screens/home-screen.js?v=20260925-home-canonical-v1"></script>
+    <script src="./js/screens/home-screen.js?v=20260926-home-v3-dynamic-ship"></script>
     <script src="./js/screens/tavern-screen.js?v=20260923-tavern-v1"></script>
     <script src="./js/screens/crew-screen.js?v=20260923-tavern-art-v4"></script>
     <script src="./js/screens/collectibles-screen.js?v=20260922-collected-only"></script>
@@ -98,12 +98,12 @@
     <script src="./js/dev/ocean-editor.js?v=20260925-rollback-pinch-v1"></script>
     <script src="./js/dev/depth-editor.js?v=20260925-active-slots-v2-hard"></script>
     <script src="./js/dev/audio-editor.js?v=20260925-default-audio-v2"></script>
-    <script src="./js/app.js?v=20260926-home-default-composition-v1"></script>
+    <script src="./js/app.js?v=20260926-home-v3-dynamic-ship"></script>
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", async () => {
                 try {
-                    const registration = await navigator.serviceWorker.register("./sw.js?v=20260926-home-visual-v2", { scope: "./" });
+                    const registration = await navigator.serviceWorker.register("./sw.js?v=20260926-home-v3-dynamic-ship", { scope: "./" });
                     const installButton = document.getElementById("pwa-install-button");
                     let installPrompt = null;
                     const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches
