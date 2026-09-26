@@ -13,10 +13,9 @@ test("slots vazios ficam fora da tela e do UX",()=>{
     assert.match(runtime,/slotElement\.hidden = !src/);
     assert.match(runtime,/slotElement\.hidden = false/);
 
-    assert.match(
-        scene,
-        /semanticAsset && \(element\.dataset\.tqSlotEmpty === "true" \|\| element\.hidden\)/
-    );
+    assert.match(scene,/function isInactiveCompositionSlot/);
+    assert.match(scene,/node\.element\.dataset\.tqSlotEmpty === "true" \|\| node\.element\.hidden/);
+    assert.match(scene,/!isInactiveCompositionSlot\(node\)/);
 });
 
 test("Copiar exporta apenas slots com asset ativo",()=>{
