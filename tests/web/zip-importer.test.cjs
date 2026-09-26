@@ -122,3 +122,29 @@ test("UP só aplica ZIP depois da revisão e confirmação",()=>{
   assert.match(source,/await addLocalLayer\(assignment\.entry\.file, intent\)/);
   assert.match(source,/suppressSelection: true/);
 });
+
+
+test("Cenário ignora limite obrigatório de Avatar completo",()=>{
+  const zip=loadZipImporter();
+  const assignments=zip.suggestAssignments([
+    fake("oceano.webp"),
+    fake("pier.webp"),
+    fake("navio.webp")
+  ],slots,"scene");
+
+  const result=zip.validateAssignments({
+    assignments,
+    slots,
+    groupId:"scene",
+    occupiedSlotIds:[],
+    limits:{
+      "background-ocean":{label:"Oceano",min:1,max:1},
+      "background-pier":{label:"Pier",min:1,max:1},
+      "background-ships":{label:"Navios",min:1,max:5},
+      "character":{label:"Avatar completo",min:1,max:1}
+    }
+  });
+
+  assert.equal(result.valid,true);
+  assert.ok(!result.errors.some((message)=>message.includes("Avatar completo")));
+});
