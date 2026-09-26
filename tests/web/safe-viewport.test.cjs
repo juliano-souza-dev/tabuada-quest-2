@@ -80,9 +80,9 @@ test("fontes de layout usam o contrato compartilhado de safe viewport",()=>{
     assert.doesNotMatch(worldMap,/540px/);
     assert.match(home,/home-safe-visual-area/);
 
-    assert.match(activity,/getInsetsIgnoringVisibility/);
-    assert.match(activity,/WindowInsets\.Type\.displayCutout/);
-    assert.match(activity,/--tq-native-safe-top/);
+    assert.match(activity,/--tq-native-safe-top','0px'/);
+    assert.match(activity,/--tq-native-safe-bottom','0px'/);
+    assert.match(activity,/WindowInsets\.Type\.statusBars\(\) \| WindowInsets\.Type\.navigationBars\(\)/);
     assert.match(activity,/LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES/);
 });
 
