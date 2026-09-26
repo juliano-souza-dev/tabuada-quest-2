@@ -116,6 +116,8 @@
 .tq-preview-device-frame {
     position: absolute;
     inset: 0 auto auto 0;
+    width: var(--tq-preview-panel-width);
+    height: var(--tq-preview-panel-height);
     box-sizing: content-box;
     overflow: hidden;
     border: 9px solid #060c10;
