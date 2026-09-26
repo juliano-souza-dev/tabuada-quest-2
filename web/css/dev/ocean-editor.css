@@ -200,8 +200,12 @@
     z-index: 100020;
     width: 100vw;
     height: 100vh;
-    pointer-events: none;
+    pointer-events: auto;
+    touch-action: none;
+    overscroll-behavior: none;
+    cursor: crosshair;
     overflow: visible;
+    background: rgba(3, 24, 35, .08);
 }
 
 .tq-ocean-area-lasso-shape {
@@ -248,4 +252,24 @@
     .tq-ocean-checks {
         grid-template-columns: 1fr;
     }
+}
+
+
+.tq-ocean-area-lasso-hint {
+    position: fixed;
+    z-index: 100021;
+    top: max(14px, var(--tq-safe-top, 0px));
+    left: 50%;
+    translate: -50% 0;
+    max-width: calc(100vw - 32px);
+    padding: 9px 13px;
+    border: 1px solid rgba(184,244,255,.62);
+    border-radius: 999px;
+    color: #eaffff;
+    background: rgba(5,29,41,.94);
+    box-shadow: 0 8px 24px rgba(0,0,0,.34);
+    font: 800 12px/1.25 Arial, sans-serif;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
 }
