@@ -527,6 +527,16 @@
                 semanticType: "logo",
                 asset: "./assets/ui/icons/tabuada-quest-logo.webp"
             }),
+            "home.header.level-plate": Object.freeze({
+                slotId: "home.header.level-plate",
+                semanticType: "level_plate",
+                asset: "./assets/ui/niveis/tabuada_quest_nivel_01.webp"
+            }),
+            "home.character.avatar-full": Object.freeze({
+                slotId: "home.character.avatar-full",
+                semanticType: "avatar_full",
+                asset: "./assets/avatars/avatar-sofia-pirata.webp"
+            }),
             "home.background.ocean": publishedHomeBackgroundBinding(
                 "home.background.ocean",
                 "ocean",
