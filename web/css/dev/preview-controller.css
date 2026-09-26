@@ -124,6 +124,7 @@
         0 28px 80px rgba(0,0,0,.52),
         0 0 0 1px rgba(255,255,255,.18),
         0 0 0 3px rgba(3,9,13,.94);
+    transform: scale(var(--tq-preview-scale));
     transform-origin: top left;
     will-change: transform;
 }
