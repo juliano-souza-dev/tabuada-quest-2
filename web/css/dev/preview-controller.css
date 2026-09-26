@@ -1,30 +1,44 @@
-/* DEV preview v4: logical viewport is exact; only the outer frame scales. */
+/* DEV responsive device simulator.
+   The app itself runs inside an iframe with the selected logical viewport.
+   This makes @media queries and window.innerWidth react to the simulated size. */
+
 .tq-preview-dev {
     position: fixed;
-    z-index: 100020;
+    inset: 0;
+    z-index: 100500;
+    pointer-events: none;
+    font: 700 11px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.tq-preview-dev-toolbar {
+    position: fixed;
+    z-index: 3;
     top: 10px;
-    left: 10px;
-    display: none;
-    grid-template-columns: auto minmax(170px, auto) auto;
+    left: 50%;
+    translate: -50% 0;
+    display: grid;
+    grid-template-columns: auto minmax(210px, auto) auto auto auto;
     align-items: center;
     gap: 7px;
+    max-width: calc(100vw - 24px);
     padding: 7px 9px;
-    border: 1px solid rgba(229,189,84,.58);
-    border-radius: 10px;
+    border: 1px solid rgba(229,189,84,.66);
+    border-radius: 11px;
     color: #fff8df;
-    background: rgba(5,29,41,.96);
-    box-shadow: 0 8px 24px rgba(0,0,0,.32);
-    font: 700 11px/1.2 system-ui, sans-serif;
+    background: rgba(5,29,41,.975);
+    box-shadow: 0 8px 28px rgba(0,0,0,.38);
+    pointer-events: auto;
 }
 
-.tq-preview-dev strong {
+.tq-preview-dev-toolbar strong {
     color: #ffe18a;
-    letter-spacing: .05em;
+    letter-spacing: .06em;
 }
 
-.tq-preview-dev select,
-.tq-preview-dev input {
-    min-height: 32px;
+.tq-preview-dev-toolbar select,
+.tq-preview-dev-toolbar input,
+.tq-preview-dev-toolbar button {
+    min-height: 34px;
     border: 1px solid rgba(255,255,255,.2);
     border-radius: 7px;
     color: #fff8df;
@@ -32,95 +46,150 @@
     font: inherit;
 }
 
-.tq-preview-dev select { padding: 0 8px; }
+.tq-preview-dev-toolbar select {
+    padding: 0 8px;
+    color-scheme: dark;
+}
 
-.tq-preview-dev [data-preview-custom] {
+.tq-preview-dev-toolbar button {
+    padding: 0 10px;
+    border-color: rgba(229,189,84,.52);
+    cursor: pointer;
+}
+
+.tq-preview-dev-toolbar button:hover,
+.tq-preview-dev-toolbar button:focus-visible {
+    background: #17445a;
+    outline: 2px solid rgba(255,225,138,.7);
+    outline-offset: 1px;
+}
+
+.tq-preview-dev-toolbar [data-preview-custom] {
     display: grid;
-    grid-template-columns: 64px auto 70px;
+    grid-template-columns: 66px auto 72px;
     align-items: center;
     gap: 4px;
 }
 
-.tq-preview-dev [data-preview-custom][hidden] { display: none; }
-.tq-preview-dev input { width: 100%; padding: 0 6px; box-sizing: border-box; }
-.tq-preview-dev small { color: #b9d3dc; white-space: nowrap; }
+.tq-preview-dev-toolbar [data-preview-custom][hidden] {
+    display: none;
+}
 
-@media (min-width: 700px) {
-    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) body {
-        display: grid;
-        place-items: start center;
-        min-height: 100dvh;
-        padding: 56px 16px 16px;
-        overflow: auto;
-        box-sizing: border-box;
+.tq-preview-dev-toolbar input {
+    width: 100%;
+    padding: 0 6px;
+    box-sizing: border-box;
+}
+
+.tq-preview-dev-toolbar small {
+    color: #b9d3dc;
+    white-space: nowrap;
+}
+
+.tq-preview-dev-source {
+    grid-column: 1 / -1;
+    overflow: hidden;
+    max-width: 100%;
+    color: #8fc7d8 !important;
+    text-align: center;
+    text-overflow: ellipsis;
+}
+
+.tq-preview-simulator-stage {
+    position: fixed;
+    z-index: 1;
+    inset: 72px 0 0;
+    display: grid;
+    place-items: start center;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 16px 18px 30px;
+    pointer-events: auto;
+    box-sizing: border-box;
+}
+
+.tq-preview-device-scale {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.tq-preview-device-frame {
+    position: absolute;
+    inset: 0 auto auto 0;
+    box-sizing: content-box;
+    overflow: hidden;
+    border: 9px solid #060c10;
+    background: #071d2c;
+    box-shadow:
+        0 28px 80px rgba(0,0,0,.52),
+        0 0 0 1px rgba(255,255,255,.18),
+        0 0 0 3px rgba(3,9,13,.94);
+    transform-origin: top left;
+    will-change: transform;
+}
+
+.tq-preview-device-frame::before {
+    content: "";
+    position: absolute;
+    z-index: 3;
+    top: 4px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    translate: -50% 0;
+    border-radius: 999px;
+    background: rgba(255,255,255,.18);
+    pointer-events: none;
+}
+
+.tq-preview-device-frame iframe {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: #071d2c;
+}
+
+html.tq-dev-simulator-host,
+html.tq-dev-simulator-host body {
+    width: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+html.tq-dev-simulator-host body {
+    display: block !important;
+    min-height: 100vh !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+html.tq-dev-simulator-host .app-stage,
+html.tq-dev-simulator-host #pwa-install-button {
+    display: none !important;
+}
+
+/* Parent document hosts only the device simulator. Development tools run
+   inside the iframe so they see the exact simulated viewport as well. */
+html.tq-dev-simulator-host body > aside:not(.tq-preview-dev),
+html.tq-dev-simulator-host body > .tq-dev-mobile-context {
+    display: none !important;
+}
+
+@media (max-width: 920px) {
+    .tq-preview-dev-toolbar {
+        grid-template-columns: auto minmax(190px, 1fr) auto;
     }
 
-    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .tq-preview-dev {
-        display: grid;
-    }
-
-    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-stage {
-        position: relative;
-        display: block;
-        width: var(--tq-preview-panel-width);
-        height: var(--tq-preview-panel-height);
-        min-width: var(--tq-preview-panel-width);
-        min-height: var(--tq-preview-panel-height);
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.18);
-        border-radius: var(--tq-preview-radius);
-        background: #081117;
-        box-shadow: 0 30px 90px rgba(0,0,0,.46), 0 0 0 4px rgba(3,9,13,.96);
-        transform: scale(var(--tq-preview-scale));
-        transform-origin: top center;
-        margin-bottom: calc((var(--tq-preview-panel-height) * (1 - var(--tq-preview-scale))) * -1);
-    }
-
-    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-viewport {
-        position: absolute;
-        left: 0;
-        top: var(--tq-preview-status-height);
-        width: var(--tq-preview-app-width);
-        height: var(--tq-preview-app-height);
-        min-width: 0;
-        min-height: 0;
-        max-width: none;
-        max-height: none;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        border: 0;
-        border-radius: 0;
-        transform: none;
-        aspect-ratio: auto;
-    }
-
-    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-stage::before {
-        content: "";
-        position: absolute;
-        z-index: 1000;
-        inset: 0 0 auto;
-        height: var(--tq-preview-status-height);
-        background: rgba(7,29,41,.96);
-        pointer-events: none;
-    }
-
-    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-stage::after {
-        content: "";
-        position: absolute;
-        z-index: 1000;
-        inset: auto 0 0;
-        height: var(--tq-preview-navigation-height);
-        background: rgba(7,29,41,.96);
-        pointer-events: none;
-    }
-
-    html.tq-dev-preview-active:not(.tq-native-runtime):not(.tq-pwa-runtime) .app-viewport > section {
-        height: 100%;
-        min-height: 0;
+    .tq-preview-dev-toolbar [data-preview-custom],
+    .tq-preview-dev-toolbar [data-preview-metrics] {
+        grid-column: auto;
     }
 }
 
 @media (max-width: 699px) {
-    .tq-preview-dev { display: none !important; }
+    .tq-preview-dev {
+        display: none !important;
+    }
 }
