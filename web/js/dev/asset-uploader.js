@@ -730,6 +730,9 @@
         const compositionVariantId = String(options.compositionVariantId || "").trim();
 
         let replacementPreview = null;
+        let uploadIntent = null;
+        let uploadBusy = false;
+        let uploadSequence = 0;
         const localLayers = [...screenRoot.querySelectorAll(".tq-dev-local-live-asset[data-tq-local-persisted='true']")]
             .map((image) => {
                 const recordId = image.dataset.tqLocalRecordId || image.dataset.tqDevId;
@@ -922,6 +925,10 @@
         const fileInput = host.querySelector("[data-live-file]");
         const fileName = host.querySelector("[data-live-file-name]");
         const dropzone = host.querySelector("[data-live-dropzone]");
+        const addButton = host.querySelector("[data-live-add]");
+        const replaceButton = host.querySelector("[data-live-replace]");
+        const uploadButton = host.querySelector("[data-upload-open]");
+        const browseButton = host.querySelector("[data-upload-browse]");
         const removeButton = host.querySelector("[data-live-remove]");
         const revertButton = host.querySelector("[data-live-revert]");
 
@@ -1133,6 +1140,15 @@
         }
 
         function pickFile(mode) {
+            if (uploadBusy) {
+                status.textContent = "Aguarde o upload atual terminar";
+                return;
+            }
+
+            const intent = captureUploadIntent(mode);
+            if (!intent) return;
+
+            uploadIntent = intent;
             fileInput.value = "";
             fileInput.dataset.liveMode = mode;
             fileInput.click();
@@ -1140,26 +1156,33 @@
 
         const PENDING_UPLOAD_KEY = "tq2.dev.pending-semantic-upload.v1";
 
-        function persistPendingUpload(fileOrName) {
-            const slot = selectedCompositionSlot();
+        function persistPendingUpload(fileOrName, intent = null) {
+            const slot = resolveIntentSlot(intent) || selectedCompositionSlot();
             const fileNameValue = fileOrName instanceof File
                 ? fileOrName.name
                 : String(fileOrName || "").trim();
             if (!slot || !fileNameValue) return null;
 
-            const semanticType = semanticSelect?.value || slot.semanticType;
-            const folder = currentFolder();
+            const semanticType = intent?.semanticType
+                || semanticSelect?.value
+                || slot.semanticType;
+            const folder = intent?.folder || currentFolder();
+            const variantId = slot.bindingMode === "variants"
+                ? (intent?.variantId || selectedVariantId())
+                : null;
             const runtimeUrl = runtimeAssetUrl(folder + "/" + fileNameValue);
             const payload = {
-                version: 1,
+                version: 2,
                 screenId,
                 compositionScreenId: resolvedCompositionScreenId,
                 slotId: slot.id,
                 slotLabel: slot.label,
                 semanticType,
+                variantId,
                 fileName: fileNameValue,
                 folder,
                 runtimeUrl,
+                state: "awaiting-publish",
                 createdAt: new Date().toISOString()
             };
 
@@ -1167,36 +1190,10 @@
                 root.localStorage.setItem(PENDING_UPLOAD_KEY, JSON.stringify(payload));
             } catch (_) {}
 
-            if (slot.bindingMode === "variants") {
-                compositionRegistry.bindVariant(
-                    screenId,
-                    resolvedCompositionScreenId,
-                    slot.id,
-                    selectedVariantId(),
-                    runtimeUrl,
-                    {
-                        label: selectedVariantId(),
-                        semanticType
-                    }
-                );
-            } else {
-                compositionRegistry.bindAsset(
-                    screenId,
-                    resolvedCompositionScreenId,
-                    slot.id,
-                    runtimeUrl,
-                    semanticType
-                );
-            }
-
+            // Do not bind runtimeUrl yet. At this point the GitHub file may not
+            // exist and Pages may not have deployed it. Binding early creates
+            // broken compositions after reload.
             if (publishedPathInput) publishedPathInput.value = runtimeUrl || "";
-            root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
-                detail: {
-                    scopeId: screenId,
-                    screenId: resolvedCompositionScreenId,
-                    slotId: slot.id
-                }
-            }));
 
             return payload;
         }
@@ -1247,97 +1244,224 @@
         }
 
         function stageForLocalLayer() {
-            const selected = selectedAssetElement();
-            return selected?.closest(".tq-engine-canvas, .tq-canonical-stage")
-                || screenRoot?.querySelector(".tq-engine-canvas")
+            return screenRoot?.querySelector(".tq-engine-canvas")
                 || screenRoot?.querySelector(".tq-canonical-stage")
-                || selected?.closest(".tq-safe-visual-area")
                 || screenRoot?.querySelector(".tq-safe-visual-area")
                 || screenRoot;
         }
 
-        function reopenUxOn(element) {
-            if (
-                !(element instanceof Element)
-                || !(appRoot instanceof Element)
-                || !(screenRoot instanceof Element)
-            ) return;
+        function selectUxOn(element) {
+            if (!(element instanceof Element)) return;
+            const id = String(
+                element.dataset.tqDevId
+                || element.dataset.tqCompositionSlot
+                || ""
+            );
+            if (!id) return;
 
-            TQ.dev?.sceneEditor?.mount(appRoot, {
-                // screenId is the semantic screen identity. screenId from this
-                // uploader is intentionally the persistence scope (e.g.
-                // islands.region-1), so never use it as the editor screen type.
-                screenId: compositionScreenId,
-                storageScopeId: screenId,
-                effectsScopeId,
-                editorContext,
-                screenRoot,
-                initialSelectedId: element.dataset.tqDevId,
-                initialOpen: true
-            });
+            root.dispatchEvent(new CustomEvent("tq:dev-select-node", {
+                detail: {
+                    scopeId: screenId,
+                    id,
+                    open: true
+                }
+            }));
 
             root.requestAnimationFrame(() => {
                 syncSelected();
             });
         }
 
-        async function addLocalLayer(file) {
+        function setUploadBusy(busy, message = null) {
+            uploadBusy = Boolean(busy);
+            const controls = [
+                addButton,
+                replaceButton,
+                uploadButton,
+                browseButton,
+                slotSelect,
+                semanticSelect,
+                variantInput,
+                folderSelect,
+                customInput,
+                bindPublishedButton
+            ].filter(Boolean);
+
+            controls.forEach((control) => {
+                if (uploadBusy) {
+                    if (!control.hasAttribute("data-tq-upload-was-disabled")) {
+                        control.dataset.tqUploadWasDisabled = control.disabled ? "true" : "false";
+                    }
+                    control.disabled = true;
+                } else {
+                    control.disabled = control.dataset.tqUploadWasDisabled === "true";
+                    delete control.dataset.tqUploadWasDisabled;
+                }
+            });
+
+            if (message) status.textContent = message;
+        }
+
+        function captureUploadIntent(mode = "add") {
+            const slot = selectedCompositionSlot();
+            if (composition && !slot) {
+                status.textContent = "Escolha primeiro o destino";
+                return null;
+            }
+
+            const semanticType = semanticSelect?.value || slot?.semanticType || null;
+            if (
+                slot
+                && (
+                    !semanticType
+                    || !(slot.acceptedTypes || []).includes(semanticType)
+                )
+            ) {
+                status.textContent = "Escolha um tipo válido para este asset";
+                return null;
+            }
+
+            const selected = selectedAssetElement();
+            const selectedDevId = String(
+                selected?.dataset?.tqDevId
+                || selected?.dataset?.tqCompositionSlot
+                || ""
+            ) || null;
+
+            return Object.freeze({
+                transactionId: ++uploadSequence,
+                mode,
+                screenId,
+                compositionScreenId: resolvedCompositionScreenId,
+                slotId: slot?.id || null,
+                slotLabel: slot?.label || null,
+                semanticType,
+                variantId: slot?.bindingMode === "variants" ? selectedVariantId() : null,
+                folder: currentFolder(),
+                selectedDevId,
+                functionId: functionSelect?.value || null
+            });
+        }
+
+        function resolveIntentSlot(intent) {
+            if (!intent?.slotId || !compositionRegistry) return null;
+            return compositionRegistry.getSlot(
+                resolvedCompositionScreenId,
+                intent.slotId
+            );
+        }
+
+        function resolveIntentSelectedElement(intent) {
+            const id = String(intent?.selectedDevId || "");
+            if (!id) return null;
+
+            return screenRoot.querySelector(
+                '[data-tq-dev-id="' + CSS.escape(id) + '"]'
+            ) || screenRoot.querySelector(
+                '[data-tq-composition-slot="' + CSS.escape(id) + '"]'
+            );
+        }
+
+        async function waitForImageReady(image) {
+            if (!(image instanceof HTMLImageElement)) return;
+            if (image.complete && image.naturalWidth > 0) return;
+
+            await new Promise((resolve, reject) => {
+                let settled = false;
+                const finish = (error = null) => {
+                    if (settled) return;
+                    settled = true;
+                    root.clearTimeout(timer);
+                    image.removeEventListener("load", onLoad);
+                    image.removeEventListener("error", onError);
+                    if (error) reject(error);
+                    else resolve();
+                };
+                const onLoad = () => finish();
+                const onError = () => finish(new Error("A imagem não pôde ser carregada"));
+                const timer = root.setTimeout(
+                    () => finish(new Error("Tempo esgotado ao carregar a imagem")),
+                    8000
+                );
+                image.addEventListener("load", onLoad, { once: true });
+                image.addEventListener("error", onError, { once: true });
+            });
+        }
+
+        async function verifyLocalLayer(record, image, slot) {
+            const records = await readLocalLayerRecords(screenId);
+            if (!records.some((item) => item.id === record.id)) {
+                throw new Error("o asset não ficou salvo no armazenamento local");
+            }
+            if (!(image instanceof HTMLImageElement) || !image.isConnected) {
+                throw new Error("o asset não ficou ligado à tela");
+            }
+
+            if (slot) {
+                const slotElement = semanticSlotElement(screenRoot, slot.id);
+                if (!(slotElement instanceof HTMLElement)) {
+                    throw new Error("o slot do destino não existe na tela");
+                }
+                if (
+                    slotElement.dataset.tqSlotEmpty === "true"
+                    || slotElement.hidden
+                    || !slotElement.contains(image)
+                ) {
+                    throw new Error("o slot não ficou ativo depois do upload");
+                }
+            }
+
+            return true;
+        }
+
+        async function addLocalLayer(file, intent) {
             const stage = stageForLocalLayer();
             if (!(stage instanceof Element)) {
-                status.textContent = "Não encontrei a área visual da tela";
-                return;
+                throw new Error("não encontrei a área visual da tela");
             }
 
             if (root.getComputedStyle(stage).position === "static") {
                 stage.style.position = "relative";
             }
 
-            const slot = selectedCompositionSlot();
+            const slot = resolveIntentSlot(intent);
             if (composition && !slot) {
-                status.textContent = "Escolha o destino do asset";
-                return;
+                throw new Error("o destino escolhido deixou de existir");
             }
 
-            const semanticType = semanticSelect?.value || slot?.semanticType || null;
+            const semanticType = intent?.semanticType || slot?.semanticType || null;
             if (!semanticType) {
-                status.textContent = "Escolha o tipo do asset";
-                return;
+                throw new Error("tipo do asset não definido");
             }
             if (
                 slot
                 && Array.isArray(slot.acceptedTypes)
                 && !slot.acceptedTypes.includes(semanticType)
             ) {
-                status.textContent = "Esse tipo não é permitido neste destino";
-                return;
+                throw new Error("o tipo não é permitido neste destino");
             }
 
-            const selectedFunction = !slot && functionSelect?.value
-                ? screenRoot.querySelector('.tq-engine-function-proxy[data-tq-dev-id="' + CSS.escape(functionSelect.value) + '"]')
+            const selectedFunction = !slot && intent?.functionId
+                ? screenRoot.querySelector(
+                    '.tq-engine-function-proxy[data-tq-dev-id="' + CSS.escape(intent.functionId) + '"]'
+                )
                 : null;
             const canonicalFunction = slot?.action
                 ? compositionRegistry.getFunctionSlots(resolvedCompositionScreenId)
                     .find((item) => item.action === slot.action)
                 : null;
-            const variantId = slot?.bindingMode === "variants" ? selectedVariantId() : null;
+            const variantId = slot?.bindingMode === "variants"
+                ? (intent?.variantId || "default")
+                : null;
             const id = slot
                 ? screenId + "::" + slot.id + (variantId ? "::" + variantId : "")
                 : screenId + ".local." + slug(file.name) + "." + Date.now();
 
-            if (slot) {
-                const previousEntries = localLayers.filter((entry) => entry.slotId === slot.id);
-                for (const previous of previousEntries) {
-                    previous.image.remove();
-                    releaseRuntimeUrl(previous.id);
-                    localLayers.splice(localLayers.indexOf(previous), 1);
-                    try { await deleteLocalLayerRecord(previous.id); } catch (_) {}
-                }
-                try { await deleteLocalLayerRecord(id); } catch (_) {}
-                screenRoot.querySelectorAll('[data-tq-composition-slot="' + slot.id + '"]')
-                    .forEach((element) => {
-                        if (element.classList.contains("tq-dev-local-live-asset")) element.remove();
-                    });
-            }
+            const existingRecords = await readLocalLayerRecords(screenId);
+            const previousPersisted = existingRecords.find((item) => item.id === id) || null;
+            const previousEntries = slot
+                ? localLayers.filter((entry) => entry.slotId === slot.id)
+                : [];
 
             const record = {
                 id,
@@ -1348,7 +1472,7 @@
                 createdAt: Date.now(),
                 slotId: slot?.id || null,
                 slotLabel: slot?.label || null,
-                semanticType: semanticType || null,
+                semanticType,
                 boundFunctionId: canonicalFunction?.id || selectedFunction?.dataset?.tqDevId || null,
                 boundAction: slot?.action || selectedFunction?.dataset?.tqDevAction || null,
                 variantId,
@@ -1356,80 +1480,118 @@
                 pairState: slot?.pairState || null
             };
 
-            if (slot) {
-                compositionRegistry.setSemanticType(
-                    screenId,
-                    resolvedCompositionScreenId,
-                    slot.id,
-                    record.semanticType
-                );
-                applySemanticBehavior(slot, record.semanticType);
-            }
+            let image = null;
+            let objectUrl = null;
 
             try {
+                status.textContent = "UP 1/4 · salvando " + file.name;
                 await saveLocalLayerRecord(record);
-            } catch (error) {
-                console.error("Falha ao salvar asset local:", error);
-                status.textContent = "Não consegui salvar o asset localmente";
-                return;
-            }
 
-            const { image, objectUrl } = createLocalLayerElement(record);
-            const attachedParent = attachLocalLayerImage(screenRoot, stage, record, image);
-            if (slot) {
-                activateSavedSceneSlot(screenId, slot.id, attachedParent);
-            }
+                status.textContent = "UP 2/4 · carregando na tela";
+                const created = createLocalLayerElement(record);
+                image = created.image;
+                objectUrl = created.objectUrl;
+                const attachedParent = attachLocalLayerImage(screenRoot, stage, record, image);
 
-            const entry = {
-                id,
-                image,
-                objectUrl,
-                fileName: file.name,
-                slotId: record.slotId,
-                semanticType: record.semanticType,
-                boundFunctionId: record.boundFunctionId || null,
-                boundAction: record.boundAction || null,
-                variantId: record.variantId || null
-            };
-            localLayers.push(entry);
+                await waitForImageReady(image);
 
-            if (slot) {
-                root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
-                    detail: {
-                        scopeId: screenId,
-                        screenId: compositionScreenId,
-                        slotId: slot.id
+                if (slot) {
+                    activateSavedSceneSlot(screenId, slot.id, attachedParent);
+                }
+
+                status.textContent = "UP 3/4 · verificando";
+                await verifyLocalLayer(record, image, slot);
+
+                if (slot) {
+                    compositionRegistry.setSemanticType(
+                        screenId,
+                        resolvedCompositionScreenId,
+                        slot.id,
+                        record.semanticType
+                    );
+                    applySemanticBehavior(slot, record.semanticType);
+                }
+
+                previousEntries.forEach((previous) => {
+                    if (previous.image !== image) previous.image.remove();
+                    if (previous.objectUrl && previous.objectUrl !== objectUrl) {
+                        URL.revokeObjectURL(previous.objectUrl);
                     }
-                }));
+                    const index = localLayers.indexOf(previous);
+                    if (index >= 0) localLayers.splice(index, 1);
+                });
+
+                if (slot) {
+                    screenRoot
+                        .querySelectorAll(
+                            '[data-tq-composition-slot="' + CSS.escape(slot.id) + '"] .tq-dev-local-live-asset'
+                        )
+                        .forEach((candidate) => {
+                            if (candidate !== image) candidate.remove();
+                        });
+                }
+
+                const entry = {
+                    id,
+                    image,
+                    objectUrl,
+                    fileName: file.name,
+                    slotId: record.slotId,
+                    semanticType: record.semanticType,
+                    boundFunctionId: record.boundFunctionId || null,
+                    boundAction: record.boundAction || null,
+                    variantId: record.variantId || null
+                };
+                localLayers.push(entry);
+
+                if (slot) {
+                    root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
+                        detail: {
+                            scopeId: screenId,
+                            screenId: compositionScreenId,
+                            slotId: slot.id
+                        }
+                    }));
+                }
+
+                fileName.textContent = file.name;
+                removeButton.disabled = false;
+                if (publishedPathInput && slot) {
+                    publishedPathInput.value = runtimeAssetUrl(
+                        (intent?.folder || currentFolder()) + "/" + file.name
+                    ) || "";
+                }
+
+                syncCompositionSlot();
+
+                status.textContent = "UP 4/4 · pronto · " + (slot?.label || file.name);
+
+                root.requestAnimationFrame(() => {
+                    const semanticSlot = slot
+                        ? semanticSlotElement(screenRoot, slot.id)
+                        : null;
+                    selectUxOn(semanticSlot || image);
+                });
+
+                return { record, entry, file };
+            } catch (error) {
+                if (image) image.remove();
+                if (objectUrl) releaseRuntimeUrl(id);
+
+                try {
+                    if (previousPersisted) {
+                        await saveLocalLayerRecord(previousPersisted);
+                    } else {
+                        await deleteLocalLayerRecord(id);
+                    }
+                } catch (_) {}
+
+                throw error;
             }
-
-            fileName.textContent = file.name;
-            removeButton.disabled = false;
-            if (publishedPathInput && slot) {
-                publishedPathInput.value = runtimeAssetUrl(currentFolder() + "/" + file.name) || "";
-            }
-            status.textContent = slot
-                ? "ARTE DE TESTE · " + slot.label
-                : "SALVO LOCAL · " + file.name;
-
-            image.addEventListener("error", () => {
-                status.textContent = "Falha ao exibir " + file.name;
-            }, { once: true });
-
-            root.requestAnimationFrame(() => {
-                const semanticSlot = slot
-                    ? screenRoot.querySelector(
-                        '.tq-composition-slot[data-tq-composition-slot="' + CSS.escape(slot.id) + '"]'
-                    )
-                    : null;
-                reopenUxOn(semanticSlot || image);
-            });
-
-            return { record, entry, file };
         }
 
-        function replaceSelected(file) {
-            const selected = selectedAssetElement();
+        function replaceSelected(file, intent = null) {
+            const selected = resolveIntentSelectedElement(intent) || selectedAssetElement();
             if (!(selected instanceof Element)) {
                 status.textContent = "Selecione primeiro um asset no UX";
                 return;
@@ -1541,29 +1703,48 @@
                 );
         }
 
-        async function handleFile(file, mode) {
-            if (!validImage(file)) {
-                status.textContent = "Escolha uma imagem válida";
-                return;
-            }
-            if (!validateClassification()) return;
+        async function handleFile(file, intent = null) {
+            const operation = intent || captureUploadIntent("add");
+            if (!operation) return;
 
-            if (mode === "replace") {
-                replaceSelected(file);
+            if (uploadBusy) {
+                status.textContent = "Aguarde o upload atual terminar";
                 return;
             }
 
-            const added = await addLocalLayer(file);
-            if (!added) return;
+            setUploadBusy(true, "UP · preparando operação");
 
-            if (mode === "upload") {
-                const pending = persistPendingUpload(file);
-                if (!pending) {
-                    status.textContent = "Não consegui preparar a classificação do upload";
+            try {
+                if (!validImage(file)) {
+                    throw new Error("escolha uma imagem válida");
+                }
+
+                if (operation.mode === "replace") {
+                    replaceSelected(file, operation);
+                    status.textContent = "TROCA AO VIVO · " + file.name;
                     return;
                 }
-                status.textContent = pending.slotLabel + " · pronto para subir";
-                openExternal(buildUploadUrl(repository, branch, pending.folder));
+
+                const added = await addLocalLayer(file, operation);
+                if (!added) {
+                    throw new Error("o asset não foi adicionado");
+                }
+
+                if (operation.mode === "upload") {
+                    const pending = persistPendingUpload(file, operation);
+                    if (!pending) {
+                        throw new Error("não consegui preparar a publicação");
+                    }
+                    status.textContent = pending.slotLabel + " · upload pendente no GitHub";
+                    openExternal(buildUploadUrl(repository, branch, pending.folder));
+                }
+            } catch (error) {
+                console.error("Falha na transação do UP:", error);
+                status.textContent = "UP falhou · " + (error?.message || "erro desconhecido");
+            } finally {
+                setUploadBusy(false);
+                uploadIntent = null;
+                refreshSlotOptionStates();
             }
         }
 
@@ -1685,13 +1866,15 @@
             status.textContent = "Pasta detectada";
         });
 
-        host.querySelector("[data-live-add]").addEventListener("click", () => pickFile("add"));
-        host.querySelector("[data-live-replace]").addEventListener("click", () => pickFile("replace"));
+        addButton.addEventListener("click", () => pickFile("add"));
+        replaceButton.addEventListener("click", () => pickFile("replace"));
         removeButton.addEventListener("click", removeLastLayer);
         revertButton.addEventListener("click", revertReplacement);
 
         fileInput.addEventListener("change", () => {
-            handleFile(fileInput.files?.[0], fileInput.dataset.liveMode || "add");
+            const intent = uploadIntent || captureUploadIntent(fileInput.dataset.liveMode || "add");
+            uploadIntent = null;
+            void handleFile(fileInput.files?.[0], intent);
         });
 
         ["dragenter", "dragover"].forEach((type) => {
@@ -1711,38 +1894,50 @@
         });
 
         dropzone.addEventListener("drop", (event) => {
-            handleFile(event.dataTransfer?.files?.[0], "add");
+            const intent = captureUploadIntent("add");
+            if (!intent) return;
+            void handleFile(event.dataTransfer?.files?.[0], intent);
         });
 
-        host.querySelector("[data-upload-open]").addEventListener("click", () => {
-            if (!validateClassification()) return;
+        uploadButton.addEventListener("click", () => {
+            const intent = captureUploadIntent("upload");
+            if (!intent) return;
 
-            const slot = selectedCompositionSlot();
+            const slot = resolveIntentSlot(intent);
             const existing = slot
-                ? localLayers.find((item) => item.slotId === slot.id)
+                ? localLayers.find((item) =>
+                    item.slotId === slot.id
+                    && (
+                        slot.bindingMode !== "variants"
+                        || String(item.variantId || "default") === String(intent.variantId || "default")
+                    )
+                )
                 : localLayers.at(-1);
 
             if (existing?.fileName) {
                 const pending = slot
-                    ? persistPendingUpload(existing.fileName)
+                    ? persistPendingUpload(existing.fileName, intent)
                     : null;
 
                 status.textContent = pending
-                    ? pending.slotLabel + " · classificado e pronto para subir"
+                    ? pending.slotLabel + " · upload pendente no GitHub"
                     : "Abrindo upload";
                 openExternal(buildUploadUrl(
                     repository,
                     branch,
-                    pending?.folder || currentFolder()
+                    pending?.folder || intent.folder
                 ));
                 return;
             }
 
+            uploadIntent = intent;
             status.textContent = "Escolha o arquivo para " + (slot?.label || "este asset");
-            pickFile("upload");
+            fileInput.value = "";
+            fileInput.dataset.liveMode = "upload";
+            fileInput.click();
         });
 
-        host.querySelector("[data-upload-browse]").addEventListener("click", () => {
+        browseButton.addEventListener("click", () => {
             const folder = currentFolder();
             status.textContent = folder;
             openExternal(buildFolderUrl(repository, branch, folder));
