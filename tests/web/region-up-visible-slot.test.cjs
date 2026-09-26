@@ -16,18 +16,18 @@ test("UP reativa slot preenchido no estado persistido do UX",()=>{
   assert.match(source,/slotElement\.removeAttribute\("data-tq-dev-hidden"\)/);
 });
 
-test("asset adicionado sincroniza seleção do UP após reabrir UX",()=>{
+test("asset adicionado sincroniza seleção por evento depois de ficar visível",()=>{
   const source=read("web/js/dev/asset-uploader.js");
 
-  assert.match(
-    source,
-    /sceneEditor\?\.mount\([\s\S]*initialSelectedId: element\.dataset\.tqDevId[\s\S]*requestAnimationFrame\(\(\) => \{\s*syncSelected\(\);/
-  );
+  assert.match(source,/function selectUxOn/);
+  assert.match(source,/tq:dev-select-node/);
+  assert.match(source,/root\.requestAnimationFrame\(\(\) => \{\s*syncSelected\(\);/);
 });
 
-test("adicionar ao destino ativa o slot visual antes do UX reabrir",()=>{
+test("adicionar ao destino ativa o slot visual antes de selecionar",()=>{
   const source=read("web/js/dev/asset-uploader.js");
 
   assert.match(source,/const attachedParent = attachLocalLayerImage/);
   assert.match(source,/activateSavedSceneSlot\(screenId, slot\.id, attachedParent\)/);
+  assert.match(source,/selectUxOn\(semanticSlot \|\| image\)/);
 });
