@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260926-ux-visual-bounds-v1";
+const CACHE_VERSION = "tq2-dev-assets-20260926-real-device-simulator-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
