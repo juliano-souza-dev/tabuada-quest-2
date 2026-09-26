@@ -347,6 +347,8 @@
             panel.hidden = !panelOpen;
             if (panelOpen) {
                 closeOtherPanels();
+                config = TQ.core.depthScene.readConfig(scopeId, regionId);
+                controller?.update?.(config);
                 fillTargets(selectedId);
                 syncSceneControls();
                 syncLayerControls();
