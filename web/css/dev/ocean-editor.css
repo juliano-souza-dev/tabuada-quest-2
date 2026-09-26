@@ -209,11 +209,32 @@
 }
 
 .tq-ocean-area-lasso-shape {
-    fill: rgba(74,202,232,.22);
+    fill: rgba(74,202,232,.26);
     stroke: #b8f4ff;
     stroke-width: 2;
     stroke-dasharray: 7 5;
     vector-effect: non-scaling-stroke;
+}
+
+.tq-ocean-area-lasso-path {
+    fill: none;
+    stroke: #b8f4ff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.tq-ocean-area-lasso-point {
+    fill: #eaffff;
+    stroke: #067e9d;
+    stroke-width: 3;
+    vector-effect: non-scaling-stroke;
+}
+
+.tq-ocean-area-lasso-points .tq-ocean-area-lasso-point:first-child {
+    fill: #ffe18a;
+    stroke: #8d6719;
 }
 
  .region-ocean-motion[data-tq-ocean-scene] {
@@ -255,21 +276,82 @@
 }
 
 
-.tq-ocean-area-lasso-hint {
+
+
+
+.tq-ocean-area-point-menu {
     position: fixed;
-    z-index: 100021;
-    top: max(14px, var(--tq-safe-top, 0px));
+    z-index: 100022;
     left: 50%;
+    bottom: max(16px, var(--tq-safe-bottom, 0px));
     translate: -50% 0;
-    max-width: calc(100vw - 32px);
-    padding: 9px 13px;
-    border: 1px solid rgba(184,244,255,.62);
-    border-radius: 999px;
-    color: #eaffff;
-    background: rgba(5,29,41,.94);
-    box-shadow: 0 8px 24px rgba(0,0,0,.34);
+    width: min(470px, calc(100vw - 28px));
+    padding: 10px;
+    display: grid;
+    gap: 8px;
+    box-sizing: border-box;
+    border: 1px solid rgba(229,189,84,.82);
+    border-radius: 14px;
+    color: #fff8df;
+    background: rgba(5,29,41,.97);
+    box-shadow: 0 10px 30px rgba(0,0,0,.42);
     font: 800 12px/1.25 Arial, sans-serif;
-    text-align: center;
-    pointer-events: none;
-    user-select: none;
+}
+
+.tq-ocean-area-point-menu-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.tq-ocean-area-point-menu-status span {
+    color: #95e5bc;
+    font-variant-numeric: tabular-nums;
+}
+
+.tq-ocean-area-point-menu-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.tq-ocean-area-point-menu button {
+    min-width: 0;
+    min-height: 42px;
+    padding: 6px 8px;
+    border: 1px solid rgba(229,189,84,.42);
+    border-radius: 9px;
+    color: #fff8df;
+    background: #102f3f;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tq-ocean-area-point-menu button.is-primary {
+    border-color: rgba(149,229,188,.7);
+    background: #185040;
+}
+
+.tq-ocean-area-point-menu button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+@media (max-width: 620px) {
+    .tq-ocean-area-point-menu {
+        left: 8px;
+        right: 78px;
+        bottom: max(8px, var(--tq-safe-bottom, 0px));
+        width: auto;
+        translate: none;
+    }
+
+    .tq-ocean-area-point-menu-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .tq-ocean-area-point-menu button {
+        min-height: 44px;
+    }
 }
