@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-prod-assets-20260926-prod-home-0945-exact-v1";
+const CACHE_VERSION = "tq2-prod-assets-20260926-remove-art-tombstone-v1";
 const CACHE_PREFIX = "tq2-prod-assets-";
 
 self.addEventListener("install", (event) => {
