@@ -66,3 +66,16 @@ test("Subir arquivo não cria binding publicado antes do arquivo existir",()=>{
   assert.doesNotMatch(block,/compositionRegistry\.bindVariant/);
   assert.doesNotMatch(block,/tq:composition-binding-changed/);
 });
+
+
+test("UP acompanha remoções feitas pelo UX em tempo real",()=>{
+  const source=read("web/js/dev/asset-uploader.js");
+
+  assert.match(source,/function scanLocalLayersFromDom\(\)/);
+  assert.match(source,/function syncLocalLayersFromDom\(\)/);
+  assert.match(source,/localLayers\.splice\(0, localLayers\.length, \.\.\.latest\)/);
+  assert.match(source,/function onCompositionBindingChanged\(event\)/);
+  assert.match(source,/root\.addEventListener\("tq:composition-binding-changed", onCompositionBindingChanged\)/);
+  assert.match(source,/syncLocalLayersFromDom\(\);[\s\S]*syncCompositionSlot\(\)/);
+  assert.match(source,/changedSlot\.label \+ \(occupied \? " · atualizado no UP" : " · removido no UX"\)/);
+});
