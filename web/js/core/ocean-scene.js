@@ -54,21 +54,31 @@
             return Object.freeze({ x, y });
         }));
 
+    const HOME_DEFAULT_OCEAN_AREA = Object.freeze([
+        Object.freeze({ x: 0, y: 0 }),
+        Object.freeze({ x: 1, y: 0 }),
+        Object.freeze({ x: 1, y: 1 }),
+        Object.freeze({ x: 0, y: 1 })
+    ]);
+
+    const HOME_DEFAULT_OCEAN_CONFIG = Object.freeze({
+        version: 1,
+        enabled: true,
+        preset: "adventure",
+        movement: 48,
+        speed: 38,
+        shine: 16,
+        foam: 24,
+        ripples: true,
+        shipWake: true,
+        quality: "balanced",
+        area: HOME_DEFAULT_OCEAN_AREA,
+        regionId: null
+    });
+
     const PUBLISHED_CONFIGS = Object.freeze({
-        "home.background-pirate-main": Object.freeze({
-            version: 1,
-            enabled: true,
-            preset: "adventure",
-            movement: 52,
-            speed: 44,
-            shine: 4,
-            foam: 28,
-            ripples: true,
-            shipWake: false,
-            quality: "balanced",
-            area: HOME_PIRATE_MAIN_OCEAN_AREA,
-            regionId: null
-        })
+        "home.background-default": HOME_DEFAULT_OCEAN_CONFIG,
+        "home.background-pirate-main": HOME_DEFAULT_OCEAN_CONFIG
     });
 
     function clone(value) {
