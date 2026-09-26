@@ -771,6 +771,40 @@
             activeRenderState
         );
         const compositionRegistry = TQ.content?.screenComposition || null;
+
+        if (editorScreenId === "home") {
+            const compositionBuildKey = "tq2.dev.home-composition-build";
+            const compositionBuild = "20260926-home-default-v1";
+            if (root.localStorage.getItem(compositionBuildKey) !== compositionBuild) {
+                ["tq2.dev.scene-layout.v3", "tq2.dev.scene-layout.v2", "tq2.dev.scene-layout.v1"]
+                    .forEach((key) => {
+                        try {
+                            const parsed = JSON.parse(root.localStorage.getItem(key) || "{}");
+                            if (parsed?.screens?.home) {
+                                delete parsed.screens.home;
+                                if (Object.keys(parsed.screens).length) {
+                                    root.localStorage.setItem(key, JSON.stringify(parsed));
+                                } else {
+                                    root.localStorage.removeItem(key);
+                                }
+                            }
+                        } catch (_) {}
+                    });
+
+                compositionRegistry?.resetScope?.("home", "home");
+                TQ.core?.oceanScene?.clearConfig?.("home.background-default");
+                TQ.core?.oceanScene?.clearConfig?.("home.background-pirate-main");
+                TQ.core?.depthScene?.clearConfig?.("home.background-default");
+                TQ.core?.depthScene?.clearConfig?.("home.background-pirate-main");
+                try {
+                    await TQ.dev?.assetUploader?.clearLocalLayersForScreen?.("home", screenRoot);
+                } catch (error) {
+                    console.warn("Não foi possível limpar drafts antigos da Home:", error);
+                }
+                root.localStorage.setItem(compositionBuildKey, compositionBuild);
+            }
+        }
+
         const activeHomeBackgroundId = editorScreenId === "home"
             ? compositionRegistry?.resolveHomeBackgroundGroupId?.(
                 activeRenderState?.ui?.homeBackgroundId || "default"
