@@ -672,6 +672,10 @@
         const parentDocument = parentSimulatorDocument();
         if (!parentDocument) return false;
 
+        // Below this width there is not enough desktop real estate to keep a
+        // useful side workbench without covering the simulated phone.
+        if ((root.parent?.innerWidth || 0) < 1100) return false;
+
         const rail = parentDocument.querySelector("[data-preview-tool-rail]");
         if (!(rail instanceof root.parent.HTMLElement)) return false;
 
