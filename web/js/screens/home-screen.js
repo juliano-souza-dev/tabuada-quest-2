@@ -41,8 +41,12 @@
                 .filter((item) => purchasedIds.has(item.id))
                 .map(normalizeShopBackground)
         ];
+        const defaultShipId = TQ.content.defaultShipId || "ship-colombo";
         const ownedShips = TQ.content.shopCatalog.ships.filter((item) => purchasedIds.has(item.id));
-        const equippedShip = ownedShips.find((item) => item.id === state.shop.equippedShipId) || null;
+        const equippedShip = ownedShips.find((item) => item.id === state.shop.equippedShipId)
+            || TQ.content.shopCatalog.ships.find((item) => item.id === defaultShipId)
+            || TQ.content.shopCatalog.ships.find((item) => item.isDefault)
+            || null;
         const defaultBackground = TQ.content.homeBackgrounds.find((item) => item.id === TQ.content.defaultHomeBackgroundId)
             || TQ.content.homeBackgrounds[0];
         const displayedBackgroundSrc = background.src || defaultBackground?.src || "";
