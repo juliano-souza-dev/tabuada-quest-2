@@ -1184,6 +1184,7 @@
 
         activeMountCleanup = () => {
             root.removeEventListener("tq:composition-binding-changed", onCompositionBindingChanged);
+            resetZipReview();
             if (host.isConnected) host.remove();
         };
 
@@ -1933,6 +1934,8 @@
 
         function renderZipReview() {
             if (!zipReviewState || !zipList) return;
+            releaseZipPreviewUrls();
+            zipReviewState.previewUrls = [];
             const eligibleSlots = zipEligibleSlots(zipReviewState.groupId);
             zipList.replaceChildren();
 
