@@ -397,9 +397,6 @@
                     const declaredFunction = Boolean(element.dataset.tqCompositionFunction);
                     const declaredDynamic = Boolean(element.dataset.tqCompositionDynamic);
 
-                    if (semanticAsset && (element.dataset.tqSlotEmpty === "true" || element.hidden)) {
-                        return null;
-                    }
                     if (["asset", "overlay", "background"].includes(kind) && !semanticAsset && !declaredDynamic) {
                         return null;
                     }
@@ -561,7 +558,7 @@
             ? options.screenRoot
             : appRoot.firstElementChild || appRoot;
         const editorContext = resolveEditorContext(screenId, storageScopeId, screenRoot, options);
-        const nodes = collectNodes(screenRoot, screenId);
+        let nodes = collectNodes(screenRoot, screenId);
         if (!nodes.length) return;
 
         let store = readStore();
@@ -612,7 +609,7 @@
             }
         });
 
-        const nodeById = new Map(nodes.map((node) => [node.id, node]));
+        let nodeById = new Map(nodes.map((node) => [node.id, node]));
         const host = document.createElement("aside");
         host.className = "tq-scene-dev";
         host.innerHTML = `
@@ -918,9 +915,26 @@
             syncEditorChrome();
         }
 
+        function isInactiveCompositionSlot(node) {
+            if (!node?.element?.dataset?.tqCompositionSlot) return false;
+            return node.element.dataset.tqSlotEmpty === "true" || node.element.hidden;
+        }
+
+        function refreshNodeRegistry() {
+            const previousId = selected?.id || null;
+            nodes = collectNodes(screenRoot, screenId);
+            nodeById = new Map(nodes.map((node) => [node.id, node]));
+            if (previousId && nodeById.has(previousId)) {
+                selected = nodeById.get(previousId);
+            } else if (selected && !nodeById.has(selected.id)) {
+                selected = null;
+            }
+        }
+
         function filteredNodes() {
             const visibleNodes = nodes.filter((node) =>
                 !isDeleted(node.element)
+                && !isInactiveCompositionSlot(node)
                 && !(functionsHidden && node.kind === "function")
             );
             const filter = filterSelect.value;
@@ -1288,7 +1302,7 @@
             const mapped = element?.closest?.("[data-tq-dev-id]");
             if (!mapped || !appRoot.contains(mapped)) return null;
             const node = nodeById.get(mapped.dataset.tqDevId);
-            if (!node || isDeleted(node.element) || isEditorHidden(node.element)) return null;
+            if (!node || isDeleted(node.element) || isEditorHidden(node.element) || isInactiveCompositionSlot(node)) return null;
             if (functionsHidden && node.kind === "function") return null;
             return node;
         }
@@ -1311,7 +1325,7 @@
             // elementsFromPoint ignores pointer-events:none. Add geometric matches
             // as a fallback so backgrounds/overlays never become unreachable.
             nodes.forEach((node) => {
-                if (seen.has(node.id) || isDeleted(node.element)) return;
+                if (seen.has(node.id) || isDeleted(node.element) || isInactiveCompositionSlot(node)) return;
                 if (functionsHidden && node.kind === "function") return;
                 const rect = node.element.getBoundingClientRect();
                 if (!rect.width || !rect.height) return;
@@ -1743,7 +1757,35 @@
             if (event.detail?.tool !== "ux" && opened) setOpened(false);
         }
 
+        function onExternalSelect(event) {
+            const detail = event.detail || {};
+            if (detail.scopeId && String(detail.scopeId) !== storageScopeId) return;
+
+            refreshNodeRegistry();
+            refreshList();
+
+            const id = String(detail.id || "");
+            const node = nodeById.get(id);
+            if (!node || isInactiveCompositionSlot(node)) return;
+
+            filterSelect.value = "all";
+            refreshList();
+            selectNode(node);
+
+            if (detail.open !== false) setOpened(true);
+        }
+
+        function onCompositionRuntimeRefreshed(event) {
+            if (event.detail?.scopeId && String(event.detail.scopeId) !== storageScopeId) return;
+            refreshNodeRegistry();
+            refreshList();
+            refreshInspector();
+            scheduleOverlay();
+        }
+
         root.addEventListener("tq:dev-tool-activate", onDevToolActivate);
+        root.addEventListener("tq:dev-select-node", onExternalSelect);
+        root.addEventListener("tq:composition-runtime-refreshed", onCompositionRuntimeRefreshed);
 
         host.querySelector(".tq-scene-dev-toggle").addEventListener("click", () => setOpened(!opened));
         filterSelect.addEventListener("change", refreshList);
@@ -1922,6 +1964,8 @@
             root.removeEventListener("resize", scheduleOverlay);
             root.removeEventListener("scroll", scheduleOverlay, true);
             root.removeEventListener("tq:dev-tool-activate", onDevToolActivate);
+            root.removeEventListener("tq:dev-select-node", onExternalSelect);
+            root.removeEventListener("tq:composition-runtime-refreshed", onCompositionRuntimeRefreshed);
             document.removeEventListener("keydown", onKeyDown);
             if (typeof mobileEditorQuery.removeEventListener === "function") {
                 mobileEditorQuery.removeEventListener("change", onMobileEditorChange);
