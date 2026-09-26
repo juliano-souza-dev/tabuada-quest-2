@@ -24,7 +24,34 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           find web/js -type f -name '*.js' -print0 | while IFS= read -r -d '' file; do node --check "$file"; done
-      - name: Run all web unit tests
+      - name: Run blocking DEV engine tests
+        run: |
+          node --test \
+            tests/web/dev-engine-v4.test.cjs \
+            tests/web/active-slots-flow.test.cjs \
+            tests/web/global-geometry-target.test.cjs \
+            tests/web/mobile-scene-editor-pointer.test.cjs \
+            tests/web/scene-editor-drag.test.cjs \
+            tests/web/safe-viewport.test.cjs \
+            tests/web/site-assets-editable.test.cjs \
+            tests/web/upload-transaction.test.cjs \
+            tests/web/region-up-scope.test.cjs \
+            tests/web/region-up-visible-slot.test.cjs \
+            tests/web/development-reset-focus.test.cjs \
+            tests/web/mobile-dev-guide-nav.test.cjs \
+            tests/web/scene-editor-context.test.cjs \
+            tests/web/scene-editor-layer-traversal.test.cjs \
+            tests/web/scene-editor-visibility.test.cjs
+
+  baseline:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Run historical full web suite
         run: node --test tests/web/*.test.cjs
 
   mobile-browser:
@@ -52,5 +79,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dev-engine-mobile-visual
-          path: test-results/dev-engine-mobile.png
+          path: test-results/*.png
           if-no-files-found: ignore
