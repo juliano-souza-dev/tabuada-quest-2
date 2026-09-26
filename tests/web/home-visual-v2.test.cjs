@@ -22,11 +22,11 @@ test("Home default não publica ilha de campanha",()=>{
   assert.doesNotMatch(published,/home\.background\.island\.1/);
 });
 
-test("Home v2 mantém hierarquia de planos",()=>{
+test("Home v3 mantém hierarquia limpa e navio dinâmico",()=>{
   const css=read("web/css/screens/home.css");
-  assert.match(css,/HOME DEFAULT · composição publicada por código · 2026-09-26 · v2/);
-  assert.match(css,/PLANO 0 · céu e horizonte/);
-  assert.match(css,/PLANO 1 · oceano com WebGL/);
-  assert.match(css,/PLANO 2 · porto distante e navio/);
-  assert.match(css,/PLANO 3 · pier e cenário de primeiro plano/);
+  assert.match(css,/HOME DEFAULT · composição publicada por código · 2026-09-26 · v3/);
+  assert.match(css,/home\.background\.scenery\.4/);
+  assert.match(css,/home\.background\.ocean/);
+  assert.match(css,/home\.background\.ship\.1/);
+  assert.match(css,/home\.background\.pier/);
 });
