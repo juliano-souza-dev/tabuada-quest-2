@@ -1048,5 +1048,9 @@
         render();
     });
 
+    if (TQ.content.development?.shortcutsEnabled) {
+        TQ.dev?.previewController?.mount?.({ enabled: true });
+    }
+
     render();
 })(globalThis);
