@@ -658,39 +658,87 @@
         };
     }
 
+    function normalizeVariantList(binding) {
+        return (Array.isArray(binding?.variants) ? binding.variants : [])
+            .filter((variant) =>
+                variant
+                && typeof variant === "object"
+                && String(variant.id || "").trim()
+            )
+            .map((variant) => ({
+                id: String(variant.id).trim(),
+                label: String(variant.label || variant.id).trim(),
+                asset: typeof variant.asset === "string" && variant.asset.trim()
+                    ? variant.asset.trim()
+                    : null,
+                effects: Array.isArray(variant.effects) ? clone(variant.effects) : []
+            }));
+    }
+
     function readBindings(scopeId, screenId) {
         const scope = String(scopeId || "");
         const stored = readStore().scopes[scope]?.bindings || {};
         const published = PUBLISHED_BINDINGS[resolveScreenType(screenId)] || {};
         const result = {};
+
         getAssetSlots(screenId).forEach((slot) => {
-            const current = Object.prototype.hasOwnProperty.call(stored, slot.id)
+            const storedBinding = stored[slot.id] && typeof stored[slot.id] === "object"
                 ? stored[slot.id]
-                : published[slot.id];
-            const semanticType = slot.acceptedTypes.includes(current?.semanticType)
-                ? current.semanticType
-                : slot.semanticType;
-            const baseBinding = {
+                : null;
+            const publishedBinding = published[slot.id] && typeof published[slot.id] === "object"
+                ? published[slot.id]
+                : null;
+
+            const semanticType = slot.acceptedTypes.includes(storedBinding?.semanticType)
+                ? storedBinding.semanticType
+                : slot.acceptedTypes.includes(publishedBinding?.semanticType)
+                    ? publishedBinding.semanticType
+                    : slot.semanticType;
+
+            if (slot.bindingMode === "variants") {
+                const removedVariants = new Set(
+                    Array.isArray(storedBinding?.removedVariants)
+                        ? storedBinding.removedVariants.map((id) => String(id || "").trim()).filter(Boolean)
+                        : []
+                );
+                const variantsById = new Map();
+
+                if (!storedBinding?.removed) {
+                    normalizeVariantList(publishedBinding).forEach((variant) => {
+                        if (!removedVariants.has(variant.id)) variantsById.set(variant.id, variant);
+                    });
+                }
+
+                normalizeVariantList(storedBinding).forEach((variant) => {
+                    if (removedVariants.has(variant.id)) return;
+                    if (variant.asset) variantsById.set(variant.id, variant);
+                });
+
+                result[slot.id] = {
+                    slotId: slot.id,
+                    semanticType,
+                    asset: null,
+                    variants: [...variantsById.values()]
+                };
+                return;
+            }
+
+            const storedAsset = typeof storedBinding?.asset === "string" && storedBinding.asset.trim()
+                ? storedBinding.asset.trim()
+                : null;
+            const publishedAsset = typeof publishedBinding?.asset === "string" && publishedBinding.asset.trim()
+                ? publishedBinding.asset.trim()
+                : null;
+
+            result[slot.id] = {
                 slotId: slot.id,
                 semanticType,
-                asset: typeof current?.asset === "string" && current.asset.trim()
-                    ? current.asset.trim()
-                    : null
+                asset: storedBinding?.removed
+                    ? null
+                    : storedAsset || publishedAsset || null
             };
-            if (slot.bindingMode === "variants") {
-                baseBinding.variants = (Array.isArray(current?.variants) ? current.variants : [])
-                    .filter((variant) => variant && typeof variant === "object" && String(variant.id || "").trim())
-                    .map((variant) => ({
-                        id: String(variant.id).trim(),
-                        label: String(variant.label || variant.id).trim(),
-                        asset: typeof variant.asset === "string" && variant.asset.trim()
-                            ? variant.asset.trim()
-                            : null,
-                        effects: Array.isArray(variant.effects) ? clone(variant.effects) : []
-                    }));
-            }
-            result[slot.id] = baseBinding;
         });
+
         return result;
     }
 
@@ -749,6 +797,11 @@
 
         const store = readStore();
         const scope = String(scopeId || "");
+        const previous = store.scopes[scope]?.bindings?.[slot.id] || {};
+        const removedVariants = (Array.isArray(previous.removedVariants) ? previous.removedVariants : [])
+            .map((value) => String(value || "").trim())
+            .filter((value) => value && value !== id);
+
         store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
         store.scopes[scope].screenType = resolveScreenType(screenId);
         store.scopes[scope].bindings = store.scopes[scope].bindings || {};
@@ -756,6 +809,8 @@
             slotId: slot.id,
             semanticType,
             asset: null,
+            removed: false,
+            removedVariants,
             variants
         };
         writeStore(store);
@@ -786,16 +841,27 @@
     function unbindAsset(scopeId, screenId, slotId) {
         const slot = getSlot(screenId, slotId);
         if (!slot) return null;
-        if (slot.bindingMode === "variants") {
-            const store = readStore();
-            const scope = String(scopeId || "");
-            store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
-            store.scopes[scope].bindings = store.scopes[scope].bindings || {};
-            store.scopes[scope].bindings[slot.id] = emptyBinding(slot);
-            writeStore(store);
-            return clone(store.scopes[scope].bindings[slot.id]);
-        }
-        return bindAsset(scopeId, screenId, slotId, null);
+
+        const store = readStore();
+        const scope = String(scopeId || "");
+        store.scopes[scope] = store.scopes[scope] || {
+            screenType: resolveScreenType(screenId),
+            bindings: {}
+        };
+        store.scopes[scope].screenType = resolveScreenType(screenId);
+        store.scopes[scope].bindings = store.scopes[scope].bindings || {};
+
+        store.scopes[scope].bindings[slot.id] = {
+            slotId: slot.id,
+            semanticType: slot.semanticType,
+            asset: null,
+            removed: true,
+            ...(slot.bindingMode === "variants"
+                ? { variants: [], removedVariants: [] }
+                : {})
+        };
+        writeStore(store);
+        return clone(store.scopes[scope].bindings[slot.id]);
     }
 
     function unbindVariant(scopeId, screenId, slotId, variantId) {
@@ -803,16 +869,29 @@
         if (!slot || slot.bindingMode !== "variants") return null;
 
         const id = String(variantId || "default").trim() || "default";
-        const current = readBinding(scopeId, screenId, slot.id) || emptyBinding(slot);
         const store = readStore();
         const scope = String(scopeId || "");
-        store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
+        const previous = store.scopes[scope]?.bindings?.[slot.id] || {};
+        const removedVariants = new Set(
+            Array.isArray(previous.removedVariants) ? previous.removedVariants : []
+        );
+        removedVariants.add(id);
+
+        store.scopes[scope] = store.scopes[scope] || {
+            screenType: resolveScreenType(screenId),
+            bindings: {}
+        };
+        store.scopes[scope].screenType = resolveScreenType(screenId);
         store.scopes[scope].bindings = store.scopes[scope].bindings || {};
         store.scopes[scope].bindings[slot.id] = {
             slotId: slot.id,
-            semanticType: current.semanticType || slot.semanticType,
+            semanticType: slot.acceptedTypes.includes(previous.semanticType)
+                ? previous.semanticType
+                : slot.semanticType,
             asset: null,
-            variants: (current.variants || []).filter((variant) => variant.id !== id)
+            removed: false,
+            removedVariants: [...removedVariants],
+            variants: normalizeVariantList(previous).filter((variant) => variant.id !== id)
         };
         writeStore(store);
         return clone(store.scopes[scope].bindings[slot.id]);
@@ -821,12 +900,7 @@
     function resetScope(scopeId, screenId) {
         const scope = String(scopeId || "");
         const store = readStore();
-        store.scopes[scope] = {
-            screenType: resolveScreenType(screenId),
-            bindings: Object.fromEntries(
-                getAssetSlots(screenId).map((slot) => [slot.id, emptyBinding(slot)])
-            )
-        };
+        delete store.scopes[scope];
         writeStore(store);
         return readBindings(scope, screenId);
     }
@@ -835,28 +909,64 @@
         const scope = String(scopeId || "");
         const store = readStore();
         const screenType = resolveScreenType(screenId);
-        const slots = getAssetSlots(screenId);
-        const currentBindings = store.scopes[scope]?.bindings || {};
-        const wantedVariant = variantId === null ? null : (String(variantId || "default").trim() || "default");
+        const wantedVariant = variantId === null
+            ? null
+            : (String(variantId || "default").trim() || "default");
 
-        const nextBindings = Object.fromEntries(slots.map((slot) => {
-            if (slot.bindingMode !== "variants" || wantedVariant === null) {
-                return [slot.id, emptyBinding(slot)];
+        if (wantedVariant === null) {
+            delete store.scopes[scope];
+            writeStore(store);
+            return readBindings(scope, screenId);
+        }
+
+        const bindings = store.scopes[scope]?.bindings || {};
+        const nextBindings = {};
+
+        getAssetSlots(screenId).forEach((slot) => {
+            const current = bindings[slot.id];
+            if (!current || typeof current !== "object") return;
+
+            if (slot.bindingMode !== "variants") {
+                return;
             }
 
-            const current = currentBindings[slot.id] || emptyBinding(slot);
-            return [slot.id, {
-                slotId: slot.id,
-                semanticType: current.semanticType || slot.semanticType,
-                asset: null,
-                variants: (current.variants || []).filter((variant) => variant.id !== wantedVariant)
-            }];
-        }));
+            const variants = normalizeVariantList(current)
+                .filter((variant) => variant.id !== wantedVariant);
+            const removedVariants = (Array.isArray(current.removedVariants)
+                ? current.removedVariants
+                : [])
+                .map((id) => String(id || "").trim())
+                .filter((id) => id && id !== wantedVariant);
 
-        store.scopes[scope] = {
-            screenType,
-            bindings: nextBindings
-        };
+            if (
+                variants.length
+                || removedVariants.length
+                || current.removed === true
+                || slot.acceptedTypes.includes(current.semanticType)
+                    && current.semanticType !== slot.semanticType
+            ) {
+                nextBindings[slot.id] = {
+                    slotId: slot.id,
+                    semanticType: slot.acceptedTypes.includes(current.semanticType)
+                        ? current.semanticType
+                        : slot.semanticType,
+                    asset: null,
+                    removed: Boolean(current.removed),
+                    removedVariants,
+                    variants
+                };
+            }
+        });
+
+        if (Object.keys(nextBindings).length) {
+            store.scopes[scope] = {
+                screenType,
+                bindings: nextBindings
+            };
+        } else {
+            delete store.scopes[scope];
+        }
+
         writeStore(store);
         return readBindings(scope, screenId);
     }
