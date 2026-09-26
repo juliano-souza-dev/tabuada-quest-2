@@ -113,7 +113,7 @@
 
                 <fieldset>
                     <legend>Área da água</legend>
-                    <p>Desenhe sobre a parte do cenário que deve se mexer. As ilhas continuam independentes por cima.</p>
+                    <p>Toque na imagem para criar os pontos que contornam a água. A área dentro deles será animada.</p>
                     <div class="tq-ocean-actions">
                         <button type="button" data-ocean-mark-area>Marcar área da água</button>
                         <button type="button" data-ocean-default-area>Usar área padrão</button>
@@ -278,26 +278,49 @@
             }
 
             openPanel(false);
-            status.textContent = "Desenhe a área da água";
+            status.textContent = "Toque na água para adicionar pontos";
 
             const overlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             overlay.classList.add("tq-ocean-area-lasso");
-            overlay.setAttribute("aria-label", "Desenhar área da água");
+            overlay.setAttribute("aria-label", "Marcar pontos da área da água");
             overlay.setAttribute("role", "application");
 
             const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             polygon.classList.add("tq-ocean-area-lasso-shape");
-            overlay.appendChild(polygon);
 
-            const hint = document.createElement("div");
-            hint.className = "tq-ocean-area-lasso-hint";
-            hint.textContent = "Desenhe sobre a água · solte para salvar";
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+            path.classList.add("tq-ocean-area-lasso-path");
 
-            document.body.append(overlay, hint);
+            const pointLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            pointLayer.classList.add("tq-ocean-area-lasso-points");
 
-            let drawing = false;
-            let pointerId = null;
+            overlay.append(polygon, path, pointLayer);
+
+            const menu = document.createElement("div");
+            menu.className = "tq-ocean-area-point-menu";
+            menu.innerHTML = `
+                <div class="tq-ocean-area-point-menu-status">
+                    <strong>Área da água</strong>
+                    <span data-ocean-point-count>0 pontos</span>
+                </div>
+                <div class="tq-ocean-area-point-menu-actions">
+                    <button type="button" data-ocean-point-undo disabled>↶ Desfazer</button>
+                    <button type="button" data-ocean-point-clear disabled>Limpar</button>
+                    <button type="button" data-ocean-point-cancel>Cancelar</button>
+                    <button type="button" class="is-primary" data-ocean-point-finish disabled>✓ Concluir</button>
+                </div>
+            `;
+
+            const countLabel = menu.querySelector("[data-ocean-point-count]");
+            const undoButton = menu.querySelector("[data-ocean-point-undo]");
+            const clearButton = menu.querySelector("[data-ocean-point-clear]");
+            const cancelButton = menu.querySelector("[data-ocean-point-cancel]");
+            const finishButton = menu.querySelector("[data-ocean-point-finish]");
+
+            document.body.append(overlay, menu);
+
             let points = [];
+            let cleaned = false;
 
             function pointFromEvent(event) {
                 return {
@@ -314,84 +337,64 @@
             }
 
             function redraw() {
-                polygon.setAttribute(
-                    "points",
-                    points.map((point) => point.x + "," + point.y).join(" ")
-                );
+                const serialized = points
+                    .map((point) => point.x + "," + point.y)
+                    .join(" ");
+
+                polygon.setAttribute("points", points.length >= 3 ? serialized : "");
+                path.setAttribute("points", serialized);
+
+                pointLayer.replaceChildren(...points.map((point, index) => {
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.classList.add("tq-ocean-area-lasso-point");
+                    circle.setAttribute("cx", String(point.x));
+                    circle.setAttribute("cy", String(point.y));
+                    circle.setAttribute("r", index === 0 ? "7" : "6");
+                    circle.dataset.pointIndex = String(index);
+                    return circle;
+                }));
+
+                overlay.classList.toggle("is-area-ready", points.length >= 3);
+                countLabel.textContent = points.length + (points.length === 1 ? " ponto" : " pontos");
+                undoButton.disabled = points.length === 0;
+                clearButton.disabled = points.length === 0;
+                finishButton.disabled = points.length < 3;
             }
 
             function cleanup() {
-                overlay.removeEventListener("pointerdown", onDown);
-                overlay.removeEventListener("pointermove", onMove);
-                overlay.removeEventListener("pointerup", onUp);
-                overlay.removeEventListener("pointercancel", onCancel);
+                if (cleaned) return;
+                cleaned = true;
+                overlay.removeEventListener("pointerdown", onPoint);
                 root.removeEventListener("keydown", onKeyDown, true);
-
-                if (pointerId !== null && overlay.hasPointerCapture?.(pointerId)) {
-                    try { overlay.releasePointerCapture(pointerId); } catch (_) {}
-                }
-
+                undoButton.removeEventListener("click", undoPoint);
+                clearButton.removeEventListener("click", clearPoints);
+                cancelButton.removeEventListener("click", cancel);
+                finishButton.removeEventListener("click", finish);
                 overlay.remove();
-                hint.remove();
-                drawing = false;
-                pointerId = null;
+                menu.remove();
                 areaSelectionCleanup = null;
             }
 
-            function cancel(message = "Marcação cancelada") {
+            function cancel() {
                 cleanup();
-                status.textContent = message;
+                status.textContent = "Marcação cancelada";
                 openPanel(true);
             }
 
-            function onDown(event) {
-                if (!insideStage(event)) {
-                    event.preventDefault();
-                    return;
-                }
-
-                drawing = true;
-                pointerId = event.pointerId;
-                points = [pointFromEvent(event)];
-
-                try { overlay.setPointerCapture(event.pointerId); } catch (_) {}
-
+            function undoPoint() {
+                if (!points.length) return;
+                points.pop();
                 redraw();
-                event.preventDefault();
-                event.stopPropagation();
             }
 
-            function onMove(event) {
-                if (!drawing || event.pointerId !== pointerId) return;
-
-                const point = pointFromEvent(event);
-                const last = points[points.length - 1];
-                if (last && Math.hypot(point.x - last.x, point.y - last.y) < 3) {
-                    event.preventDefault();
-                    return;
-                }
-
-                points.push(point);
+            function clearPoints() {
+                points = [];
                 redraw();
-                event.preventDefault();
-                event.stopPropagation();
             }
 
-            function finish(event) {
-                if (!drawing || event.pointerId !== pointerId) return;
-
-                const finalPoint = pointFromEvent(event);
-                const last = points[points.length - 1];
-                if (!last || Math.hypot(finalPoint.x - last.x, finalPoint.y - last.y) >= 2) {
-                    points.push(finalPoint);
-                    redraw();
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-
+            function finish() {
                 if (points.length < 3) {
-                    cancel("Faça um traço maior para marcar a água");
+                    status.textContent = "Adicione pelo menos 3 pontos";
                     return;
                 }
 
@@ -402,31 +405,47 @@
 
                 cleanup();
                 openPanel(true);
-                persist("Área da água salva");
+                persist("Área da água salva · " + points.length + " pontos");
             }
 
-            function onUp(event) {
-                finish(event);
-            }
+            function onPoint(event) {
+                if (!event.isPrimary) return;
+                if (event.pointerType === "mouse" && event.button !== 0) return;
 
-            function onCancel(event) {
-                if (event.pointerId !== pointerId) return;
-                cancel();
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!insideStage(event)) return;
+
+                points.push(pointFromEvent(event));
+                redraw();
             }
 
             function onKeyDown(event) {
-                if (event.key !== "Escape") return;
-                event.preventDefault();
-                cancel();
+                if (event.key === "Escape") {
+                    event.preventDefault();
+                    cancel();
+                    return;
+                }
+
+                if (
+                    (event.key === "Backspace" || event.key === "Delete")
+                    && !event.target?.matches?.("input, textarea, select")
+                ) {
+                    event.preventDefault();
+                    undoPoint();
+                }
             }
 
-            overlay.addEventListener("pointerdown", onDown, { passive: false });
-            overlay.addEventListener("pointermove", onMove, { passive: false });
-            overlay.addEventListener("pointerup", onUp, { passive: false });
-            overlay.addEventListener("pointercancel", onCancel, { passive: false });
+            overlay.addEventListener("pointerdown", onPoint, { passive: false });
             root.addEventListener("keydown", onKeyDown, true);
+            undoButton.addEventListener("click", undoPoint);
+            clearButton.addEventListener("click", clearPoints);
+            cancelButton.addEventListener("click", cancel);
+            finishButton.addEventListener("click", finish);
 
-            areaSelectionCleanup = () => cancel();
+            redraw();
+            areaSelectionCleanup = cleanup;
         }
 
         host.querySelector(".tq-ocean-dev-toggle").addEventListener("click", () => openPanel(!panelOpen));
