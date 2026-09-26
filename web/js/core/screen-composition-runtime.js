@@ -543,12 +543,33 @@
                 semanticType: slot.semanticType,
                 asset: null
             };
+            const preferredId = slot.bindingMode === "variants"
+                ? (
+                    screenType === "home"
+                        ? registry.resolveHomeBackgroundGroupId?.(
+                            runtimeState?.ui?.homeBackgroundId || "default"
+                        ) || "default"
+                        : "default"
+                )
+                : null;
+            const explicitlyRemoved = binding.removed === true
+                || (
+                    preferredId
+                    && Array.isArray(binding.removedVariants)
+                    && binding.removedVariants.includes(preferredId)
+                );
+
+            if (explicitlyRemoved) {
+                return {
+                    ...binding,
+                    asset: null,
+                    activeVariantId: preferredId,
+                    activeVariantEffects: []
+                };
+            }
+
             if (slot.bindingMode !== "variants") return resolveHomeRuntimeBinding(slot, binding);
-            const preferredId = screenType === "home"
-                ? registry.resolveHomeBackgroundGroupId?.(
-                    runtimeState?.ui?.homeBackgroundId || "default"
-                ) || "default"
-                : "default";
+
             const variants = Array.isArray(binding.variants) ? binding.variants : [];
             const activeVariant = variants.find((variant) => variant.id === preferredId)
                 || variants.find((variant) => variant.id === "default")
