@@ -798,6 +798,7 @@
         const mobileEditorQuery = root.matchMedia("(max-width: 620px)");
         let opened = false;
         let collapsed = false;
+        const originalScreenTouchAction = screenRoot.style.touchAction || "";
         let functionsHidden = false;
         let selected = null;
         let interaction = null;
@@ -1364,10 +1365,12 @@
             const rect = node.element.getBoundingClientRect();
             const stage = node.element.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
                 || screenRoot;
-            const pointerTarget = event.target instanceof Element
-                && typeof event.target.setPointerCapture === "function"
-                    ? event.target
-                    : null;
+            const pointerTarget = typeof node.element?.setPointerCapture === "function"
+                ? node.element
+                : event.target instanceof Element
+                    && typeof event.target.setPointerCapture === "function"
+                        ? event.target
+                        : null;
 
             try {
                 pointerTarget?.setPointerCapture(event.pointerId);
@@ -1391,9 +1394,24 @@
 
         function onPointerDown(event) {
             if (!opened) return;
-            const element = event.target.closest?.("[data-tq-dev-id]");
-            if (!element || !appRoot.contains(element)) return;
-            const node = nodeById.get(element.dataset.tqDevId);
+
+            const directElement = event.target.closest?.("[data-tq-dev-id]");
+            let node = directElement && appRoot.contains(directElement)
+                ? nodeById.get(directElement.dataset.tqDevId)
+                : null;
+
+            // Mobile/WebView can report the canvas/container as event.target even
+            // when the finger is visibly over an asset. Fall back to geometry.
+            if (!node) {
+                node = nodesAtPoint(event.clientX, event.clientY)
+                    .find((candidate) =>
+                        candidate
+                        && !isDeleted(candidate.element)
+                        && !isEditorHidden(candidate.element)
+                        && !(functionsHidden && candidate.kind === "function")
+                    ) || null;
+            }
+
             if (!node || (functionsHidden && node.kind === "function")) return;
 
             if (event.altKey) {
@@ -1429,6 +1447,8 @@
 
         function onPointerMove(event) {
             if (!interaction || event.pointerId !== interaction.pointerId) return;
+            event.preventDefault();
+            event.stopPropagation();
 
             const node = interaction.node;
             if (!node?.element?.isConnected) {
@@ -1515,6 +1535,8 @@
 
         function onPointerUp(event) {
             if (!interaction || event.pointerId !== interaction.pointerId) return;
+            event.preventDefault();
+            event.stopPropagation();
             const changed = interaction.changed;
             const pointerTarget = interaction.pointerTarget;
             interaction = null;
@@ -1698,6 +1720,7 @@
             }
             appRoot.classList.toggle("tq-dev-scene-editing", opened);
             document.body.classList.toggle("tq-dev-scene-editing-active", opened);
+            screenRoot.style.touchAction = opened ? "none" : originalScreenTouchAction;
             syncEditorChrome();
             if (!opened) overlay.hidden = true;
             else {
@@ -1885,6 +1908,7 @@
             appRoot.classList.remove("tq-dev-scene-editing");
             appRoot.classList.remove("tq-dev-functions-hidden");
             document.body.classList.remove("tq-dev-scene-editing-active");
+            screenRoot.style.touchAction = originalScreenTouchAction;
             screenRoot.removeEventListener("pointerdown", onPointerDown, true);
             screenRoot.removeEventListener("click", interceptClick, true);
             root.removeEventListener("pointermove", onPointerMove, true);
