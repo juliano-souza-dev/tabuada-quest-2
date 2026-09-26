@@ -190,6 +190,19 @@
     -webkit-user-drag: none;
 }
 
+.tq-dev-scene-editing [data-tq-composition-screen],
+.tq-dev-scene-editing .tq-engine-canvas,
+.tq-dev-scene-editing .tq-engine-asset-layer {
+    touch-action: none !important;
+    overscroll-behavior: none;
+}
+
+.tq-dev-scene-editing [data-tq-dev-id],
+.tq-dev-scene-editing [data-tq-dev-id] * {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
 .tq-dev-scene-editing [data-tq-dev-id] img {
     -webkit-user-drag: none;
     user-select: none;
