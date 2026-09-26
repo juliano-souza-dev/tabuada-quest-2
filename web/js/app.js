@@ -1052,5 +1052,10 @@
         TQ.dev?.previewController?.mount?.({ enabled: true });
     }
 
-    render();
+    // On desktop DEV the parent page becomes a simulator shell. The actual
+    // application runs in a same-origin iframe sized to the selected logical
+    // viewport, so media queries and window.innerWidth are genuine.
+    if (!TQ.dev?.previewController?.isHostMode?.()) {
+        render();
+    }
 })(globalThis);
