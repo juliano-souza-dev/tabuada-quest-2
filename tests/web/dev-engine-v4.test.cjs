@@ -42,3 +42,12 @@ test("scene editor v4 usa engine compartilhada e pinça",()=>{
   assert.match(source,/sceneEngine\.stageCoordinateSpace/);
   assert.match(source,/Redimensionado por pinça/);
 });
+
+test("geometria DEV vence CSS publicado com important sem alterar produção",()=>{
+  const source=fs.readFileSync(path.join(__dirname,"../../web/js/dev/scene-engine.js"),"utf8");
+  assert.match(source,/captureOriginalGeometryStyles/);
+  assert.match(source,/data-tq-dev-local-geometry/);
+  assert.match(source,/style\.setProperty\(\s*"translate"[\s\S]*"important"/);
+  assert.match(source,/style\.setProperty\(\s*"scale"[\s\S]*"important"/);
+  assert.match(source,/restoreInlineProperty/);
+});
