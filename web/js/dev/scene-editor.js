@@ -355,10 +355,54 @@
         return element.matches(".tq-safe-visual-area, .tq-canonical-stage");
     }
 
+    function isSemanticSlotInnerVisual(element) {
+        if (!(element instanceof Element)) return false;
+        const slot = element.closest("[data-tq-composition-slot]");
+        return Boolean(slot && slot !== element);
+    }
+
+    function isSiteVisualAsset(element) {
+        if (!(element instanceof Element)) return false;
+        if (isSemanticSlotInnerVisual(element)) return false;
+
+        const tagIsMedia = element.matches("img, picture, svg, canvas, video");
+        const className = typeof element.className === "string"
+            ? element.className.toLowerCase()
+            : "";
+
+        if (element.hasAttribute("data-tq-asset-id")) return true;
+        if (
+            element.hasAttribute("data-tq-dev-id")
+            && (
+                tagIsMedia
+                || /(asset|art|background|backdrop|hero|island|region|map|pet|chest|reward)/.test(className)
+            )
+        ) {
+            return true;
+        }
+
+        if (
+            tagIsMedia
+            && /(region-island-art|region-islands-background|region-ruby-shop-asset|global-world-map-asset|asset|art|background|backdrop|hero|pet|chest|reward)/.test(className)
+        ) {
+            return true;
+        }
+
+        if (
+            /(art-shell|asset-shell|background-shell|hero-shell)/.test(className)
+            && element.querySelector(":scope > img, :scope > picture, :scope > svg, :scope > canvas, :scope > video")
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     function shouldAutoMap(element, screenRoot) {
         if (!(element instanceof Element)) return false;
         if (isStructuralNode(element, screenRoot)) return false;
         if (element.hasAttribute("data-tq-dev-ignore")) return false;
+        if (isSemanticSlotInnerVisual(element)) return false;
         if (element.matches("script, style, template, source")) return false;
         if (element.closest(".tq-scene-dev, .tq-scene-dev-selection")) return false;
         if (element.hasAttribute("data-tq-dev-id")) return true;
@@ -391,13 +435,23 @@
                 const id = explicitId || generatedId(element, screenRoot, screenId);
                 if (!id || seen.has(id)) return null;
 
-                const kind = inferKind(element);
+                let kind = inferKind(element);
+                const siteVisualAsset = isSiteVisualAsset(element);
+                if (siteVisualAsset && kind === "container") {
+                    kind = "asset";
+                }
+
                 if (compositionActive) {
                     const semanticAsset = Boolean(element.dataset.tqCompositionSlot);
                     const declaredFunction = Boolean(element.dataset.tqCompositionFunction);
                     const declaredDynamic = Boolean(element.dataset.tqCompositionDynamic);
 
-                    if (["asset", "overlay", "background"].includes(kind) && !semanticAsset && !declaredDynamic) {
+                    if (
+                        ["asset", "overlay", "background"].includes(kind)
+                        && !semanticAsset
+                        && !declaredDynamic
+                        && !siteVisualAsset
+                    ) {
                         return null;
                     }
                     if (kind === "function" && !declaredFunction) {
