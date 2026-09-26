@@ -254,6 +254,39 @@
     let currentProfile = null;
     let currentOrientation = "portrait";
     let simulatorRefs = null;
+    let childPortalCleanup = null;
+
+    const PORTAL_HOST_SELECTORS = Object.freeze([
+        ".tq-audio-dev",
+        ".tq-depth-dev",
+        ".tq-ocean-dev",
+        ".tq-asset-upload-dev",
+        ".tq-settings-dev",
+        ".tq-scene-dev",
+        ".tq-dev-navigator",
+        ".tq-exit-dev"
+    ]);
+
+    const PORTAL_PANEL_SELECTOR = [
+        ".tq-audio-dev-panel",
+        ".tq-depth-dev-panel",
+        ".tq-ocean-dev-panel",
+        ".tq-asset-upload-dev-panel",
+        ".tq-settings-dev-panel",
+        ".tq-scene-dev-panel",
+        ".tq-dev-nav-panel"
+    ].join(", ");
+
+    const PORTAL_TOGGLE_SELECTOR = [
+        ".tq-audio-dev-toggle",
+        ".tq-depth-dev-toggle",
+        ".tq-ocean-dev-toggle",
+        ".tq-asset-upload-dev-toggle",
+        ".tq-settings-dev-toggle",
+        ".tq-scene-dev-toggle",
+        ".tq-dev-nav-toggle",
+        ".tq-exit-dev-toggle"
+    ].join(", ");
 
     function isNativeRuntime() {
         return document.documentElement.classList.contains("tq-native-runtime");
@@ -508,6 +541,10 @@
                     </div>
                 </div>
             </div>
+            <aside class="tq-preview-dev-tools" data-preview-tools>
+                <strong class="tq-preview-dev-tools-title">DEV TOOLS</strong>
+                <div class="tq-preview-dev-tool-rail" data-preview-tool-rail></div>
+            </aside>
         `;
         document.body.appendChild(host);
 
@@ -521,8 +558,35 @@
         const shell = host.querySelector("[data-preview-shell]");
         const frame = host.querySelector("[data-preview-frame]");
         const iframe = host.querySelector("[data-preview-iframe]");
+        const tools = host.querySelector("[data-preview-tools]");
+        const toolRail = host.querySelector("[data-preview-tool-rail]");
 
-        simulatorRefs = { host, select, custom, widthInput, heightInput, rotate, metrics, source, shell, frame, iframe };
+        simulatorRefs = {
+            host,
+            select,
+            custom,
+            widthInput,
+            heightInput,
+            rotate,
+            metrics,
+            source,
+            shell,
+            frame,
+            iframe,
+            tools,
+            toolRail
+        };
+
+        function closeSiblingPortalPanels(event) {
+            const toggle = event.target?.closest?.(PORTAL_TOGGLE_SELECTOR);
+            if (!toggle) return;
+            const owner = toggle.closest(".tq-preview-portal-tool");
+            toolRail.querySelectorAll(PORTAL_PANEL_SELECTOR).forEach((panel) => {
+                if (!owner?.contains(panel)) panel.hidden = true;
+            });
+        }
+
+        toolRail.addEventListener("click", closeSiblingPortalPanels, true);
 
         function syncUi() {
             select.value = currentProfile.id;
@@ -580,11 +644,80 @@
         activeCleanup = () => {
             root.removeEventListener("resize", onResize);
             root.visualViewport?.removeEventListener("resize", onResize);
+            toolRail.removeEventListener("click", closeSiblingPortalPanels, true);
             host.remove();
             simulatorRefs = null;
             clearProfile();
         };
         return activeCleanup;
+    }
+
+    function parentSimulatorDocument() {
+        if (!isChildRuntime()) return null;
+        try {
+            const parentDocument = root.parent?.document;
+            if (
+                !parentDocument
+                || !parentDocument.documentElement.classList.contains("tq-dev-simulator-host")
+            ) {
+                return null;
+            }
+            return parentDocument;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function portalDevelopmentUi() {
+        const parentDocument = parentSimulatorDocument();
+        if (!parentDocument) return false;
+
+        const rail = parentDocument.querySelector("[data-preview-tool-rail]");
+        if (!(rail instanceof root.parent.HTMLElement)) return false;
+
+        childPortalCleanup?.();
+        childPortalCleanup = null;
+
+        // DEV chrome lives on the desktop host; only editing overlays stay over
+        // the simulated game surface.
+        document.documentElement.classList.add("tq-dev-simulator-game-only");
+        document.querySelector(".tq-dev-mobile-context")?.remove();
+
+        rail.replaceChildren();
+
+        const moved = [];
+        PORTAL_HOST_SELECTORS.forEach((selector) => {
+            const host = document.querySelector(selector);
+            if (!(host instanceof HTMLElement)) return;
+
+            try {
+                parentDocument.adoptNode(host);
+            } catch (_) {}
+
+            host.classList.add("tq-preview-portal-tool");
+            rail.appendChild(host);
+            moved.push(host);
+        });
+
+        function mirrorActiveTool(event) {
+            const activeTool = String(event.detail?.activeTool || "").trim();
+            if (activeTool) {
+                parentDocument.body.dataset.tqDevActiveTool = activeTool;
+            } else {
+                delete parentDocument.body.dataset.tqDevActiveTool;
+            }
+        }
+
+        root.addEventListener("tq:dev-active-tool-changed", mirrorActiveTool);
+
+        childPortalCleanup = () => {
+            root.removeEventListener("tq:dev-active-tool-changed", mirrorActiveTool);
+            moved.forEach((host) => host.remove());
+            if (rail.isConnected) rail.replaceChildren();
+            delete parentDocument.body.dataset.tqDevActiveTool;
+        };
+
+        return moved.length > 0;
     }
 
     TQ.dev.previewController = Object.freeze({
@@ -598,6 +731,7 @@
         isHostMode: () => hostMode,
         isChildRuntime,
         isNativeRuntime,
-        isPwaRuntime
+        isPwaRuntime,
+        portalDevelopmentUi
     });
 })(globalThis);
