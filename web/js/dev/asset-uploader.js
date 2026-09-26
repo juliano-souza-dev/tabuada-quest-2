@@ -1692,11 +1692,37 @@
             removeButton.disabled = localLayers.length === 0;
             fileName.textContent = localLayers.at(-1)?.fileName || "Nenhum arquivo local";
             if (entry.slotId) {
+                const slot = compositionRegistry?.getSlot?.(
+                    resolvedCompositionScreenId,
+                    entry.slotId
+                );
+                if (slot?.bindingMode === "variants") {
+                    compositionRegistry.unbindVariant(
+                        screenId,
+                        resolvedCompositionScreenId,
+                        slot.id,
+                        entry.variantId || selectedVariantId()
+                    );
+                } else if (slot) {
+                    compositionRegistry.unbindAsset(
+                        screenId,
+                        resolvedCompositionScreenId,
+                        slot.id
+                    );
+                }
+
+                const slotElement = semanticSlotElement(screenRoot, entry.slotId);
+                if (slotElement instanceof HTMLElement) {
+                    slotElement.dataset.tqSlotEmpty = "true";
+                }
+
                 root.dispatchEvent(new CustomEvent("tq:composition-binding-changed", {
                     detail: { scopeId: screenId, screenId: compositionScreenId, slotId: entry.slotId }
                 }));
+                status.textContent = "Arte removida do destino";
+            } else {
+                status.textContent = "Camada local removida";
             }
-            status.textContent = "Camada local removida";
         }
 
         function validImage(file) {
