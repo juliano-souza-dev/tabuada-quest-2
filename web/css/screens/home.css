@@ -1168,8 +1168,8 @@ html.tq-pwa-runtime .home-safe-visual-area {
 
 
 /* ==========================================================
-   HOME DEFAULT · composição publicada por código · 2026-09-26
-   O default nasce pronto. UX pode aplicar offsets locais depois.
+   HOME DEFAULT · composição publicada por código · 2026-09-26 · v2
+   Cena pensada em planos: céu -> mar -> porto/navio -> pier -> personagem -> UI.
    ========================================================== */
 
 .home-screen[data-tq-engine-mode="true"] .tq-engine-canvas {
@@ -1191,12 +1191,12 @@ html.tq-pwa-runtime .home-safe-visual-area {
     object-position: center !important;
 }
 
-/* céu */
+/* PLANO 0 · céu e horizonte */
 .home-screen [data-tq-composition-slot="home.background.scenery.4"] {
-    left: -2% !important;
-    top: -2% !important;
-    width: 104% !important;
-    height: 55% !important;
+    left: -3% !important;
+    top: -3% !important;
+    width: 106% !important;
+    height: 64% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 1 !important;
@@ -1205,11 +1205,10 @@ html.tq-pwa-runtime .home-safe-visual-area {
     object-fit: cover !important;
 }
 
-/* nuvem de horizonte */
 .home-screen [data-tq-composition-slot="home.background.cloud.4"] {
-    left: -8% !important;
-    top: 18% !important;
-    width: 116% !important;
+    left: -10% !important;
+    top: 17% !important;
+    width: 120% !important;
     height: 24% !important;
     translate: 0 0;
     scale: 1 1;
@@ -1219,12 +1218,12 @@ html.tq-pwa-runtime .home-safe-visual-area {
     object-fit: cover !important;
 }
 
-/* oceano: o próprio slot é a área física do efeito MAR */
+/* PLANO 1 · oceano com WebGL */
 .home-screen [data-tq-composition-slot="home.background.ocean"] {
-    left: -7% !important;
-    top: 33% !important;
-    width: 114% !important;
-    height: 69% !important;
+    left: -6% !important;
+    top: 29% !important;
+    width: 112% !important;
+    height: 65% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 5 !important;
@@ -1233,71 +1232,70 @@ html.tq-pwa-runtime .home-safe-visual-area {
 .home-screen [data-tq-composition-slot="home.background.ocean"] > img {
     object-fit: cover !important;
 }
-
-/* nuvens altas */
-.home-screen [data-tq-composition-slot="home.background.cloud.1"] {
-    left: -12% !important;
-    top: 3% !important;
-    width: 56% !important;
-    height: 20% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 8 !important;
+.home-screen [data-tq-composition-slot="home.background.ocean"] > .region-ocean-motion {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: auto;
 }
-.home-screen [data-tq-composition-slot="home.background.cloud.2"] {
-    left: 54% !important;
-    top: 7% !important;
-    width: 54% !important;
-    height: 19% !important;
+
+/* nuvens, com menos peso para o céu continuar respirando */
+.home-screen [data-tq-composition-slot="home.background.cloud.1"] {
+    left: -13% !important;
+    top: 4% !important;
+    width: 49% !important;
+    height: 16% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 7 !important;
 }
-.home-screen [data-tq-composition-slot="home.background.cloud.3"] {
-    left: 8% !important;
-    top: 19% !important;
-    width: 43% !important;
+.home-screen [data-tq-composition-slot="home.background.cloud.2"] {
+    left: 62% !important;
+    top: 8% !important;
+    width: 42% !important;
     height: 16% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 6 !important;
 }
+.home-screen [data-tq-composition-slot="home.background.cloud.3"] {
+    left: 17% !important;
+    top: 23% !important;
+    width: 32% !important;
+    height: 12% !important;
+    translate: 0 0;
+    scale: 1 1;
+    z-index: 6 !important;
+}
 
-/* porto distante + ilha + navio */
+/* PLANO 2 · porto distante e navio. Sem ilha de campanha na Home. */
 .home-screen [data-tq-composition-slot="home.background.scenery.1"] {
-    left: -5% !important;
-    top: 28% !important;
-    width: 66% !important;
-    height: 27% !important;
+    left: -7% !important;
+    top: 35% !important;
+    width: 53% !important;
+    height: 24% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 10 !important;
 }
-.home-screen [data-tq-composition-slot="home.background.island.1"] {
-    left: 58% !important;
-    top: 34% !important;
-    width: 37% !important;
-    height: 27% !important;
-    translate: 0 0;
-    scale: 1 1;
-    z-index: 11 !important;
-}
 .home-screen [data-tq-composition-slot="home.background.ship.1"] {
-    left: 8% !important;
-    top: 43% !important;
-    width: 34% !important;
-    height: 20% !important;
+    left: 59% !important;
+    top: 44% !important;
+    width: 24% !important;
+    height: 15% !important;
     translate: 0 0;
     scale: 1 1;
-    z-index: 13 !important;
+    z-index: 12 !important;
 }
 
-/* pier e primeiro plano */
+/* PLANO 3 · pier e cenário de primeiro plano */
 .home-screen [data-tq-composition-slot="home.background.pier"] {
-    left: -14% !important;
-    top: 55% !important;
-    width: 128% !important;
-    height: 48% !important;
+    left: -11% !important;
+    top: 57% !important;
+    width: 122% !important;
+    height: 45% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 18 !important;
@@ -1305,16 +1303,19 @@ html.tq-pwa-runtime .home-safe-visual-area {
 .home-screen [data-tq-composition-slot="home.background.pier"] > img {
     object-fit: fill !important;
 }
+
+/* lanterna/prop lateral */
 .home-screen [data-tq-composition-slot="home.background.scenery.2"] {
-    left: 73% !important;
-    top: 54% !important;
-    width: 27% !important;
-    height: 32% !important;
+    left: 80% !important;
+    top: 55% !important;
+    width: 18% !important;
+    height: 27% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 29 !important;
 }
-/* overlay decorativo mapeado do cenário */
+
+/* overlay original Aprender / Explorar / Conquistar */
 .home-screen [data-tq-composition-slot="home.background.scenery.3"] {
     left: 0 !important;
     top: 0 !important;
@@ -1329,18 +1330,18 @@ html.tq-pwa-runtime .home-safe-visual-area {
     object-fit: fill !important;
 }
 
-/* personagem sobre o pier */
+/* personagem central, inteiro visível sobre o pier */
 .home-screen [data-tq-composition-slot="home.character.avatar-full"] {
-    left: 38% !important;
-    top: 49% !important;
-    width: 25% !important;
-    height: 34% !important;
+    left: 39% !important;
+    top: 51% !important;
+    width: 22% !important;
+    height: 31% !important;
     translate: 0 0;
     scale: 1 1;
     z-index: 27 !important;
 }
 
-/* HUD superior */
+/* HUD */
 .home-screen [data-tq-composition-slot="home.header.frame"] {
     left: 1.5% !important;
     top: 1.3% !important;
@@ -1383,7 +1384,6 @@ html.tq-pwa-runtime .home-safe-visual-area {
     z-index: 42 !important;
 }
 
-/* Nome e carteira continuam dinâmicos, porém acima da composição */
 .home-screen [data-tq-composition-dynamic="home.text.player-name"] {
     position: absolute !important;
     left: 17% !important;
@@ -1460,46 +1460,28 @@ html.tq-pwa-runtime .home-safe-visual-area {
     translate: 0 0; scale: 1 1; z-index: 40 !important;
 }
 
-/* hitboxes acompanham exatamente as artes publicadas */
+/* hitboxes seguem as artes */
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="crew"] {
     left: 4% !important; top: 72% !important; width: 28% !important; height: 10% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="play"] {
     left: 36% !important; top: 71% !important; width: 28% !important; height: 11% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="shipyard"] {
     left: 68% !important; top: 72% !important; width: 28% !important; height: 10% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="regions"] {
     left: 1% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="daily-reward"] {
     left: 20.5% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="shop"] {
     left: 40% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="collectibles"] {
     left: 59.5% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
 }
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="items"] {
     left: 79% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
-    translate: 0 0 !important; scale: 1 1 !important;
-}
-
-/* WebGL do MAR ocupa a mesma caixa física do asset oceano */
-.home-screen [data-tq-composition-slot="home.background.ocean"] > .region-ocean-motion {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    pointer-events: auto;
 }
