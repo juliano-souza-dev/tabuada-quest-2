@@ -542,45 +542,15 @@
                 "ocean",
                 "./assets/backgrounds/default/oceano.webp"
             ),
-            "home.background.cloud.1": publishedHomeBackgroundBinding(
-                "home.background.cloud.1",
-                "cloud",
-                "./assets/backgrounds/default/cloud-sunset-01.webp"
-            ),
-            "home.background.cloud.2": publishedHomeBackgroundBinding(
-                "home.background.cloud.2",
-                "cloud",
-                "./assets/backgrounds/default/cloud-sunset-02.webp"
-            ),
-            "home.background.cloud.3": publishedHomeBackgroundBinding(
-                "home.background.cloud.3",
-                "cloud",
-                "./assets/backgrounds/default/cloud-sunset-03.webp"
-            ),
-            "home.background.cloud.4": publishedHomeBackgroundBinding(
-                "home.background.cloud.4",
-                "cloud",
-                "./assets/backgrounds/default/cloud-sunset-horizon.webp"
-            ),
             "home.background.ship.1": publishedHomeBackgroundBinding(
                 "home.background.ship.1",
                 "ship",
-                "./assets/backgrounds/default/navio-pirata.webp"
+                "./assets/transitions/el-colombo/images/el-colombo.webp"
             ),
             "home.background.pier": publishedHomeBackgroundBinding(
                 "home.background.pier",
                 "pier",
                 "./assets/backgrounds/default/wooden-pier.webp"
-            ),
-            "home.background.scenery.1": publishedHomeBackgroundBinding(
-                "home.background.scenery.1",
-                "environment",
-                "./assets/backgrounds/default/construcoes-piratas.webp"
-            ),
-            "home.background.scenery.2": publishedHomeBackgroundBinding(
-                "home.background.scenery.2",
-                "environment",
-                "./assets/backgrounds/default/pirate-lantern.webp"
             ),
             "home.background.scenery.3": publishedHomeBackgroundBinding(
                 "home.background.scenery.3",
