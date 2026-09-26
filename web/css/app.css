@@ -614,3 +614,48 @@
 .tq-engine-canvas > .tq-dev-local-live-asset {
     pointer-events: auto;
 }
+
+
+/* DEV mobile guide + navigation: persistent context, no overlap with SOM. */
+.tq-dev-nav-close {
+    margin-left: auto;
+    width: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    border-radius: 9px !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+}
+
+@media (max-width: 620px) {
+    .tq-dev-nav-toggle {
+        display: none !important;
+    }
+
+    .tq-dev-mobile-context:not([hidden]) {
+        top: max(8px, var(--tq-safe-top, 0px));
+        left: 10px;
+        right: 82px;
+        width: auto;
+        max-width: none;
+        min-height: 38px;
+        padding: 8px 12px;
+        transform: none;
+        text-align: left;
+        pointer-events: auto;
+        cursor: pointer;
+        border: 1px solid rgba(229,189,84,.78);
+        background: rgba(5,29,41,.97);
+    }
+
+    .tq-dev-mobile-context:active {
+        transform: translateY(1px);
+    }
+
+    .tq-dev-nav-panel {
+        z-index: 100060;
+        top: max(8px, var(--tq-safe-top, 0px));
+        bottom: max(8px, var(--tq-safe-bottom, 0px));
+        max-height: none;
+    }
+}
