@@ -525,6 +525,31 @@
                 asset: null
             };
 
+            const preferredVariantId = slot.bindingMode === "variants"
+                ? (
+                    screenType === "home"
+                        ? registry.resolveHomeBackgroundGroupId?.(
+                            runtimeState?.ui?.homeBackgroundId || "default"
+                        ) || "default"
+                        : "default"
+                )
+                : null;
+            const explicitlyRemoved = binding.removed === true
+                || (
+                    preferredVariantId
+                    && Array.isArray(binding.removedVariants)
+                    && binding.removedVariants.includes(preferredVariantId)
+                );
+
+            if (explicitlyRemoved) {
+                return {
+                    ...binding,
+                    asset: null,
+                    activeVariantId: preferredVariantId,
+                    activeVariantEffects: []
+                };
+            }
+
             if (screenType === "home") {
                 const avatarId = String(runtimeState?.player?.avatarId || "sofia");
                 const frameId = String(runtimeState?.player?.frameId || "");
@@ -570,11 +595,7 @@
 
             if (slot.bindingMode !== "variants") return binding;
 
-            const preferredId = screenType === "home"
-                ? registry.resolveHomeBackgroundGroupId?.(
-                    runtimeState?.ui?.homeBackgroundId || "default"
-                ) || "default"
-                : "default";
+            const preferredId = preferredVariantId || "default";
             const variants = Array.isArray(binding.variants) ? binding.variants : [];
             const activeVariant = variants.find((variant) => variant.id === preferredId)
                 || variants.find((variant) => variant.id === "default")
