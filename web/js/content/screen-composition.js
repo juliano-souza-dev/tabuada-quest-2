@@ -814,6 +814,22 @@
             writeStore(store);
             return clone(store.scopes[scope].bindings[slot.id]);
         }
+
+        if (current.removed) {
+            const store = readStore();
+            const scope = String(scopeId || "");
+            store.scopes[scope] = store.scopes[scope] || { screenType: resolveScreenType(screenId), bindings: {} };
+            store.scopes[scope].bindings = store.scopes[scope].bindings || {};
+            store.scopes[scope].bindings[slot.id] = {
+                slotId: slot.id,
+                semanticType: type,
+                asset: null,
+                removed: true
+            };
+            writeStore(store);
+            return clone(store.scopes[scope].bindings[slot.id]);
+        }
+
         return bindAsset(scopeId, screenId, slotId, current.asset, type);
     }
 
