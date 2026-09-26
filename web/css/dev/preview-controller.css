@@ -196,3 +196,138 @@ html.tq-dev-simulator-host body > .tq-dev-mobile-context {
         display: none !important;
     }
 }
+
+
+/* Desktop game-only simulator workbench */
+.tq-preview-dev-tools {
+    display: none;
+}
+
+html.tq-dev-simulator-game-only .tq-dev-mobile-context {
+    display: none !important;
+}
+
+@media (min-width: 1100px) {
+    .tq-preview-simulator-stage {
+        right: 430px;
+    }
+
+    .tq-preview-dev-toolbar {
+        left: calc((100vw - 430px) / 2);
+    }
+
+    .tq-preview-dev-tools {
+        position: fixed;
+        z-index: 4;
+        top: 118px;
+        right: 16px;
+        bottom: 18px;
+        width: 62px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        pointer-events: auto;
+    }
+
+    .tq-preview-dev-tools-title {
+        display: block;
+        padding: 6px 2px;
+        color: #ffe18a;
+        font: 900 10px/1.1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        letter-spacing: .08em;
+        text-align: center;
+    }
+
+    .tq-preview-dev-tool-rail {
+        min-height: 0;
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 7px;
+        overflow: visible;
+    }
+
+    .tq-preview-dev-tool-rail > .tq-preview-portal-tool {
+        position: static !important;
+        inset: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        top: auto !important;
+        width: 62px !important;
+        min-width: 0 !important;
+        height: auto !important;
+        display: flex !important;
+        flex: 0 0 auto;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        pointer-events: auto;
+    }
+
+    .tq-preview-dev-tool-rail .tq-scene-dev-toggle,
+    .tq-preview-dev-tool-rail .tq-asset-upload-dev-toggle,
+    .tq-preview-dev-tool-rail .tq-ocean-dev-toggle,
+    .tq-preview-dev-tool-rail .tq-depth-dev-toggle,
+    .tq-preview-dev-tool-rail .tq-audio-dev-toggle,
+    .tq-preview-dev-tool-rail .tq-settings-dev-toggle,
+    .tq-preview-dev-tool-rail .tq-dev-nav-toggle,
+    .tq-preview-dev-tool-rail .tq-exit-dev-toggle {
+        position: static !important;
+        width: 62px !important;
+        min-width: 62px !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        margin: 0 !important;
+        padding: 0 6px !important;
+        border-radius: 12px !important;
+        box-sizing: border-box;
+        font-size: 11px !important;
+        line-height: 1 !important;
+    }
+
+    .tq-preview-dev-tool-rail .tq-scene-dev-panel,
+    .tq-preview-dev-tool-rail .tq-asset-upload-dev-panel,
+    .tq-preview-dev-tool-rail .tq-ocean-dev-panel,
+    .tq-preview-dev-tool-rail .tq-depth-dev-panel,
+    .tq-preview-dev-tool-rail .tq-audio-dev-panel,
+    .tq-preview-dev-tool-rail .tq-settings-dev-panel,
+    .tq-preview-dev-tool-rail .tq-dev-nav-panel {
+        position: fixed !important;
+        z-index: 100510 !important;
+        top: 118px !important;
+        right: 92px !important;
+        bottom: 18px !important;
+        left: auto !important;
+        width: 330px !important;
+        max-width: calc(100vw - 520px) !important;
+        height: auto !important;
+        max-height: none !important;
+        margin: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        box-sizing: border-box !important;
+        overscroll-behavior: contain;
+    }
+
+    .tq-preview-dev-tool-rail .tq-scene-dev-panel[hidden],
+    .tq-preview-dev-tool-rail .tq-asset-upload-dev-panel[hidden],
+    .tq-preview-dev-tool-rail .tq-ocean-dev-panel[hidden],
+    .tq-preview-dev-tool-rail .tq-depth-dev-panel[hidden],
+    .tq-preview-dev-tool-rail .tq-audio-dev-panel[hidden],
+    .tq-preview-dev-tool-rail .tq-settings-dev-panel[hidden],
+    .tq-preview-dev-tool-rail .tq-dev-nav-panel[hidden] {
+        display: none !important;
+    }
+
+    .tq-preview-dev-tool-rail .tq-scene-dev-compact {
+        position: fixed !important;
+        right: 92px !important;
+        bottom: 18px !important;
+        left: auto !important;
+        max-width: 330px !important;
+    }
+}
