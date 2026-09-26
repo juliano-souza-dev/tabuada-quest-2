@@ -1,0 +1,26 @@
+/* Central DEV tool state. Individual tools keep their panels; the shell owns active state. */
+body[data-tq-dev-active-tool="ux"] .tq-scene-dev-toggle,
+body[data-tq-dev-active-tool="upload"] .tq-asset-upload-dev-toggle,
+body[data-tq-dev-active-tool="ocean"] .tq-ocean-dev-toggle,
+body[data-tq-dev-active-tool="depth"] .tq-depth-dev-toggle,
+body[data-tq-dev-active-tool="audio"] .tq-audio-dev-toggle,
+body[data-tq-dev-active-tool="settings"] .tq-settings-dev-toggle,
+body[data-tq-dev-active-tool="nav"] .tq-dev-nav-toggle {
+    border-color: #fff06a !important;
+    box-shadow: 0 0 0 3px rgba(255,240,106,.18), 0 10px 26px rgba(0,0,0,.4) !important;
+    filter: saturate(1.08);
+}
+
+@media (max-width: 620px) {
+    .tq-scene-dev-toggle,
+    .tq-asset-upload-dev-toggle,
+    .tq-ocean-dev-toggle,
+    .tq-depth-dev-toggle,
+    .tq-audio-dev-toggle,
+    .tq-settings-dev-toggle,
+    .tq-exit-dev-toggle {
+        min-width: 56px !important;
+        min-height: 56px !important;
+        touch-action: manipulation;
+    }
+}
