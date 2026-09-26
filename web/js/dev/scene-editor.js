@@ -351,7 +351,6 @@
         if (element.hasAttribute("data-tq-dev-localized-external")) return false;
         if (element.hasAttribute("data-tq-dev-external-source")) return false;
         if (element.hasAttribute("data-tq-dev-ignore")) return false;
-        if (element.hasAttribute("data-tq-dev-external-source")) return false;
         if (isSemanticSlotInnerVisual(element)) return false;
         if (element.closest(".tq-scene-dev, .tq-scene-dev-selection")) return false;
 
@@ -527,6 +526,7 @@
         if (!(element instanceof Element)) return false;
         if (isStructuralNode(element, screenRoot)) return false;
         if (element.hasAttribute("data-tq-dev-ignore")) return false;
+        if (element.hasAttribute("data-tq-dev-external-source")) return false;
         if (isSemanticSlotInnerVisual(element)) return false;
         if (element.matches("script, style, template, source")) return false;
         if (element.closest(".tq-scene-dev, .tq-scene-dev-selection")) return false;

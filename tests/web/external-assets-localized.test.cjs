@@ -24,7 +24,10 @@ test("localização preserva id e desacopla o asset do wrapper original",()=>{
   assert.match(source,/proxy\.dataset\.tqDevId = id/);
   assert.match(source,/source\.setAttribute\("data-tq-dev-external-source", "true"\)/);
   assert.match(source,/source\.style\.setProperty\("visibility", "hidden", "important"\)/);
-  assert.match(source,/if \(element\.hasAttribute\("data-tq-dev-external-source"\)\) return false/);
+  const start=source.indexOf("function shouldAutoMap");
+  const end=source.indexOf("function collectNodes",start);
+  const autoMap=source.slice(start,end);
+  assert.match(autoMap,/if \(element\.hasAttribute\("data-tq-dev-external-source"\)\) return false/);
 });
 
 test("runtime pode adicionar assets depois e o UX os normaliza sem remontar",()=>{
