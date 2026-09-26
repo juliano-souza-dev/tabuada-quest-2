@@ -388,7 +388,6 @@
             frame.style.width = logical.width + "px";
             frame.style.height = logical.height + "px";
             frame.style.borderRadius = logical.radius + "px";
-            frame.style.transform = "scale(" + fit.scale + ")";
             iframe.style.width = logical.width + "px";
             iframe.style.height = logical.height + "px";
             metrics.textContent = logical.width + " × " + logical.height
