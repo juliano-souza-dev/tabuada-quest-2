@@ -10,7 +10,12 @@
     #screen{position:absolute;inset:0}
     .tq-safe-visual-area{position:absolute;inset:0;overflow:hidden}
     .tq-canonical-stage{position:absolute;left:0;top:0;width:400px;height:800px;transform:scale(.9);transform-origin:0 0;background:#12384b}
-    .visual-frame{position:absolute;left:80px;top:180px;width:120px;height:140px}
+    .visual-frame{
+      position:absolute;left:80px;top:180px;width:120px;height:140px;
+      translate:0 0 !important;
+      scale:1 1 !important;
+      transform-origin:center center !important;
+    }
     .visual-frame img{display:block;width:100%;height:100%;object-fit:fill}
   </style>
 </head>
