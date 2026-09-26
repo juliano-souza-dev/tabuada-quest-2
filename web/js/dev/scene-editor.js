@@ -44,27 +44,42 @@
             return {
                 version: registry.SCHEMA_VERSION,
                 screenType,
-                assets: registry.getAssetSlots(screenType).map((slot) => ({
-                    id: slot.id,
-                    label: slot.label,
-                    semanticType: slot.semanticType,
-                    acceptedTypes: [...(slot.acceptedTypes || [])],
-                    required: Boolean(slot.required),
-                    action: slot.action || null,
-                    pairId: slot.pairId || null,
-                    pairState: slot.pairState || null,
-                    group: slot.group || null,
-                    compositionId: slot.compositionId || null,
-                    binding: registry.readBinding(storageScopeId, screenType, slot.id),
-                    localDraft: screenRoot?.querySelector?.(
-                        '[data-tq-composition-slot="' + slot.id + '"][data-tq-local-file]'
-                    )?.dataset?.tqLocalFile || null,
-                    localDraftVariant: screenRoot?.querySelector?.(
-                        '[data-tq-composition-slot="' + slot.id + '"][data-tq-local-file]'
-                    )?.dataset?.tqCompositionVariant || null,
-                    bindingMode: slot.bindingMode || "single",
-                    fxPerVariant: Boolean(slot.fxPerVariant)
-                })),
+                assets: registry.getAssetSlots(screenType)
+                    .map((slot) => {
+                        const element = screenRoot?.querySelector?.(
+                            '[data-tq-composition-slot="' + slot.id + '"]'
+                        ) || null;
+                        if (
+                            !(element instanceof Element)
+                            || element.dataset.tqSlotEmpty === "true"
+                            || element.hidden
+                        ) {
+                            return null;
+                        }
+
+                        return {
+                            id: slot.id,
+                            label: slot.label,
+                            semanticType: slot.semanticType,
+                            acceptedTypes: [...(slot.acceptedTypes || [])],
+                            required: Boolean(slot.required),
+                            action: slot.action || null,
+                            pairId: slot.pairId || null,
+                            pairState: slot.pairState || null,
+                            group: slot.group || null,
+                            compositionId: slot.compositionId || null,
+                            binding: registry.readBinding(storageScopeId, screenType, slot.id),
+                            localDraft: element.querySelector?.(
+                                '[data-tq-local-file]'
+                            )?.dataset?.tqLocalFile || null,
+                            localDraftVariant: element.querySelector?.(
+                                '[data-tq-local-file]'
+                            )?.dataset?.tqCompositionVariant || null,
+                            bindingMode: slot.bindingMode || "single",
+                            fxPerVariant: Boolean(slot.fxPerVariant)
+                        };
+                    })
+                    .filter(Boolean),
                 compositions: registry.getCompositions?.(screenType) || [],
                 activeCompositionVariant: screenType === "home"
                     ? (screenRoot?.dataset?.tqActiveHomeComposition || null)
@@ -382,6 +397,9 @@
                     const declaredFunction = Boolean(element.dataset.tqCompositionFunction);
                     const declaredDynamic = Boolean(element.dataset.tqCompositionDynamic);
 
+                    if (semanticAsset && (element.dataset.tqSlotEmpty === "true" || element.hidden)) {
+                        return null;
+                    }
                     if (["asset", "overlay", "background"].includes(kind) && !semanticAsset && !declaredDynamic) {
                         return null;
                     }
