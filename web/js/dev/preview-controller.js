@@ -256,8 +256,11 @@
     let simulatorRefs = null;
 
     function isNativeRuntime() {
-        return document.documentElement.classList.contains("tq-native-runtime")
-            || document.documentElement.classList.contains("tq-pwa-runtime");
+        return document.documentElement.classList.contains("tq-native-runtime");
+    }
+
+    function isPwaRuntime() {
+        return document.documentElement.classList.contains("tq-pwa-runtime");
     }
 
     function isChildRuntime() {
@@ -269,6 +272,9 @@
     }
 
     function canHostSimulator() {
+        // Desktop browser AND desktop-installed PWA may host the simulator.
+        // A narrow mobile PWA is already the real target viewport and should
+        // render the game directly instead of nesting a simulator.
         return !isNativeRuntime()
             && !isChildRuntime()
             && root.matchMedia?.("(min-width: 700px)")?.matches;
@@ -590,6 +596,8 @@
         applyProfile,
         clearProfile,
         isHostMode: () => hostMode,
-        isChildRuntime
+        isChildRuntime,
+        isNativeRuntime,
+        isPwaRuntime
     });
 })(globalThis);
