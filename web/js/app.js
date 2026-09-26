@@ -878,7 +878,8 @@
             screenRoot,
             screenId: editorStorageScope,
             compositionScreenId: editorScreenId,
-            compositionVariantId: activeHomeBackgroundId
+            compositionVariantId: activeHomeBackgroundId,
+            effectsScopeId: editorEffectScope
         });
         mountDevelopmentContextNavigator({
             screenId: editorScreenId,
