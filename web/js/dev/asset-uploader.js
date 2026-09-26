@@ -523,6 +523,7 @@
         parent.appendChild(image);
 
         if (slot instanceof HTMLElement) {
+            slot.hidden = false;
             slot.dataset.tqSlotEmpty = "false";
             if (record.semanticType) slot.dataset.tqSemanticType = record.semanticType;
             if (record.variantId) slot.dataset.tqCompositionVariant = record.variantId;
@@ -584,6 +585,7 @@
             || compositionScreenId;
         const composition = compositionRegistry?.getScreen?.(resolvedCompositionScreenId) || null;
         const compositionVariantId = String(options.compositionVariantId || "").trim();
+        const effectsScopeId = String(options.effectsScopeId || screenId);
         if (!screenRoot) return 0;
 
         try {
@@ -1157,6 +1159,36 @@
             return true;
         }
 
+        function applySemanticBehavior(slot, semanticType) {
+            if (!slot || !semanticType) return;
+            const depthScene = TQ.core?.depthScene;
+            const fx = compositionRegistry?.allowedFxForSemanticType?.(semanticType) || [];
+            if (!depthScene || !fx.some((id) => id === "depth" || id === "ship-rock")) return;
+
+            const current = depthScene.readConfig(effectsScopeId);
+            const elementType = depthScene.elementTypeFromSemantic(semanticType);
+            const layer = depthScene.applyElementType(
+                current.layers?.[slot.id] || {},
+                elementType
+            );
+            const next = {
+                ...current,
+                layers: {
+                    ...current.layers,
+                    [slot.id]: layer
+                }
+            };
+            const saved = depthScene.saveConfig(effectsScopeId, next);
+            root.dispatchEvent(new CustomEvent("tq:depth-config-changed", {
+                detail: {
+                    scopeId: effectsScopeId,
+                    slotId: slot.id,
+                    semanticType,
+                    config: saved
+                }
+            }));
+        }
+
         function stageForLocalLayer() {
             const selected = selectedAssetElement();
             return selected?.closest(".tq-engine-canvas, .tq-canonical-stage")
@@ -1264,6 +1296,7 @@
                     slot.id,
                     record.semanticType
                 );
+                applySemanticBehavior(slot, record.semanticType);
             }
 
             try {
@@ -1504,6 +1537,7 @@
                     slot.id,
                     semanticSelect.value
                 );
+                applySemanticBehavior(slot, semanticSelect.value);
                 screenRoot
                     .querySelectorAll('[data-tq-composition-slot="' + slot.id + '"]')
                     .forEach((element) => {
