@@ -3,6 +3,26 @@
     TQ.dev = TQ.dev || {};
 
     const geometryTargetCache = new WeakMap();
+    const originalGeometryStyles = new WeakMap();
+
+    function captureOriginalGeometryStyles(element) {
+        if (!(element instanceof Element) || originalGeometryStyles.has(element)) return;
+
+        originalGeometryStyles.set(element, Object.freeze({
+            translate: element.style.getPropertyValue("translate"),
+            translatePriority: element.style.getPropertyPriority("translate"),
+            scale: element.style.getPropertyValue("scale"),
+            scalePriority: element.style.getPropertyPriority("scale"),
+            transformOrigin: element.style.getPropertyValue("transform-origin"),
+            transformOriginPriority: element.style.getPropertyPriority("transform-origin")
+        }));
+    }
+
+    function restoreInlineProperty(element, property, value, priority = "") {
+        if (!(element instanceof Element)) return;
+        if (value) element.style.setProperty(property, value, priority || "");
+        else element.style.removeProperty(property);
+    }
 
     function number(value, fallback = 0) {
         const parsed = Number(value);
@@ -71,20 +91,68 @@
         const sx = Math.max(.05, positive(geometry?.sx, 1));
         const sy = Math.max(.05, positive(geometry?.sy, 1));
 
+        // Published assets often arrive with screen CSS that locks translate/scale
+        // using !important. Local UP assets do not. Localize the geometry in DEV
+        // with inline !important so every asset follows the exact same edit path.
+        captureOriginalGeometryStyles(element);
+
         element.style.setProperty("--tq-dev-x", x + "px");
         element.style.setProperty("--tq-dev-y", y + "px");
         element.style.setProperty("--tq-dev-sx", String(sx));
         element.style.setProperty("--tq-dev-sy", String(sy));
+        element.style.setProperty(
+            "translate",
+            "var(--tq-dev-x, 0px) var(--tq-dev-y, 0px)",
+            "important"
+        );
+        element.style.setProperty(
+            "scale",
+            "var(--tq-dev-sx, 1) var(--tq-dev-sy, 1)",
+            "important"
+        );
+        element.style.setProperty("transform-origin", "top left", "important");
+        element.setAttribute("data-tq-dev-local-geometry", "true");
         element.setAttribute("data-tq-dev-adjusted", "true");
         return true;
     }
 
     function clearGeometry(element) {
         if (!(element instanceof Element)) return;
+
+        const original = originalGeometryStyles.get(element) || null;
+
         element.style.removeProperty("--tq-dev-x");
         element.style.removeProperty("--tq-dev-y");
         element.style.removeProperty("--tq-dev-sx");
         element.style.removeProperty("--tq-dev-sy");
+
+        if (original) {
+            restoreInlineProperty(
+                element,
+                "translate",
+                original.translate,
+                original.translatePriority
+            );
+            restoreInlineProperty(
+                element,
+                "scale",
+                original.scale,
+                original.scalePriority
+            );
+            restoreInlineProperty(
+                element,
+                "transform-origin",
+                original.transformOrigin,
+                original.transformOriginPriority
+            );
+            originalGeometryStyles.delete(element);
+        } else {
+            element.style.removeProperty("translate");
+            element.style.removeProperty("scale");
+            element.style.removeProperty("transform-origin");
+        }
+
+        element.removeAttribute("data-tq-dev-local-geometry");
         element.removeAttribute("data-tq-dev-adjusted");
     }
 
