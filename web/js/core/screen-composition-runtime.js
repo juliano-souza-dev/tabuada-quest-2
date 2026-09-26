@@ -138,6 +138,8 @@
         element.dataset.tqAssetId = slot.id;
         element.dataset.tqAssetRole = "object";
         element.dataset.tqAssetLabel = slot.label;
+        element.dataset.tqEditorFocusable = "true";
+        element.tabIndex = -1;
         if (slot.pairId) {
             element.dataset.tqPairId = slot.pairId;
             element.dataset.tqPairState = slot.pairState || "";
