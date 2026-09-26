@@ -16,22 +16,19 @@ test("UX editor permite selecionar camada abaixo de elementos sobrepostos",()=>{
     assert.match(js,/selectBelowButton\.addEventListener\("click", selectBelowCurrent\)/);
 });
 
-test("parallax salvo persiste cópia visual e geometria da fonte",()=>{
-    const app=read("web/js/app.js");
+test("hit stack geométrico ordena visual por z e área",()=>{
+    const engine=read("web/js/dev/scene-engine.js");
 
-    assert.match(app,/const visualSnapshot = \(visual\) =>/);
-    assert.match(app,/const cloneFromSnapshot = \(snapshot\) =>/);
-    assert.match(app,/sourceVisual:\s*visualSnapshot\(visual\)/);
-    assert.match(app,/sourceRect:\s*\{/);
-    assert.match(app,/fx\.sourceRect/);
-    assert.match(app,/fx\.sourceVisual/);
+    assert.match(engine,/function hitTest\(nodes, clientX, clientY/);
+    assert.match(engine,/if \(zA !== zB\) return zB - zA/);
+    assert.match(engine,/return rectA\.width \* rectA\.height - rectB\.width \* rectB\.height/);
 });
 
-test("parallax salvo consegue renderizar sem o background original visível",()=>{
-    const app=read("web/js/app.js");
+test("funções podem ser excluídas do hit stack sem esconder assets",()=>{
+    const engine=read("web/js/dev/scene-engine.js");
+    const scene=read("web/js/dev/scene-editor.js");
 
-    assert.match(app,/const sourceStillVisible = visual instanceof Element/);
-    assert.match(app,/root\.getComputedStyle\(visual\)\.display !== "none"/);
-    assert.match(app,/activeRoot\.querySelector\("\.tq-canonical-stage"\)/);
-    assert.match(app,/cloneVisualLayer\(sourceStillVisible \? visual : null, fx\.sourceVisual\)/);
+    assert.match(engine,/if \(!includeFunctions && node\.kind === "function"\) return false/);
+    assert.match(scene,/functionsHidden && candidate\.kind === "function"/);
+    assert.match(scene,/selectBelowAtPoint/);
 });
