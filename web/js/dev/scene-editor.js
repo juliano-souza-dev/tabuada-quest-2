@@ -1,6 +1,11 @@
 (function (root) {
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     const STORAGE_KEY = "tq2.dev.scene-layout.v3";
+    const sceneEngine = TQ.dev?.sceneEngine;
+    if (!sceneEngine) {
+        console.error("DEV scene engine não carregado");
+        return;
+    }
     let activeCleanup = null;
 
     function readScopedOcean(storageScopeId, editorContext) {
@@ -132,64 +137,19 @@
     }
 
     function computedGeometry(element) {
-        const style = root.getComputedStyle(element);
-        const translate = String(style.translate || "").trim();
-        const scale = String(style.scale || "").trim();
-
-        let x = 0;
-        let y = 0;
-        if (translate && translate !== "none") {
-            const parts = translate.split(/\s+/);
-            const parsedX = Number.parseFloat(parts[0]);
-            const parsedY = Number.parseFloat(parts[1] || "0");
-            if (Number.isFinite(parsedX)) x = parsedX;
-            if (Number.isFinite(parsedY)) y = parsedY;
-        }
-
-        let sx = 1;
-        let sy = 1;
-        if (scale && scale !== "none") {
-            const parts = scale.split(/\s+/);
-            sx = positiveScale(parts[0], 1);
-            sy = positiveScale(parts[1], sx);
-        }
-
-        return { x, y, sx, sy };
+        return sceneEngine.computedGeometry(element);
     }
 
     function readGeometry(element) {
-        if (!element.hasAttribute("data-tq-dev-adjusted")) {
-            return computedGeometry(element);
-        }
-
-        const x = Number.parseFloat(element.style.getPropertyValue("--tq-dev-x"));
-        const y = Number.parseFloat(element.style.getPropertyValue("--tq-dev-y"));
-        return {
-            x: Number.isFinite(x) ? x : 0,
-            y: Number.isFinite(y) ? y : 0,
-            sx: positiveScale(element.style.getPropertyValue("--tq-dev-sx"), 1),
-            sy: positiveScale(element.style.getPropertyValue("--tq-dev-sy"), 1)
-        };
+        return sceneEngine.readGeometry(element);
     }
 
     function applyGeometry(element, geometry) {
-        const x = number(geometry?.x, 0);
-        const y = number(geometry?.y, 0);
-        const sx = Math.max(.05, positiveScale(geometry?.sx, 1));
-        const sy = Math.max(.05, positiveScale(geometry?.sy, 1));
-        element.style.setProperty("--tq-dev-x", x + "px");
-        element.style.setProperty("--tq-dev-y", y + "px");
-        element.style.setProperty("--tq-dev-sx", String(sx));
-        element.style.setProperty("--tq-dev-sy", String(sy));
-        element.setAttribute("data-tq-dev-adjusted", "true");
+        return sceneEngine.applyGeometry(element, geometry);
     }
 
     function clearGeometry(element) {
-        element.style.removeProperty("--tq-dev-x");
-        element.style.removeProperty("--tq-dev-y");
-        element.style.removeProperty("--tq-dev-sx");
-        element.style.removeProperty("--tq-dev-sy");
-        element.removeAttribute("data-tq-dev-adjusted");
+        return sceneEngine.clearGeometry(element);
     }
 
     function isDeleted(element) {
@@ -379,63 +339,10 @@
         );
     }
 
-    function isGeometryBoundary(element, screenRoot) {
-        if (!(element instanceof Element)) return true;
-        if (element === screenRoot) return true;
-        return element.matches(
-            ".tq-canonical-stage, .tq-safe-visual-area, "
-            + "[data-tq-composition-screen], .tq-engine-canvas, "
-            + ".tq-engine-asset-layer, .tq-engine-function-layer"
-        );
-    }
-
-    function isInteractiveGeometryBoundary(element) {
-        if (!(element instanceof Element)) return false;
-        return element.matches(
-            "button, a, input, select, textarea, [role='button'], "
-            + "[data-action], [data-tq-composition-function]"
-        );
-    }
-
     function resolveGeometryElement(element, screenRoot) {
-        if (!(element instanceof Element)) return element;
-        if (element.hasAttribute("data-tq-composition-slot")) return element;
-
-        // Containers/direct assets already own their geometry.
-        if (!element.matches("img, picture, svg, canvas, video")) return element;
-
-        const elementRect = element.getBoundingClientRect();
-        if (!elementRect.width || !elementRect.height) return element;
-
-        let parent = element.parentElement;
-        while (parent && !isGeometryBoundary(parent, screenRoot)) {
-            if (isInteractiveGeometryBoundary(parent)) {
-                // Asset and function are separate concepts. Never move the
-                // function/hitbox just because its visual child is selected.
-                break;
-            }
-
-            const style = root.getComputedStyle(parent);
-            const rect = parent.getBoundingClientRect();
-            const positioned = ["absolute", "fixed", "relative", "sticky"].includes(style.position);
-            const widthDelta = Math.abs(rect.width - elementRect.width);
-            const heightDelta = Math.abs(rect.height - elementRect.height);
-            const sameVisualBox = (
-                rect.width > 0
-                && rect.height > 0
-                && widthDelta <= Math.max(3, rect.width * .06)
-                && heightDelta <= Math.max(3, rect.height * .06)
-            );
-
-            if (positioned && sameVisualBox) {
-                return parent;
-            }
-
-            parent = parent.parentElement;
-        }
-
-        return element;
+        return sceneEngine.resolveGeometryElement(element, screenRoot);
     }
+
 
     function shouldAutoMap(element, screenRoot) {
         if (!(element instanceof Element)) return false;
@@ -532,17 +439,11 @@
             .filter(Boolean);
     }
 
-    function stageScale(element) {
-        const stage = element.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
-            || element.closest("section")
-            || element.parentElement;
-        if (!stage) return { x: 1, y: 1 };
-        const rect = stage.getBoundingClientRect();
-        return {
-            x: stage.offsetWidth ? rect.width / stage.offsetWidth : 1,
-            y: stage.offsetHeight ? rect.height / stage.offsetHeight : 1
-        };
+    function stageScale(element, screenRoot) {
+        const space = sceneEngine.stageCoordinateSpace(element, screenRoot);
+        return { x: space.scaleX, y: space.scaleY };
     }
+
 
     function kindLabel(kind) {
         return ({
@@ -893,6 +794,7 @@
         let functionsHidden = mobileEditorQuery.matches;
         let selected = null;
         let interaction = null;
+        const activePointers = new Map();
         let history = [];
         let raf = 0;
 
@@ -1485,6 +1387,25 @@
             selectBelowAtPoint(x, y, selected);
         }
 
+        function pointerRecord(event, node = null) {
+            return {
+                id: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+                nodeId: node?.id || selected?.id || null,
+                pointerType: event.pointerType || "mouse"
+            };
+        }
+
+        function rememberPointer(event, node = null) {
+            if (event.pointerType !== "touch") return;
+            activePointers.set(event.pointerId, pointerRecord(event, node));
+        }
+
+        function forgetPointer(pointerId) {
+            activePointers.delete(pointerId);
+        }
+
         function startInteraction(event, node, mode, handle = "") {
             if (!opened || !node) return;
             selectNode(node);
@@ -1499,8 +1420,8 @@
 
             const geometryElement = geometryTarget(node);
             const rect = geometryElement.getBoundingClientRect();
-            const stage = geometryElement.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
-                || screenRoot;
+            const coordinateSpace = sceneEngine.stageCoordinateSpace(geometryElement, screenRoot);
+            const stage = coordinateSpace.stage || screenRoot;
             const pointerTarget = typeof node.element?.setPointerCapture === "function"
                 ? node.element
                 : event.target instanceof Element
@@ -1517,24 +1438,60 @@
                 mode,
                 handle,
                 pointerId: event.pointerId,
+                pointerIds: [event.pointerId],
                 pointerTarget,
                 startX: event.clientX,
                 startY: event.clientY,
                 rect,
                 stageRect: stage?.getBoundingClientRect() || null,
-                scale: stageScale(geometryElement),
+                coordinateSpace,
                 geometry: readGeometry(geometryElement),
                 changed: false
             };
         }
 
-        function onPointerDown(event) {
-            if (!opened) return;
+        function startPinchInteraction(node) {
+            if (!opened || !node || isLocked(node.element)) return false;
+            const touches = [...activePointers.values()]
+                .filter((pointer) => pointer.pointerType === "touch")
+                .slice(-2);
+            if (touches.length !== 2) return false;
 
+            const geometryElement = geometryTarget(node);
+            const rect = geometryElement.getBoundingClientRect();
+            const startDistance = sceneEngine.pointerDistance(touches[0], touches[1]);
+            if (startDistance < 4) return false;
+
+            const startCenter = sceneEngine.pointerCenter(touches[0], touches[1]);
+            const coordinateSpace = sceneEngine.stageCoordinateSpace(geometryElement, screenRoot);
+            const anchorLocal = coordinateSpace.clientDeltaToLocal(
+                startCenter.x - rect.left,
+                startCenter.y - rect.top
+            );
+
+            interaction = {
+                node,
+                mode: "pinch",
+                pointerId: touches[0].id,
+                pointerIds: touches.map((pointer) => pointer.id),
+                pointerTarget: null,
+                rect,
+                stageRect: coordinateSpace.stage?.getBoundingClientRect() || null,
+                coordinateSpace,
+                geometry: readGeometry(geometryElement),
+                startDistance,
+                startCenter,
+                anchorLocal,
+                changed: false
+            };
+            selectNode(node);
+            status.textContent = "Pinça · redimensionando " + node.label;
+            return true;
+        }
+
+        function nodeAtPointer(event) {
             let node = selectableNodeFromElement(event.target);
 
-            // Mobile/WebView can report the canvas/container as event.target even
-            // when the finger is visibly over an asset. Fall back to geometry.
             if (!node) {
                 node = nodesAtPoint(event.clientX, event.clientY)
                     .find((candidate) =>
@@ -1545,7 +1502,38 @@
                     ) || null;
             }
 
+            return node;
+        }
+
+        function onPointerDown(event) {
+            if (!opened) return;
+
+            let node = nodeAtPointer(event);
+
+            if (event.pointerType === "touch" && activePointers.size === 1 && selected) {
+                const rect = geometryTarget(selected).getBoundingClientRect();
+                const insideSelected = event.clientX >= rect.left
+                    && event.clientX <= rect.right
+                    && event.clientY >= rect.top
+                    && event.clientY <= rect.bottom;
+                if (insideSelected) node = selected;
+            }
+
             if (!node || (functionsHidden && node.kind === "function")) return;
+
+            rememberPointer(event, node);
+
+            if (
+                event.pointerType === "touch"
+                && activePointers.size >= 2
+                && selected
+                && node.id === selected.id
+            ) {
+                event.preventDefault();
+                event.stopPropagation();
+                startPinchInteraction(selected);
+                return;
+            }
 
             if (event.altKey) {
                 event.preventDefault();
@@ -1559,6 +1547,14 @@
 
         function onSelectionOverlayDown(event) {
             if (!opened || !selected) return;
+
+            rememberPointer(event, selected);
+            if (event.pointerType === "touch" && activePointers.size >= 2) {
+                event.preventDefault();
+                event.stopPropagation();
+                startPinchInteraction(selected);
+                return;
+            }
 
             if (event.altKey) {
                 event.preventDefault();
@@ -1579,7 +1575,68 @@
         }
 
         function onPointerMove(event) {
-            if (!interaction || event.pointerId !== interaction.pointerId) return;
+            if (event.pointerType === "touch" && activePointers.has(event.pointerId)) {
+                const previous = activePointers.get(event.pointerId);
+                activePointers.set(event.pointerId, {
+                    ...previous,
+                    x: event.clientX,
+                    y: event.clientY
+                });
+            }
+
+            if (!interaction) return;
+
+            if (interaction.mode === "pinch") {
+                if (!interaction.pointerIds.includes(event.pointerId)) return;
+                event.preventDefault();
+                event.stopPropagation();
+
+                const pointers = interaction.pointerIds
+                    .map((id) => activePointers.get(id))
+                    .filter(Boolean);
+                if (pointers.length !== 2) return;
+
+                const currentDistance = sceneEngine.pointerDistance(pointers[0], pointers[1]);
+                const currentCenter = sceneEngine.pointerCenter(pointers[0], pointers[1]);
+                if (currentDistance < 4) return;
+
+                const factor = clamp(
+                    currentDistance / Math.max(1, interaction.startDistance),
+                    .05,
+                    50
+                );
+                const centerDelta = interaction.coordinateSpace.clientDeltaToLocal(
+                    currentCenter.x - interaction.startCenter.x,
+                    currentCenter.y - interaction.startCenter.y
+                );
+
+                const meaningful = Math.abs(factor - 1) > .006
+                    || Math.abs(centerDelta.x) > 1
+                    || Math.abs(centerDelta.y) > 1;
+                if (!interaction.changed && meaningful) {
+                    pushHistory();
+                    interaction.changed = true;
+                }
+                if (!interaction.changed) return;
+
+                const growth = factor - 1;
+                applyGeometryLinked(interaction.node, {
+                    x: interaction.geometry.x
+                        + centerDelta.x
+                        - interaction.anchorLocal.x * growth,
+                    y: interaction.geometry.y
+                        + centerDelta.y
+                        - interaction.anchorLocal.y * growth,
+                    sx: Math.max(.05, interaction.geometry.sx * factor),
+                    sy: Math.max(.05, interaction.geometry.sy * factor)
+                });
+
+                refreshInspector();
+                scheduleOverlay();
+                return;
+            }
+
+            if (event.pointerId !== interaction.pointerId) return;
             event.preventDefault();
             event.stopPropagation();
 
@@ -1618,15 +1675,14 @@
             }
             if (!interaction.changed) return;
 
-            const scale = interaction.scale || { x: 1, y: 1 };
-            const scaleX = Math.abs(scale.x) > .0001 ? scale.x : 1;
-            const scaleY = Math.abs(scale.y) > .0001 ? scale.y : 1;
+            const localDelta = interaction.coordinateSpace.clientDeltaToLocal(dx, dy);
+            const rawLocalDelta = interaction.coordinateSpace.clientDeltaToLocal(rawDx, rawDy);
 
             if (interaction.mode === "move") {
                 applyGeometryLinked(node, {
                     ...interaction.geometry,
-                    x: interaction.geometry.x + dx / scaleX,
-                    y: interaction.geometry.y + dy / scaleY
+                    x: interaction.geometry.x + localDelta.x,
+                    y: interaction.geometry.y + localDelta.y
                 });
             } else {
                 const handle = interaction.handle;
@@ -1651,8 +1707,8 @@
 
                 const sx = Math.max(.05, interaction.geometry.sx * (width / Math.max(1, interaction.rect.width)));
                 const sy = Math.max(.05, interaction.geometry.sy * (height / Math.max(1, interaction.rect.height)));
-                const moveX = handle.includes("w") ? (interaction.rect.width - width) / scaleX : 0;
-                const moveY = handle.includes("n") ? (interaction.rect.height - height) / scaleY : 0;
+                const moveX = handle.includes("w") ? rawLocalDelta.x : 0;
+                const moveY = handle.includes("n") ? rawLocalDelta.y : 0;
 
                 applyGeometryLinked(node, {
                     x: interaction.geometry.x + moveX,
@@ -1667,7 +1723,23 @@
         }
 
         function onPointerUp(event) {
-            if (!interaction || event.pointerId !== interaction.pointerId) return;
+            const wasTracked = activePointers.has(event.pointerId);
+            forgetPointer(event.pointerId);
+
+            if (!interaction) return;
+
+            if (interaction.mode === "pinch") {
+                if (!interaction.pointerIds.includes(event.pointerId) && !wasTracked) return;
+                event.preventDefault();
+                event.stopPropagation();
+                const changed = interaction.changed;
+                interaction = null;
+                if (changed) persist("Redimensionado por pinça");
+                scheduleOverlay();
+                return;
+            }
+
+            if (event.pointerId !== interaction.pointerId) return;
             event.preventDefault();
             event.stopPropagation();
             const changed = interaction.changed;
@@ -2068,6 +2140,8 @@
             appRoot.classList.remove("tq-dev-functions-hidden");
             document.body.classList.remove("tq-dev-scene-editing-active");
             screenRoot.style.touchAction = originalScreenTouchAction;
+            activePointers.clear();
+            interaction = null;
             screenRoot.removeEventListener("pointerdown", onPointerDown, true);
             screenRoot.removeEventListener("click", interceptClick, true);
             root.removeEventListener("pointermove", onPointerMove, true);
