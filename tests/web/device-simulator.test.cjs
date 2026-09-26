@@ -60,3 +60,25 @@ test("simulador permite retrato, paisagem, custom, tablet e desktop",()=>{
   assert.match(source,/desktop-1366x768/);
   assert.match(source,/desktop-1920x1080/);
 });
+
+
+test("desktop PWA pode hospedar o simulador, native Android não",()=>{
+  const source=read("web/js/dev/preview-controller.js");
+
+  assert.match(
+    source,
+    /function isNativeRuntime\(\) \{\s*return document\.documentElement\.classList\.contains\("tq-native-runtime"\);/
+  );
+  assert.match(
+    source,
+    /function isPwaRuntime\(\) \{\s*return document\.documentElement\.classList\.contains\("tq-pwa-runtime"\);/
+  );
+  assert.match(
+    source,
+    /function canHostSimulator\(\) \{[\s\S]*!isNativeRuntime\(\)[\s\S]*!isChildRuntime\(\)[\s\S]*min-width: 700px/
+  );
+  assert.doesNotMatch(
+    source,
+    /function isNativeRuntime\(\)[\s\S]{0,180}tq-pwa-runtime/
+  );
+});
