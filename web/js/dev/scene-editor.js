@@ -802,6 +802,7 @@
         let functionsHidden = mobileEditorQuery.matches;
         let selected = null;
         let interaction = null;
+        const activePointers = new Map();
         let history = [];
         let raf = 0;
 
@@ -1360,6 +1361,58 @@
             selectBelowAtPoint(x, y, selected);
         }
 
+        function pointerDistance(a, b) {
+            return Math.hypot(b.x - a.x, b.y - a.y);
+        }
+
+        function pointerCenter(a, b) {
+            return {
+                x: (a.x + b.x) / 2,
+                y: (a.y + b.y) / 2
+            };
+        }
+
+        function rememberTouchPointer(event, node) {
+            if (event.pointerType !== "touch" || !node) return;
+            activePointers.set(event.pointerId, {
+                id: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+                nodeId: node.id
+            });
+        }
+
+        function startPinchInteraction(node) {
+            if (!opened || !node || isLocked(node.element)) return false;
+
+            const touches = [...activePointers.values()]
+                .filter((pointer) => pointer.nodeId === node.id)
+                .slice(0, 2);
+            if (touches.length < 2) return false;
+
+            selectNode(node);
+            const rect = node.element.getBoundingClientRect();
+            const stage = node.element.closest(".tq-canonical-stage, .tq-safe-visual-area, [class*='-stage']")
+                || screenRoot;
+            const center = pointerCenter(touches[0], touches[1]);
+
+            interaction = {
+                node,
+                mode: "pinch",
+                pointerIds: touches.map((pointer) => pointer.id),
+                startDistance: Math.max(1, pointerDistance(touches[0], touches[1])),
+                startCenter: center,
+                rect,
+                stageRect: stage?.getBoundingClientRect() || null,
+                scale: stageScale(node.element),
+                geometry: readGeometry(node.element),
+                changed: false
+            };
+
+            status.textContent = "Pinça · proporção preservada";
+            return true;
+        }
+
         function startInteraction(event, node, mode, handle = "") {
             if (!opened || !node) return;
             selectNode(node);
@@ -1424,6 +1477,13 @@
 
             if (!node || (functionsHidden && node.kind === "function")) return;
 
+            rememberTouchPointer(event, node);
+            if (event.pointerType === "touch" && startPinchInteraction(node)) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
             if (event.altKey) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -1436,6 +1496,13 @@
 
         function onSelectionOverlayDown(event) {
             if (!opened || !selected) return;
+
+            rememberTouchPointer(event, selected);
+            if (event.pointerType === "touch" && startPinchInteraction(selected)) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
 
             if (event.altKey) {
                 event.preventDefault();
@@ -1456,7 +1523,68 @@
         }
 
         function onPointerMove(event) {
-            if (!interaction || event.pointerId !== interaction.pointerId) return;
+            if (activePointers.has(event.pointerId)) {
+                const pointer = activePointers.get(event.pointerId);
+                pointer.x = event.clientX;
+                pointer.y = event.clientY;
+            }
+
+            if (!interaction) return;
+
+            if (interaction.mode === "pinch") {
+                if (!interaction.pointerIds.includes(event.pointerId)) return;
+                const first = activePointers.get(interaction.pointerIds[0]);
+                const second = activePointers.get(interaction.pointerIds[1]);
+                if (!first || !second) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const node = interaction.node;
+                if (!node?.element?.isConnected) {
+                    interaction = null;
+                    return;
+                }
+                if (selected !== node) selectNode(node);
+
+                const distance = Math.max(1, pointerDistance(first, second));
+                const center = pointerCenter(first, second);
+                const factor = clamp(distance / interaction.startDistance, .05, 50);
+                const centerDx = center.x - interaction.startCenter.x;
+                const centerDy = center.y - interaction.startCenter.y;
+
+                if (
+                    !interaction.changed
+                    && (
+                        Math.abs(distance - interaction.startDistance) > 2
+                        || Math.abs(centerDx) > 2
+                        || Math.abs(centerDy) > 2
+                    )
+                ) {
+                    pushHistory();
+                    interaction.changed = true;
+                }
+                if (!interaction.changed) return;
+
+                const scale = interaction.scale || { x: 1, y: 1 };
+                const scaleX = Math.abs(scale.x) > .0001 ? scale.x : 1;
+                const scaleY = Math.abs(scale.y) > .0001 ? scale.y : 1;
+                const growX = interaction.rect.width * (factor - 1);
+                const growY = interaction.rect.height * (factor - 1);
+
+                applyGeometryLinked(node, {
+                    x: interaction.geometry.x + centerDx / scaleX - growX / (2 * scaleX),
+                    y: interaction.geometry.y + centerDy / scaleY - growY / (2 * scaleY),
+                    sx: Math.max(.05, interaction.geometry.sx * factor),
+                    sy: Math.max(.05, interaction.geometry.sy * factor)
+                });
+
+                refreshInspector();
+                scheduleOverlay();
+                return;
+            }
+
+            if (event.pointerId !== interaction.pointerId) return;
             event.preventDefault();
             event.stopPropagation();
 
@@ -1544,7 +1672,24 @@
         }
 
         function onPointerUp(event) {
-            if (!interaction || event.pointerId !== interaction.pointerId) return;
+            const hadPointer = activePointers.delete(event.pointerId);
+
+            if (interaction?.mode === "pinch") {
+                if (!interaction.pointerIds.includes(event.pointerId)) return;
+                event.preventDefault();
+                event.stopPropagation();
+                const changed = interaction.changed;
+                interaction = null;
+                if (changed) persist("Redimensionado por pinça");
+                refreshInspector();
+                scheduleOverlay();
+                return;
+            }
+
+            if (!interaction || event.pointerId !== interaction.pointerId) {
+                if (hadPointer) return;
+                return;
+            }
             event.preventDefault();
             event.stopPropagation();
             const changed = interaction.changed;
@@ -1914,6 +2059,8 @@
             appRoot.classList.remove("tq-dev-functions-hidden");
             document.body.classList.remove("tq-dev-scene-editing-active");
             screenRoot.style.touchAction = originalScreenTouchAction;
+            activePointers.clear();
+            interaction = null;
             screenRoot.removeEventListener("pointerdown", onPointerDown, true);
             screenRoot.removeEventListener("click", interceptClick, true);
             root.removeEventListener("pointermove", onPointerMove, true);
