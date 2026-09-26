@@ -2,222 +2,498 @@
     const TQ = root.TabuadaQuest = root.TabuadaQuest || {};
     TQ.dev = TQ.dev || {};
 
-    const STORAGE_KEY = "tq2.dev.preview-profile.v1";
+    const STORAGE_KEY = "tq2.dev.preview-profile.v2";
+    const CHILD_PARAM = "tq_simulator_child";
+    const DEFAULT_PROFILE_ID = "br-412x915";
 
-    const PROFILES = Object.freeze({
-        "galaxy-a15-a16": Object.freeze({
-            id: "galaxy-a15-a16",
-            label: "Galaxy A15 / A16",
+    function profile(spec) {
+        return Object.freeze({
             type: "mobile",
-            width: 412,
-            height: 892.6667,
-            statusHeight: 24,
-            navigationHeight: 24,
-            dpr: 2.621,
-            radius: 24
-        }),
-        "desktop-1280x720": Object.freeze({
-            id: "desktop-1280x720",
-            label: "Desktop 1280 × 720",
-            type: "desktop",
-            width: 1280,
-            height: 720,
-            statusHeight: 0,
-            navigationHeight: 0,
+            category: "mobile",
             dpr: 1,
-            radius: 0
+            radius: 24,
+            source: "",
+            ...spec
+        });
+    }
+
+    /*
+     * Mobile presets deliberately mix two useful concepts:
+     * 1) the most common CSS screen-size families measured in Brazil;
+     * 2) named reference devices with official/documented logical dimensions.
+     *
+     * The iframe is resized to these logical dimensions, so CSS media queries
+     * and JS window.innerWidth/innerHeight inside the app react to the selected
+     * profile instead of the desktop browser that hosts the simulator.
+     */
+    const PROFILES = Object.freeze({
+        "br-414x896": profile({
+            id: "br-414x896",
+            label: "BR popular · 414 × 896",
+            group: "Brasil · mais usadas",
+            width: 414,
+            height: 896,
+            dpr: 2,
+            radius: 28,
+            source: "Statcounter Brasil · ago/2026 · 11,62%"
+        }),
+        "br-412x915": profile({
+            id: "br-412x915",
+            label: "BR popular · 412 × 915",
+            group: "Brasil · mais usadas",
+            width: 412,
+            height: 915,
+            dpr: 2.625,
+            radius: 26,
+            source: "Statcounter Brasil · ago/2026 · 7,36%"
+        }),
+        "br-384x832": profile({
+            id: "br-384x832",
+            label: "BR popular · 384 × 832",
+            group: "Brasil · mais usadas",
+            width: 384,
+            height: 832,
+            dpr: 2.8,
+            radius: 25,
+            source: "Statcounter Brasil · ago/2026 · 7,25%"
+        }),
+        "br-393x873": profile({
+            id: "br-393x873",
+            label: "BR popular · 393 × 873",
+            group: "Brasil · mais usadas",
+            width: 393,
+            height: 873,
+            dpr: 3,
+            radius: 27,
+            source: "Statcounter Brasil · ago/2026 · 6,34%"
+        }),
+        "br-390x844": profile({
+            id: "br-390x844",
+            label: "BR popular · 390 × 844",
+            group: "Brasil · mais usadas",
+            width: 390,
+            height: 844,
+            dpr: 3,
+            radius: 27,
+            source: "Statcounter Brasil · ago/2026 · 6,15%"
+        }),
+        "br-432x960": profile({
+            id: "br-432x960",
+            label: "BR popular · 432 × 960",
+            group: "Brasil · mais usadas",
+            width: 432,
+            height: 960,
+            dpr: 2.5,
+            radius: 28,
+            source: "Statcounter Brasil · ago/2026 · 5,53%"
+        }),
+
+        "iphone-16-15": profile({
+            id: "iphone-16-15",
+            label: "iPhone 16 / 15 · 393 × 852",
+            group: "iPhone",
+            width: 393,
+            height: 852,
+            dpr: 3,
+            radius: 34,
+            source: "Apple HIG"
+        }),
+        "iphone-16-pro": profile({
+            id: "iphone-16-pro",
+            label: "iPhone 16 Pro / 17 · 402 × 874",
+            group: "iPhone",
+            width: 402,
+            height: 874,
+            dpr: 3,
+            radius: 34,
+            source: "Apple HIG"
+        }),
+        "iphone-15-pro-max": profile({
+            id: "iphone-15-pro-max",
+            label: "iPhone 15 Pro Max · 430 × 932",
+            group: "iPhone",
+            width: 430,
+            height: 932,
+            dpr: 3,
+            radius: 36,
+            source: "Apple HIG"
+        }),
+        "iphone-16-pro-max": profile({
+            id: "iphone-16-pro-max",
+            label: "iPhone 16 Pro Max · 440 × 956",
+            group: "iPhone",
+            width: 440,
+            height: 956,
+            dpr: 3,
+            radius: 38,
+            source: "Apple HIG"
+        }),
+        "iphone-13-14": profile({
+            id: "iphone-13-14",
+            label: "iPhone 13 / 14 · 390 × 844",
+            group: "iPhone",
+            width: 390,
+            height: 844,
+            dpr: 3,
+            radius: 32,
+            source: "Apple HIG"
+        }),
+        "iphone-11-xr": profile({
+            id: "iphone-11-xr",
+            label: "iPhone 11 / XR · 414 × 896",
+            group: "iPhone",
+            width: 414,
+            height: 896,
+            dpr: 2,
+            radius: 31,
+            source: "Apple HIG"
+        }),
+
+        "galaxy-s24": profile({
+            id: "galaxy-s24",
+            label: "Galaxy S24 · ~360 × 800",
+            group: "Android de referência",
+            width: 360,
+            height: 800,
+            dpr: 3,
+            radius: 27,
+            source: "BrowserStack"
+        }),
+        "galaxy-s24-ultra": profile({
+            id: "galaxy-s24-ultra",
+            label: "Galaxy S24 Ultra · ~390 × 850",
+            group: "Android de referência",
+            width: 390,
+            height: 850,
+            dpr: 3.75,
+            radius: 22,
+            source: "BrowserStack"
+        }),
+        "android-common-360x800": profile({
+            id: "android-common-360x800",
+            label: "Android comum · 360 × 800",
+            group: "Android de referência",
+            width: 360,
+            height: 800,
+            dpr: 2.5,
+            radius: 24,
+            source: "BrowserStack · resolução móvel comum"
+        }),
+
+        "small-320x568": profile({
+            id: "small-320x568",
+            label: "Stress pequeno · 320 × 568",
+            group: "Stress responsivo",
+            width: 320,
+            height: 568,
+            dpr: 2,
+            radius: 20,
+            source: "BrowserStack · small mobile"
+        }),
+        "small-360x640": profile({
+            id: "small-360x640",
+            label: "Stress compacto · 360 × 640",
+            group: "Stress responsivo",
+            width: 360,
+            height: 640,
+            dpr: 2,
+            radius: 22,
+            source: "BrowserStack · mobile"
+        }),
+
+        "tablet-768x1024": Object.freeze({
+            id: "tablet-768x1024",
+            label: "Tablet · 768 × 1024",
+            group: "Outras telas",
+            type: "tablet",
+            category: "tablet",
+            width: 768,
+            height: 1024,
+            dpr: 2,
+            radius: 18,
+            source: "BrowserStack"
         }),
         "desktop-1366x768": Object.freeze({
             id: "desktop-1366x768",
-            label: "Desktop 1366 × 768",
+            label: "Desktop · 1366 × 768",
+            group: "Outras telas",
             type: "desktop",
+            category: "desktop",
             width: 1366,
             height: 768,
-            statusHeight: 0,
-            navigationHeight: 0,
             dpr: 1,
-            radius: 0
-        }),
-        "desktop-1536x864": Object.freeze({
-            id: "desktop-1536x864",
-            label: "Desktop 1536 × 864",
-            type: "desktop",
-            width: 1536,
-            height: 864,
-            statusHeight: 0,
-            navigationHeight: 0,
-            dpr: 1,
-            radius: 0
+            radius: 2,
+            source: "BrowserStack"
         }),
         "desktop-1920x1080": Object.freeze({
             id: "desktop-1920x1080",
-            label: "Desktop 1920 × 1080",
+            label: "Desktop · 1920 × 1080",
+            group: "Outras telas",
             type: "desktop",
+            category: "desktop",
             width: 1920,
             height: 1080,
-            statusHeight: 0,
-            navigationHeight: 0,
             dpr: 1,
-            radius: 0
+            radius: 2,
+            source: "BrowserStack"
         })
     });
 
     let activeCleanup = null;
+    let hostMode = false;
+    let currentProfile = null;
+    let currentOrientation = "portrait";
+    let simulatorRefs = null;
 
     function isNativeRuntime() {
         return document.documentElement.classList.contains("tq-native-runtime")
             || document.documentElement.classList.contains("tq-pwa-runtime");
     }
 
+    function isChildRuntime() {
+        try {
+            return new URL(root.location.href).searchParams.get(CHILD_PARAM) === "1";
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function canHostSimulator() {
+        return !isNativeRuntime()
+            && !isChildRuntime()
+            && root.matchMedia?.("(min-width: 700px)")?.matches;
+    }
+
     function normalizeCustom(raw) {
-        const width = Math.max(240, Math.min(3840, Number(raw?.width) || 412));
-        const height = Math.max(320, Math.min(2160, Number(raw?.height) || 892.6667));
+        const width = Math.max(240, Math.min(2560, Number(raw?.width) || 412));
+        const height = Math.max(320, Math.min(2560, Number(raw?.height) || 915));
         return Object.freeze({
             id: "custom",
             label: "Custom",
+            group: "Custom",
             type: width > height ? "desktop" : "mobile",
+            category: "custom",
             width,
             height,
-            statusHeight: 0,
-            navigationHeight: 0,
-            dpr: 1,
-            radius: width > height ? 0 : 20
+            dpr: Math.max(1, Math.min(4, Number(raw?.dpr) || 1)),
+            radius: width > height ? 4 : 24,
+            source: "Definido manualmente"
+        });
+    }
+
+    function oriented(profileValue, orientation = currentOrientation) {
+        const profile = profileValue || PROFILES[DEFAULT_PROFILE_ID];
+        const landscape = orientation === "landscape";
+        const alreadyLandscape = profile.width > profile.height;
+        const shouldSwap = landscape !== alreadyLandscape;
+        return Object.freeze({
+            ...profile,
+            width: shouldSwap ? profile.height : profile.width,
+            height: shouldSwap ? profile.width : profile.height,
+            orientation: landscape ? "landscape" : "portrait"
         });
     }
 
     function readSavedProfile() {
         try {
             const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "{}");
-            if (parsed.id === "custom") return normalizeCustom(parsed);
-            return PROFILES[parsed.id] || PROFILES["galaxy-a15-a16"];
+            const orientation = parsed.orientation === "landscape" ? "landscape" : "portrait";
+            currentOrientation = orientation;
+            if (parsed.id === "custom") {
+                return normalizeCustom(parsed);
+            }
+            return PROFILES[parsed.id] || PROFILES[DEFAULT_PROFILE_ID];
         } catch (_) {
-            return PROFILES["galaxy-a15-a16"];
+            currentOrientation = "portrait";
+            return PROFILES[DEFAULT_PROFILE_ID];
         }
     }
 
-    function writeSavedProfile(profile) {
+    function writeSavedProfile(profileValue) {
         try {
             root.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                id: profile.id,
-                width: profile.width,
-                height: profile.height
+                id: profileValue.id,
+                width: profileValue.width,
+                height: profileValue.height,
+                dpr: profileValue.dpr,
+                orientation: currentOrientation
             }));
         } catch (_) {}
     }
 
-    function computePreviewFit(profile, viewportWidth, viewportHeight) {
-        const horizontalPadding = 32;
-        const verticalPadding = 86;
+    function computePreviewFit(profileValue, viewportWidth, viewportHeight) {
+        const bezel = profileValue.type === "desktop" ? 4 : 18;
+        const horizontalPadding = 36;
+        const verticalPadding = 104;
         const availableWidth = Math.max(1, viewportWidth - horizontalPadding);
         const availableHeight = Math.max(1, viewportHeight - verticalPadding);
+        const outerWidth = profileValue.width + bezel * 2;
+        const outerHeight = profileValue.height + bezel * 2;
         const scale = Math.min(
             1,
-            availableWidth / profile.width,
-            availableHeight / profile.height
+            availableWidth / outerWidth,
+            availableHeight / outerHeight
         );
 
         return Object.freeze({
             scale,
-            renderWidth: profile.width * scale,
-            renderHeight: profile.height * scale,
-            aspectRatio: profile.width / profile.height
+            renderWidth: outerWidth * scale,
+            renderHeight: outerHeight * scale,
+            outerWidth,
+            outerHeight,
+            aspectRatio: profileValue.width / profileValue.height
         });
     }
 
-    function applyProfile(profile) {
-        const stage = document.querySelector(".app-stage");
-        const viewport = document.querySelector(".app-viewport");
-        if (!(stage instanceof HTMLElement) || !(viewport instanceof HTMLElement)) return null;
+    function childUrl() {
+        const url = new URL(root.location.href);
+        url.searchParams.set(CHILD_PARAM, "1");
+        return url.href;
+    }
 
-        const visualViewport = root.visualViewport;
-        const browserWidth = visualViewport?.width || root.innerWidth || profile.width;
-        const browserHeight = visualViewport?.height || root.innerHeight || profile.height;
-        const fit = computePreviewFit(profile, browserWidth, browserHeight);
+    function groupedProfileOptions() {
+        const groups = new Map();
+        Object.values(PROFILES).forEach((item) => {
+            if (!groups.has(item.group)) groups.set(item.group, []);
+            groups.get(item.group).push(item);
+        });
 
-        const appHeight = Math.max(
-            1,
-            profile.height - profile.statusHeight - profile.navigationHeight
-        );
+        return [...groups.entries()].map(([label, items]) =>
+            '<optgroup label="' + label + '">'
+            + items.map((item) =>
+                '<option value="' + item.id + '">' + item.label + '</option>'
+            ).join("")
+            + '</optgroup>'
+        ).join("");
+    }
 
-        document.documentElement.classList.add("tq-dev-preview-active");
-        document.documentElement.dataset.tqPreviewProfile = profile.id;
-        document.documentElement.style.setProperty("--tq-preview-panel-width", profile.width + "px");
-        document.documentElement.style.setProperty("--tq-preview-panel-height", profile.height + "px");
-        document.documentElement.style.setProperty("--tq-preview-app-width", profile.width + "px");
-        document.documentElement.style.setProperty("--tq-preview-app-height", appHeight + "px");
-        document.documentElement.style.setProperty("--tq-preview-status-height", profile.statusHeight + "px");
-        document.documentElement.style.setProperty("--tq-preview-navigation-height", profile.navigationHeight + "px");
+    function applyProfile(profileValue) {
+        currentProfile = profileValue || currentProfile || PROFILES[DEFAULT_PROFILE_ID];
+        const logical = oriented(currentProfile);
+        const viewportWidth = root.innerWidth || logical.width;
+        const viewportHeight = root.innerHeight || logical.height;
+        const fit = computePreviewFit(logical, viewportWidth, viewportHeight);
+
+        document.documentElement.dataset.tqPreviewProfile = currentProfile.id;
+        document.documentElement.dataset.tqPreviewOrientation = currentOrientation;
+        document.documentElement.style.setProperty("--tq-preview-panel-width", logical.width + "px");
+        document.documentElement.style.setProperty("--tq-preview-panel-height", logical.height + "px");
         document.documentElement.style.setProperty("--tq-preview-scale", String(fit.scale));
-        document.documentElement.style.setProperty("--tq-preview-radius", profile.radius + "px");
-        document.documentElement.style.setProperty("--tq-preview-dpr", String(profile.dpr || 1));
+        document.documentElement.style.setProperty("--tq-preview-radius", logical.radius + "px");
 
-        stage.dataset.tqPreviewWidth = String(profile.width);
-        stage.dataset.tqPreviewHeight = String(profile.height);
-        stage.dataset.tqPreviewScale = String(fit.scale);
-        stage.dataset.tqPreviewAspect = String(fit.aspectRatio);
-        viewport.dataset.tqPreviewLogicalWidth = String(profile.width);
-        viewport.dataset.tqPreviewLogicalHeight = String(appHeight);
+        if (simulatorRefs) {
+            const { shell, frame, iframe, metrics, source, rotate } = simulatorRefs;
+            shell.style.width = fit.renderWidth + "px";
+            shell.style.height = fit.renderHeight + "px";
+            frame.style.width = logical.width + "px";
+            frame.style.height = logical.height + "px";
+            frame.style.borderRadius = logical.radius + "px";
+            frame.style.transform = "scale(" + fit.scale + ")";
+            iframe.style.width = logical.width + "px";
+            iframe.style.height = logical.height + "px";
+            metrics.textContent = logical.width + " × " + logical.height
+                + " · " + Math.round(fit.scale * 100) + "%"
+                + " · DPR ref. " + logical.dpr;
+            source.textContent = logical.source || "";
+            rotate.textContent = currentOrientation === "portrait"
+                ? "↻ Paisagem"
+                : "↺ Retrato";
+            rotate.setAttribute(
+                "aria-label",
+                currentOrientation === "portrait"
+                    ? "Simular orientação paisagem"
+                    : "Simular orientação retrato"
+            );
+        }
 
         root.dispatchEvent(new CustomEvent("tq:dev-preview-changed", {
             detail: {
-                profile,
+                profile: logical,
                 fit,
-                appWidth: profile.width,
-                appHeight
+                appWidth: logical.width,
+                appHeight: logical.height,
+                exactViewport: true
             }
         }));
 
-        return { profile, fit, appHeight };
+        return { profile: logical, fit, appHeight: logical.height };
     }
 
     function clearProfile() {
+        hostMode = false;
         document.documentElement.classList.remove("tq-dev-preview-active");
+        document.documentElement.classList.remove("tq-dev-simulator-host");
         delete document.documentElement.dataset.tqPreviewProfile;
+        delete document.documentElement.dataset.tqPreviewOrientation;
         [
             "--tq-preview-panel-width",
             "--tq-preview-panel-height",
-            "--tq-preview-app-width",
-            "--tq-preview-app-height",
-            "--tq-preview-status-height",
-            "--tq-preview-navigation-height",
             "--tq-preview-scale",
-            "--tq-preview-radius",
-            "--tq-preview-dpr"
+            "--tq-preview-radius"
         ].forEach((property) => document.documentElement.style.removeProperty(property));
     }
 
     function mount(options = {}) {
         activeCleanup?.();
         activeCleanup = null;
-
-        if (isNativeRuntime()) {
-            clearProfile();
-            return () => {};
-        }
+        simulatorRefs = null;
 
         const enabled = options.enabled !== false;
-        if (!enabled) {
+
+        if (!enabled || isNativeRuntime()) {
             clearProfile();
             return () => {};
         }
 
-        let profile = readSavedProfile();
+        if (isChildRuntime()) {
+            hostMode = false;
+            document.documentElement.classList.add("tq-dev-simulator-child");
+            document.documentElement.classList.remove("tq-dev-simulator-host");
+            return () => {
+                document.documentElement.classList.remove("tq-dev-simulator-child");
+            };
+        }
+
+        if (!canHostSimulator()) {
+            clearProfile();
+            return () => {};
+        }
+
+        hostMode = true;
+        document.documentElement.classList.add("tq-dev-preview-active");
+        document.documentElement.classList.add("tq-dev-simulator-host");
+
+        currentProfile = readSavedProfile();
+
         const host = document.createElement("aside");
         host.className = "tq-preview-dev";
         host.innerHTML = `
-            <strong>PREVIEW</strong>
-            <select data-preview-profile aria-label="Dispositivo de preview">
-                ${Object.values(PROFILES).map((item) =>
-                    '<option value="' + item.id + '">' + item.label + '</option>'
-                ).join("")}
-                <option value="custom">Custom</option>
-            </select>
-            <label data-preview-custom hidden>
-                <input type="number" min="240" max="3840" step="1" data-preview-width aria-label="Largura lógica">
-                <span>×</span>
-                <input type="number" min="320" max="2160" step="1" data-preview-height aria-label="Altura lógica">
-            </label>
-            <small data-preview-metrics></small>
+            <div class="tq-preview-dev-toolbar">
+                <strong>SIMULADOR</strong>
+                <select data-preview-profile aria-label="Tela simulada">
+                    ${groupedProfileOptions()}
+                    <option value="custom">Custom</option>
+                </select>
+                <button type="button" data-preview-rotate>↻ Paisagem</button>
+                <label data-preview-custom hidden>
+                    <input type="number" min="240" max="2560" step="1" data-preview-width aria-label="Largura lógica">
+                    <span>×</span>
+                    <input type="number" min="320" max="2560" step="1" data-preview-height aria-label="Altura lógica">
+                </label>
+                <small data-preview-metrics></small>
+                <small class="tq-preview-dev-source" data-preview-source></small>
+            </div>
+            <div class="tq-preview-simulator-stage" data-preview-stage>
+                <div class="tq-preview-device-scale" data-preview-shell>
+                    <div class="tq-preview-device-frame" data-preview-frame>
+                        <iframe
+                            data-preview-iframe
+                            title="Tabuada Quest · viewport simulado"
+                            src="${childUrl()}"
+                            loading="eager"></iframe>
+                    </div>
+                </div>
+            </div>
         `;
         document.body.appendChild(host);
 
@@ -225,53 +501,63 @@
         const custom = host.querySelector("[data-preview-custom]");
         const widthInput = host.querySelector("[data-preview-width]");
         const heightInput = host.querySelector("[data-preview-height]");
+        const rotate = host.querySelector("[data-preview-rotate]");
         const metrics = host.querySelector("[data-preview-metrics]");
+        const source = host.querySelector("[data-preview-source]");
+        const shell = host.querySelector("[data-preview-shell]");
+        const frame = host.querySelector("[data-preview-frame]");
+        const iframe = host.querySelector("[data-preview-iframe]");
+
+        simulatorRefs = { host, select, custom, widthInput, heightInput, rotate, metrics, source, shell, frame, iframe };
 
         function syncUi() {
-            select.value = profile.id;
-            custom.hidden = profile.id !== "custom";
-            widthInput.value = Math.round(profile.width);
-            heightInput.value = Math.round(profile.height * 100) / 100;
-            const applied = applyProfile(profile);
-            metrics.textContent = applied
-                ? Math.round(profile.width) + " × " + Math.round(profile.height * 100) / 100
-                    + " · " + Math.round(applied.fit.scale * 100) + "%"
-                : "";
+            select.value = currentProfile.id;
+            custom.hidden = currentProfile.id !== "custom";
+            widthInput.value = Math.round(currentProfile.width);
+            heightInput.value = Math.round(currentProfile.height);
+            applyProfile(currentProfile);
         }
 
         function chooseProfile(id) {
             if (id === "custom") {
-                profile = normalizeCustom({
-                    width: widthInput.value || profile.width,
-                    height: heightInput.value || profile.height
+                currentProfile = normalizeCustom({
+                    width: widthInput.value || currentProfile.width,
+                    height: heightInput.value || currentProfile.height,
+                    dpr: currentProfile.dpr
                 });
             } else {
-                profile = PROFILES[id] || PROFILES["galaxy-a15-a16"];
+                currentProfile = PROFILES[id] || PROFILES[DEFAULT_PROFILE_ID];
             }
-            writeSavedProfile(profile);
+            writeSavedProfile(currentProfile);
             syncUi();
         }
 
         function applyCustom() {
-            profile = normalizeCustom({
+            currentProfile = normalizeCustom({
                 width: widthInput.value,
-                height: heightInput.value
+                height: heightInput.value,
+                dpr: currentProfile.dpr
             });
-            writeSavedProfile(profile);
+            writeSavedProfile(currentProfile);
             syncUi();
         }
 
+        function toggleOrientation() {
+            currentOrientation = currentOrientation === "portrait"
+                ? "landscape"
+                : "portrait";
+            writeSavedProfile(currentProfile);
+            applyProfile(currentProfile);
+        }
+
         function onResize() {
-            applyProfile(profile);
-            const stage = document.querySelector(".app-stage");
-            const scale = Number(stage?.dataset?.tqPreviewScale || 1);
-            metrics.textContent = Math.round(profile.width) + " × " + Math.round(profile.height * 100) / 100
-                + " · " + Math.round(scale * 100) + "%";
+            applyProfile(currentProfile);
         }
 
         select.addEventListener("change", () => chooseProfile(select.value));
         widthInput.addEventListener("change", applyCustom);
         heightInput.addEventListener("change", applyCustom);
+        rotate.addEventListener("click", toggleOrientation);
         root.addEventListener("resize", onResize, { passive: true });
         root.visualViewport?.addEventListener("resize", onResize, { passive: true });
 
@@ -281,6 +567,7 @@
             root.removeEventListener("resize", onResize);
             root.visualViewport?.removeEventListener("resize", onResize);
             host.remove();
+            simulatorRefs = null;
             clearProfile();
         };
         return activeCleanup;
@@ -288,9 +575,13 @@
 
     TQ.dev.previewController = Object.freeze({
         PROFILES,
+        DEFAULT_PROFILE_ID,
         computePreviewFit,
+        normalizeCustom,
         mount,
         applyProfile,
-        clearProfile
+        clearProfile,
+        isHostMode: () => hostMode,
+        isChildRuntime
     });
 })(globalThis);
