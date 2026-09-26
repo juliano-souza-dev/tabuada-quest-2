@@ -46,7 +46,12 @@
             }
         }));
 
-        return publish(normalized, detail);
+        // CustomEvent dispatch is synchronous. onToolActivate owns the state
+        // transition, so do not publish twice here.
+        return Object.freeze({
+            activeTool,
+            ...detail
+        });
     }
 
     function close(detail = {}) {
