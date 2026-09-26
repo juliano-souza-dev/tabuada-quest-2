@@ -59,6 +59,8 @@ test("fontes de layout usam o contrato compartilhado de safe viewport",()=>{
     const vertical=fs.readFileSync(path.join(__dirname,"../../web/css/screens/vertical-slice.css"),"utf8");
     const worldMap=fs.readFileSync(path.join(__dirname,"../../web/css/screens/world-map.css"),"utf8");
     const home=fs.readFileSync(path.join(__dirname,"../../web/css/screens/home.css"),"utf8");
+    const previewCss=fs.readFileSync(path.join(__dirname,"../../web/css/dev/preview-controller.css"),"utf8");
+    const previewJs=fs.readFileSync(path.join(__dirname,"../../web/js/dev/preview-controller.js"),"utf8");
     const activity=fs.readFileSync(
         path.join(__dirname,"../../app/src/main/java/com/tabuadaquest/app/MainActivity.java"),
         "utf8"
@@ -66,8 +68,13 @@ test("fontes de layout usam o contrato compartilhado de safe viewport",()=>{
 
     assert.match(base,/--tq-safe-top/);
     assert.match(base,/--tq-native-safe-bottom/);
-    assert.match(base,/html:not\(\.tq-native-runtime\) \.app-viewport/);
     assert.match(base,/\.tq-safe-visual-area/);
+    assert.doesNotMatch(base,/--tq-device-width/);
+    assert.doesNotMatch(base,/Galaxy A15 physical shell/);
+    assert.match(previewCss,/--tq-preview-panel-width/);
+    assert.match(previewCss,/transform:\s*scale\(var\(--tq-preview-scale\)\)/);
+    assert.match(previewJs,/desktop-1366x768/);
+    assert.match(previewJs,/desktop-1920x1080/);
 
     assert.doesNotMatch(vertical,/56\.2\d*(?:d?vh|vh),\s*540px/);
     assert.doesNotMatch(worldMap,/540px/);
