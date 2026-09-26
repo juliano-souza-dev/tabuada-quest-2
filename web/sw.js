@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260925-active-slots-v2-hard";
+const CACHE_VERSION = "tq2-dev-assets-20260925-mobile-pointer-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
