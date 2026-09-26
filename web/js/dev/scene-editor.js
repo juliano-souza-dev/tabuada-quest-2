@@ -1475,6 +1475,23 @@
                     ) || null;
             }
 
+            if (
+                event.pointerType === "touch"
+                && selected
+                && !isDeleted(selected.element)
+                && !isEditorHidden(selected.element)
+            ) {
+                const selectedRect = selected.element.getBoundingClientRect();
+                if (
+                    event.clientX >= selectedRect.left
+                    && event.clientX <= selectedRect.right
+                    && event.clientY >= selectedRect.top
+                    && event.clientY <= selectedRect.bottom
+                ) {
+                    node = selected;
+                }
+            }
+
             if (!node || (functionsHidden && node.kind === "function")) return;
 
             rememberTouchPointer(event, node);
