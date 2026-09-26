@@ -567,11 +567,6 @@
                 "ship",
                 "./assets/backgrounds/default/navio-pirata.webp"
             ),
-            "home.background.island.1": publishedHomeBackgroundBinding(
-                "home.background.island.1",
-                "island",
-                "./assets/backgrounds/default/island-01-unlocked.webp"
-            ),
             "home.background.pier": publishedHomeBackgroundBinding(
                 "home.background.pier",
                 "pier",
