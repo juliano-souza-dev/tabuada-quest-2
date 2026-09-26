@@ -307,6 +307,8 @@
             "  }",
             "  vec2 sampleUv = clamp(uv + offset, vec2(0.002), vec2(0.998));",
             "  vec4 color = texture2D(u_texture, sampleUv);",
+            "  float sourceAlpha = color.a;",
+            "  if (sourceAlpha < 0.015) discard;",
             "  color.rgb *= mix(vec3(1.0), u_tint, 0.18);",
             "  float crest = pow(max(0.0, waves * 0.5 + 0.5), 9.0);",
             "  float sparkle = pow(max(0.0, sin((uv.x * 53.0 - uv.y * 31.0) + t * 1.9)), 18.0);",
@@ -319,8 +321,9 @@
             "    float farm = abs(abs(fd.x) - max(0.0, -fd.y) * 0.34);",
             "    foam += exp(-farm * 115.0) * fbehind * 0.75;",
             "  }",
+            "  foam *= sourceAlpha;",
             "  color.rgb = mix(color.rgb, vec3(0.92, 0.98, 1.0), clamp(foam, 0.0, 0.72));",
-            "  gl_FragColor = vec4(color.rgb, 1.0);",
+            "  gl_FragColor = vec4(color.rgb, sourceAlpha);",
             "}"
         ].join("\n");
 
