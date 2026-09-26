@@ -76,6 +76,15 @@
             }
         });
 
+        const dynamics = [...screenRoot.querySelectorAll("[data-tq-composition-dynamic]")];
+        dynamics.forEach((dynamic) => {
+            let current = dynamic;
+            while (current && current !== screenRoot) {
+                keep.add(current);
+                current = current.parentElement;
+            }
+        });
+
         screenRoot
             .querySelectorAll(".tq-safe-visual-area, .tq-canonical-stage")
             .forEach((element) => {
@@ -91,6 +100,11 @@
         [...screenRoot.querySelectorAll("*")].forEach((element) => {
             if (!(element instanceof HTMLElement)) return;
             if (element.closest(".tq-composition-runtime-layer")) return;
+
+            if (element.hasAttribute("data-tq-composition-dynamic")) {
+                element.dataset.tqOrphanDynamic = "true";
+                return;
+            }
 
             if (element.hasAttribute("data-tq-composition-function")) {
                 element.dataset.tqOrphanFunction = "true";
@@ -243,6 +257,12 @@
                 const canonical = actionMap[element.dataset.action];
                 if (canonical) markFunction(element, screenType, canonical);
             });
+            const playerName = screenRoot.querySelector(".home-frame-text");
+            if (playerName) markDynamic(playerName, "home.text.player-name", "Nome do jogador");
+            const coins = screenRoot.querySelector(".wallet-value.coins");
+            if (coins) markDynamic(coins, "home.text.coins", "Ouro");
+            const gems = screenRoot.querySelector(".wallet-value.gems");
+            if (gems) markDynamic(gems, "home.text.gems", "Gemas");
             return;
         }
 
@@ -504,6 +524,37 @@
                 semanticType: slot.semanticType,
                 asset: null
             };
+
+            if (screenType === "home") {
+                const avatarId = String(runtimeState?.player?.avatarId || "sofia");
+                const frameId = String(runtimeState?.player?.frameId || "");
+                const level = Math.max(1, Math.min(10, Number(runtimeState?.progression?.level) || 1));
+                let runtimeAsset = null;
+
+                if (slot.id === "home.header.frame") {
+                    runtimeAsset = TQ.content?.frames?.find?.((item) => item.id === frameId)?.asset
+                        || TQ.content?.frames?.find?.((item) => item.isDefault)?.asset
+                        || binding.asset;
+                } else if (slot.id === "home.header.avatar") {
+                    runtimeAsset = TQ.content?.assets?.avatars?.[avatarId]
+                        || TQ.content?.assets?.avatars?.sofia
+                        || binding.asset;
+                } else if (slot.id === "home.header.level-plate") {
+                    runtimeAsset = TQ.content?.levelBadges?.[level - 1] || binding.asset;
+                } else if (slot.id === "home.character.avatar-full") {
+                    runtimeAsset = TQ.content?.assets?.homeHeroes?.[avatarId]
+                        || TQ.content?.assets?.homeHeroes?.sofia
+                        || binding.asset;
+                }
+
+                if (runtimeAsset) {
+                    return {
+                        ...binding,
+                        asset: runtimeAsset
+                    };
+                }
+            }
+
             if (slot.bindingMode !== "variants") return binding;
 
             const preferredId = screenType === "home"
