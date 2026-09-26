@@ -14,12 +14,8 @@ test("Home default publica todos os assets essenciais",()=>{
     "home.header.level-plate",
     "home.character.avatar-full",
     "home.background.ocean",
-    "home.background.cloud.1",
     "home.background.ship.1",
-    "home.background.island.1",
     "home.background.pier",
-    "home.background.scenery.1",
-    "home.background.scenery.2",
     "home.background.scenery.3",
     "home.background.scenery.4",
     "home.button.play",
@@ -50,8 +46,8 @@ test("Home default possui efeito de oceano publicado",()=>{
   assert.match(source,/enabled: true/);
   assert.match(source,/ripples: true/);
   assert.match(source,/shipWake: true/);
-  assert.match(source,/shine: 16/);
-  assert.match(source,/foam: 24/);
+  assert.match(source,/shine: 9/);
+  assert.match(source,/foam: 7/);
 });
 
 test("Home composta posiciona cenário e hitboxes por código",()=>{
@@ -69,7 +65,7 @@ test("Home composta posiciona cenário e hitboxes por código",()=>{
 test("migração única limpa apenas overrides antigos da Home",()=>{
   const source=read("web/js/app.js");
   assert.match(source,/tq2\.dev\.home-composition-build/);
-  assert.match(source,/20260926-home-default-v1/);
+  assert.match(source,/20260926-home-default-v3/);
   assert.match(source,/resetScope\?\.\("home", "home"\)/);
   assert.match(source,/clearLocalLayersForScreen\?\.\("home", screenRoot\)/);
 });
