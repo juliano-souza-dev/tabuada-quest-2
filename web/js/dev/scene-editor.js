@@ -799,7 +799,7 @@
         let opened = false;
         let collapsed = false;
         const originalScreenTouchAction = screenRoot.style.touchAction || "";
-        let functionsHidden = false;
+        let functionsHidden = mobileEditorQuery.matches;
         let selected = null;
         let interaction = null;
         let history = [];
