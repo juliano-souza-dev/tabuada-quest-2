@@ -81,12 +81,16 @@ assert.ok(Number.isFinite(state.x)&&Number.isFinite(state.y),"geometria persisti
 
 await page.screenshot({path:"test-results/dev-engine-mobile.png",fullPage:true});
 
-// Exact preview profiles and aspect-ratio fit.
-await page.goto(baseURL+"/",{waitUntil:"domcontentloaded"});
-const preview=await page.evaluate(()=>{
+// Exact preview profiles and actual rendered frame.
+const desktopContext=await browser.newContext({viewport:{width:1440,height:1000}});
+const desktopPage=await desktopContext.newPage();
+await desktopPage.goto(baseURL+"/preview-harness.html",{waitUntil:"networkidle"});
+
+const preview=await desktopPage.evaluate(()=>{
   const api=TabuadaQuest.dev.previewController;
   const p=api.PROFILES["desktop-1366x768"];
   const fit=api.computePreviewFit(p,1440,1000);
+  api.applyProfile(p);
   return {p,fit};
 });
 assert.equal(preview.p.width,1366);
@@ -94,5 +98,39 @@ assert.equal(preview.p.height,768);
 assert.ok(Math.abs(preview.fit.aspectRatio-(1366/768))<1e-12);
 assert.ok(Math.abs((preview.fit.renderWidth/preview.fit.renderHeight)-(1366/768))<1e-12);
 
+await desktopPage.waitForTimeout(50);
+const stage1366=await desktopPage.locator(".app-stage").boundingBox();
+const viewport1366=await desktopPage.locator(".app-viewport").boundingBox();
+const css1366=await desktopPage.evaluate(()=>({
+  logicalWidth:document.querySelector(".app-stage")?.dataset.tqPreviewWidth,
+  logicalHeight:document.querySelector(".app-stage")?.dataset.tqPreviewHeight,
+  scale:document.querySelector(".app-stage")?.dataset.tqPreviewScale
+}));
+assert.equal(css1366.logicalWidth,"1366");
+assert.equal(css1366.logicalHeight,"768");
+assert.ok(stage1366.width<=1366 && stage1366.height<=768);
+assert.ok(Math.abs(stage1366.width/stage1366.height-(1366/768))<0.002);
+assert.ok(Math.abs(viewport1366.width/viewport1366.height-(1366/768))<0.002);
+
+await desktopPage.evaluate(()=>{
+  TabuadaQuest.dev.previewController.applyProfile(
+    TabuadaQuest.dev.previewController.PROFILES["desktop-1920x1080"]
+  );
+});
+await desktopPage.waitForTimeout(50);
+const stage1920=await desktopPage.locator(".app-stage").boundingBox();
+const css1920=await desktopPage.evaluate(()=>({
+  logicalWidth:document.querySelector(".app-stage")?.dataset.tqPreviewWidth,
+  logicalHeight:document.querySelector(".app-stage")?.dataset.tqPreviewHeight,
+  scale:document.querySelector(".app-stage")?.dataset.tqPreviewScale
+}));
+assert.equal(css1920.logicalWidth,"1920");
+assert.equal(css1920.logicalHeight,"1080");
+assert.ok(Number(css1920.scale)<1);
+assert.ok(Math.abs(stage1920.width/stage1920.height-(16/9))<0.002);
+
+await desktopPage.screenshot({path:"test-results/dev-engine-desktop-preview.png",fullPage:true});
+await desktopContext.close();
+
 await browser.close();
-console.log("DEV engine mobile + preview E2E OK");
+console.log("DEV engine mobile + exact desktop preview E2E OK");
