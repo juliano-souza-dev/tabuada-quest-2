@@ -154,6 +154,7 @@
         element.className = "tq-composition-slot";
         decorateElement(element, slot, binding);
         element.dataset.tqSlotEmpty = binding?.asset ? "false" : "true";
+        element.hidden = !binding?.asset;
         element.dataset.tqSlotIndex = String(index);
         element.style.position = "absolute";
         element.style.left = "0";
@@ -176,6 +177,7 @@
         slotElement.replaceChildren();
         const src = previewSrc || binding?.asset || null;
         slotElement.dataset.tqSlotEmpty = src ? "false" : "true";
+        slotElement.hidden = !src;
         slotElement.dataset.tqSemanticType = binding?.semanticType || slot.semanticType;
         if (!src) return;
 
@@ -551,6 +553,7 @@
                         .querySelectorAll(".tq-composition-bound-asset")
                         .forEach((image) => image.remove());
                     slotElement.dataset.tqSlotEmpty = "false";
+                    slotElement.hidden = false;
                     slotElement.dataset.tqSemanticType = localDraft.dataset.tqSemanticType
                         || binding?.semanticType
                         || slot.semanticType;
