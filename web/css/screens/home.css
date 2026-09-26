@@ -1382,3 +1382,520 @@ html.tq-pwa-runtime .home-safe-visual-area {
 .home-screen .tq-engine-function-proxy[data-tq-composition-function="items"] {
     left: 79% !important; top: 87.8% !important; width: 18% !important; height: 9.5% !important;
 }
+
+
+/* HOME UX AUTHORITATIVE EXPORT · 2026-09-26 09:45:39 BRT · exact editor snapshot */
+/* Values copied verbatim from the UX export. No coordinate normalization. */
+.home-screen .home-background-image {
+    translate: -92.1885px -832.362px !important;
+    scale: 1.05313 2.23396 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .home-frame {
+    translate: -1.0444px -9.75555px !important;
+    scale: 1.12887 1.36417 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .home-frame-art {
+    translate: -2px 2px !important;
+    scale: 1 0.9877 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .home-frame-text {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .home-art-overlay {
+    translate: -118.4px -525.156px !important;
+    scale: 2.45246 3.9349 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.items"] {
+    translate: -24px 5.42221px !important;
+    scale: 1.67456 1.67456 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .profile-slot-avatar {
+    translate: 3.11111px 0.911102px !important;
+    scale: 0.867579 0.867579 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .hud-level-slot {
+    translate: 128.267px -22.6px !important;
+    scale: 0.289939 0.289939 !important;
+    transform-origin: top left !important;
+    z-index: 18 !important;
+}
+
+.home-screen .hud-level-slot > img {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .wallet-value.coins {
+    translate: 11.7333px 100.622px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .wallet-value.gems {
+    translate: -92.089px -26.6667px !important;
+    scale: 2.20725 2.20725 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .home-hero-character {
+    translate: 2.84439px 13.511px !important;
+    scale: 0.793975 0.793975 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .home-play-art {
+    translate: -102.838px 229.852px !important;
+    scale: 0.792207 1.20321 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen .home-crew-art {
+    translate: 116.022px 253.104px !important;
+    scale: 0.8818 0.8818 !important;
+    transform-origin: top left !important;
+    z-index: 30 !important;
+}
+
+.home-screen .home-shipyard-art {
+    translate: 1.93329px 253.992px !important;
+    scale: 0.881844 0.881844 !important;
+    transform-origin: top left !important;
+    z-index: 18 !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.play"] {
+    translate: 25.8889px -119.523px !important;
+    scale: 0.79882 0.843704 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.crew"] {
+    translate: 61.4px -232.733px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.shipyard"] {
+    translate: -162.844px -157.482px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.regions"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.daily-reward"] {
+    translate: 2.48888px -5.33344px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.shop"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.collectibles"] {
+    translate: -1.7778px -11.3778px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.header.frame"] {
+    translate: -27.377756118774414px -86.39993476867676px !important;
+    scale: 3.348198412312105 3.0457217356808624 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.header.avatar"] {
+    translate: 8.177772521972656px -1.7777938842773438px !important;
+    scale: 1.423461749764416 1.3349337376446242 !important;
+    transform-origin: top left !important;
+    z-index: 43 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.header.logo"] {
+    translate: -35.55555725097656px 105.24443817138672px !important;
+    scale: 1.4445845559784982 1.4445845559784982 !important;
+    transform-origin: top left !important;
+    z-index: 30 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.header.level-plate"] {
+    translate: -16.71112060546875px 67.20000457763672px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+    z-index: 38 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.character.avatar-full"] {
+    translate: -47.87959513146514px -198.07538528146878px !important;
+    scale: 1.8687118500612867 1.9422854810594539 !important;
+    transform-origin: top left !important;
+    z-index: 40 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.ocean"] {
+    translate: -170.31109476089478px -338.1333484649658px !important;
+    scale: 1.6873295446483012 2.8545528378592313 !important;
+    transform-origin: top left !important;
+    z-index: 1 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.1"] {
+    translate: -9.64227px -21.436px !important;
+    scale: 1.78567 1.78567 !important;
+    transform-origin: top left !important;
+    z-index: 27 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.2"] {
+    translate: 236.771px 46.0874px !important;
+    scale: 1.53568 1.53568 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.3"] {
+    translate: 10.7136px 45.0156px !important;
+    scale: 1.46426 1.46426 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.4"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.5"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.6"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.7"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.8"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.9"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.cloud.10"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.ship.1"] {
+    translate: -112.35554313659668px -138.78573081687338px !important;
+    scale: 2.556939547612909 2.567340420284209 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.ship.2"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.ship.3"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.ship.4"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.ship.5"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.island.1"] {
+    translate: 192.845px 337.617px !important;
+    scale: 1.40176 1.40176 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.island.2"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.island.3"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.pier"] {
+    translate: 40.888885498046875px -1493.6889419555664px !important;
+    scale: 0.8108891965163939 5.128437827655618 !important;
+    transform-origin: top left !important;
+    z-index: 38 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.1"] {
+    translate: -51.4254px -25.7232px !important;
+    scale: 3.87482 2.17813 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.2"] {
+    translate: 112.493px 396.566px !important;
+    scale: 3.19629 3.19629 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.3"] {
+    translate: -88.88887023925781px 94.22224426269531px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.4"] {
+    translate: 3.423816975025545px -249.72809767664825px !important;
+    scale: 1.0885173259442917 0.7130953190999152 !important;
+    transform-origin: top left !important;
+    z-index: 4 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.5"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.6"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.7"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.8"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.9"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.10"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.11"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.12"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.13"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.14"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.15"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.16"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.17"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.18"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.19"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.background.scenery.20"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.shipyard"] {
+    translate: -14.633413696289061px 7.311145019531249px !important;
+    scale: 1.0046 1.0046 !important;
+    transform-origin: top left !important;
+    z-index: 18 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.collectibles"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.crew"] {
+    translate: 21.333324432373047px 14.222381591796875px !important;
+    scale: 1.104575363523226 1.104575363523226 !important;
+    transform-origin: top left !important;
+    z-index: 40 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.shop"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.items"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.daily-reward"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.regions"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+    z-index: 41 !important;
+}
+
+.home-screen [data-tq-composition-slot="home.button.play"] {
+    translate: -17.066665649414062px -88.17794799804688px !important;
+    scale: 1.287707317489659 1.890927893479537 !important;
+    transform-origin: top left !important;
+    z-index: 42 !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.items.instance.items"] {
+    translate: 326.766px 734.182px !important;
+    scale: 0.618842 0.618842 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.play.instance.play"] {
+    translate: 27.8554px 615.213px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.crew.instance.crew"] {
+    translate: -207.844px 617.356px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.shipyard.instance.shipyard"] {
+    translate: 267.841px 526.253px !important;
+    scale: 1.1674 1.1674 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.regions.instance.regions"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.daily-reward.instance.daily"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.shop.instance.shop"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+
+.home-screen [data-tq-dev-id="home.fn.collectibles.instance.collection"] {
+    translate: 0px 0px !important;
+    scale: 1 1 !important;
+    transform-origin: top left !important;
+}
+

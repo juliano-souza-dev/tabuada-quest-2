@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR" data-tq-build="20260926-external-assets-local-v2">
+<html lang="pt-BR" data-tq-build="20260926-home-0945-exact-v1">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=contain">
@@ -40,7 +40,7 @@
             window.visualViewport?.addEventListener("resize", syncAppViewport, { passive: true });
         })();
     </script>
-    <link rel="stylesheet" href="./css/app.css?v=20260926-dev-engine-v4">
+    <link rel="stylesheet" href="./css/app.css?v=20260926-home-0945-exact-v1">
 </head>
 <body>
     <button id="pwa-install-button" type="button" hidden aria-label="Instalar Tabuada Quest">📲 Instalar jogo</button>
@@ -106,7 +106,7 @@
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", async () => {
                 try {
-                    const registration = await navigator.serviceWorker.register("./sw.js?v=20260926-external-assets-local-v2", { scope: "./" });
+                    const registration = await navigator.serviceWorker.register("./sw.js?v=20260926-home-0945-exact-v1", { scope: "./" });
                     const installButton = document.getElementById("pwa-install-button");
                     let installPrompt = null;
                     const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches

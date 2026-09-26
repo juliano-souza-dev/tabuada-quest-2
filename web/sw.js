@@ -1,4 +1,4 @@
-const CACHE_VERSION = "tq2-dev-assets-20260926-external-assets-local-v2";
+const CACHE_VERSION = "tq2-dev-assets-20260926-home-0945-exact-v1";
 const CACHE_PREFIX = "tq2-dev-assets-";
 
 self.addEventListener("install", (event) => {
