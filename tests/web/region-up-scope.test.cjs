@@ -5,13 +5,23 @@ const path=require("node:path");
 
 const read=(p)=>fs.readFileSync(path.join(__dirname,"../../",p),"utf8");
 
-test("UP de região reabre UX com tela e escopo separados",()=>{
+test("UP congela identidade da tela e escopo regional separadamente",()=>{
   const source=read("web/js/dev/asset-uploader.js");
 
-  assert.match(source,/screenId: compositionScreenId/);
-  assert.match(source,/storageScopeId: screenId/);
-  assert.match(source,/effectsScopeId,/);
-  assert.match(source,/editorContext,/);
+  assert.match(source,/function captureUploadIntent/);
+  assert.match(source,/screenId,/);
+  assert.match(source,/compositionScreenId: resolvedCompositionScreenId/);
+  assert.match(source,/slotId: slot\?\.id/);
+  assert.match(source,/folder: currentFolder\(\)/);
+});
+
+test("UP seleciona o asset por evento sem remontar o UX",()=>{
+  const source=read("web/js/dev/asset-uploader.js");
+
+  assert.match(source,/function selectUxOn/);
+  assert.match(source,/tq:dev-select-node/);
+  assert.match(source,/scopeId: screenId/);
+  assert.doesNotMatch(source,/sceneEditor\?\.mount\(appRoot/);
 });
 
 test("app passa contexto completo da região para o UP",()=>{
