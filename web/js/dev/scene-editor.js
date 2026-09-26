@@ -339,6 +339,185 @@
         );
     }
 
+    function sourceUrlFromVisual(element) {
+        if (!(element instanceof HTMLImageElement)) return "";
+        return element.currentSrc || element.getAttribute("src") || "";
+    }
+
+    function isExternalVisualCandidate(element, screenRoot) {
+        if (!(element instanceof HTMLImageElement)) return false;
+        if (!element.isConnected || element.hidden) return false;
+        if (element.classList.contains("tq-dev-local-live-asset")) return false;
+        if (element.hasAttribute("data-tq-dev-localized-external")) return false;
+        if (element.hasAttribute("data-tq-dev-external-source")) return false;
+        if (element.hasAttribute("data-tq-dev-ignore")) return false;
+        if (element.hasAttribute("data-tq-dev-external-source")) return false;
+        if (isSemanticSlotInnerVisual(element)) return false;
+        if (element.closest(".tq-scene-dev, .tq-scene-dev-selection")) return false;
+
+        const sourceUrl = sourceUrlFromVisual(element);
+        if (!sourceUrl || sourceUrl.startsWith("blob:")) return false;
+
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && screenRoot.contains(element);
+    }
+
+    function effectiveVisualLayer(element, stage) {
+        let cursor = element;
+        while (cursor instanceof Element) {
+            const parsed = Number.parseInt(root.getComputedStyle(cursor).zIndex, 10);
+            if (Number.isFinite(parsed)) return parsed;
+            if (cursor === stage) break;
+            cursor = cursor.parentElement;
+        }
+        return 0;
+    }
+
+    function restoreInlineStyle(element, property, snapshot) {
+        if (!(element instanceof HTMLElement) || !snapshot) return;
+        if (snapshot.value) {
+            element.style.setProperty(property, snapshot.value, snapshot.priority || "");
+        } else {
+            element.style.removeProperty(property);
+        }
+    }
+
+    /*
+     * Assets rendered by the site can be trapped by their original wrapper,
+     * overflow and screen CSS. UP assets do not have that problem because they
+     * are free absolute layers. In DEV we materialize ordinary <img> assets as
+     * an equivalent local edit layer, keeping the original id for persistence.
+     * The source stays in the DOM (layout/function semantics remain intact) but
+     * is visually hidden while the local proxy is active.
+     */
+    function materializeExternalVisualAssets(screenRoot, screenId) {
+        if (!(screenRoot instanceof Element)) return [];
+
+        const localized = [];
+        const candidates = [...screenRoot.querySelectorAll("img")]
+            .filter((element) => isExternalVisualCandidate(element, screenRoot));
+
+        candidates.forEach((source) => {
+            const rect = source.getBoundingClientRect();
+            const coordinateSpace = sceneEngine.stageCoordinateSpace(source, screenRoot);
+            const stage = coordinateSpace.stage instanceof Element
+                ? coordinateSpace.stage
+                : screenRoot;
+            if (!(stage instanceof Element) || stage === source || source.contains(stage)) return;
+
+            const id = source.dataset.tqDevId
+                || generatedId(source, screenRoot, screenId);
+            if (!id) return;
+
+            const sourceUrl = sourceUrlFromVisual(source);
+            if (!sourceUrl) return;
+
+            const origin = coordinateSpace.clientPointToLocal(rect.left, rect.top);
+            const widthVector = coordinateSpace.clientDeltaToLocal(rect.width, 0);
+            const heightVector = coordinateSpace.clientDeltaToLocal(0, rect.height);
+            const localWidth = Math.max(1, Math.hypot(widthVector.x, widthVector.y));
+            const localHeight = Math.max(1, Math.hypot(heightVector.x, heightVector.y));
+            const computed = root.getComputedStyle(source);
+            const kind = inferKind(source);
+            const label = inferLabel(source);
+
+            const proxy = document.createElement("img");
+            proxy.className = "tq-dev-local-live-asset tq-dev-localized-external-asset";
+            proxy.dataset.tqDevId = id;
+            proxy.dataset.tqDevKind = kind === "container" ? "asset" : kind;
+            proxy.dataset.tqDevRole = source.dataset.tqDevRole
+                || source.dataset.tqAssetRole
+                || "object";
+            proxy.dataset.tqDevLabel = label;
+            proxy.dataset.tqAssetId = source.dataset.tqAssetId || id;
+            proxy.dataset.tqAssetRole = source.dataset.tqAssetRole || "object";
+            proxy.dataset.tqAssetLabel = source.dataset.tqAssetLabel || label;
+            proxy.dataset.tqDevLocalizedExternal = "true";
+            proxy.dataset.tqDevSourceId = id;
+            if (source.dataset.tqSemanticType) {
+                proxy.dataset.tqSemanticType = source.dataset.tqSemanticType;
+            }
+            if (source.dataset.tqPairId) proxy.dataset.tqPairId = source.dataset.tqPairId;
+            if (source.dataset.tqPairState) proxy.dataset.tqPairState = source.dataset.tqPairState;
+
+            proxy.src = sourceUrl;
+            proxy.alt = "";
+            proxy.draggable = false;
+            proxy.setAttribute("aria-hidden", "true");
+
+            proxy.style.position = "absolute";
+            proxy.style.left = origin.x + "px";
+            proxy.style.top = origin.y + "px";
+            proxy.style.width = localWidth + "px";
+            proxy.style.height = localHeight + "px";
+            proxy.style.maxWidth = "none";
+            proxy.style.maxHeight = "none";
+            proxy.style.objectFit = computed.objectFit || "contain";
+            proxy.style.objectPosition = computed.objectPosition || "center";
+            proxy.style.opacity = computed.opacity || "1";
+            proxy.style.filter = computed.filter === "none" ? "" : computed.filter;
+            proxy.style.mixBlendMode = computed.mixBlendMode || "";
+            proxy.style.borderRadius = computed.borderRadius || "";
+            proxy.style.zIndex = String(effectiveVisualLayer(source, stage));
+            proxy.style.pointerEvents = "none";
+            proxy.style.userSelect = "none";
+
+            const originalVisibility = Object.freeze({
+                value: source.style.getPropertyValue("visibility"),
+                priority: source.style.getPropertyPriority("visibility")
+            });
+
+            source.setAttribute("data-tq-dev-external-source", "true");
+            source.style.setProperty("visibility", "hidden", "important");
+            stage.appendChild(proxy);
+
+            sceneEngine.invalidateGeometryTarget(source);
+            sceneEngine.invalidateGeometryTarget(proxy);
+
+            localized.push({
+                id,
+                source,
+                proxy,
+                originalVisibility
+            });
+        });
+
+        return localized;
+    }
+
+    function syncLocalizedExternalVisualAssets(records) {
+        (records || []).forEach((record) => {
+            const source = record?.source;
+            const proxy = record?.proxy;
+            if (!(source instanceof HTMLImageElement) || !(proxy instanceof HTMLImageElement)) return;
+            if (!source.isConnected || !proxy.isConnected) return;
+            const nextUrl = sourceUrlFromVisual(source);
+            if (nextUrl && proxy.src !== nextUrl) proxy.src = nextUrl;
+        });
+    }
+
+    function releaseLocalizedExternalVisualAssets(records) {
+        (records || []).forEach((record) => {
+            const source = record?.source;
+            const proxy = record?.proxy;
+
+            if (proxy instanceof Element) {
+                sceneEngine.invalidateGeometryTarget(proxy);
+                proxy.remove();
+            }
+
+            if (source instanceof HTMLElement) {
+                restoreInlineStyle(
+                    source,
+                    "visibility",
+                    record.originalVisibility
+                );
+                source.removeAttribute("data-tq-dev-external-source");
+                sceneEngine.invalidateGeometryTarget(source);
+            }
+        });
+    }
+
     function resolveGeometryElement(element, screenRoot) {
         return sceneEngine.resolveGeometryElement(element, screenRoot);
     }
@@ -552,8 +731,12 @@
             ? options.screenRoot
             : appRoot.firstElementChild || appRoot;
         const editorContext = resolveEditorContext(screenId, storageScopeId, screenRoot, options);
+        let localizedExternalVisuals = materializeExternalVisualAssets(screenRoot, screenId);
         let nodes = collectNodes(screenRoot, screenId);
-        if (!nodes.length) return;
+        if (!nodes.length) {
+            releaseLocalizedExternalVisualAssets(localizedExternalVisuals);
+            return;
+        }
 
         let store = readStore();
         const saved = store.screens[storageScopeId] || {};
@@ -924,6 +1107,11 @@
 
         function refreshNodeRegistry() {
             const previousId = selected?.id || null;
+            const newlyLocalized = materializeExternalVisualAssets(screenRoot, screenId);
+            if (newlyLocalized.length) {
+                localizedExternalVisuals.push(...newlyLocalized);
+            }
+            syncLocalizedExternalVisualAssets(localizedExternalVisuals);
             nodes = collectNodes(screenRoot, screenId);
             nodeById = new Map(nodes.map((node) => [node.id, node]));
             if (previousId && nodeById.has(previousId)) {
@@ -2161,6 +2349,8 @@
             host.remove();
             overlay.removeEventListener("pointerdown", onSelectionOverlayDown);
             overlay.remove();
+            releaseLocalizedExternalVisualAssets(localizedExternalVisuals);
+            localizedExternalVisuals = [];
         };
     }
 
