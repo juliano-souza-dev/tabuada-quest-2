@@ -543,36 +543,90 @@
         }
     }
 
+    function sceneLayoutStoreKeys() {
+        return [
+            "tq2.dev.scene-layout.v3",
+            "tq2.dev.scene-layout.v2"
+        ];
+    }
+
+    function activateSavedSceneSlot(storageScopeId, slotId, slotElement = null) {
+        const scope = String(storageScopeId || "");
+        const id = String(slotId || "");
+        if (!scope || !id) return false;
+
+        let changed = false;
+
+        sceneLayoutStoreKeys().forEach((storageKey) => {
+            try {
+                const raw = root.localStorage.getItem(storageKey);
+                if (!raw) return;
+
+                const store = JSON.parse(raw);
+                const screen = store?.screens?.[scope];
+                const current = screen?.[id];
+                if (!screen || !current || typeof current !== "object") return;
+
+                screen[id] = {
+                    ...current,
+                    deleted: false,
+                    hidden: false
+                };
+                root.localStorage.setItem(storageKey, JSON.stringify(store));
+                changed = true;
+            } catch (error) {
+                console.warn("Falha ao reativar slot salvo no UX:", error);
+            }
+        });
+
+        if (slotElement instanceof Element) {
+            slotElement.removeAttribute("data-tq-dev-deleted");
+            slotElement.removeAttribute("data-tq-dev-hidden");
+            slotElement.hidden = false;
+            slotElement.dataset.tqSlotEmpty = "false";
+        }
+
+        return changed;
+    }
+
     function promoteSavedSceneLayout(screenId, sourceId, targetElement) {
         const targetId = targetElement?.dataset?.tqDevId;
         if (!sourceId || !targetId) return false;
 
-        try {
-            const storageKey = "tq2.dev.scene-layout.v2";
-            const store = JSON.parse(root.localStorage.getItem(storageKey) || "{}");
-            const screen = store?.screens?.[screenId];
-            const sourceLayout = screen?.[sourceId];
+        let promoted = false;
 
-            if (!screen || !sourceLayout || typeof sourceLayout !== "object") {
-                return false;
+        sceneLayoutStoreKeys().forEach((storageKey) => {
+            try {
+                const raw = root.localStorage.getItem(storageKey);
+                if (!raw) return;
+
+                const store = JSON.parse(raw);
+                const screen = store?.screens?.[screenId];
+                const sourceLayout = screen?.[sourceId];
+
+                if (!screen || !sourceLayout || typeof sourceLayout !== "object") {
+                    return;
+                }
+
+                const targetLayout = screen[targetId] && typeof screen[targetId] === "object"
+                    ? screen[targetId]
+                    : {};
+
+                screen[targetId] = {
+                    ...targetLayout,
+                    ...sourceLayout,
+                    deleted: false,
+                    hidden: false
+                };
+                delete screen[sourceId];
+                root.localStorage.setItem(storageKey, JSON.stringify(store));
+                promoted = true;
+            } catch (error) {
+                console.warn("Falha ao promover layout local para asset oficial:", error);
             }
+        });
 
-            const targetLayout = screen[targetId] && typeof screen[targetId] === "object"
-                ? screen[targetId]
-                : {};
-
-            screen[targetId] = {
-                ...targetLayout,
-                ...sourceLayout,
-                deleted: false
-            };
-            delete screen[sourceId];
-            root.localStorage.setItem(storageKey, JSON.stringify(store));
-            return true;
-        } catch (error) {
-            console.warn("Falha ao promover layout local para asset oficial:", error);
-            return false;
-        }
+        return promoted;
     }
 
     async function restoreLocalLayers(options = {}) {
@@ -1221,6 +1275,10 @@
                 initialSelectedId: element.dataset.tqDevId,
                 initialOpen: true
             });
+
+            root.requestAnimationFrame(() => {
+                syncSelected();
+            });
         }
 
         async function addLocalLayer(file) {
@@ -1317,7 +1375,10 @@
             }
 
             const { image, objectUrl } = createLocalLayerElement(record);
-            attachLocalLayerImage(screenRoot, stage, record, image);
+            const attachedParent = attachLocalLayerImage(screenRoot, stage, record, image);
+            if (slot) {
+                activateSavedSceneSlot(screenId, slot.id, attachedParent);
+            }
 
             const entry = {
                 id,
