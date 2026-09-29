@@ -1,4 +1,4 @@
-import { OceanEffect } from "./OceanEffect.js?v=20260929-2125";
+import { OceanEffect } from "./OceanEffect.js?v=20260929-2127";
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
