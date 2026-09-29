@@ -1,11 +1,15 @@
 import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2308";
+import { SceneResolver } from "./runtime/SceneResolver.js?v=20260929-2308";
 import { DevOverlay } from "./dev/DevOverlay.js?v=20260929-2308";
 
 const app = document.querySelector("#app");
-const runtime = new SceneRuntime(app, { width: 390, height: 844 }, { editorEnabled: true });
-await runtime.load("./src/scenes/login.scene.json?v=20260929-2308");
+const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=20260929-2308");
+const resolved = resolver.resolve("login");
 
-const dev = new DevOverlay(document.body, runtime);
+const runtime = new SceneRuntime(app, { width: 390, height: 844 }, { editorEnabled: true });
+await runtime.load(resolved.scene.path);
+
+const dev = new DevOverlay(document.body, runtime, { sceneResolver: resolver });
 dev.mount();
 
 // DEV policy: never register a Service Worker and purge old caches/registrations.
