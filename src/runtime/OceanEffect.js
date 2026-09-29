@@ -7,9 +7,9 @@ export class OceanEffect {
   }
   init(){
     const gl=this.gl,vs=`attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
-    const fs=`precision mediump float;varying vec2 v;uniform sampler2D tex;uniform float t;uniform float strength;uniform int count;uniform vec2 pts[32];
+    const fs=`precision mediump float;varying vec2 v;uniform sampler2D tex;uniform float t;uniform float strength;uniform float speed;uniform int count;uniform vec2 pts[32];
     bool inside(vec2 p){bool c=false;for(int i=0;i<32;i++){if(i>=count)break;int j=i==0?count-1:i-1;vec2 a=pts[i],b=pts[j];if(((a.y>p.y)!=(b.y>p.y))&&(p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y+.00001)+a.x))c=!c;}return c;}
-    void main(){vec2 uv=vec2(v.x,1.0-v.y);if(!inside(uv))discard;float amp=.0025+.012*strength;float a=sin(uv.y*52.0+t*2.2);float b=sin(uv.x*35.0-uv.y*18.0-t*1.55);vec2 d=vec2(a+b*.45,b+a*.25)*amp;vec4 base=texture2D(tex,uv+d);float shimmer=(sin((uv.x+uv.y)*70.0+t*2.7)*.5+.5)*.08*strength;gl_FragColor=vec4(min(base.rgb+vec3(.04,.10,.14)*shimmer,1.0),base.a);}`;
+    void main(){vec2 uv=vec2(v.x,1.0-v.y);if(!inside(uv))discard;float tt=t*speed;float w1=sin(uv.y*34.0+uv.x*8.0+tt*1.45);float w2=sin(uv.y*19.0-uv.x*13.0-tt*1.05);float w3=sin((uv.x+uv.y)*27.0+tt*.72);vec2 offset=vec2((w1*.0036+w3*.0019)*strength,(w2*.0024+w3*.0012)*strength);gl_FragColor=texture2D(tex,uv+offset);}`;
     const sh=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s};
     this.program=gl.createProgram();gl.attachShader(this.program,sh(gl.VERTEX_SHADER,vs));gl.attachShader(this.program,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(this.program);gl.useProgram(this.program);
     const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
@@ -30,7 +30,7 @@ export class OceanEffect {
   }
   loop(ms){
     if(!this.canvas.isConnected)return;const gl=this.gl,n=this.node,area=n.composition?.area?.points||[];
-    if(gl&&this.textureReady&&area.length>=3){gl.useProgram(this.program);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.texture);gl.uniform1i(gl.getUniformLocation(this.program,"tex"),0);gl.uniform1f(gl.getUniformLocation(this.program,"t"),ms/1000);gl.uniform1f(gl.getUniformLocation(this.program,"strength"),n.composition?.effects?.ripple?.strength??.18);gl.uniform1i(gl.getUniformLocation(this.program,"count"),Math.min(32,area.length));const pts=new Float32Array(64);area.slice(0,32).forEach((p,i)=>{pts[i*2]=p.x;pts[i*2+1]=p.y});gl.uniform2fv(gl.getUniformLocation(this.program,"pts"),pts);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.BLEND);gl.drawArrays(gl.TRIANGLES,0,6);}
+    if(gl&&this.textureReady&&area.length>=3){gl.useProgram(this.program);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.texture);gl.uniform1i(gl.getUniformLocation(this.program,"tex"),0);gl.uniform1f(gl.getUniformLocation(this.program,"t"),ms/1000);gl.uniform1f(gl.getUniformLocation(this.program,"strength"),n.composition?.effects?.ripple?.strength??.65);gl.uniform1f(gl.getUniformLocation(this.program,"speed"),n.composition?.effects?.ripple?.speed??.75);gl.uniform1i(gl.getUniformLocation(this.program,"count"),Math.min(32,area.length));const pts=new Float32Array(64);area.slice(0,32).forEach((p,i)=>{pts[i*2]=p.x;pts[i*2+1]=p.y});gl.uniform2fv(gl.getUniformLocation(this.program,"pts"),pts);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.BLEND);gl.drawArrays(gl.TRIANGLES,0,6);}
     else gl?.clear(gl.COLOR_BUFFER_BIT);this.raf=requestAnimationFrame(this.loop);
   }
   destroy(){cancelAnimationFrame(this.raf);if(this.gl&&this.texture)this.gl.deleteTexture(this.texture);this.canvas.remove();}
