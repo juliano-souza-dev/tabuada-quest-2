@@ -25,6 +25,7 @@ export class SceneRuntime {
   render(){
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
+    for(const {node,el} of this.nodes.values()) this.attachEditHandles(node,el);
   }
   normalizeNode(node){
     node.parentId="viewport";
@@ -43,7 +44,7 @@ export class SceneRuntime {
       if(this.mode!=="edit"||node.locked)return;
       e.preventDefault();e.stopPropagation();this.select(node.id);this.beginDrag(e,node,el);
     });
-    this.nodes.set(node.id,{node,el}); this.attachEditHandles(node,el); return el;
+    this.nodes.set(node.id,{node,el}); return el;
   }
   attachEditHandles(node,el){
     if(node.kind!=="image")return;
