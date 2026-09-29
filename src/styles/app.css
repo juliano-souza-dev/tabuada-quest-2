@@ -54,3 +54,13 @@
 .tq-water-editor-actions button:disabled{opacity:.38;cursor:not-allowed}
 
 .tq-webgl-ocean{position:absolute;transform-origin:center center;pointer-events:none;background:transparent}
+
+
+/* Generic composition controls generated from composition-types.json */
+.tq-composition-range>span{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tq-composition-range>span b{font-weight:600;color:#bcd0df}
+.tq-composition-range output{min-width:42px;padding:4px 7px;border:1px solid rgba(255,255,255,.14);border-radius:7px;background:#102535;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
+.tq-composition-range input[type=range]{width:100%;padding:0;border:0;background:transparent;accent-color:#1a8cff}
+.tq-composition-area-field>small{line-height:1.35;opacity:.72}
+.tq-composition-area-field button,.tq-composition-action{width:100%;min-height:42px;border:1px solid rgba(74,193,255,.7)!important;background:#123b54!important;color:#fff!important}
+.tq-composition-action{margin-top:4px;background:#17699d!important;font-weight:800!important}
