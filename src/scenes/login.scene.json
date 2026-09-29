@@ -1,0 +1,74 @@
+{
+  "schema": "tq.scene",
+  "version": 1,
+  "id": "login",
+  "screenId": "login",
+  "reference": {
+    "width": 390,
+    "height": 844
+  },
+  "nodes": [
+    {
+      "id": "login.sky",
+      "kind": "image",
+      "src": "./assets/backgrounds/scene-sky.webp",
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844,
+      "z": 0,
+      "alt": ""
+    },
+    {
+      "id": "login.ocean",
+      "kind": "image",
+      "src": "./assets/backgrounds/scene-ocean.webp",
+      "x": 0,
+      "y": 390,
+      "width": 390,
+      "height": 454,
+      "z": 1,
+      "alt": ""
+    },
+    {
+      "id": "login.islands",
+      "kind": "image",
+      "src": "./assets/backgrounds/scene-islands.webp",
+      "x": 0,
+      "y": 260,
+      "width": 390,
+      "height": 300,
+      "z": 2,
+      "alt": ""
+    },
+    {
+      "id": "login.ship",
+      "kind": "image",
+      "src": "./assets/backgrounds/scene-ship.webp",
+      "x": 122,
+      "y": 300,
+      "width": 150,
+      "z": 3,
+      "alt": "Navio"
+    },
+    {
+      "id": "login.pier",
+      "kind": "image",
+      "src": "./assets/backgrounds/scene-pier.webp",
+      "x": 0,
+      "y": 555,
+      "width": 390,
+      "z": 4,
+      "alt": "Pier"
+    },
+    {
+      "id": "login.dev-label",
+      "kind": "text",
+      "text": "TABUADA QUEST · DEV V1",
+      "x": 75,
+      "y": 92,
+      "width": 240,
+      "z": 10
+    }
+  ]
+}
