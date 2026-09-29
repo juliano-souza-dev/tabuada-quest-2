@@ -155,7 +155,7 @@ export class DevOverlay {
         field("visible","Visible","checkbox")
       ]},
       {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
-      {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType")]},
+      {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType"),...(node.compositionType==="ocean"?[field("__waterArea","Área de água","waterArea"),field("__rippleStrength","Ondulação","ripple")]:[])]},
       {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
       {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
@@ -164,6 +164,8 @@ export class DevOverlay {
   fieldMarkup(n,[key,label,type]){
     if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
     if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
+    if(type==="waterArea"){const count=n.composition?.area?.points?.length||0;return `<div class="tq-field"><span>${label}</span><button type="button" data-water-mark>Marcar ponto a ponto (${count})</button><button type="button" data-water-clear>Limpar área</button></div>`;}
+    if(type==="ripple"){const v=n.composition?.effects?.ripple?.strength??.18;return `<label class="tq-field"><span>${label} <small>${Number(v).toFixed(2)}</small></span><input type="range" min="0" max="1" step="0.01" value="${v}" data-ripple-strength></label>`;}
     if(type==="compositionType"){const current=n[key]??"";return `<label class="tq-field"><span>${label}</span><select data-prop="${key}"><option value="">Nenhum</option>${(this.compositionTypes||[]).map(t=>`<option value="${t.id}" ${current===t.id?"selected":""}>${t.label||t.id}</option>`).join("")}</select></label>`;}
     if(type==="delete")return `<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>`;
     if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(v=>`<button type="button" data-layer="${v}" class="${Number(n[key])===v?"active":""}">${v}</button>`).join("")}</div></div>`;
@@ -179,12 +181,30 @@ export class DevOverlay {
       const body=b.nextElementSibling,open=!body.hidden;body.hidden=open;b.setAttribute("aria-expanded",String(!open));b.querySelector("span").textContent=open?"▸":"▾";
     }));
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
+    content.querySelector("[data-water-mark]")?.addEventListener("click",()=>this.startWaterMarking(n));
+    content.querySelector("[data-water-clear]")?.addEventListener("click",()=>{n.composition={...(n.composition||{}),area:{mode:"polygon",points:[]}};this.runtime.updateNode(n.id,{composition:n.composition},true);this.renderInspector();});
+    content.querySelector("[data-ripple-strength]")?.addEventListener("input",e=>{n.composition=n.composition||{};n.composition.effects=n.composition.effects||{};n.composition.effects.ripple={...(n.composition.effects.ripple||{}),strength:Number(e.target.value)};this.runtime.updateNode(n.id,{composition:n.composition});e.target.previousElementSibling&&(e.target.previousElementSibling.textContent=Number(e.target.value).toFixed(2));});
     content.querySelector("[data-delete-node]")?.addEventListener("click",()=>{
       const id=n.id;if(confirm("Excluir este nó da cena?")){this.runtime.deleteNode(id);this.selected=null;this.renderInspector();}
     });
     content.querySelectorAll("[data-layer]").forEach(button=>button.addEventListener("click",()=>{
       const value=Number(button.dataset.layer);this.runtime.updateNode(n.id,{z:value},true);this.selected=this.runtime.nodes.get(n.id)?.node||n;this.renderInspector();
     }));
+  }
+  startWaterMarking(node){
+    const item=this.runtime.nodes.get(node.id);if(!item)return;
+    this.runtime.setMode("area");
+    let overlay=this.runtime.stage.querySelector('[data-water-overlay="'+node.id+'"]');if(overlay)overlay.remove();
+    overlay=document.createElementNS("http://www.w3.org/2000/svg","svg");overlay.dataset.waterOverlay=node.id;overlay.classList.add("tq-water-area-editor");
+    const ox=this.runtime.sceneOffset?.x||0,oy=this.runtime.sceneOffset?.y||0,w=node.width||item.el.offsetWidth,h=node.height||item.el.offsetHeight;
+    Object.assign(overlay.style,{left:(node.x+ox)+"px",top:(node.y+oy)+"px",width:w+"px",height:h+"px",zIndex:String((node.z||0)+200000)});overlay.setAttribute("viewBox",`0 0 ${w} ${h}`);this.runtime.stage.append(overlay);
+    node.composition=node.composition||{};node.composition.area={mode:"polygon",points:[]};
+    const redraw=()=>{const pts=node.composition.area.points;overlay.innerHTML=`<polygon points="${pts.map(p=>p.x*w+','+p.y*h).join(' ')}" fill="rgba(30,180,255,.16)" stroke="#5de1ff" stroke-width="2"/>${pts.map((p,i)=>`<circle cx="${p.x*w}" cy="${p.y*h}" r="5" fill="#fff" stroke="#00bde8" stroke-width="2"/>`).join("")}`;};
+    redraw();
+    const add=e=>{e.preventDefault();e.stopPropagation();const r=overlay.getBoundingClientRect();const x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(e.clientY-r.top)/r.height));if(node.composition.area.points.length<32){node.composition.area.points.push({x,y});redraw();this.runtime.updateNode(node.id,{composition:node.composition});}};
+    overlay.addEventListener("pointerdown",add);
+    const finish=document.createElement("button");finish.type="button";finish.className="tq-water-area-finish";finish.textContent="Concluir área";this.el.append(finish);
+    finish.addEventListener("click",()=>{if(node.composition.area.points.length<3)return;overlay.remove();finish.remove();this.runtime.setMode("config");this.runtime.updateNode(node.id,{composition:node.composition},true);this.selected=node;this.renderInspector();});
   }
   applyInput(input){
     if(!this.selected)return;const key=input.dataset.prop;
