@@ -146,6 +146,16 @@ export class SceneRuntime {
     this.select(node.id);this.dispatchEvent("nodecommit",{node,parentId:"viewport",created:true});
     return node;
   }
+  deleteNode(id){
+    if(!this.editorEnabled)return false;
+    const item=this.nodes.get(id);if(!item)return false;
+    this.stage.querySelectorAll('[data-for-node="'+CSS.escape(id)+'"]').forEach(el=>el.remove());
+    item.el.remove();this.nodes.delete(id);
+    if(this.scene?.nodes)this.scene.nodes=this.scene.nodes.filter(node=>node.id!==id);
+    if(this.selectedId===id)this.select(null);
+    this.persistDraft();this.dispatchEvent("nodecommit",{node:null,id,parentId:"viewport",deleted:true});
+    return true;
+  }
   updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
   select(id){
     this.selectedId=id;
