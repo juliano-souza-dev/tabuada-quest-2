@@ -82,3 +82,7 @@
 .tq-asset-folder>span:not(.tq-asset-folder__icon){font-size:11px}
 .tq-asset-folder small{margin-top:2px;font-size:9px;opacity:.55}
 .tq-assets__empty{grid-column:1/-1;padding:28px 12px;text-align:center;color:#bcd0df;opacity:.72;font-size:12px}
+
+
+/* Animation inference hint: registry-driven, DEV-only. */
+.tq-inference-note{display:block;margin-top:2px;color:#75d8ff;font-size:10px;line-height:1.35}
