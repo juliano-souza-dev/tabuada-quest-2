@@ -43,6 +43,7 @@ export class SceneRuntime {
     node.x=Number(node.x??0); node.y=Number(node.y??0);
     node.scaleX=Number(node.scaleX??1); node.scaleY=Number(node.scaleY??1);
     node.rotation=Number(node.rotation??0); node.skewX=Number(node.skewX??0); node.skewY=Number(node.skewY??0); node.z=Number(node.z??0); node.visible=node.visible!==false; node.locked=Boolean(node.locked);
+    if(node.compositionType!=null)node.compositionType=String(node.compositionType);
     return node;
   }
   createNode(raw){
