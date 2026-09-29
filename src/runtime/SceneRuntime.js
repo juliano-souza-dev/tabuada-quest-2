@@ -35,6 +35,7 @@ export class SceneRuntime {
     this.reference=this.scene.reference||this.reference; this.fit(); this.render();
   }
   render(){
+    for(const effect of this.effects.values())effect.destroy();this.effects.clear();
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
     if(this.editorEnabled) for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); this.attachSkewHandles(node,el); }
