@@ -1,5 +1,11 @@
 export class DevOverlay {
-  constructor(root,runtime){this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();}
+  constructor(root,runtime,options={}){
+    this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
+    this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();
+    this.sceneResolver=options.sceneResolver||null;this.sceneCatalog=null;this.localScenes=[];
+    this.localSceneStorageKey="tq.dev.local-scenes:v1";this.sceneGroupStorageKey="tq.dev.scene-groups:v1";
+    try{this.sceneGroupOpen=new Set(JSON.parse(sessionStorage.getItem(this.sceneGroupStorageKey)||"[]"))}catch{this.sceneGroupOpen=new Set()}
+  }
   mount(){
     this.el=document.createElement("aside");this.el.className="tq-dev";
     this.el.innerHTML=`
@@ -10,9 +16,26 @@ export class DevOverlay {
         <button data-mode="play">▶ <span>Play</span></button>
         <button data-export>⇩ <span>JSON</span></button>
         <button data-mold>▣ <span>Molde</span></button>
+        <button data-scenes>☷ <span>Cenas</span></button>
         <button data-assets>▦ <span>Assets</span></button>
         <button data-collapse aria-label="Recolher ferramentas" title="Recolher">‹</button>
       </div>
+      <section class="tq-dev__scenes" hidden>
+        <header><div><strong>Cenas</strong><small>Cenas criadas, agrupadas por tela lógica</small></div><button data-scenes-close aria-label="Fechar">×</button></header>
+        <div class="tq-scenes__body">
+          <div data-scenes-list></div>
+          <button type="button" class="tq-scenes__create-open" data-scene-create-open>＋ Criar nova cena</button>
+          <form class="tq-scenes__create" data-scene-create-form hidden>
+            <strong>Criar nova cena</strong>
+            <label><span>Tela lógica</span><select data-scene-screen></select></label>
+            <label><span>Contexto</span><select data-scene-context><option value="default">DEFAULT</option><option value="event">EVENTO</option></select></label>
+            <label data-scene-event-field hidden><span>Evento</span><select data-scene-event></select></label>
+            <label><span>Nome</span><input data-scene-name type="text" autocomplete="off"></label>
+            <div class="tq-scenes__create-error" data-scene-create-error hidden></div>
+            <div class="tq-scenes__create-actions"><button type="button" data-scene-create-cancel>Cancelar</button><button type="submit" class="is-primary">Criar cena</button></div>
+          </form>
+        </div>
+      </section>
       <section class="tq-dev__assets" hidden>
         <header><div><strong>Assets</strong><small data-assets-path>assets</small></div><button data-assets-close aria-label="Fechar">×</button></header>
         <div class="tq-assets__nav">
@@ -31,18 +54,225 @@ export class DevOverlay {
     this.el.querySelector("[data-close]").addEventListener("click",()=>this.setMode("edit"));
     this.el.querySelector("[data-export]").addEventListener("click",()=>this.exportScene());
     this.el.querySelector("[data-mold]").addEventListener("click",()=>this.toggleMold());
+    this.el.querySelector("[data-scenes]").addEventListener("click",()=>this.toggleScenes(true));
+    this.el.querySelector("[data-scenes-close]").addEventListener("click",()=>this.toggleScenes(false));
+    this.el.querySelector("[data-scene-create-open]").addEventListener("click",()=>this.showCreateSceneForm(true));
+    this.el.querySelector("[data-scene-create-cancel]").addEventListener("click",()=>this.showCreateSceneForm(false));
+    this.el.querySelector("[data-scene-create-form]").addEventListener("submit",event=>{event.preventDefault();this.createSceneFromForm()});
+    this.el.querySelector("[data-scene-screen]").addEventListener("change",()=>this.syncCreateSceneForm());
+    this.el.querySelector("[data-scene-context]").addEventListener("change",()=>this.syncCreateSceneForm());
+    this.el.querySelector("[data-scene-event]").addEventListener("change",()=>this.syncCreateSceneForm());
+    this.el.querySelector("[data-scene-name]").addEventListener("input",event=>{event.currentTarget.dataset.manual="true"});
     this.el.querySelector("[data-assets]").addEventListener("click",()=>this.toggleAssets(true));
     this.el.querySelector("[data-assets-close]").addEventListener("click",()=>this.toggleAssets(false));
     this.el.querySelector("[data-asset-search]").addEventListener("input",()=>this.renderAssets());
     this.el.querySelector("[data-asset-up]").addEventListener("click",()=>this.navigateAssetDirectory(this.parentAssetPath(this.assetDirectoryPath)));
     this.loadAssets();
     this.loadCompositionTypes();
+    this.loadSceneCatalog();
     this.mountMold();
     this.enableToolbarDrag();
     this.el.querySelector("[data-collapse]").addEventListener("click",()=>this.toggleCollapse());
     window.addEventListener("tq:selectionchange",e=>{this.selected=e.detail.node||null;this.renderInspector();});
     window.addEventListener("tq:nodechange",e=>{const node=e.detail?.node;if(node&&this.selected?.id===node.id){this.selected=node;this.syncInspector();}});
+    window.addEventListener("tq:sceneload",()=>{this.selected=null;this.renderScenes()});
   }
+
+  loadLocalScenes(){
+    try{
+      const value=JSON.parse(localStorage.getItem(this.localSceneStorageKey)||"[]");
+      this.localScenes=Array.isArray(value)?value.filter(item=>item?.entry?.id&&item?.scene?.id):[];
+    }catch{
+      this.localScenes=[];
+    }
+    return this.localScenes;
+  }
+
+  saveLocalScenes(){
+    try{localStorage.setItem(this.localSceneStorageKey,JSON.stringify(this.localScenes))}catch(error){console.warn("DEV local scenes save failed",error)}
+  }
+
+  async loadSceneCatalog(){
+    try{
+      if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
+      else{
+        const response=await fetch("./src/config/scene-catalog.json?v=20260929-2308",{cache:"no-store"});
+        if(!response.ok)throw new Error("HTTP "+response.status);
+        this.sceneCatalog=await response.json();
+      }
+      this.loadLocalScenes();
+      const current=this.runtime.scene?.id;
+      const currentEntry=this.allSceneEntries().find(scene=>scene.id===current);
+      if(currentEntry&&!this.sceneGroupOpen.size)this.sceneGroupOpen.add(currentEntry.screenId);
+      this.renderScenes();
+    }catch(error){
+      console.warn("Scene catalog load failed",error);
+      const list=this.el?.querySelector("[data-scenes-list]");
+      if(list)list.innerHTML='<div class="tq-scenes__empty">Falha ao carregar o catálogo de cenas.</div>';
+    }
+  }
+
+  allSceneEntries(){
+    const repositoryScenes=Array.isArray(this.sceneCatalog?.scenes)?this.sceneCatalog.scenes:[];
+    return [...repositoryScenes,...this.localScenes.map(item=>item.entry)];
+  }
+
+  sceneScreen(screenId){
+    return (this.sceneCatalog?.screens||[]).find(screen=>screen.id===screenId)||{id:screenId,label:screenId};
+  }
+
+  sceneEvent(eventId){
+    return (this.sceneCatalog?.events||[]).find(event=>event.id===eventId)||{id:eventId,label:eventId};
+  }
+
+  saveSceneGroupState(){
+    try{sessionStorage.setItem(this.sceneGroupStorageKey,JSON.stringify([...this.sceneGroupOpen]))}catch{}
+  }
+
+  toggleSceneGroup(screenId){
+    if(this.sceneGroupOpen.has(screenId))this.sceneGroupOpen.delete(screenId);else this.sceneGroupOpen.add(screenId);
+    this.saveSceneGroupState();
+    this.renderScenes();
+  }
+
+  renderScenes(){
+    const list=this.el?.querySelector("[data-scenes-list]");
+    if(!list||!this.sceneCatalog)return;
+    const entries=this.allSceneEntries();
+    const currentId=this.runtime.scene?.id||"";
+    const screenIds=[...new Set(entries.map(scene=>scene.screenId))];
+    const screens=screenIds.map(id=>this.sceneScreen(id)).sort((a,b)=>String(a.label).localeCompare(String(b.label),"pt-BR"));
+
+    list.innerHTML=screens.length?screens.map(screen=>{
+      const scenes=entries.filter(scene=>scene.screenId===screen.id).sort((a,b)=>{
+        if(a.context!==b.context)return a.context==="default"?-1:1;
+        return String(a.name||a.id).localeCompare(String(b.name||b.id),"pt-BR");
+      });
+      const open=this.sceneGroupOpen.has(screen.id);
+      const items=open?'<div class="tq-scene-group__items">'+scenes.map(scene=>{
+        const context=scene.context==="event"?"EVENTO · "+this.sceneEvent(scene.eventId).label:"DEFAULT";
+        return '<button type="button" class="tq-scene-item '+(scene.id===currentId?'is-current':'')+'" data-scene-open="'+this.escapeHtml(scene.id)+'"><span>'+this.escapeHtml(scene.name||scene.id)+'</span><small>'+this.escapeHtml(context)+'</small></button>';
+      }).join("")+'</div>':"";
+      return '<section class="tq-scene-group"><button type="button" class="tq-scene-group__head" data-scene-group="'+this.escapeHtml(screen.id)+'" aria-expanded="'+open+'"><span>'+(open?'▾':'▸')+' '+this.escapeHtml(screen.label)+'</span><b>'+scenes.length+'</b></button>'+items+'</section>';
+    }).join(""):'<div class="tq-scenes__empty">Nenhuma cena criada.</div>';
+
+    list.querySelectorAll("[data-scene-group]").forEach(button=>button.addEventListener("click",()=>this.toggleSceneGroup(button.dataset.sceneGroup)));
+    list.querySelectorAll("[data-scene-open]").forEach(button=>button.addEventListener("click",()=>this.openScene(button.dataset.sceneOpen)));
+  }
+
+  toggleScenes(show){
+    const panel=this.el.querySelector(".tq-dev__scenes");
+    panel.hidden=!show;
+    if(show){
+      this.el.querySelector(".tq-dev__assets").hidden=true;
+      this.el.querySelector(".tq-dev__panel").hidden=true;
+      this.renderScenes();
+    }
+  }
+
+  showCreateSceneForm(show){
+    const form=this.el.querySelector("[data-scene-create-form]");
+    const opener=this.el.querySelector("[data-scene-create-open]");
+    form.hidden=!show;opener.hidden=show;
+    const error=this.el.querySelector("[data-scene-create-error]");
+    error.hidden=true;error.textContent="";
+    if(!show)return;
+
+    const screenSelect=this.el.querySelector("[data-scene-screen]");
+    const eventSelect=this.el.querySelector("[data-scene-event]");
+    screenSelect.innerHTML=(this.sceneCatalog?.screens||[]).map(screen=>'<option value="'+this.escapeHtml(screen.id)+'">'+this.escapeHtml(screen.label)+'</option>').join("");
+    eventSelect.innerHTML=(this.sceneCatalog?.events||[]).map(event=>'<option value="'+this.escapeHtml(event.id)+'">'+this.escapeHtml(event.label)+'</option>').join("");
+    const name=this.el.querySelector("[data-scene-name]");
+    name.dataset.manual="false";
+    this.syncCreateSceneForm();
+  }
+
+  syncCreateSceneForm(){
+    const screenId=this.el.querySelector("[data-scene-screen]")?.value||"";
+    const context=this.el.querySelector("[data-scene-context]")?.value||"default";
+    const eventSelect=this.el.querySelector("[data-scene-event]");
+    const eventField=this.el.querySelector("[data-scene-event-field]");
+    const name=this.el.querySelector("[data-scene-name]");
+    eventField.hidden=context!=="event";
+    const screen=this.sceneScreen(screenId);
+    const event=context==="event"?this.sceneEvent(eventSelect?.value):null;
+    if(name?.dataset.manual!=="true")name.value=context==="event"?screen.label+" "+(event?.label||"Evento"):screen.label+" DEFAULT";
+  }
+
+  sceneCombinationExists(screenId,context,eventId){
+    return this.allSceneEntries().find(scene=>scene.screenId===screenId&&scene.context===context&&(context!=="event"||scene.eventId===eventId))||null;
+  }
+
+  async createSceneFromForm(){
+    const screenId=this.el.querySelector("[data-scene-screen]")?.value||"";
+    const context=this.el.querySelector("[data-scene-context]")?.value||"default";
+    const eventId=context==="event"?(this.el.querySelector("[data-scene-event]")?.value||""):null;
+    const name=(this.el.querySelector("[data-scene-name]")?.value||"").trim();
+    const error=this.el.querySelector("[data-scene-create-error]");
+
+    if(!screenId||!name||(context==="event"&&!eventId)){
+      error.textContent="Preencha a tela lógica, o contexto e o nome.";
+      error.hidden=false;
+      return;
+    }
+
+    const existing=this.sceneCombinationExists(screenId,context,eventId);
+    if(existing){
+      error.innerHTML='Já existe uma cena para esta combinação. <button type="button" data-open-existing>Abrir cena existente</button>';
+      error.hidden=false;
+      error.querySelector("[data-open-existing]")?.addEventListener("click",()=>this.openScene(existing.id));
+      return;
+    }
+
+    const id=context==="event"?screenId+"."+eventId:screenId+".default";
+    const revision="local-"+Date.now();
+    const scene={
+      schema:"tq.scene",
+      version:1,
+      id,
+      name,
+      screenId,
+      context,
+      eventId,
+      reference:{...this.runtime.reference},
+      root:{id:"viewport",kind:"viewport",canonical:true},
+      nodes:[],
+      meta:{schema:"tq.scene",version:1,sourceRevision:revision,createdFrom:"tabuada-quest-dev"}
+    };
+    const entry={id,name,screenId,context,eventId,path:null,local:true};
+    this.localScenes.push({entry,scene});
+    this.saveLocalScenes();
+    this.sceneGroupOpen.add(screenId);
+    this.saveSceneGroupState();
+    this.runtime.loadScene(scene);
+    this.selected=null;
+    this.showCreateSceneForm(false);
+    this.toggleScenes(false);
+    this.setMode("edit");
+  }
+
+  async openScene(id){
+    const local=this.localScenes.find(item=>item.entry.id===id);
+    const entry=this.allSceneEntries().find(scene=>scene.id===id);
+    if(!entry)return;
+
+    try{
+      if(local)this.runtime.loadScene(local.scene);
+      else if(entry.path)await this.runtime.load(entry.path);
+      else return;
+      this.sceneGroupOpen.add(entry.screenId);
+      this.saveSceneGroupState();
+      this.selected=null;
+      this.toggleScenes(false);
+      this.setMode("edit");
+      this.renderScenes();
+    }catch(error){
+      console.error("Scene open failed",error);
+      const list=this.el.querySelector("[data-scenes-list]");
+      if(list)list.insertAdjacentHTML("afterbegin",'<div class="tq-scenes__error">Falha ao abrir a cena.</div>');
+    }
+  }
+
   async loadCompositionTypes(){
     try{
       const r=await fetch("./src/config/composition-types.json?v=20260929-2308",{cache:"no-store"});
@@ -77,7 +307,7 @@ export class DevOverlay {
   }
   toggleAssets(show){
     const panel=this.el.querySelector(".tq-dev__assets");panel.hidden=!show;
-    if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.renderAssets()}
+    if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.renderAssets()}
   }
   escapeHtml(value){
     return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
@@ -234,7 +464,7 @@ export class DevOverlay {
     this.mode=mode;this.runtime.setMode(mode);
     this.el.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
     this.el.querySelector(".tq-dev__panel").hidden=mode!=="config";this.el.classList.toggle("is-play",mode==="play");
-    if(mode==="config"){this.el.querySelector(".tq-dev__assets").hidden=true;this.renderInspector();}
+    if(mode==="config"){this.el.querySelector(".tq-dev__assets").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.renderInspector();}
   }
 
   normalizeInferencePath(value){
