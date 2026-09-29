@@ -25,7 +25,7 @@ export class SceneRuntime {
   render(){
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
-    for(const {node,el} of this.nodes.values()) this.attachEditHandles(node,el);
+    for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); }
   }
   normalizeNode(node){
     node.parentId="viewport";
@@ -54,6 +54,21 @@ export class SceneRuntime {
     const h=document.createElement("button");h.type="button";h.className="tq-node-handle";h.dataset.forNode=node.id;h.hidden=true;this.stage.append(h);
     h.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();this.beginResize(e,node,el,h)});
   }
+  attachRotateHandle(node,el){
+    const h=document.createElement("button");h.type="button";h.className="tq-rotate-handle";h.dataset.forNode=node.id;h.hidden=true;this.stage.append(h);
+    h.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();this.beginRotate(e,node,h)});
+  }
+  beginRotate(event,node,handle){
+    handle.setPointerCapture(event.pointerId);
+    const rotate=e=>{
+      const r=this.stage.getBoundingClientRect(),s=this.viewportScale||1;
+      const cx=r.left+(node.x+(node.width??0)/2)*s,cy=r.top+(node.y+(node.height??0)/2)*s;
+      node.rotation=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI+90;
+      this.applyTransform(this.nodes.get(node.id).el,node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
+    };
+    const end=e=>{if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);handle.removeEventListener("pointermove",rotate);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
+    handle.addEventListener("pointermove",rotate);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
+  }
   ensureNodeSize(node,el){
     if(node.width==null)node.width=el.naturalWidth||el.getBoundingClientRect().width/(this.viewportScale||1);
     if(node.height==null)node.height=el.naturalHeight||el.getBoundingClientRect().height/(this.viewportScale||1);
@@ -63,6 +78,7 @@ export class SceneRuntime {
     const h=[...this.stage.querySelectorAll(".tq-node-handle")].find(el=>el.dataset.forNode===node.id);if(!h)return;
     h.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;
     h.style.left=(node.x+(node.width??0))+"px";h.style.top=(node.y+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
+    const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;rh.style.left=(node.x+(node.width??0)/2)+"px";rh.style.top=(node.y-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
   }
   beginResize(event,node,el,handle){
     handle.setPointerCapture(event.pointerId);const scale=this.viewportScale||1;
