@@ -44,11 +44,11 @@ export class DevOverlay {
     window.addEventListener("tq:nodechange",e=>{const node=e.detail?.node;if(node&&this.selected?.id===node.id){this.selected=node;this.syncInspector();}});
   }
   async loadCompositionTypes(){
-    try{const r=await fetch("./src/config/composition-types.json?v=20260929-2208",{cache:"no-store"});const registry=await r.json();this.compositionTypes=registry.types||[];}catch(e){this.compositionTypes=[]}
+    try{const r=await fetch("./src/config/composition-types.json?v=20260929-2222",{cache:"no-store"});const registry=await r.json();this.compositionTypes=registry.types||[];}catch(e){this.compositionTypes=[]}
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260929-2208",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260929-2222",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
