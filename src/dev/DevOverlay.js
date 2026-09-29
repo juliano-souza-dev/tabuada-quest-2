@@ -10,8 +10,10 @@ export class DevOverlay {
         <button data-mode="play">▶ <span>Play</span></button>
         <button data-export>⇩ <span>JSON</span></button>
         <button data-mold>▣ <span>Molde</span></button>
+        <button data-assets>▦ <span>Assets</span></button>
         <button data-collapse aria-label="Recolher ferramentas" title="Recolher">‹</button>
       </div>
+      <section class="tq-dev__assets" hidden><header><div><strong>Assets</strong><small>Biblioteca do repositório</small></div><button data-assets-close aria-label="Fechar">×</button></header><div class="tq-assets__filters"><input data-asset-search type="search" placeholder="Buscar asset..."><select data-asset-category><option value="">Todas as categorias</option></select></div><div class="tq-assets__grid" data-assets-grid></div></section>
       <section class="tq-dev__panel" hidden>
         <header><div><strong>Config</strong><small data-node-title>Nenhum nó</small></div><button data-close aria-label="Fechar">×</button></header>
         <div class="tq-dev__content"><div class="tq-dev__empty">Selecione um nó para configurar.</div></div>
@@ -21,11 +23,43 @@ export class DevOverlay {
     this.el.querySelector("[data-close]").addEventListener("click",()=>this.setMode("edit"));
     this.el.querySelector("[data-export]").addEventListener("click",()=>this.exportScene());
     this.el.querySelector("[data-mold]").addEventListener("click",()=>this.toggleMold());
+    this.el.querySelector("[data-assets]").addEventListener("click",()=>this.toggleAssets(true));
+    this.el.querySelector("[data-assets-close]").addEventListener("click",()=>this.toggleAssets(false));
+    this.el.querySelector("[data-asset-search]").addEventListener("input",()=>this.renderAssets());
+    this.el.querySelector("[data-asset-category]").addEventListener("change",()=>this.renderAssets());
+    this.loadAssets();
     this.mountMold();
     this.enableToolbarDrag();
     this.el.querySelector("[data-collapse]").addEventListener("click",()=>this.toggleCollapse());
     window.addEventListener("tq:selectionchange",e=>{this.selected=e.detail.node||null;this.renderInspector();});
     window.addEventListener("tq:nodechange",e=>{if(this.selected?.id===e.detail.node.id){this.selected=e.detail.node;this.syncInspector();}});
+  }
+  async loadAssets(){
+    try{
+      const r=await fetch("./src/config/asset-catalog.json",{cache:"no-store"});
+      const catalog=await r.json();this.assetCatalog=catalog.assets||[];
+      const select=this.el.querySelector("[data-asset-category]");
+      [...new Set(this.assetCatalog.map(a=>a.category))].sort().forEach(cat=>{const o=document.createElement("option");o.value=cat;o.textContent=cat;select.append(o)});
+      this.renderAssets();
+    }catch(e){this.el.querySelector("[data-assets-grid]").textContent="Falha ao carregar biblioteca de assets."}
+  }
+  toggleAssets(show){
+    const panel=this.el.querySelector(".tq-dev__assets");panel.hidden=!show;
+    if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.renderAssets()}
+  }
+  renderAssets(){
+    const grid=this.el.querySelector("[data-assets-grid]");if(!grid||!this.assetCatalog)return;
+    const q=this.el.querySelector("[data-asset-search]").value.trim().toLowerCase(),cat=this.el.querySelector("[data-asset-category]").value;
+    const list=this.assetCatalog.filter(a=>(!cat||a.category===cat)&&(!q||a.path.toLowerCase().includes(q)));
+    grid.innerHTML=list.map((a,i)=>`<button class="tq-asset-card" data-asset-index="${this.assetCatalog.indexOf(a)}"><img src="./${a.path}" loading="lazy" alt=""><span>${a.name}</span><small>${a.category}</small></button>`).join("");
+    grid.querySelectorAll("[data-asset-index]").forEach(b=>b.addEventListener("click",()=>this.insertAsset(this.assetCatalog[Number(b.dataset.assetIndex)])));
+  }
+  insertAsset(asset){
+    const src="./"+asset.path;
+    const stem=asset.name.replace(/\.[^.]+$/,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase();
+    const size=128,x=(this.runtime.reference.width-size)/2,y=(this.runtime.reference.height-size)/2;
+    const node=this.runtime.addNode({id:`${this.runtime.scene?.id||"scene"}.${stem}`,kind:"image",src,x,y,width:size,height:size,scaleX:1,scaleY:1,rotation:0,skewX:0,skewY:0,z:this.runtime.nodes.size+1,visible:true,locked:false,alt:asset.name});
+    if(node){this.selected=node;this.toggleAssets(false);this.setMode("edit")}
   }
   toggleCollapse(){
     this.el.classList.toggle("is-collapsed");
@@ -102,7 +136,7 @@ export class DevOverlay {
     this.mode=mode;this.runtime.setMode(mode);
     this.el.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
     this.el.querySelector(".tq-dev__panel").hidden=mode!=="config";this.el.classList.toggle("is-play",mode==="play");
-    if(mode==="config")this.renderInspector();
+    if(mode==="config"){this.el.querySelector(".tq-dev__assets").hidden=true;this.renderInspector();}
   }
   configSections(node){
     const field=(key,label,type="number")=>[key,label,type];
