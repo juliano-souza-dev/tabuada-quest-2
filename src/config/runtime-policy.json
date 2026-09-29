@@ -1,0 +1,20 @@
+{
+  "schema": "tq.runtime-policy",
+  "version": 1,
+  "sceneParity": {
+    "rule": "same-scene-same-viewport-same-render",
+    "sharedRuntimeRequired": true,
+    "sharedSceneArtifactsRequired": true,
+    "devToolsMayAffectSceneLayout": false,
+    "devToolsExcludedFromProduction": true
+  },
+  "development": {
+    "cache": "disabled",
+    "serviceWorker": "disabled"
+  },
+  "production": {
+    "runtime": "same-as-develop",
+    "sceneArtifacts": "same-as-develop",
+    "devTools": false
+  }
+}

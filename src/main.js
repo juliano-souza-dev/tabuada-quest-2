@@ -8,6 +8,13 @@ await runtime.load("./src/scenes/login.scene.json");
 const dev = new DevOverlay(document.body, runtime);
 dev.mount();
 
+// DEV policy: never register a Service Worker and purge old caches/registrations.
+// Every reload must request the current repository deployment.
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(console.warn);
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(registrations.map(registration => registration.unregister()));
+}
+if ("caches" in window) {
+  const keys = await caches.keys();
+  await Promise.all(keys.map(key => caches.delete(key)));
 }
