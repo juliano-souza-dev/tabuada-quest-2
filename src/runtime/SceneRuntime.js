@@ -1,8 +1,8 @@
-import { OceanEffect } from "./OceanEffect.js?v=20260929-2144";
+import { createCompositionEngine } from "./composition/registry.js?v=20260929-2156";
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
-    this.selectedId=null; this.nodes=new Map(); this.effects=new Map(); this.storageKey=null; this.mount();
+    this.selectedId=null; this.nodes=new Map(); this.compositions=createCompositionEngine(this); this.effects=this.compositions.instances; this.storageKey=null; this.mount();
   }
   mount(){
     this.root.innerHTML="";
@@ -35,7 +35,7 @@ export class SceneRuntime {
     this.reference=this.scene.reference||this.reference; this.fit(); this.render();
   }
   render(){
-    for(const effect of this.effects.values())effect.destroy();this.effects.clear();
+    this.compositions.reset();
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
     if(this.editorEnabled) for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); this.attachSkewHandles(node,el); }
@@ -133,16 +133,12 @@ export class SceneRuntime {
     const end=e=>{if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);handle.removeEventListener("pointermove",move);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
     handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
   }
-  syncComposition(node){
-    const existing=this.effects.get(node.id);
-    if(node.compositionType==="ocean"){if(existing){existing.node=node;existing.sync()}else this.effects.set(node.id,new OceanEffect(this,node));}
-    else if(existing){existing.destroy();this.effects.delete(node.id);}
-  }
+  syncComposition(node){return this.compositions.syncNode(node);}
   applyTransform(el,node){
     el.style.left=(node.x+(this.sceneOffset?.x||0))+"px";el.style.top=(node.y+(this.sceneOffset?.y||0))+"px";
     if(node.width!=null)el.style.width=node.width+"px";if(node.height!=null)el.style.height=node.height+"px";
     el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
-    el.hidden=node.visible===false;this.positionHandle(node);this.effects.get(node.id)?.sync();
+    el.hidden=node.visible===false;this.positionHandle(node);this.compositions.get(node.id)?.sync?.();
   }
   addNode(raw){
     if(!this.editorEnabled)return null;
@@ -159,7 +155,7 @@ export class SceneRuntime {
     if(!this.editorEnabled)return false;
     const item=this.nodes.get(id);if(!item)return false;
     this.stage.querySelectorAll('[data-for-node="'+CSS.escape(id)+'"]').forEach(el=>el.remove());
-    this.effects.get(id)?.destroy();this.effects.delete(id);item.el.remove();this.nodes.delete(id);
+    this.compositions.destroyNode(id);item.el.remove();this.nodes.delete(id);
     if(this.scene?.nodes)this.scene.nodes=this.scene.nodes.filter(node=>node.id!==id);
     if(this.selectedId===id)this.select(null);
     this.persistDraft();this.dispatchEvent("nodecommit",{node:null,id,parentId:"viewport",deleted:true});
