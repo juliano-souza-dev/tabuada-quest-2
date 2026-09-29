@@ -2,7 +2,7 @@ import { createCompositionEngine } from "./composition/registry.js?v=20260929-22
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
-    this.selectedId=null; this.nodes=new Map(); this.compositions=createCompositionEngine(this); this.storageKey=null; this.mount();
+    this.selectedId=null; this.nodes=new Map(); this.animationTransforms=new Map(); this.compositions=createCompositionEngine(this); this.storageKey=null; this.mount();
   }
   mount(){
     this.root.innerHTML="";
@@ -76,6 +76,7 @@ export class SceneRuntime {
   }
   render(){
     this.compositions.reset();
+    this.animationTransforms.clear();
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
     if(this.editorEnabled) for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); this.attachSkewHandles(node,el); }
@@ -174,12 +175,30 @@ export class SceneRuntime {
     handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
   }
   syncComposition(node){return this.compositions.syncNode(node);}
-  applyTransform(el,node){
+  setAnimationTransform(id,transform={}){
+    this.animationTransforms.set(id,{
+      x:Number(transform.x??0),
+      y:Number(transform.y??0),
+      rotation:Number(transform.rotation??0)
+    });
+    const item=this.nodes.get(id);
+    if(item)this.applyTransform(item.el,item.node,{skipCompositionSync:true});
+  }
+  clearAnimationTransform(id){
+    if(!this.animationTransforms.has(id))return;
+    this.animationTransforms.delete(id);
+    const item=this.nodes.get(id);
+    if(item)this.applyTransform(item.el,item.node,{skipCompositionSync:true});
+  }
+  applyTransform(el,node,options={}){
     const layout=this.resolveNodeLayout(node);
+    const motion=this.animationTransforms.get(node.id)||{x:0,y:0,rotation:0};
     el.style.left=layout.x+"px";el.style.top=layout.y+"px";
     el.style.width=layout.width+"px";el.style.height=layout.height+"px";
-    el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
-    el.hidden=node.visible===false;this.positionHandle(node);this.compositions.get(node.id)?.sync?.();
+    el.style.zIndex=node.z;
+    el.style.transform=`translate(${motion.x}px,${motion.y}px) rotate(${node.rotation+motion.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
+    el.hidden=node.visible===false;this.positionHandle(node);
+    if(!options.skipCompositionSync)this.compositions.get(node.id)?.sync?.();
   }
   addNode(raw){
     if(!this.editorEnabled)return null;
@@ -196,7 +215,7 @@ export class SceneRuntime {
     if(!this.editorEnabled)return false;
     const item=this.nodes.get(id);if(!item)return false;
     this.stage.querySelectorAll('[data-for-node="'+CSS.escape(id)+'"]').forEach(el=>el.remove());
-    this.compositions.destroyNode(id);item.el.remove();this.nodes.delete(id);
+    this.compositions.destroyNode(id);this.animationTransforms.delete(id);item.el.remove();this.nodes.delete(id);
     if(this.scene?.nodes)this.scene.nodes=this.scene.nodes.filter(node=>node.id!==id);
     if(this.selectedId===id)this.select(null);
     this.persistDraft();this.dispatchEvent("nodecommit",{node:null,id,parentId:"viewport",deleted:true});
