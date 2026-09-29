@@ -65,7 +65,7 @@ export class SceneRuntime {
   }
   beginResize(event,node,el,handle){
     handle.setPointerCapture(event.pointerId);const scale=this.viewportScale||1;
-    const start={px:event.clientX,py:event.clientY,w:node.width??el.offsetWidth,h:node.height??el.offsetHeight,ratio:(node.width??el.offsetWidth)/(node.height??el.offsetHeight||1)};
+    const start={px:event.clientX,py:event.clientY,w:node.width??el.offsetWidth,h:node.height??el.offsetHeight,ratio:(node.width ?? el.offsetWidth) / ((node.height ?? el.offsetHeight) || 1)};
     const move=e=>{let w=Math.max(24,start.w+(e.clientX-start.px)/scale);let h=Math.max(24,start.h+(e.clientY-start.py)/scale);
       if(!e.shiftKey){const byW=w/start.ratio,byH=h*start.ratio;if(Math.abs(w-start.w)>=Math.abs(h-start.h)){h=byW}else{w=byH}}
       node.width=w;node.height=h;this.applyTransform(el,node);this.positionHandle(node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
