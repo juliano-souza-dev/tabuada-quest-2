@@ -176,13 +176,15 @@ export class OceanEffect {
     const composition=this.node.composition||{};
     const animation=composition.animation||{};
     const legacy=composition.effects?.ripple||{};
+    const legacyShine=Number(composition.appearance?.shine);
+    const legacyFoam=Number(composition.appearance?.foam);
     return {
       active:composition.active!==false,
       preset:animation.preset||"adventure",
       speed:Number(animation.speed??Math.round((legacy.speed??.88)*50)),
       movement:Number(animation.movement??Math.round((legacy.strength??1.04)*50)),
-      shine:Number(animation.shine??composition.appearance?.shine*100??20),
-      foam:Number(animation.foam??composition.appearance?.foam*100??57),
+      shine:Number(animation.shine??(Number.isFinite(legacyShine)?legacyShine*100:20)),
+      foam:Number(animation.foam??(Number.isFinite(legacyFoam)?legacyFoam*100:57)),
       ripples:animation.ripples??composition.ripples??true,
       quality:animation.quality||"balanced"
     };
@@ -304,7 +306,7 @@ export class OceanEffect {
     }
 
     const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    if(!reduced||this.runtime.editorEnabled)this.raf=requestAnimationFrame(this.loop);
+    if(!reduced||this.runtime.editorEnabled||!this.textureReady)this.raf=requestAnimationFrame(this.loop);
   }
 
   destroy(){
