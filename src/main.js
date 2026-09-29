@@ -1,8 +1,8 @@
-import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2238";
+import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2257";
 
 const app = document.querySelector("#app");
 const runtime = new SceneRuntime(app, { width: 390, height: 844 });
-await runtime.load("./src/scenes/login.scene.json?v=20260929-2238");
+await runtime.load("./src/scenes/login.scene.json?v=20260929-2257");
 
 // PROD policy: never keep stale Service Workers or Cache Storage.
 if ("serviceWorker" in navigator) {
