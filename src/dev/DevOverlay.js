@@ -152,7 +152,17 @@ export class DevOverlay {
     const src="./"+asset.path;
     const stem=asset.name.replace(/\.[^.]+$/,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase();
     const size=128,x=(this.runtime.reference.width-size)/2,y=(this.runtime.reference.height-size)/2;
-    const node=this.runtime.addNode({id:`${this.runtime.scene?.id||"scene"}.${stem}`,kind:"image",src,x,y,width:size,height:size,scaleX:1,scaleY:1,rotation:0,skewX:0,skewY:0,z:this.runtime.nodes.size+1,visible:true,locked:false,alt:asset.name});
+    const raw={id:`${this.runtime.scene?.id||"scene"}.${stem}`,kind:"image",src,x,y,width:size,height:size,scaleX:1,scaleY:1,rotation:0,skewX:0,skewY:0,z:this.runtime.nodes.size+1,visible:true,locked:false,alt:asset.name};
+
+    const inferred=this.inferCompositionType(raw);
+    if(inferred?.autoApply){
+      raw.compositionType=inferred.definition.id;
+      raw.compositionSelection="inferred";
+      raw.composition={};
+      this.ensureCompositionAnimation(raw.composition,inferred.definition);
+    }
+
+    const node=this.runtime.addNode(raw);
     if(node){this.selected=node;this.toggleAssets(false);this.setMode("edit")}
   }
   toggleCollapse(){
@@ -225,6 +235,67 @@ export class DevOverlay {
     this.el.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
     this.el.querySelector(".tq-dev__panel").hidden=mode!=="config";this.el.classList.toggle("is-play",mode==="play");
     if(mode==="config"){this.el.querySelector(".tq-dev__assets").hidden=true;this.renderInspector();}
+  }
+
+  normalizeInferencePath(value){
+    return String(value??"")
+      .split("?")[0]
+      .split("#")[0]
+      .replace(/^\.\//,"")
+      .replace(/^\/+/, "")
+      .toLowerCase();
+  }
+
+  inferCompositionType(node){
+    const path=this.normalizeInferencePath(node?.src||node?.path||"");
+    if(!path)return null;
+    const filename=path.split("/").pop()||"";
+    let best=null;
+
+    for(const definition of this.compositionTypes||[]){
+      const inference=definition.inference;
+      if(!inference)continue;
+
+      for(const rule of inference.rules||[]){
+        let matched=false;
+        if(rule.kind==="path-exact"){
+          matched=path===this.normalizeInferencePath(rule.value);
+        }else if(rule.kind==="path-prefix"){
+          matched=path.startsWith(this.normalizeInferencePath(rule.value));
+        }else if(rule.kind==="filename-token"){
+          matched=(rule.values||[]).some(token=>filename.includes(String(token).toLowerCase()));
+        }
+        if(!matched)continue;
+
+        const score=Number(rule.score??0);
+        if(!best||score>best.score){
+          const threshold=Number(inference.autoApplyMinScore??Infinity);
+          best={
+            definition,
+            score,
+            reason:rule.reason||"Regra de inferência",
+            autoApply:score>=threshold
+          };
+        }
+      }
+    }
+
+    return best;
+  }
+
+  applyAutomaticComposition(node){
+    if(!node||node.compositionType||node.compositionSelection==="manual")return node;
+    const inferred=this.inferCompositionType(node);
+    if(!inferred?.autoApply)return node;
+
+    node.composition=node.composition||{};
+    this.ensureCompositionAnimation(node.composition,inferred.definition);
+    this.runtime.updateNode(node.id,{
+      compositionType:inferred.definition.id,
+      compositionSelection:"inferred",
+      composition:node.composition
+    },true);
+    return this.runtime.nodes.get(node.id)?.node||node;
   }
 
   compositionDefinition(node){
@@ -358,7 +429,13 @@ export class DevOverlay {
     if(type==="compositionType"){
       const current=node[key]??"";
       const options=(this.compositionTypes||[]).map(item=>'<option value="'+item.id+'" '+(current===item.id?'selected':'')+'>'+(item.label||item.id)+'</option>').join("");
-      return '<label class="tq-field"><span>'+label+'</span><select data-prop="'+key+'"><option value="">Sem animação</option>'+options+'</select></label>';
+      const inferred=this.inferCompositionType(node);
+      let note="";
+      if(inferred&&node.compositionSelection!=="manual"){
+        const prefix=inferred.autoApply?"Inferência automática":"Sugestão";
+        note='<small class="tq-inference-note">'+prefix+': '+this.escapeHtml(inferred.definition.label)+' · '+this.escapeHtml(inferred.reason)+'</small>';
+      }
+      return '<label class="tq-field"><span>'+label+'</span><select data-prop="'+key+'"><option value="">Sem animação</option>'+options+'</select>'+note+'</label>';
     }
     if(type==="delete")return '<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>';
     if(type==="layer"){
@@ -401,7 +478,9 @@ export class DevOverlay {
       return;
     }
 
-    const node=this.selected;
+    let node=this.selected;
+    node=this.applyAutomaticComposition(node);
+    this.selected=node;
     const definition=this.compositionDefinition(node);
     title.textContent=node.id+" · "+node.kind;
     const sections=this.configSections(node);
@@ -612,12 +691,14 @@ export class DevOverlay {
     if(key==="compositionType"&&!value)value=null;
 
     if(key==="compositionType"){
-      const patch={compositionType:value};
+      const patch={compositionType:value,compositionSelection:"manual"};
       if(value){
         const definition=(this.compositionTypes||[]).find(type=>type.id===value);
-        const composition={...(this.selected.composition||{})};
+        const composition={};
         if(definition)this.ensureCompositionAnimation(composition,definition);
         patch.composition=composition;
+      }else{
+        patch.composition={};
       }
       this.runtime.updateNode(this.selected.id,patch,true);
       this.selected=this.runtime.nodes.get(this.selected.id).node;
