@@ -36,11 +36,11 @@ export class DevOverlay {
     window.addEventListener("tq:nodechange",e=>{const node=e.detail?.node;if(node&&this.selected?.id===node.id){this.selected=node;this.syncInspector();}});
   }
   async loadCompositionTypes(){
-    try{const r=await fetch("./src/config/composition-types.json?v=20260929-2144",{cache:"no-store"});const registry=await r.json();this.compositionTypes=registry.types||[];}catch(e){this.compositionTypes=[]}
+    try{const r=await fetch("./src/config/composition-types.json?v=20260929-2156",{cache:"no-store"});const registry=await r.json();this.compositionTypes=registry.types||[];}catch(e){this.compositionTypes=[]}
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-catalog.json?v=20260929-2144",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-catalog.json?v=20260929-2156",{cache:"no-store"});
       const catalog=await r.json();this.assetCatalog=catalog.assets||[];
       const select=this.el.querySelector("[data-asset-category]");
       [...new Set(this.assetCatalog.map(a=>a.category))].sort().forEach(cat=>{const o=document.createElement("option");o.value=cat;o.textContent=cat;select.append(o)});
