@@ -44,7 +44,14 @@ export class DevOverlay {
     window.addEventListener("tq:nodechange",e=>{const node=e.detail?.node;if(node&&this.selected?.id===node.id){this.selected=node;this.syncInspector();}});
   }
   async loadCompositionTypes(){
-    try{const r=await fetch("./src/config/composition-types.json?v=20260929-2222",{cache:"no-store"});const registry=await r.json();this.compositionTypes=registry.types||[];}catch(e){this.compositionTypes=[]}
+    try{
+      const r=await fetch("./src/config/composition-types.json?v=20260929-2222",{cache:"no-store"});
+      const registry=await r.json();
+      this.compositionTypes=registry.types||[];
+      if(this.selected&&this.mode==="config")this.renderInspector();
+    }catch(e){
+      this.compositionTypes=[];
+    }
   }
   async loadAssets(){
     try{
@@ -351,7 +358,7 @@ export class DevOverlay {
     if(type==="compositionType"){
       const current=node[key]??"";
       const options=(this.compositionTypes||[]).map(item=>'<option value="'+item.id+'" '+(current===item.id?'selected':'')+'>'+(item.label||item.id)+'</option>').join("");
-      return '<label class="tq-field"><span>'+label+'</span><select data-prop="'+key+'"><option value="">Nenhum</option>'+options+'</select></label>';
+      return '<label class="tq-field"><span>'+label+'</span><select data-prop="'+key+'"><option value="">Sem animação</option>'+options+'</select></label>';
     }
     if(type==="delete")return '<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>';
     if(type==="layer"){
