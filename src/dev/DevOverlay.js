@@ -155,7 +155,8 @@ export class DevOverlay {
         field("visible","Visible","checkbox")
       ]},
       {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
-      {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType"),...(node.compositionType==="ocean"?[field("__waterArea","Área de água","waterArea"),field("__rippleStrength","Ondulação","ripple")]:[])]},
+      {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType")]},
+      ...(node.compositionType==="ocean"?[{id:"animation",title:"Animação",fields:[field("__oceanActive","Ativo","oceanActive"),field("__oceanPreset","Predefinição do oceano","oceanPreset"),field("__oceanSpeed","Velocidade","oceanSpeed"),field("__rippleStrength","Força das ondas","ripple"),field("__oceanShine","Brilho","oceanShine"),field("__oceanFoam","Espuma","oceanFoam"),field("__oceanTouch","Ondas ao toque","oceanTouch"),field("__waterArea","Área do oceano","waterArea")]}]:[]),
       {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
       {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
@@ -164,6 +165,12 @@ export class DevOverlay {
   fieldMarkup(n,[key,label,type]){
     if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
     if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
+    if(type==="oceanActive"){const v=n.composition?.active!==false;return `<label class="tq-field tq-field--check"><span>${label}</span><input type="checkbox" data-ocean-active ${v?"checked":""}></label>`;}
+    if(type==="oceanPreset")return `<label class="tq-field"><span>${label}</span><select data-ocean-preset><option value="adventure">Aventura</option></select></label>`;
+    if(type==="oceanSpeed"){const v=n.composition?.effects?.ripple?.speed??.75;return `<label class="tq-field"><span>${label} <small data-ocean-speed-value>${Math.round(v*100)}</small></span><input type="range" min="0" max="2" step="0.01" value="${v}" data-ocean-speed></label>`;}
+    if(type==="oceanShine"){const v=n.composition?.appearance?.shine??.20;return `<label class="tq-field"><span>${label} <small>${Math.round(v*100)}</small></span><input type="range" min="0" max="1" step="0.01" value="${v}" data-ocean-shine></label>`;}
+    if(type==="oceanFoam"){const v=n.composition?.appearance?.foam??.57;return `<label class="tq-field"><span>${label} <small>${Math.round(v*100)}</small></span><input type="range" min="0" max="1" step="0.01" value="${v}" data-ocean-foam></label>`;}
+    if(type==="oceanTouch"){const v=n.composition?.ripples!==false;return `<label class="tq-field tq-field--check"><span>${label}</span><input type="checkbox" data-ocean-touch ${v?"checked":""}></label>`;}
     if(type==="waterArea"){const count=n.composition?.area?.points?.length||0;return `<div class="tq-field"><span>${label}</span><button type="button" data-water-mark>Marcar ponto a ponto (${count})</button><button type="button" data-water-clear>Limpar área</button></div>`;}
     if(type==="ripple"){const v=n.composition?.effects?.ripple?.strength??.65;return `<label class="tq-field"><span>Intensidade <small data-ripple-value>${Math.round(Number(v)*100)}%</small></span><input type="range" min="0" max="3" step="0.05" value="${v}" data-ripple-strength></label>`;}
     if(type==="compositionType"){const current=n[key]??"";return `<label class="tq-field"><span>${label}</span><select data-prop="${key}"><option value="">Nenhum</option>${(this.compositionTypes||[]).map(t=>`<option value="${t.id}" ${current===t.id?"selected":""}>${t.label||t.id}</option>`).join("")}</select></label>`;}
@@ -181,6 +188,12 @@ export class DevOverlay {
       const body=b.nextElementSibling,open=!body.hidden;body.hidden=open;b.setAttribute("aria-expanded",String(!open));b.querySelector("span").textContent=open?"▸":"▾";
     }));
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
+    const patchOcean=(fn,commit=false)=>{n.composition=n.composition||{};fn(n.composition);this.runtime.updateNode(n.id,{composition:n.composition},commit)};
+    content.querySelector("[data-ocean-active]")?.addEventListener("change",e=>patchOcean(o=>o.active=e.target.checked,true));
+    content.querySelector("[data-ocean-speed]")?.addEventListener("input",e=>{patchOcean(o=>{o.effects=o.effects||{};o.effects.ripple={...(o.effects.ripple||{}),speed:Number(e.target.value)}});const out=content.querySelector("[data-ocean-speed-value]");if(out)out.textContent=Math.round(Number(e.target.value)*100)});
+    content.querySelector("[data-ocean-shine]")?.addEventListener("input",e=>patchOcean(o=>{o.appearance=o.appearance||{};o.appearance.shine=Number(e.target.value)}));
+    content.querySelector("[data-ocean-foam]")?.addEventListener("input",e=>patchOcean(o=>{o.appearance=o.appearance||{};o.appearance.foam=Number(e.target.value)}));
+    content.querySelector("[data-ocean-touch]")?.addEventListener("change",e=>patchOcean(o=>o.ripples=e.target.checked,true));
     content.querySelector("[data-water-mark]")?.addEventListener("click",()=>this.startWaterMarking(n));
     content.querySelector("[data-water-clear]")?.addEventListener("click",()=>{n.composition={...(n.composition||{}),area:{mode:"polygon",points:[]}};this.runtime.updateNode(n.id,{composition:n.composition},true);this.renderInspector();});
     content.querySelector("[data-ripple-strength]")?.addEventListener("input",e=>{n.composition=n.composition||{};n.composition.effects=n.composition.effects||{};n.composition.effects.ripple={...(n.composition.effects.ripple||{}),strength:Number(e.target.value)};this.runtime.updateNode(n.id,{composition:n.composition});const out=content.querySelector("[data-ripple-value]");if(out)out.textContent=Math.round(Number(e.target.value)*100)+"%";});
