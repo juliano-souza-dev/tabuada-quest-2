@@ -105,6 +105,11 @@ export class DevOverlay {
     if(label)label.textContent=path;
     if(up)up.disabled=path==="assets";
   }
+  countAssetImages(node){
+    if(!node)return 0;
+    if(node.type==="image")return 1;
+    return (node.children||[]).reduce((sum,child)=>sum+this.countAssetImages(child),0);
+  }
   renderAssets(){
     const grid=this.el.querySelector("[data-assets-grid]");
     if(!grid||!this.assetTree)return;
@@ -123,7 +128,7 @@ export class DevOverlay {
       const children=directory.children||[];
       grid.innerHTML=children.length?children.map(entry=>{
         if(entry.type==="directory"){
-          const count=(entry.children||[]).filter(child=>child.type==="image").length;
+          const count=this.countAssetImages(entry);
           return '<button class="tq-asset-folder" data-asset-dir="'+this.escapeHtml(entry.path)+'"><span class="tq-asset-folder__icon" aria-hidden="true">📁</span><span>'+this.escapeHtml(entry.name)+'</span><small>'+count+' imagem'+(count===1?'':'s')+' nesta pasta</small></button>';
         }
         return '<button class="tq-asset-card" data-asset-file="'+this.escapeHtml(entry.path)+'"><img src="./'+this.escapeHtml(entry.path)+'" loading="lazy" alt=""><span>'+this.escapeHtml(entry.name)+'</span><small>'+this.escapeHtml(entry.path)+'</small></button>';
