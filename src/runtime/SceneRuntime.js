@@ -1,4 +1,4 @@
-import { createCompositionEngine } from "./composition/registry.js?v=20260929-2303";
+import { createCompositionEngine } from "./composition/registry.js?v=20260929-2308";
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
@@ -57,8 +57,13 @@ export class SceneRuntime {
   }
   async load(url){
     const res=await fetch(url,{cache:"no-store"}); if(!res.ok)throw new Error(`Scene load failed: ${res.status}`);
-    const sourceScene=await res.json();
-    this.scene=sourceScene;
+    return this.loadScene(await res.json());
+  }
+  loadScene(sourceScene){
+    if(!sourceScene?.id)throw new Error("Invalid scene: missing id");
+    this.scene=structuredClone(sourceScene);
+    this.storageKey=null;
+
     if(this.editorEnabled){
       this.storageKey="tq.dev.scene-draft:"+sourceScene.id;
       try{
@@ -72,7 +77,12 @@ export class SceneRuntime {
         }
       }catch(err){console.warn("DEV draft restore failed",err)}
     }
-    this.reference=this.scene.reference||this.reference; this.fit(); this.render();
+
+    this.reference=this.scene.reference||this.reference;
+    this.fit();
+    this.render();
+    this.dispatchEvent("sceneload",{scene:this.scene});
+    return this.scene;
   }
   render(){
     this.compositions.reset();
