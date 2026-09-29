@@ -30,7 +30,7 @@ export class SceneRuntime {
     node.parentId="viewport";
     node.x=Number(node.x??0); node.y=Number(node.y??0);
     node.scaleX=Number(node.scaleX??1); node.scaleY=Number(node.scaleY??1);
-    node.rotation=Number(node.rotation??0); node.z=Number(node.z??0);
+    node.rotation=Number(node.rotation??0); node.skewX=Number(node.skewX??0); node.skewY=Number(node.skewY??0); node.z=Number(node.z??0); node.visible=node.visible!==false; node.locked=Boolean(node.locked);
     return node;
   }
   createNode(raw){
@@ -48,9 +48,10 @@ export class SceneRuntime {
   applyTransform(el,node){
     el.style.left=node.x+"px";el.style.top=node.y+"px";
     if(node.width!=null)el.style.width=node.width+"px";if(node.height!=null)el.style.height=node.height+"px";
-    el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) scale(${node.scaleX},${node.scaleY})`;
+    el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
     el.hidden=node.visible===false;
   }
+  updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
   select(id){
     this.selectedId=id;
     for(const [nodeId,{el}] of this.nodes)el.classList.toggle("is-selected",nodeId===id);
