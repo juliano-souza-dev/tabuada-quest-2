@@ -176,36 +176,36 @@ export class DevOverlay {
 
   fieldMarkup(n,[key,label,type]){
     const animation=n.composition?.animation||{};
-    if(type==="readonly")return \`<label class="tq-field"><span>\${label}</span><input value="\${n[key]??""}" readonly></label>\`;
-    if(type==="checkbox")return \`<label class="tq-field tq-field--check"><span>\${label}</span><input data-prop="\${key}" type="checkbox" \${n[key]?"checked":""}></label>\`;
-    if(type==="oceanActive"){const value=n.composition?.active!==false;return \`<label class="tq-field tq-field--check tq-ocean-toggle"><span>\${label}</span><input type="checkbox" data-ocean-active \${value?"checked":""}></label>\`;}
-    if(type==="oceanPreset"){const value=animation.preset||"adventure";return \`<label class="tq-field"><span>\${label}</span><select data-ocean-preset><option value="adventure" \${value==="adventure"?"selected":""}>Aventura</option></select></label>\`;}
+    if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
+    if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
+    if(type==="oceanActive"){const value=n.composition?.active!==false;return `<label class="tq-field tq-field--check tq-ocean-toggle"><span>${label}</span><input type="checkbox" data-ocean-active ${value?"checked":""}></label>`;}
+    if(type==="oceanPreset"){const value=animation.preset||"adventure";return `<label class="tq-field"><span>${label}</span><select data-ocean-preset><option value="adventure" ${value==="adventure"?"selected":""}>Aventura</option></select></label>`;}
     if(type==="oceanSpeed"){const value=Number(animation.speed??44);return this.oceanRangeMarkup(label,"speed",value);}
     if(type==="oceanMovement"){const value=Number(animation.movement??52);return this.oceanRangeMarkup(label,"movement",value);}
     if(type==="oceanShine"){const value=Number(animation.shine??20);return this.oceanRangeMarkup(label,"shine",value);}
     if(type==="oceanFoam"){const value=Number(animation.foam??57);return this.oceanRangeMarkup(label,"foam",value);}
-    if(type==="oceanTouch"){const value=animation.ripples!==false;return \`<label class="tq-field tq-field--check"><span>\${label}</span><input type="checkbox" data-ocean-touch \${value?"checked":""}></label>\`;}
+    if(type==="oceanTouch"){const value=animation.ripples!==false;return `<label class="tq-field tq-field--check"><span>${label}</span><input type="checkbox" data-ocean-touch ${value?"checked":""}></label>`;}
     if(type==="waterArea"){
       const count=n.composition?.area?.points?.length||0;
-      return \`<div class="tq-field tq-water-area-field"><span>\${label}</span><small>Toque no cenário para contornar somente a água.</small><button type="button" data-water-mark>Marcar oceano ponto a ponto\${count?" · "+count+" pontos":""}</button>\${count?'<button type="button" data-water-clear>Limpar área publicada</button>':""}</div>\`;
+      return `<div class="tq-field tq-water-area-field"><span>${label}</span><small>Toque no cenário para contornar somente a água.</small><button type="button" data-water-mark>Marcar oceano ponto a ponto${count?" · "+count+" pontos":""}</button>${count?'<button type="button" data-water-clear>Limpar área publicada</button>':""}</div>`;
     }
     if(type==="oceanQuality"){
       const value=animation.quality||"balanced";
-      return \`<label class="tq-field"><span>\${label}</span><select data-ocean-quality><option value="economy" \${value==="economy"?"selected":""}>Econômico</option><option value="balanced" \${value==="balanced"?"selected":""}>Balanceado</option><option value="high" \${value==="high"?"selected":""}>Alta</option></select></label>\`;
+      return `<label class="tq-field"><span>${label}</span><select data-ocean-quality><option value="economy" ${value==="economy"?"selected":""}>Econômico</option><option value="balanced" ${value==="balanced"?"selected":""}>Balanceado</option><option value="high" ${value==="high"?"selected":""}>Alta</option></select></label>`;
     }
-    if(type==="oceanStart")return \`<button type="button" class="tq-ocean-start" data-ocean-start>Salvar e iniciar</button>\`;
+    if(type==="oceanStart")return `<button type="button" class="tq-ocean-start" data-ocean-start>Salvar e iniciar</button>`;
     if(type==="compositionType"){
       const current=n[key]??"";
-      return \`<label class="tq-field"><span>\${label}</span><select data-prop="\${key}"><option value="">Nenhum</option>\${(this.compositionTypes||[]).map(type=>\`<option value="\${type.id}" \${current===type.id?"selected":""}>\${type.label||type.id}</option>\`).join("")}</select></label>\`;
+      return `<label class="tq-field"><span>${label}</span><select data-prop="${key}"><option value="">Nenhum</option>${(this.compositionTypes||[]).map(type=>`<option value="${type.id}" ${current===type.id?"selected":""}>${type.label||type.id}</option>`).join("")}</select></label>`;
     }
-    if(type==="delete")return \`<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>\`;
-    if(type==="layer")return \`<div class="tq-field tq-field--layer"><span>\${label}</span><div class="tq-layer-grid">\${Array.from({length:10},(_,i)=>i+1).map(value=>\`<button type="button" data-layer="\${value}" class="\${Number(n[key])===value?"active":""}">\${value}</button>\`).join("")}</div></div>\`;
-    return \`<label class="tq-field"><span>\${label}</span><input data-prop="\${key}" type="\${type}" value="\${n[key]??""}" \${type==="number"?'step="0.01"':""}></label>\`;
+    if(type==="delete")return `<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>`;
+    if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(value=>`<button type="button" data-layer="${value}" class="${Number(n[key])===value?"active":""}">${value}</button>`).join("")}</div></div>`;
+    return `<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`;
   }
 
   oceanRangeMarkup(label,key,value){
     const safe=Math.max(0,Math.min(100,Number(value)||0));
-    return \`<label class="tq-field tq-ocean-range"><span><b>\${label}</b><output data-ocean-output="\${key}">\${Math.round(safe)}</output></span><input type="range" min="0" max="100" step="1" value="\${safe}" data-ocean-range="\${key}"></label>\`;
+    return `<label class="tq-field tq-ocean-range"><span><b>${label}</b><output data-ocean-output="${key}">${Math.round(safe)}</output></span><input type="range" min="0" max="100" step="1" value="${safe}" data-ocean-range="${key}"></label>`;
   }
 
   ensureOceanAnimation(composition){
@@ -232,13 +232,13 @@ export class DevOverlay {
     }
 
     const n=this.selected;
-    title.textContent=\`\${n.id} · \${n.kind}\`;
+    title.textContent=`${n.id} · ${n.kind}`;
     const sections=this.configSections(n);
     const defaultOpen=n.compositionType==="ocean"?"animation":"identity";
-    content.innerHTML=\`<div class="tq-inspector">\${sections.map(section=>{
+    content.innerHTML=`<div class="tq-inspector">${sections.map(section=>{
       const open=section.id===defaultOpen;
-      return \`<section class="tq-config-area" data-area="\${section.id}"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="\${open}"><strong>\${section.title}</strong><span>\${open?"▾":"▸"}</span></button><div class="tq-config-area__body" \${open?"":"hidden"}>\${section.fields.map(field=>this.fieldMarkup(n,field)).join("")}</div></section>\`;
-    }).join("")}</div>\`;
+      return `<section class="tq-config-area" data-area="${section.id}"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="${open}"><strong>${section.title}</strong><span>${open?"▾":"▸"}</span></button><div class="tq-config-area__body" ${open?"":"hidden"}>${section.fields.map(field=>this.fieldMarkup(n,field)).join("")}</div></section>`;
+    }).join("")}</div>`;
 
     content.querySelectorAll("[data-area-toggle]").forEach(button=>button.addEventListener("click",()=>{
       const body=button.nextElementSibling;
@@ -263,7 +263,7 @@ export class DevOverlay {
         const key=event.target.dataset.oceanRange;
         const value=Number(event.target.value);
         patchOcean((composition,animation)=>animation[key]=value);
-        const output=content.querySelector(\`[data-ocean-output="\${key}"]\`);
+        const output=content.querySelector(`[data-ocean-output="${key}"]`);
         if(output)output.value=String(Math.round(value));
       });
       input.addEventListener("change",event=>{
@@ -327,15 +327,15 @@ export class DevOverlay {
       width:width+"px",
       height:height+"px",
       zIndex:String((node.z||0)+200000),
-      transform:\`rotate(\${node.rotation||0}deg) skew(\${node.skewX||0}deg,\${node.skewY||0}deg) scale(\${node.scaleX||1},\${node.scaleY||1})\`,
+      transform:`rotate(${node.rotation||0}deg) skew(${node.skewX||0}deg,${node.skewY||0}deg) scale(${node.scaleX||1},${node.scaleY||1})`,
       transformOrigin:"center center"
     });
-    overlay.setAttribute("viewBox",\`0 0 \${width} \${height}\`);
+    overlay.setAttribute("viewBox",`0 0 ${width} ${height}`);
     this.runtime.stage.append(overlay);
 
     const panel=document.createElement("section");
     panel.className="tq-water-editor-panel";
-    panel.innerHTML=\`
+    panel.innerHTML=`
       <header><strong>Área da água</strong><span data-water-count>0 pontos</span></header>
       <small>Toque no oceano para criar o contorno. O efeito só será aplicado ao concluir.</small>
       <div class="tq-water-editor-actions">
@@ -343,15 +343,15 @@ export class DevOverlay {
         <button type="button" data-water-draft-clear>Limpar</button>
         <button type="button" data-water-cancel>Cancelar</button>
         <button type="button" class="is-primary" data-water-finish>✓ Concluir</button>
-      </div>\`;
+      </div>`;
     this.el.append(panel);
 
     const redraw=()=>{
-      const polygon=draft.length>=3?\`<polygon points="\${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-polygon"/>\`:"";
-      const polyline=draft.length?\`<polyline points="\${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-line"/>\`:"";
-      const dots=draft.map((point,index)=>\`<g><circle cx="\${point.x*width}" cy="\${point.y*height}" r="\${index===0?7:5}" class="\${index===0?"is-first":""}"/><text x="\${point.x*width+8}" y="\${point.y*height-8}">\${index+1}</text></g>\`).join("");
+      const polygon=draft.length>=3?`<polygon points="${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-polygon"/>`:"";
+      const polyline=draft.length?`<polyline points="${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-line"/>`:"";
+      const dots=draft.map((point,index)=>`<g><circle cx="${point.x*width}" cy="${point.y*height}" r="${index===0?7:5}" class="${index===0?"is-first":""}"/><text x="${point.x*width+8}" y="${point.y*height-8}">${index+1}</text></g>`).join("");
       overlay.innerHTML=polygon+polyline+dots;
-      panel.querySelector("[data-water-count]").textContent=\`\${draft.length} ponto\${draft.length===1?"":"s"}\`;
+      panel.querySelector("[data-water-count]").textContent=`${draft.length} ponto${draft.length===1?"":"s"}`;
       const finish=panel.querySelector("[data-water-finish]");
       finish.disabled=draft.length<3;
     };
