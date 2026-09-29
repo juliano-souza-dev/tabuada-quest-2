@@ -1,4 +1,4 @@
-import { PathAnimator } from "./animation/PathAnimator.js?v=20260929-2303";
+import { PathAnimator } from "./animation/PathAnimator.js?v=20260929-2308";
 
 const SEA_PRESETS=Object.freeze({
   calm:Object.freeze({heave:24,pitch:20,roll:10,sway:8,inertia:82,damping:68,coupling:54}),
