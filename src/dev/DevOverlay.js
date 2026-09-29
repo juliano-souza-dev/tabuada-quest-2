@@ -28,11 +28,15 @@ export class DevOverlay {
     this.el.querySelector("[data-asset-search]").addEventListener("input",()=>this.renderAssets());
     this.el.querySelector("[data-asset-category]").addEventListener("change",()=>this.renderAssets());
     this.loadAssets();
+    this.loadCompositionTypes();
     this.mountMold();
     this.enableToolbarDrag();
     this.el.querySelector("[data-collapse]").addEventListener("click",()=>this.toggleCollapse());
     window.addEventListener("tq:selectionchange",e=>{this.selected=e.detail.node||null;this.renderInspector();});
     window.addEventListener("tq:nodechange",e=>{if(this.selected?.id===e.detail.node.id){this.selected=e.detail.node;this.syncInspector();}});
+  }
+  async loadCompositionTypes(){
+    try{const r=await fetch("./src/config/composition-types.json",{cache:"no-store"});const registry=await r.json();this.compositionTypes=registry.types||[];}catch(e){this.compositionTypes=[]}
   }
   async loadAssets(){
     try{
@@ -151,6 +155,7 @@ export class DevOverlay {
         field("visible","Visible","checkbox")
       ]},
       {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
+      {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType")]},
       {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
       {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
@@ -159,6 +164,7 @@ export class DevOverlay {
   fieldMarkup(n,[key,label,type]){
     if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
     if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
+    if(type==="compositionType"){const current=n[key]??"";return `<label class="tq-field"><span>${label}</span><select data-prop="${key}"><option value="">Nenhum</option>${(this.compositionTypes||[]).map(t=>`<option value="${t.id}" ${current===t.id?"selected":""}>${t.label||t.id}</option>`).join("")}</select></label>`;}
     if(type==="delete")return `<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>`;
     if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(v=>`<button type="button" data-layer="${v}" class="${Number(n[key])===v?"active":""}">${v}</button>`).join("")}</div></div>`;
     return `<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`;
@@ -183,6 +189,7 @@ export class DevOverlay {
   applyInput(input){
     if(!this.selected)return;const key=input.dataset.prop;
     let value=input.type==="checkbox"?input.checked:input.type==="number"?Number(input.value):input.value;
+    if(key==="compositionType"&&!value)value=null;
     const patch={[key]:value};
     if(this.linkScale&&key==="scaleX")patch.scaleY=value;
     if(this.linkScale&&key==="scaleY")patch.scaleX=value;
