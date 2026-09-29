@@ -49,6 +49,13 @@ export class CompositionEngine {
     return this.instances.get(nodeId)?.instance || null;
   }
 
+  list(type = null) {
+    const entries = [...this.instances.values()];
+    return entries
+      .filter(entry => !type || entry.type === type)
+      .map(entry => entry.instance);
+  }
+
   destroyNode(nodeId) {
     const current = this.instances.get(nodeId);
     if (!current) return false;
