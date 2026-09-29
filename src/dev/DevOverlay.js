@@ -70,30 +70,24 @@ export class DevOverlay {
     b.title=collapsed?"Expandir":"Recolher";
   }
   enableToolbarDrag(){
-    const handle=this.el.querySelector("[data-drag]");
+    const handle=this.el.querySelector("[data-drag]"),bar=this.el.querySelector(".tq-dev__bar");
     let drag=null;
     const move=e=>{
       if(!drag)return;
-      const maxX=Math.max(0,window.innerWidth-this.el.offsetWidth);
-      const maxY=Math.max(0,window.innerHeight-this.el.offsetHeight);
+      const maxX=Math.max(0,window.innerWidth-bar.offsetWidth);
+      const maxY=Math.max(0,window.innerHeight-bar.offsetHeight);
       const x=Math.min(maxX,Math.max(0,drag.left+e.clientX-drag.x));
       const y=Math.min(maxY,Math.max(0,drag.top+e.clientY-drag.y));
-      this.el.style.left=x+"px";this.el.style.top=y+"px";this.el.style.transform="none";
+      bar.style.left=x+"px";bar.style.top=y+"px";bar.style.transform="none";
     };
-    const end=e=>{
-      if(!drag)return;
-      try{handle.releasePointerCapture(e.pointerId)}catch{}
-      drag=null;
-    };
+    const end=e=>{if(!drag)return;try{handle.releasePointerCapture(e.pointerId)}catch{}drag=null;};
     handle.addEventListener("pointerdown",e=>{
       e.preventDefault();e.stopPropagation();
-      const r=this.el.getBoundingClientRect();
-      drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top};
+      const r=bar.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top};
+      bar.style.position="fixed";bar.style.margin="0";bar.style.right="auto";
       handle.setPointerCapture(e.pointerId);
     });
-    handle.addEventListener("pointermove",move);
-    handle.addEventListener("pointerup",end);
-    handle.addEventListener("pointercancel",end);
+    handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
   }
   mountMold(){
     this.mold=document.createElement("div");
