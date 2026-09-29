@@ -11,3 +11,12 @@
 .tq-inspector{display:flex;flex-direction:column;gap:8px;margin-top:10px;width:100%}.tq-config-area{width:100%;flex:0 0 auto}.tq-config-area__body{display:grid;grid-template-columns:1fr;gap:10px}.tq-config-area__body[hidden]{display:none}.tq-field:first-of-type{grid-column:auto}
 /* Asset library must stay interactive even when toolbar position/size changes. */
 .tq-dev__assets{pointer-events:auto}.tq-dev__assets button,.tq-dev__assets input,.tq-dev__assets select{pointer-events:auto;touch-action:manipulation}
+
+/* DEV shell must be viewport-sized. Moving the toolbar must never move/resize panels. */
+.tq-dev{position:fixed;inset:0;left:0;top:0;width:100%;height:100%;transform:none;pointer-events:none}
+.tq-dev__bar{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);width:max-content;max-width:100vw;margin:0}
+.tq-dev__panel{position:fixed;left:0;right:0;top:64px;width:100%;max-width:none;margin:0;border-radius:0 0 18px 18px;padding:14px;overflow-x:hidden}
+.tq-dev__content,.tq-inspector,.tq-config-area,.tq-config-area__body,.tq-field{min-width:0;width:100%}
+.tq-field input{max-width:100%}
+.tq-dev__assets{position:fixed;left:0;right:0;top:64px;bottom:0;width:100%;max-width:none;margin:0;border-radius:0;}
+@media(min-width:800px){.tq-dev__panel{left:auto;right:18px;top:72px;width:360px;max-width:calc(100vw - 36px);border-radius:18px}.tq-dev__assets{left:50%;right:auto;top:72px;bottom:18px;width:min(760px,calc(100vw - 36px));transform:translateX(-50%);border-radius:16px}}
