@@ -122,6 +122,17 @@ export class SceneRuntime {
     el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
     el.hidden=node.visible===false;this.positionHandle(node);
   }
+  addNode(raw){
+    if(!this.editorEnabled)return null;
+    const base=(raw.id||"node").replace(/[^a-z0-9._-]+/gi,"-");
+    let id=base,n=2;while(this.nodes.has(id))id=base+"-"+n++;
+    const node=this.normalizeNode({...raw,id,parentId:"viewport"});
+    this.scene.nodes.push(node);
+    const el=this.createNode(node);this.stage.append(el);
+    this.attachEditHandles(node,el);this.attachRotateHandle(node,el);this.attachSkewHandles(node,el);
+    this.select(node.id);this.dispatchEvent("nodecommit",{node,parentId:"viewport",created:true});
+    return node;
+  }
   updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
   select(id){
     this.selectedId=id;
