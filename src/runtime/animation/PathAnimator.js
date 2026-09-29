@@ -83,19 +83,20 @@ export class PathAnimator {
   sync(config){
     const normalized=this.normalize(config);
     const signature=this.configSignature(normalized);
-    if(signature===this.signature)return;
+    if(signature===this.signature&&this.running)return;
     this.signature=signature;
     if(!normalized.enabled||normalized.frames.length<2){
-      this.stop();
+      this.stop({clear:true,resetSignature:false});
       return;
     }
     this.play(normalized);
   }
 
-  stop({clear=true}={}){
+  stop({clear=true,resetSignature=false}={}){
     cancelAnimationFrame(this.raf);
     this.raf=0;
     this.running=false;
+    if(resetSignature)this.signature="";
     if(clear)this.runtime.clearAnimationTransform(this.node.id,this.channel);
   }
 
