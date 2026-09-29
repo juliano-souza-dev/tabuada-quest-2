@@ -1,81 +1,8 @@
-export class OceanEffect {
-  constructor(runtime,node){
-    this.runtime=runtime;
-    this.node=node;
-    this.textureReady=false;
-    this.failed=false;
-    this.ripple={x:.5,y:.5,startedAt:-99};
-    this.canvas=document.createElement("canvas");
-    this.canvas.className="tq-webgl-ocean";
-    this.canvas.dataset.forNode=node.id;
-    this.canvas.setAttribute("aria-hidden","true");
-    runtime.stage.append(this.canvas);
-
-    try{
-      this.gl=this.canvas.getContext("webgl",{
-        alpha:true,
-        antialias:false,
-        premultipliedAlpha:false,
-        preserveDrawingBuffer:false
-      });
-      if(!this.gl)throw new Error("WebGL indisponível");
-      this.init();
-    }catch(error){
-      this.failed=true;
-      this.canvas.hidden=true;
-      console.warn("[TabuadaQuest] Ocean WebGL fallback:",error);
-    }
-
-    this.onPointerDown=this.onPointerDown.bind(this);
-    this.runtime.stage.addEventListener("pointerdown",this.onPointerDown,true);
-    this.sync();
-    this.loop=this.loop.bind(this);
-    this.raf=requestAnimationFrame(this.loop);
-  }
-
-  init(){
-    const gl=this.gl;
-    const vertexSource=`
-      attribute vec2 a_position;
-      varying vec2 v_uv;
-      void main(){
-        v_uv=a_position*.5+.5;
-        gl_Position=vec4(a_position,0.0,1.0);
-      }
-    `;
-    const fragmentSource=`
-      precision mediump float;
-      varying vec2 v_uv;
-      uniform sampler2D u_texture;
-      uniform float u_time;
-      uniform float u_speed;
-      uniform float u_movement;
-      uniform float u_shine;
-      uniform float u_foam;
-      uniform float u_ripple_age;
-      uniform vec2 u_ripple;
-      uniform int u_ripples;
-      uniform int u_count;
-      uniform vec2 u_points[32];
-
-      bool insideWater(vec2 p){
-        bool inside=false;
-        for(int i=0;i<32;i++){
-          if(i>=u_count)break;
-          int j=i==0?u_count-1:i-1;
-          vec2 a=u_points[i];
-          vec2 b=u_points[j];
-          if(((a.y>p.y)!=(b.y>p.y)) &&
-             (p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y+.00001)+a.x)){
-            inside=!inside;
-          }
-        }
-        return inside;
-      }
 
       void main(){
-        vec2 uv=vec2(v_uv.x,1.0-v_uv.y);
-        if(!insideWater(uv))discard;
+        vec2 uv=v_uv;
+        float mask=texture2D(u_mask,uv).a;
+        if(mask<0.02)discard;
 
         float t=u_time*u_speed;
         float w1=sin(uv.y*34.0+uv.x*8.0+t*1.45);
@@ -109,6 +36,7 @@ export class OceanEffect {
         float foamMask=smoothstep(.84,.98,foamBand)*smoothstep(.38,.92,crest)*u_foam;
         color.rgb=mix(color.rgb,vec3(.91,.98,1.0),foamMask*.34);
 
+        color.a*=smoothstep(0.02,0.92,mask);
         gl_FragColor=color;
       }
     `;
@@ -151,6 +79,7 @@ export class OceanEffect {
 
     this.uniforms={
       texture:gl.getUniformLocation(this.program,"u_texture"),
+      mask:gl.getUniformLocation(this.program,"u_mask"),
       time:gl.getUniformLocation(this.program,"u_time"),
       speed:gl.getUniformLocation(this.program,"u_speed"),
       movement:gl.getUniformLocation(this.program,"u_movement"),
@@ -158,9 +87,7 @@ export class OceanEffect {
       foam:gl.getUniformLocation(this.program,"u_foam"),
       rippleAge:gl.getUniformLocation(this.program,"u_ripple_age"),
       ripple:gl.getUniformLocation(this.program,"u_ripple"),
-      ripples:gl.getUniformLocation(this.program,"u_ripples"),
-      count:gl.getUniformLocation(this.program,"u_count"),
-      points:gl.getUniformLocation(this.program,"u_points")
+      ripples:gl.getUniformLocation(this.program,"u_ripples")
     };
 
     this.texture=gl.createTexture();
@@ -169,7 +96,14 @@ export class OceanEffect {
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    this.maskTexture=gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,this.maskTexture);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
     this.uploadTexture();
+    this.updateMaskTexture(true);
   }
 
   config(){
@@ -209,6 +143,43 @@ export class OceanEffect {
     else image.addEventListener("load",upload,{once:true});
   }
 
+  updateMaskTexture(force=false){
+    const gl=this.gl;
+    if(!gl||!this.maskTexture)return;
+    const points=this.node.composition?.area?.points||[];
+    const signature=points.map(point=>Number(point.x).toFixed(5)+","+Number(point.y).toFixed(5)).join(";");
+    if(!force&&signature===this.maskSignature)return;
+    this.maskSignature=signature;
+
+    const size=512;
+    if(!this.maskCanvas){
+      this.maskCanvas=document.createElement("canvas");
+      this.maskCanvas.width=size;
+      this.maskCanvas.height=size;
+      this.maskContext=this.maskCanvas.getContext("2d");
+    }
+    const ctx=this.maskContext;
+    ctx.clearRect(0,0,size,size);
+    if(points.length>=3){
+      ctx.beginPath();
+      points.forEach((point,index)=>{
+        const x=Math.max(0,Math.min(1,Number(point.x)))*size;
+        const y=Math.max(0,Math.min(1,Number(point.y)))*size;
+        if(index===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      });
+      ctx.closePath();
+      ctx.fillStyle="#fff";
+      ctx.fill();
+    }
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D,this.maskTexture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.maskCanvas);
+    gl.activeTexture(gl.TEXTURE0);
+    this.maskReady=points.length>=3;
+  }
+
   qualityScale(){
     const quality=this.config().quality;
     if(quality==="economy")return .65;
@@ -230,6 +201,7 @@ export class OceanEffect {
     canvas.style.zIndex=String(node.z??0);
     canvas.style.transform=`rotate(${node.rotation||0}deg) skew(${node.skewX||0}deg,${node.skewY||0}deg) scale(${node.scaleX||1},${node.scaleY||1})`;
     canvas.hidden=this.failed||node.visible===false||!this.config().active;
+    this.updateMaskTexture();
 
     const dpr=this.qualityScale();
     const internalWidth=Math.max(1,Math.round(width*dpr));
@@ -269,7 +241,7 @@ export class OceanEffect {
     const points=this.node.composition?.area?.points||[];
     const config=this.config();
 
-    if(gl&&!this.failed&&config.active&&this.textureReady&&points.length>=3){
+    if(gl&&!this.failed&&config.active&&this.textureReady&&this.maskReady&&points.length>=3){
       this.canvas.hidden=false;
       gl.viewport(0,0,this.canvas.width,this.canvas.height);
       gl.useProgram(this.program);
@@ -278,6 +250,10 @@ export class OceanEffect {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D,this.texture);
       gl.uniform1i(this.uniforms.texture,0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D,this.maskTexture);
+      gl.uniform1i(this.uniforms.mask,1);
+      gl.activeTexture(gl.TEXTURE0);
       gl.uniform1f(this.uniforms.time,ms/1000);
       gl.uniform1f(this.uniforms.speed,config.speed/100);
       gl.uniform1f(this.uniforms.movement,config.movement/100);
@@ -286,14 +262,6 @@ export class OceanEffect {
       gl.uniform1i(this.uniforms.ripples,config.ripples?1:0);
       gl.uniform2f(this.uniforms.ripple,this.ripple.x,this.ripple.y);
       gl.uniform1f(this.uniforms.rippleAge,ms/1000-this.ripple.startedAt);
-      gl.uniform1i(this.uniforms.count,Math.min(32,points.length));
-
-      const packed=new Float32Array(64);
-      points.slice(0,32).forEach((point,index)=>{
-        packed[index*2]=point.x;
-        packed[index*2+1]=point.y;
-      });
-      gl.uniform2fv(this.uniforms.points,packed);
 
       gl.clearColor(0,0,0,0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -314,6 +282,7 @@ export class OceanEffect {
     this.runtime.stage.removeEventListener("pointerdown",this.onPointerDown,true);
     if(this.gl){
       if(this.texture)this.gl.deleteTexture(this.texture);
+      if(this.maskTexture)this.gl.deleteTexture(this.maskTexture);
       if(this.buffer)this.gl.deleteBuffer(this.buffer);
       if(this.program)this.gl.deleteProgram(this.program);
     }
