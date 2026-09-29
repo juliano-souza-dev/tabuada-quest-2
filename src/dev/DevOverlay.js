@@ -7,6 +7,7 @@ export class DevOverlay {
         <button data-mode="edit" class="active">✥ <span>Editar</span></button>
         <button data-mode="config">⚙ <span>Config</span></button>
         <button data-mode="play">▶ <span>Play</span></button>
+        <button data-export>⇩ <span>JSON</span></button>
       </div>
       <section class="tq-dev__panel" hidden>
         <header><div><strong>Config</strong><small data-node-title>Nenhum nó</small></div><button data-close aria-label="Fechar">×</button></header>
@@ -15,8 +16,23 @@ export class DevOverlay {
     this.root.append(this.el);
     this.el.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>this.setMode(b.dataset.mode)));
     this.el.querySelector("[data-close]").addEventListener("click",()=>this.setMode("edit"));
+    this.el.querySelector("[data-export]").addEventListener("click",()=>this.exportScene());
     window.addEventListener("tq:selectionchange",e=>{this.selected=e.detail.node||null;this.renderInspector();});
     window.addEventListener("tq:nodechange",e=>{if(this.selected?.id===e.detail.node.id){this.selected=e.detail.node;this.syncInspector();}});
+  }
+  exportScene(){
+    const scene=structuredClone(this.runtime.scene||{});
+    scene.reference={...this.runtime.reference};
+    scene.root=scene.root||{id:"viewport",kind:"viewport",canonical:true};
+    scene.nodes=[...this.runtime.nodes.values()].map(({node})=>structuredClone(node));
+    scene.meta={...(scene.meta||{}),exportedFrom:"tabuada-quest-dev",schema:"tq.scene",version:1};
+    const json=JSON.stringify(scene,null,2);
+    const blob=new Blob([json],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    const id=(scene.id||"scene").replace(/[^a-z0-9._-]+/gi,"-");
+    a.href=url;a.download=id+".scene.json";document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),0);
   }
   setMode(mode){
     this.mode=mode;this.runtime.setMode(mode);
