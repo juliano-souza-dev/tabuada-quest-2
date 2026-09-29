@@ -104,7 +104,7 @@ export class SceneRuntime {
     h.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;
     h.style.left=(node.x+(this.sceneOffset?.x||0)+(node.width??0))+"px";h.style.top=(node.y+(this.sceneOffset?.y||0)+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
     const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;rh.style.left=(node.x+(this.sceneOffset?.x||0)+(node.width??0)/2)+"px";rh.style.top=(node.y+(this.sceneOffset?.y||0)-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
-    for(const axis of ["x","y"]){const sh=[...this.stage.querySelectorAll(".tq-skew-handle")].find(el=>el.dataset.forNode===node.id&&el.dataset.axis===axis);if(sh){sh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;sh.style.left=(axis==="x"?node.x+(node.width??0)/2:node.x-24)+"px";sh.style.top=(axis==="x"?node.y+(node.height??0)+24:node.y+(node.height??0)/2)+"px";sh.style.zIndex=(node.z??0)+100000;}}
+    for(const axis of ["x","y"]){const sh=[...this.stage.querySelectorAll(".tq-skew-handle")].find(el=>el.dataset.forNode===node.id&&el.dataset.axis===axis);if(sh){sh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;sh.style.left=(axis==="x"?node.x+(this.sceneOffset?.x||0)+(node.width??0)/2:node.x+(this.sceneOffset?.x||0)-24)+"px";sh.style.top=(axis==="x"?node.y+(this.sceneOffset?.y||0)+(node.height??0)+24:node.y+(this.sceneOffset?.y||0)+(node.height??0)/2)+"px";sh.style.zIndex=(node.z??0)+100000;}}
   }
   beginResize(event,node,el,handle){
     handle.setPointerCapture(event.pointerId);const scale=this.viewportScale||1;
