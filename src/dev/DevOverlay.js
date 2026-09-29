@@ -423,14 +423,13 @@ export class DevOverlay {
     overlay.classList.add("tq-water-area-editor");
     overlay.setAttribute("preserveAspectRatio","none");
 
-    const ox=this.runtime.sceneOffset?.x||0;
-    const oy=this.runtime.sceneOffset?.y||0;
-    const width=Math.max(1,node.width||item.el.offsetWidth||1);
-    const height=Math.max(1,node.height||item.el.offsetHeight||1);
+    const layout=this.runtime.resolveNodeLayout(node);
+    const width=Math.max(1,layout.width||item.el.offsetWidth||1);
+    const height=Math.max(1,layout.height||item.el.offsetHeight||1);
 
     Object.assign(overlay.style,{
-      left:(node.x+ox)+"px",
-      top:(node.y+oy)+"px",
+      left:layout.x+"px",
+      top:layout.y+"px",
       width:width+"px",
       height:height+"px",
       zIndex:String((node.z||0)+200000),
