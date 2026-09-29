@@ -43,18 +43,47 @@ export class SceneRuntime {
       if(this.mode!=="edit"||node.locked)return;
       e.preventDefault();e.stopPropagation();this.select(node.id);this.beginDrag(e,node,el);
     });
-    this.nodes.set(node.id,{node,el}); return el;
+    this.nodes.set(node.id,{node,el}); this.attachEditHandles(node,el); return el;
+  }
+  attachEditHandles(node,el){
+    if(node.kind!=="image")return;
+    const handle=document.createElement("span");handle.className="tq-resize-handle";handle.setAttribute("aria-label","Redimensionar");
+    el.addEventListener("load",()=>this.ensureNodeSize(node,el),{once:true});
+    // Replaced elements cannot host children reliably, so handle is managed by the stage.
+    const h=document.createElement("button");h.type="button";h.className="tq-node-handle";h.dataset.forNode=node.id;h.hidden=true;this.stage.append(h);
+    h.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();this.beginResize(e,node,el,h)});
+  }
+  ensureNodeSize(node,el){
+    if(node.width==null)node.width=el.naturalWidth||el.getBoundingClientRect().width/(this.viewportScale||1);
+    if(node.height==null)node.height=el.naturalHeight||el.getBoundingClientRect().height/(this.viewportScale||1);
+    this.applyTransform(el,node);this.positionHandle(node);
+  }
+  positionHandle(node){
+    const h=this.stage.querySelector(`.tq-node-handle[data-for-node="${CSS.escape(node.id)}"]`);if(!h)return;
+    h.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;
+    h.style.left=(node.x+(node.width??0))+"px";h.style.top=(node.y+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
+  }
+  beginResize(event,node,el,handle){
+    handle.setPointerCapture(event.pointerId);const scale=this.viewportScale||1;
+    const start={px:event.clientX,py:event.clientY,w:node.width??el.offsetWidth,h:node.height??el.offsetHeight,ratio:(node.width??el.offsetWidth)/(node.height??el.offsetHeight||1)};
+    const move=e=>{let w=Math.max(24,start.w+(e.clientX-start.px)/scale);let h=Math.max(24,start.h+(e.clientY-start.py)/scale);
+      if(!e.shiftKey){const byW=w/start.ratio,byH=h*start.ratio;if(Math.abs(w-start.w)>=Math.abs(h-start.h)){h=byW}else{w=byH}}
+      node.width=w;node.height=h;this.applyTransform(el,node);this.positionHandle(node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
+    };
+    const end=e=>{if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);handle.removeEventListener("pointermove",move);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
+    handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
   }
   applyTransform(el,node){
     el.style.left=node.x+"px";el.style.top=node.y+"px";
     if(node.width!=null)el.style.width=node.width+"px";if(node.height!=null)el.style.height=node.height+"px";
     el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
-    el.hidden=node.visible===false;
+    el.hidden=node.visible===false;this.positionHandle(node);
   }
   updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
   select(id){
     this.selectedId=id;
     for(const [nodeId,{el}] of this.nodes)el.classList.toggle("is-selected",nodeId===id);
+    for(const {node} of this.nodes.values())this.positionHandle(node);
     this.dispatchEvent("selectionchange",{id,node:id?this.nodes.get(id)?.node:null,parentId:"viewport"});
   }
   beginDrag(event,node,el){
@@ -68,6 +97,6 @@ export class SceneRuntime {
     const end=e=>{if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
     el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
   }
-  setMode(mode){this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);this.dispatchEvent("modechange",{mode});}
+  setMode(mode){this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);else for(const {node} of this.nodes.values())this.positionHandle(node);this.dispatchEvent("modechange",{mode});}
   dispatchEvent(name,detail){window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
 }
