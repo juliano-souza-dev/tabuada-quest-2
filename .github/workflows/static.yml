@@ -1,10 +1,11 @@
-# Temporary DEV preview deployed by the allowed main workflow
+# Deploy the develop branch to GitHub Pages whenever develop changes.
+# The workflow file lives on main because main is the Pages-authorized branch.
 name: Deploy DEV preview to Pages
 
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
+  repository_dispatch:
+    types: [deploy-develop]
 
 permissions:
   contents: read
@@ -13,7 +14,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -22,7 +23,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout develop content
+      - name: Checkout develop
         uses: actions/checkout@v4
         with:
           ref: develop
