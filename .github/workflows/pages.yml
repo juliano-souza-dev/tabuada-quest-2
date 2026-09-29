@@ -1,5 +1,6 @@
-# A develop commit asks the Pages-authorized main workflow to deploy develop.
-name: Trigger DEV Pages deploy
+# Deploy develop directly to GitHub Pages.
+# Requires the github-pages environment to allow the develop branch.
+name: Deploy Tabuada Quest DEV to Pages
 
 on:
   push:
@@ -8,15 +9,28 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  trigger:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch deployment through main
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api --method POST \
-            repos/${{ github.repository }}/dispatches \
-            -f event_type=deploy-develop
+      - name: Checkout develop
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy DEV
+        id: deployment
+        uses: actions/deploy-pages@v4
