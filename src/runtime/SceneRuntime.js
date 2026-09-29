@@ -24,13 +24,53 @@ export class SceneRuntime {
     this.sceneOffset={x:(this.logicalViewport.width-this.reference.width)/2,y:(this.logicalViewport.height-this.reference.height)/2};
     this.stage.style.width=this.logicalViewport.width+"px"; this.stage.style.height=this.logicalViewport.height+"px";
     this.stage.style.transform=`translate(-50%,-50%) scale(${this.viewportScale})`;
+    if(this.nodes?.size){
+      for(const {node,el} of this.nodes.values())this.applyTransform(el,node);
+    }
+  }
+
+  resolveNodeLayout(node){
+    const ox=this.sceneOffset?.x||0,oy=this.sceneOffset?.y||0;
+    const baseWidth=Math.max(1,Number(node.width??1));
+    const baseHeight=Math.max(1,Number(node.height??1));
+    if(node.layout?.mode!=="viewport-cover"){
+      return {x:node.x+ox,y:node.y+oy,width:baseWidth,height:baseHeight};
+    }
+
+    const viewportWidth=Math.max(1,this.logicalViewport?.width||this.reference.width);
+    const viewportHeight=Math.max(1,this.logicalViewport?.height||this.reference.height);
+    const coverScale=Math.max(viewportWidth/baseWidth,viewportHeight/baseHeight);
+    const authoredCenterX=node.x+baseWidth/2;
+    const authoredCenterY=node.y+baseHeight/2;
+    const referenceCenterX=this.reference.width/2;
+    const referenceCenterY=this.reference.height/2;
+    const offsetX=(authoredCenterX-referenceCenterX)*coverScale;
+    const offsetY=(authoredCenterY-referenceCenterY)*coverScale;
+    const width=baseWidth*coverScale;
+    const height=baseHeight*coverScale;
+    return {
+      x:viewportWidth/2+offsetX-width/2,
+      y:viewportHeight/2+offsetY-height/2,
+      width,
+      height
+    };
   }
   async load(url){
     const res=await fetch(url,{cache:"no-store"}); if(!res.ok)throw new Error(`Scene load failed: ${res.status}`);
-    this.scene=await res.json();
+    const sourceScene=await res.json();
+    this.scene=sourceScene;
     if(this.editorEnabled){
-      this.storageKey="tq.dev.scene-draft:"+this.scene.id;
-      try{const saved=localStorage.getItem(this.storageKey);if(saved){const draft=JSON.parse(saved);if(draft?.schema===this.scene.schema&&draft?.id===this.scene.id)this.scene=draft;}}catch(err){console.warn("DEV draft restore failed",err)}
+      this.storageKey="tq.dev.scene-draft:"+sourceScene.id;
+      try{
+        const saved=localStorage.getItem(this.storageKey);
+        if(saved){
+          const draft=JSON.parse(saved);
+          const sourceRevision=sourceScene.meta?.sourceRevision??null;
+          const draftRevision=draft?.meta?.sourceRevision??null;
+          if(draft?.schema===sourceScene.schema&&draft?.id===sourceScene.id&&draftRevision===sourceRevision)this.scene=draft;
+          else localStorage.removeItem(this.storageKey);
+        }
+      }catch(err){console.warn("DEV draft restore failed",err)}
     }
     this.reference=this.scene.reference||this.reference; this.fit(); this.render();
   }
@@ -78,8 +118,8 @@ export class SceneRuntime {
   beginRotate(event,node,handle){
     handle.setPointerCapture(event.pointerId);
     const rotate=e=>{
-      const r=this.stage.getBoundingClientRect(),s=this.viewportScale||1;
-      const cx=r.left+(node.x+(node.width??0)/2)*s,cy=r.top+(node.y+(node.height??0)/2)*s;
+      const r=this.stage.getBoundingClientRect(),s=this.viewportScale||1,layout=this.resolveNodeLayout(node);
+      const cx=r.left+(layout.x+layout.width/2)*s,cy=r.top+(layout.y+layout.height/2)*s;
       node.rotation=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI+90;
       this.applyTransform(this.nodes.get(node.id).el,node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
     };
@@ -111,7 +151,7 @@ export class SceneRuntime {
     this.applyTransform(el,node);this.positionHandle(node);
   }
   positionHandle(node){
-    const ox=this.sceneOffset?.x||0,oy=this.sceneOffset?.y||0,x=node.x+ox,y=node.y+oy,w=node.width??0,h=node.height??0,show=this.selectedId===node.id&&this.mode==="edit"&&!node.locked;
+    const layout=this.resolveNodeLayout(node),x=layout.x,y=layout.y,w=layout.width,h=layout.height,show=this.selectedId===node.id&&this.mode==="edit"&&!node.locked;
     const spots={nw:[x,y],n:[x+w/2,y],ne:[x+w,y],e:[x+w,y+h/2],se:[x+w,y+h],s:[x+w/2,y+h],sw:[x,y+h],w:[x,y+h/2]};
     for(const hnd of this.stage.querySelectorAll(".tq-node-handle"))if(hnd.dataset.forNode===node.id){const p=spots[hnd.dataset.resizeDir]||spots.se;hnd.hidden=!show;hnd.style.left=p[0]+"px";hnd.style.top=p[1]+"px";hnd.style.zIndex=(node.z??0)+100000;}
     const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=!show;rh.style.left=(x+w/2)+"px";rh.style.top=(y-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
@@ -135,8 +175,9 @@ export class SceneRuntime {
   }
   syncComposition(node){return this.compositions.syncNode(node);}
   applyTransform(el,node){
-    el.style.left=(node.x+(this.sceneOffset?.x||0))+"px";el.style.top=(node.y+(this.sceneOffset?.y||0))+"px";
-    if(node.width!=null)el.style.width=node.width+"px";if(node.height!=null)el.style.height=node.height+"px";
+    const layout=this.resolveNodeLayout(node);
+    el.style.left=layout.x+"px";el.style.top=layout.y+"px";
+    el.style.width=layout.width+"px";el.style.height=layout.height+"px";
     el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
     el.hidden=node.visible===false;this.positionHandle(node);this.compositions.get(node.id)?.sync?.();
   }
