@@ -1,6 +1,6 @@
-import { CompositionEngine } from "./CompositionEngine.js?v=20260929-2232";
-import { OceanEffect } from "../OceanEffect.js?v=20260929-2232";
-import { ShipEffect } from "../ShipEffect.js?v=20260929-2232";
+import { CompositionEngine } from "./CompositionEngine.js?v=20260929-2238";
+import { OceanEffect } from "../OceanEffect.js?v=20260929-2238";
+import { ShipEffect } from "../ShipEffect.js?v=20260929-2238";
 
 export function createCompositionEngine(runtime) {
   return new CompositionEngine(runtime, {
