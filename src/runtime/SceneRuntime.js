@@ -1,7 +1,8 @@
+import { createCompositionEngine } from "./composition/registry.js?v=20260929-2156";
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
-    this.selectedId=null; this.nodes=new Map(); this.mount();
+    this.selectedId=null; this.nodes=new Map(); this.compositions=createCompositionEngine(this); this.storageKey=null; this.mount();
   }
   mount(){
     this.root.innerHTML="";
@@ -26,18 +27,26 @@ export class SceneRuntime {
   }
   async load(url){
     const res=await fetch(url,{cache:"no-store"}); if(!res.ok)throw new Error(`Scene load failed: ${res.status}`);
-    this.scene=await res.json(); this.reference=this.scene.reference||this.reference; this.fit(); this.render();
+    this.scene=await res.json();
+    if(this.editorEnabled){
+      this.storageKey="tq.dev.scene-draft:"+this.scene.id;
+      try{const saved=localStorage.getItem(this.storageKey);if(saved){const draft=JSON.parse(saved);if(draft?.schema===this.scene.schema&&draft?.id===this.scene.id)this.scene=draft;}}catch(err){console.warn("DEV draft restore failed",err)}
+    }
+    this.reference=this.scene.reference||this.reference; this.fit(); this.render();
   }
   render(){
+    this.compositions.reset();
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
     if(this.editorEnabled) for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); this.attachSkewHandles(node,el); }
+    for(const {node} of this.nodes.values())this.syncComposition(node);
   }
   normalizeNode(node){
     node.parentId="viewport";
     node.x=Number(node.x??0); node.y=Number(node.y??0);
     node.scaleX=Number(node.scaleX??1); node.scaleY=Number(node.scaleY??1);
     node.rotation=Number(node.rotation??0); node.skewX=Number(node.skewX??0); node.skewY=Number(node.skewY??0); node.z=Number(node.z??0); node.visible=node.visible!==false; node.locked=Boolean(node.locked);
+    if(node.compositionType!=null)node.compositionType=String(node.compositionType);
     return node;
   }
   createNode(raw){
@@ -57,8 +66,10 @@ export class SceneRuntime {
     const handle=document.createElement("span");handle.className="tq-resize-handle";handle.setAttribute("aria-label","Redimensionar");
     el.addEventListener("load",()=>this.ensureNodeSize(node,el),{once:true});
     // Replaced elements cannot host children reliably, so handle is managed by the stage.
-    const h=document.createElement("button");h.type="button";h.className="tq-node-handle";h.dataset.forNode=node.id;h.hidden=true;this.stage.append(h);
-    h.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();this.beginResize(e,node,el,h)});
+    for(const dir of ["nw","n","ne","e","se","s","sw","w"]){
+      const h=document.createElement("button");h.type="button";h.className="tq-node-handle tq-resize-"+dir;h.dataset.forNode=node.id;h.dataset.resizeDir=dir;h.hidden=true;this.stage.append(h);
+      h.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();this.beginResize(e,node,el,h,dir)});
+    }
   }
   attachRotateHandle(node,el){
     const h=document.createElement("button");h.type="button";h.className="tq-rotate-handle";h.dataset.forNode=node.id;h.hidden=true;this.stage.append(h);
@@ -100,29 +111,57 @@ export class SceneRuntime {
     this.applyTransform(el,node);this.positionHandle(node);
   }
   positionHandle(node){
-    const h=[...this.stage.querySelectorAll(".tq-node-handle")].find(el=>el.dataset.forNode===node.id);if(!h)return;
-    h.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;
-    h.style.left=(node.x+(this.sceneOffset?.x||0)+(node.width??0))+"px";h.style.top=(node.y+(this.sceneOffset?.y||0)+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
-    const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;rh.style.left=(node.x+(this.sceneOffset?.x||0)+(node.width??0)/2)+"px";rh.style.top=(node.y+(this.sceneOffset?.y||0)-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
-    for(const axis of ["x","y"]){const sh=[...this.stage.querySelectorAll(".tq-skew-handle")].find(el=>el.dataset.forNode===node.id&&el.dataset.axis===axis);if(sh){sh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;sh.style.left=(axis==="x"?node.x+(node.width??0)/2:node.x-24)+"px";sh.style.top=(axis==="x"?node.y+(node.height??0)+24:node.y+(node.height??0)/2)+"px";sh.style.zIndex=(node.z??0)+100000;}}
+    const ox=this.sceneOffset?.x||0,oy=this.sceneOffset?.y||0,x=node.x+ox,y=node.y+oy,w=node.width??0,h=node.height??0,show=this.selectedId===node.id&&this.mode==="edit"&&!node.locked;
+    const spots={nw:[x,y],n:[x+w/2,y],ne:[x+w,y],e:[x+w,y+h/2],se:[x+w,y+h],s:[x+w/2,y+h],sw:[x,y+h],w:[x,y+h/2]};
+    for(const hnd of this.stage.querySelectorAll(".tq-node-handle"))if(hnd.dataset.forNode===node.id){const p=spots[hnd.dataset.resizeDir]||spots.se;hnd.hidden=!show;hnd.style.left=p[0]+"px";hnd.style.top=p[1]+"px";hnd.style.zIndex=(node.z??0)+100000;}
+    const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=!show;rh.style.left=(x+w/2)+"px";rh.style.top=(y-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
+    for(const axis of ["x","y"]){const sh=[...this.stage.querySelectorAll(".tq-skew-handle")].find(el=>el.dataset.forNode===node.id&&el.dataset.axis===axis);if(sh){sh.hidden=!show;sh.style.left=(axis==="x"?x+w/2:x-24)+"px";sh.style.top=(axis==="x"?y+h+24:y+h/2)+"px";sh.style.zIndex=(node.z??0)+100000;}}
   }
-  beginResize(event,node,el,handle){
-    handle.setPointerCapture(event.pointerId);const scale=this.viewportScale||1;
-    const start={px:event.clientX,py:event.clientY,w:node.width??el.offsetWidth,h:node.height??el.offsetHeight,ratio:(node.width ?? el.offsetWidth) / ((node.height ?? el.offsetHeight) || 1)};
-    const move=e=>{let w=Math.max(24,start.w+(e.clientX-start.px)/scale);let h=Math.max(24,start.h+(e.clientY-start.py)/scale);
-      if(!e.shiftKey){const byW=w/start.ratio,byH=h*start.ratio;if(Math.abs(w-start.w)>=Math.abs(h-start.h)){h=byW}else{w=byH}}
-      node.width=w;node.height=h;this.applyTransform(el,node);this.positionHandle(node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
+  beginResize(event,node,el,handle,dir="se"){
+    handle.setPointerCapture(event.pointerId);const scale=this.viewportScale||1,min=24;
+    const start={px:event.clientX,py:event.clientY,x:node.x,y:node.y,w:node.width??el.offsetWidth,h:node.height??el.offsetHeight};
+    const move=e=>{
+      const dx=(e.clientX-start.px)/scale,dy=(e.clientY-start.py)/scale;
+      let left=start.x,top=start.y,right=start.x+start.w,bottom=start.y+start.h;
+      if(dir.includes("w"))left=Math.min(right-min,start.x+dx);
+      if(dir.includes("e"))right=Math.max(left+min,start.x+start.w+dx);
+      if(dir.includes("n"))top=Math.min(bottom-min,start.y+dy);
+      if(dir.includes("s"))bottom=Math.max(top+min,start.y+start.h+dy);
+      node.x=left;node.y=top;node.width=right-left;node.height=bottom-top;
+      this.applyTransform(el,node);this.positionHandle(node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
     };
     const end=e=>{if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);handle.removeEventListener("pointermove",move);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
     handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
   }
+  syncComposition(node){return this.compositions.syncNode(node);}
   applyTransform(el,node){
     el.style.left=(node.x+(this.sceneOffset?.x||0))+"px";el.style.top=(node.y+(this.sceneOffset?.y||0))+"px";
     if(node.width!=null)el.style.width=node.width+"px";if(node.height!=null)el.style.height=node.height+"px";
     el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
-    el.hidden=node.visible===false;this.positionHandle(node);
+    el.hidden=node.visible===false;this.positionHandle(node);this.compositions.get(node.id)?.sync?.();
   }
-  updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
+  addNode(raw){
+    if(!this.editorEnabled)return null;
+    const base=(raw.id||"node").replace(/[^a-z0-9._-]+/gi,"-");
+    let id=base,n=2;while(this.nodes.has(id))id=base+"-"+n++;
+    const node=this.normalizeNode({...raw,id,parentId:"viewport"});
+    this.scene.nodes.push(node);
+    const el=this.createNode(node);this.stage.append(el);
+    this.attachEditHandles(node,el);this.attachRotateHandle(node,el);this.attachSkewHandles(node,el);
+    this.select(node.id);this.syncComposition(node);this.dispatchEvent("nodecommit",{node,parentId:"viewport",created:true});
+    return node;
+  }
+  deleteNode(id){
+    if(!this.editorEnabled)return false;
+    const item=this.nodes.get(id);if(!item)return false;
+    this.stage.querySelectorAll('[data-for-node="'+CSS.escape(id)+'"]').forEach(el=>el.remove());
+    this.compositions.destroyNode(id);item.el.remove();this.nodes.delete(id);
+    if(this.scene?.nodes)this.scene.nodes=this.scene.nodes.filter(node=>node.id!==id);
+    if(this.selectedId===id)this.select(null);
+    this.persistDraft();this.dispatchEvent("nodecommit",{node:null,id,parentId:"viewport",deleted:true});
+    return true;
+  }
+  updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.syncComposition(item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
   select(id){
     this.selectedId=id;
     for(const [nodeId,{el}] of this.nodes)el.classList.toggle("is-selected",nodeId===id);
@@ -141,5 +180,6 @@ export class SceneRuntime {
     el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
   }
   setMode(mode){if(!this.editorEnabled&&mode!=="play")return;this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);else for(const {node} of this.nodes.values())this.positionHandle(node);this.dispatchEvent("modechange",{mode});}
-  dispatchEvent(name,detail){window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
+  persistDraft(){if(!this.editorEnabled||!this.storageKey||!this.scene)return;try{localStorage.setItem(this.storageKey,JSON.stringify(this.scene))}catch(err){console.warn("DEV draft save failed",err)}}
+  dispatchEvent(name,detail){if(this.editorEnabled&&(name==="nodechange"||name==="nodecommit"))this.persistDraft();window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
 }
