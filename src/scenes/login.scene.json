@@ -18,17 +18,24 @@
       "parentId": "viewport",
       "kind": "image",
       "src": "./assets/pwa/icon-192.svg",
-      "x": 131,
-      "y": 358,
-      "width": 128,
-      "height": 128,
+      "x": -49.449255751014874,
+      "y": 276.9120433017591,
+      "width": 190.81461434370772,
+      "height": 190.81461434370772,
       "scaleX": 1,
       "scaleY": 1,
       "rotation": 0,
       "z": 1,
       "visible": true,
       "locked": false,
-      "alt": "Tabuada Quest"
+      "alt": "Tabuada Quest",
+      "skewX": 0,
+      "skewY": 0
     }
-  ]
+  ],
+  "meta": {
+    "exportedFrom": "tabuada-quest-dev",
+    "schema": "tq.scene",
+    "version": 1
+  }
 }
