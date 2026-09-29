@@ -1,7 +1,7 @@
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
-    this.selectedId=null; this.nodes=new Map(); this.mount();
+    this.selectedId=null; this.nodes=new Map(); this.storageKey=null; this.mount();
   }
   mount(){
     this.root.innerHTML="";
@@ -26,7 +26,12 @@ export class SceneRuntime {
   }
   async load(url){
     const res=await fetch(url,{cache:"no-store"}); if(!res.ok)throw new Error(`Scene load failed: ${res.status}`);
-    this.scene=await res.json(); this.reference=this.scene.reference||this.reference; this.fit(); this.render();
+    this.scene=await res.json();
+    if(this.editorEnabled){
+      this.storageKey="tq.dev.scene-draft:"+this.scene.id;
+      try{const saved=localStorage.getItem(this.storageKey);if(saved){const draft=JSON.parse(saved);if(draft?.schema===this.scene.schema&&draft?.id===this.scene.id)this.scene=draft;}}catch(err){console.warn("DEV draft restore failed",err)}
+    }
+    this.reference=this.scene.reference||this.reference; this.fit(); this.render();
   }
   render(){
     this.stage.replaceChildren(); this.nodes.clear();
@@ -160,5 +165,6 @@ export class SceneRuntime {
     el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
   }
   setMode(mode){if(!this.editorEnabled&&mode!=="play")return;this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);else for(const {node} of this.nodes.values())this.positionHandle(node);this.dispatchEvent("modechange",{mode});}
-  dispatchEvent(name,detail){window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
+  persistDraft(){if(!this.editorEnabled||!this.storageKey||!this.scene)return;try{localStorage.setItem(this.storageKey,JSON.stringify(this.scene))}catch(err){console.warn("DEV draft save failed",err)}}
+  dispatchEvent(name,detail){if(this.editorEnabled&&(name==="nodechange"||name==="nodecommit"))this.persistDraft();window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
 }
