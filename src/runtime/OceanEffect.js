@@ -1,3 +1,12 @@
+const WAKE_PRESETS=Object.freeze({
+  subtle:Object.freeze({intensity:36,length:34,spread:32,foam:34}),
+  navigation:Object.freeze({intensity:62,length:56,spread:44,foam:62}),
+  strong:Object.freeze({intensity:86,length:76,spread:54,foam:86}),
+  heavy:Object.freeze({intensity:74,length:68,spread:62,foam:72})
+});
+
+const clamp=(value,min=0,max=1)=>Math.max(min,Math.min(max,Number(value)||0));
+
 export class OceanEffect {
   constructor(runtime,node){
     this.runtime=runtime;
@@ -7,6 +16,7 @@ export class OceanEffect {
     this.failed=false;
     this.maskSignature="";
     this.ripple={x:.5,y:.5,startedAt:-99};
+    this.wakeMotion=new Map();
 
     this.canvas=document.createElement("canvas");
     this.canvas.className="tq-webgl-ocean";
@@ -61,6 +71,9 @@ export class OceanEffect {
       "uniform float u_ripple_age;",
       "uniform vec2 u_ripple;",
       "uniform int u_ripples;",
+      "uniform float u_wake_count;",
+      "uniform vec4 u_wake_pos[4];",
+      "uniform vec4 u_wake_meta[4];",
       "void main(){",
       "  vec2 uv=v_uv;",
       "  float mask=texture2D(u_mask,uv).a;",
@@ -83,6 +96,24 @@ export class OceanEffect {
       "    vec2 dir=dist>.0001?delta/dist:vec2(0.0);",
       "    offset+=dir*ring*decay*(.010+.020*u_movement);",
       "  }",
+      "  for(int wi=0;wi<4;wi++){",
+      "    if(float(wi)<u_wake_count){",
+      "      vec2 wp=u_wake_pos[wi].xy;",
+      "      vec2 dir=normalize(u_wake_pos[wi].zw+vec2(.00001));",
+      "      float intensity=u_wake_meta[wi].x;",
+      "      float wakeLength=u_wake_meta[wi].y;",
+      "      float spread=u_wake_meta[wi].z;",
+      "      vec2 delta=uv-wp;",
+      "      vec2 backDir=-dir;",
+      "      vec2 sideDir=vec2(-dir.y,dir.x);",
+      "      float back=dot(delta,backDir);",
+      "      float side=abs(dot(delta,sideDir));",
+      "      float body=smoothstep(0.0,.025,back)*(1.0-smoothstep(wakeLength*.72,wakeLength,back));",
+      "      float arm=abs(side-max(0.0,back)*spread);",
+      "      float wake=exp(-arm*105.0)*body*intensity;",
+      "      offset+=sideDir*sign(dot(delta,sideDir))*wake*.0048;",
+      "    }",
+      "  }",
       "  vec4 color=texture2D(u_texture,clamp(uv+offset,0.001,0.999));",
       "  float crest=smoothstep(.34,.95,waves*.5+.5);",
       "  float sparkle=pow(max(0.0,sin((uv.x*1.2+uv.y)*92.0+t*2.1)),10.0);",
@@ -90,7 +121,27 @@ export class OceanEffect {
       "  color.rgb+=vec3(.23,.55,.72)*light;",
       "  float foamBand=sin(uv.y*73.0+uv.x*19.0+t*1.9)*.5+.5;",
       "  float foamMask=smoothstep(.84,.98,foamBand)*smoothstep(.38,.92,crest)*u_foam;",
-      "  color.rgb=mix(color.rgb,vec3(.91,.98,1.0),foamMask*.34);",
+      "  for(int fi=0;fi<4;fi++){",
+      "    if(float(fi)<u_wake_count){",
+      "      vec2 wp=u_wake_pos[fi].xy;",
+      "      vec2 dir=normalize(u_wake_pos[fi].zw+vec2(.00001));",
+      "      float intensity=u_wake_meta[fi].x;",
+      "      float wakeLength=u_wake_meta[fi].y;",
+      "      float spread=u_wake_meta[fi].z;",
+      "      float wakeFoam=u_wake_meta[fi].w;",
+      "      vec2 delta=uv-wp;",
+      "      vec2 backDir=-dir;",
+      "      vec2 sideDir=vec2(-dir.y,dir.x);",
+      "      float back=dot(delta,backDir);",
+      "      float side=abs(dot(delta,sideDir));",
+      "      float body=smoothstep(0.0,.022,back)*(1.0-smoothstep(wakeLength*.70,wakeLength,back));",
+      "      float arm=abs(side-max(0.0,back)*spread);",
+      "      float arms=exp(-arm*128.0)*body;",
+      "      float tail=exp(-side*62.0)*body*.36;",
+      "      foamMask+=(arms+tail)*intensity*wakeFoam;",
+      "    }",
+      "  }",
+      "  color.rgb=mix(color.rgb,vec3(.91,.98,1.0),clamp(foamMask*.34,0.0,.72));",
       "  color.a*=smoothstep(0.02,0.92,mask);",
       "  gl_FragColor=color;",
       "}"
@@ -125,8 +176,8 @@ export class OceanEffect {
     this.buffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,this.buffer);
     gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([
-      -1,-1, 1,-1, -1,1,
-      -1, 1, 1,-1,  1,1
+      -1,-1,1,-1,-1,1,
+      -1,1,1,-1,1,1
     ]),gl.STATIC_DRAW);
 
     gl.useProgram(this.program);
@@ -144,7 +195,10 @@ export class OceanEffect {
       foam:gl.getUniformLocation(this.program,"u_foam"),
       rippleAge:gl.getUniformLocation(this.program,"u_ripple_age"),
       ripple:gl.getUniformLocation(this.program,"u_ripple"),
-      ripples:gl.getUniformLocation(this.program,"u_ripples")
+      ripples:gl.getUniformLocation(this.program,"u_ripples"),
+      wakeCount:gl.getUniformLocation(this.program,"u_wake_count"),
+      wakePos:gl.getUniformLocation(this.program,"u_wake_pos[0]"),
+      wakeMeta:gl.getUniformLocation(this.program,"u_wake_meta[0]")
     };
 
     this.texture=gl.createTexture();
@@ -214,10 +268,7 @@ export class OceanEffect {
     if(!gl||!this.maskTexture)return;
 
     const points=this.node.composition?.area?.points||[];
-    const signature=points
-      .map(point=>Number(point.x).toFixed(5)+","+Number(point.y).toFixed(5))
-      .join(";");
-
+    const signature=points.map(point=>Number(point.x).toFixed(5)+","+Number(point.y).toFixed(5)).join(";");
     if(!force&&signature===this.maskSignature)return;
     this.maskSignature=signature;
 
@@ -230,20 +281,15 @@ export class OceanEffect {
     }
 
     const ctx=this.maskContext;
-    if(!ctx){
-      this.maskReady=false;
-      return;
-    }
-
+    if(!ctx){this.maskReady=false;return}
     ctx.clearRect(0,0,size,size);
 
     if(points.length>=3){
       ctx.beginPath();
       points.forEach((point,index)=>{
-        const x=Math.max(0,Math.min(1,Number(point.x)))*size;
-        const y=Math.max(0,Math.min(1,Number(point.y)))*size;
-        if(index===0)ctx.moveTo(x,y);
-        else ctx.lineTo(x,y);
+        const x=clamp(point.x)*size;
+        const y=clamp(point.y)*size;
+        if(index===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
       });
       ctx.closePath();
       ctx.fillStyle="#fff";
@@ -255,7 +301,6 @@ export class OceanEffect {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.maskCanvas);
     gl.activeTexture(gl.TEXTURE0);
-
     this.maskReady=points.length>=3;
   }
 
@@ -286,7 +331,6 @@ export class OceanEffect {
     const dpr=this.qualityScale();
     const internalWidth=Math.max(1,Math.round(width*dpr));
     const internalHeight=Math.max(1,Math.round(height*dpr));
-
     if(canvas.width!==internalWidth||canvas.height!==internalHeight){
       canvas.width=internalWidth;
       canvas.height=internalHeight;
@@ -294,34 +338,127 @@ export class OceanEffect {
     }
   }
 
-  pointInWater(x,y){
+  pointInWater(x,yTop){
     const points=this.node.composition?.area?.points||[];
     let inside=false;
-
     for(let i=0,j=points.length-1;i<points.length;j=i++){
-      const a=points[i];
-      const b=points[j];
-      if(((a.y>y)!=(b.y>y)) &&
-         (x<(b.x-a.x)*(y-a.y)/(b.y-a.y+Number.EPSILON)+a.x)){
-        inside=!inside;
-      }
+      const a=points[i],b=points[j];
+      if(((a.y>yTop)!=(b.y>yTop))&&(x<(b.x-a.x)*(yTop-a.y)/(b.y-a.y+Number.EPSILON)+a.x))inside=!inside;
+    }
+    return inside;
+  }
+
+  stagePoint(stageX,stageY){
+    const layout=this.runtime.resolveNodeLayout(this.node);
+    if(!layout.width||!layout.height)return null;
+    const x=(stageX-layout.x)/layout.width;
+    const yTop=(stageY-layout.y)/layout.height;
+    if(x<0||x>1||yTop<0||yTop>1)return null;
+    return {x,yTop,y:1-yTop};
+  }
+
+  sampleWaveAtStage(stageX,stageY,now=performance.now()){
+    const point=this.stagePoint(stageX,stageY);
+    if(!point||!this.pointInWater(point.x,point.yTop))return null;
+    const config=this.config();
+    const t=(now/1000)*(Math.max(0,config.speed)/100);
+    const uvX=point.x,uvY=point.y;
+    const w1=Math.sin(uvY*34+uvX*8+t*1.45);
+    const w2=Math.sin(uvY*19-uvX*13-t*1.05);
+    const w3=Math.sin((uvX+uvY)*27+t*.72);
+    return {
+      height:w1*.50+w2*.31+w3*.19,
+      movement:Math.max(0,config.movement)/100,
+      x:point.x,
+      y:point.y
+    };
+  }
+
+  normalizeWakeConfig(value={}){
+    const preset=WAKE_PRESETS[value.preset]||WAKE_PRESETS.navigation;
+    const p=n=>clamp(n,0,100);
+    return {
+      enabled:value.enabled!==false,
+      intensity:p(value.intensity??preset.intensity),
+      length:p(value.length??preset.length),
+      spread:p(value.spread??preset.spread),
+      foam:p(value.foam??preset.foam)
+    };
+  }
+
+  wakeDirection(id,point,now,rotation=0){
+    const angle=rotation*Math.PI/180;
+    const initial={x:Math.cos(angle),y:-Math.sin(angle)};
+    const previous=this.wakeMotion.get(id)||{x:point.x,y:point.y,now,dirX:initial.x,dirY:initial.y};
+    const dx=point.x-previous.x,dy=point.y-previous.y;
+    const distance=Math.hypot(dx,dy);
+    let dirX=previous.dirX,dirY=previous.dirY;
+
+    if(distance>.00008&&distance<.28){
+      const rawX=dx/distance,rawY=dy/distance;
+      dirX=dirX*.74+rawX*.26;
+      dirY=dirY*.74+rawY*.26;
+      const length=Math.hypot(dirX,dirY)||1;
+      dirX/=length;dirY/=length;
     }
 
-    return inside;
+    this.wakeMotion.set(id,{x:point.x,y:point.y,now,dirX,dirY});
+    return {x:dirX,y:dirY};
+  }
+
+  activeWakes(now){
+    const entries=[];
+    for(const ship of this.runtime.compositions.list("ship")){
+      if(entries.length>=4)break;
+      const wake=this.normalizeWakeConfig(ship.wakeConfig?.()||{enabled:false});
+      if(!wake.enabled)continue;
+
+      const state=this.runtime.getAnimatedWorldState(ship.node.id);
+      if(!state)continue;
+      const point=this.stagePoint(state.centerX,state.y+state.height*.68);
+      if(!point)continue;
+
+      entries.push({
+        id:ship.node.id,
+        point:{x:point.x,y:point.y},
+        direction:this.wakeDirection(ship.node.id,{x:point.x,y:point.y},now,state.rotation),
+        wake
+      });
+    }
+
+    for(const id of [...this.wakeMotion.keys()]){
+      if(!entries.some(entry=>entry.id===id))this.wakeMotion.delete(id);
+    }
+    return entries;
+  }
+
+  wakeUniformData(now){
+    const entries=this.activeWakes(now);
+    const positions=new Float32Array(16);
+    const meta=new Float32Array(16);
+    entries.forEach((entry,index)=>{
+      const p=index*4,wake=entry.wake;
+      positions[p]=entry.point.x;
+      positions[p+1]=entry.point.y;
+      positions[p+2]=entry.direction.x;
+      positions[p+3]=entry.direction.y;
+      meta[p]=(wake.intensity/100)*1.25;
+      meta[p+1]=.10+(wake.length/100)*.42;
+      meta[p+2]=.14+(wake.spread/100)*.46;
+      meta[p+3]=(wake.foam/100)*1.15;
+    });
+    return {count:entries.length,positions,meta};
   }
 
   onPointerDown(event){
     if(this.failed||this.runtime.mode!=="play")return;
-
     const config=this.config();
     if(!config.active||!config.ripples)return;
 
     const rect=this.canvas.getBoundingClientRect();
     if(!rect.width||!rect.height)return;
-
     const x=(event.clientX-rect.left)/rect.width;
     const y=1-(event.clientY-rect.top)/rect.height;
-
     if(x<0||x>1||y<0||y>1||!this.pointInWater(x,1-y))return;
     this.ripple={x,y,startedAt:performance.now()/1000};
   }
@@ -335,7 +472,6 @@ export class OceanEffect {
 
     if(gl&&!this.failed&&config.active&&this.textureReady&&this.maskReady&&points.length>=3){
       this.canvas.hidden=false;
-
       gl.viewport(0,0,this.canvas.width,this.canvas.height);
       gl.useProgram(this.program);
       gl.bindBuffer(gl.ARRAY_BUFFER,this.buffer);
@@ -350,6 +486,7 @@ export class OceanEffect {
       gl.bindTexture(gl.TEXTURE_2D,this.maskTexture);
       gl.uniform1i(this.uniforms.mask,1);
 
+      const wakes=this.wakeUniformData(ms);
       gl.uniform1f(this.uniforms.time,ms/1000);
       gl.uniform1f(this.uniforms.speed,Math.max(0,config.speed)/100);
       gl.uniform1f(this.uniforms.movement,Math.max(0,config.movement)/100);
@@ -358,6 +495,9 @@ export class OceanEffect {
       gl.uniform1i(this.uniforms.ripples,config.ripples?1:0);
       gl.uniform2f(this.uniforms.ripple,this.ripple.x,this.ripple.y);
       gl.uniform1f(this.uniforms.rippleAge,ms/1000-this.ripple.startedAt);
+      gl.uniform1f(this.uniforms.wakeCount,wakes.count);
+      gl.uniform4fv(this.uniforms.wakePos,wakes.positions);
+      gl.uniform4fv(this.uniforms.wakeMeta,wakes.meta);
 
       gl.clearColor(0,0,0,0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -370,14 +510,13 @@ export class OceanEffect {
     }
 
     const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    if(!reduced||this.runtime.editorEnabled||!this.textureReady){
-      this.raf=requestAnimationFrame(this.loop);
-    }
+    if(!reduced||this.runtime.editorEnabled||!this.textureReady)this.raf=requestAnimationFrame(this.loop);
   }
 
   destroy(){
     cancelAnimationFrame(this.raf);
     this.runtime.stage.removeEventListener("pointerdown",this.onPointerDown,true);
+    this.wakeMotion.clear();
 
     if(this.gl){
       if(this.texture)this.gl.deleteTexture(this.texture);
@@ -389,3 +528,5 @@ export class OceanEffect {
     this.canvas.remove();
   }
 }
+
+export const OceanEngineering=Object.freeze({WAKE_PRESETS});
