@@ -114,7 +114,16 @@ export class DevOverlay {
 
   allSceneEntries(){
     const repositoryScenes=Array.isArray(this.sceneCatalog?.scenes)?this.sceneCatalog.scenes:[];
-    return [...repositoryScenes,...this.localScenes.map(item=>item.entry)];
+    const entries=[...repositoryScenes];
+    for(const item of this.localScenes){
+      const local=item.entry;
+      const alreadyPublished=repositoryScenes.some(scene =>
+        scene.id===local.id ||
+        (scene.screenId===local.screenId&&scene.context===local.context&&(local.context!=="event"||scene.eventId===local.eventId))
+      );
+      if(!alreadyPublished)entries.push(local);
+    }
+    return entries;
   }
 
   sceneScreen(screenId){
