@@ -45,7 +45,7 @@ export class DevOverlay {
   }
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260929-2222",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260929-2232",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -55,7 +55,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260929-2222",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260929-2232",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
