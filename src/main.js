@@ -1,9 +1,9 @@
-import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-1946";
-import { DevOverlay } from "./dev/DevOverlay.js?v=20260929-1946";
+import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2102";
+import { DevOverlay } from "./dev/DevOverlay.js?v=20260929-2102";
 
 const app = document.querySelector("#app");
 const runtime = new SceneRuntime(app, { width: 390, height: 844 }, { editorEnabled: true });
-await runtime.load("./src/scenes/login.scene.json?v=20260929-1946");
+await runtime.load("./src/scenes/login.scene.json?v=20260929-2102");
 
 const dev = new DevOverlay(document.body, runtime);
 dev.mount();
