@@ -19,6 +19,9 @@ jobs:
       - name: Checkout develop
         uses: actions/checkout@v4
 
+      - name: Generate repository asset tree
+        run: node scripts/generate-asset-tree.mjs
+
       - name: Configure DEV deploy key
         env:
           DEV_DEPLOY_KEY: ${{ secrets.DEV_DEPLOY_KEY }}
