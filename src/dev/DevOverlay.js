@@ -8,6 +8,7 @@ export class DevOverlay {
         <button data-mode="config">⚙ <span>Config</span></button>
         <button data-mode="play">▶ <span>Play</span></button>
         <button data-export>⇩ <span>JSON</span></button>
+        <button data-mold>▣ <span>Molde</span></button>
       </div>
       <section class="tq-dev__panel" hidden>
         <header><div><strong>Config</strong><small data-node-title>Nenhum nó</small></div><button data-close aria-label="Fechar">×</button></header>
@@ -17,8 +18,33 @@ export class DevOverlay {
     this.el.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>this.setMode(b.dataset.mode)));
     this.el.querySelector("[data-close]").addEventListener("click",()=>this.setMode("edit"));
     this.el.querySelector("[data-export]").addEventListener("click",()=>this.exportScene());
+    this.el.querySelector("[data-mold]").addEventListener("click",()=>this.toggleMold());
+    this.mountMold();
     window.addEventListener("tq:selectionchange",e=>{this.selected=e.detail.node||null;this.renderInspector();});
     window.addEventListener("tq:nodechange",e=>{if(this.selected?.id===e.detail.node.id){this.selected=e.detail.node;this.syncInspector();}});
+  }
+  mountMold(){
+    this.mold=document.createElement("div");
+    this.mold.className="tq-dev-mold";
+    this.mold.hidden=true;
+    this.mold.setAttribute("aria-hidden","true");
+    this.mold.innerHTML='<span>390 × 844</span>';
+    this.runtime.stageHost.append(this.mold);
+    this.positionMold();
+    this.moldObserver=new ResizeObserver(()=>this.positionMold());
+    this.moldObserver.observe(this.runtime.stageHost);
+  }
+  positionMold(){
+    if(!this.mold)return;
+    const s=this.runtime.viewportScale||1;
+    this.mold.style.width=(this.runtime.reference.width*s)+"px";
+    this.mold.style.height=(this.runtime.reference.height*s)+"px";
+  }
+  toggleMold(){
+    if(!this.mold)return;
+    this.mold.hidden=!this.mold.hidden;
+    this.el.querySelector("[data-mold]").classList.toggle("active",!this.mold.hidden);
+    if(!this.mold.hidden)this.positionMold();
   }
   exportScene(){
     const scene=structuredClone(this.runtime.scene||{});
