@@ -60,7 +60,7 @@ export class SceneRuntime {
     this.applyTransform(el,node);this.positionHandle(node);
   }
   positionHandle(node){
-    const h=this.stage.querySelector(`.tq-node-handle[data-for-node="${CSS.escape(node.id)}"]`);if(!h)return;
+    const h=[...this.stage.querySelectorAll(".tq-node-handle")].find(el=>el.dataset.forNode===node.id);if(!h)return;
     h.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;
     h.style.left=(node.x+(node.width??0))+"px";h.style.top=(node.y+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
   }
