@@ -4,11 +4,13 @@ export class DevOverlay {
     this.el=document.createElement("aside");this.el.className="tq-dev";
     this.el.innerHTML=`
       <div class="tq-dev__bar" role="toolbar" aria-label="Ferramentas DEV">
+        <button data-drag class="tq-dev__drag" aria-label="Arrastar ferramentas" title="Arrastar">⠿</button>
         <button data-mode="edit" class="active">✥ <span>Editar</span></button>
         <button data-mode="config">⚙ <span>Config</span></button>
         <button data-mode="play">▶ <span>Play</span></button>
         <button data-export>⇩ <span>JSON</span></button>
         <button data-mold>▣ <span>Molde</span></button>
+        <button data-collapse aria-label="Recolher ferramentas" title="Recolher">‹</button>
       </div>
       <section class="tq-dev__panel" hidden>
         <header><div><strong>Config</strong><small data-node-title>Nenhum nó</small></div><button data-close aria-label="Fechar">×</button></header>
@@ -20,8 +22,44 @@ export class DevOverlay {
     this.el.querySelector("[data-export]").addEventListener("click",()=>this.exportScene());
     this.el.querySelector("[data-mold]").addEventListener("click",()=>this.toggleMold());
     this.mountMold();
+    this.enableToolbarDrag();
+    this.el.querySelector("[data-collapse]").addEventListener("click",()=>this.toggleCollapse());
     window.addEventListener("tq:selectionchange",e=>{this.selected=e.detail.node||null;this.renderInspector();});
     window.addEventListener("tq:nodechange",e=>{if(this.selected?.id===e.detail.node.id){this.selected=e.detail.node;this.syncInspector();}});
+  }
+  toggleCollapse(){
+    this.el.classList.toggle("is-collapsed");
+    const collapsed=this.el.classList.contains("is-collapsed");
+    const b=this.el.querySelector("[data-collapse]");
+    b.textContent=collapsed?"›":"‹";
+    b.setAttribute("aria-label",collapsed?"Expandir ferramentas":"Recolher ferramentas");
+    b.title=collapsed?"Expandir":"Recolher";
+  }
+  enableToolbarDrag(){
+    const handle=this.el.querySelector("[data-drag]");
+    let drag=null;
+    const move=e=>{
+      if(!drag)return;
+      const maxX=Math.max(0,window.innerWidth-this.el.offsetWidth);
+      const maxY=Math.max(0,window.innerHeight-this.el.offsetHeight);
+      const x=Math.min(maxX,Math.max(0,drag.left+e.clientX-drag.x));
+      const y=Math.min(maxY,Math.max(0,drag.top+e.clientY-drag.y));
+      this.el.style.left=x+"px";this.el.style.top=y+"px";this.el.style.transform="none";
+    };
+    const end=e=>{
+      if(!drag)return;
+      try{handle.releasePointerCapture(e.pointerId)}catch{}
+      drag=null;
+    };
+    handle.addEventListener("pointerdown",e=>{
+      e.preventDefault();e.stopPropagation();
+      const r=this.el.getBoundingClientRect();
+      drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top};
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle.addEventListener("pointermove",move);
+    handle.addEventListener("pointerup",end);
+    handle.addEventListener("pointercancel",end);
   }
   mountMold(){
     this.mold=document.createElement("div");
