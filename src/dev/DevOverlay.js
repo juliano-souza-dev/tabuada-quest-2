@@ -285,12 +285,14 @@ export class DevOverlay {
         field("visible","Visible","checkbox")
       ]},
       {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
-      {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType")]},
-      ...(definition?.animation?.controls?.length?[{
+      {
         id:"animation",
-        title:definition.animation.sectionLabel||"Animação",
-        fields:definition.animation.controls.map(control=>({compositionControl:control,definition}))
-      }]:[]),
+        title:definition?.animation?.sectionLabel||"Animação",
+        fields:[
+          field("compositionType","Tipo de animação","compositionType"),
+          ...(definition?.animation?.controls||[]).map(control=>({compositionControl:control,definition}))
+        ]
+      },
       {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
       {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
@@ -396,7 +398,7 @@ export class DevOverlay {
     const definition=this.compositionDefinition(node);
     title.textContent=node.id+" · "+node.kind;
     const sections=this.configSections(node);
-    const defaultOpen=definition?.animation?"animation":"identity";
+    const defaultOpen="animation";
 
     content.innerHTML='<div class="tq-inspector">'+sections.map(section=>{
       const open=section.id===defaultOpen;
@@ -597,13 +599,31 @@ export class DevOverlay {
   }
 
   applyInput(input){
-    if(!this.selected)return;const key=input.dataset.prop;
+    if(!this.selected)return;
+    const key=input.dataset.prop;
     let value=input.type==="checkbox"?input.checked:input.type==="number"?Number(input.value):input.value;
     if(key==="compositionType"&&!value)value=null;
+
+    if(key==="compositionType"){
+      const patch={compositionType:value};
+      if(value){
+        const definition=(this.compositionTypes||[]).find(type=>type.id===value);
+        const composition={...(this.selected.composition||{})};
+        if(definition)this.ensureCompositionAnimation(composition,definition);
+        patch.composition=composition;
+      }
+      this.runtime.updateNode(this.selected.id,patch,true);
+      this.selected=this.runtime.nodes.get(this.selected.id).node;
+      this.renderInspector();
+      return;
+    }
+
     const patch={[key]:value};
     if(this.linkScale&&key==="scaleX")patch.scaleY=value;
     if(this.linkScale&&key==="scaleY")patch.scaleX=value;
-    this.runtime.updateNode(this.selected.id,patch,true);this.selected=this.runtime.nodes.get(this.selected.id).node;this.syncInspector();
+    this.runtime.updateNode(this.selected.id,patch,true);
+    this.selected=this.runtime.nodes.get(this.selected.id).node;
+    this.syncInspector();
   }
   syncInspector(){
     if(!this.selected||!this.el)return;
