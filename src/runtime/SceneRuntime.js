@@ -25,7 +25,7 @@ export class SceneRuntime {
   render(){
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
-    for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); }
+    for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); this.attachSkewHandles(node,el); }
   }
   normalizeNode(node){
     node.parentId="viewport";
@@ -69,6 +69,25 @@ export class SceneRuntime {
     const end=e=>{if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);handle.removeEventListener("pointermove",rotate);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
     handle.addEventListener("pointermove",rotate);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
   }
+  attachSkewHandles(node,el){
+    for(const axis of ["x","y"]){
+      const h=document.createElement("button");h.type="button";h.className="tq-skew-handle tq-skew-"+axis;h.dataset.forNode=node.id;h.dataset.axis=axis;h.hidden=true;this.stage.append(h);
+      h.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();this.beginSkew(e,node,h,axis)});
+    }
+  }
+  beginSkew(event,node,handle,axis){
+    handle.setPointerCapture(event.pointerId);
+    const start={px:event.clientX,py:event.clientY,value:axis==="x"?node.skewX:node.skewY};
+    const move=e=>{
+      const scale=this.viewportScale||1,delta=axis==="x"?(e.clientX-start.px)/scale:(e.clientY-start.py)/scale;
+      const size=Math.max(1,axis==="x"?(node.height??1):(node.width??1));
+      const value=Math.max(-75,Math.min(75,start.value+Math.atan(delta/size)*180/Math.PI));
+      if(axis==="x")node.skewX=value;else node.skewY=value;
+      this.applyTransform(this.nodes.get(node.id).el,node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
+    };
+    const end=e=>{if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);handle.removeEventListener("pointermove",move);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
+    handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
+  }
   ensureNodeSize(node,el){
     if(node.width==null)node.width=el.naturalWidth||el.getBoundingClientRect().width/(this.viewportScale||1);
     if(node.height==null)node.height=el.naturalHeight||el.getBoundingClientRect().height/(this.viewportScale||1);
@@ -79,6 +98,7 @@ export class SceneRuntime {
     h.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;
     h.style.left=(node.x+(node.width??0))+"px";h.style.top=(node.y+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
     const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;rh.style.left=(node.x+(node.width??0)/2)+"px";rh.style.top=(node.y-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
+    for(const axis of ["x","y"]){const sh=[...this.stage.querySelectorAll(".tq-skew-handle")].find(el=>el.dataset.forNode===node.id&&el.dataset.axis===axis);if(sh){sh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;sh.style.left=(axis==="x"?node.x+(node.width??0)/2:node.x-24)+"px";sh.style.top=(axis==="x"?node.y+(node.height??0)+24:node.y+(node.height??0)/2)+"px";sh.style.zIndex=(node.z??0)+100000;}}
   }
   beginResize(event,node,el,handle){
     handle.setPointerCapture(event.pointerId);const scale=this.viewportScale||1;
