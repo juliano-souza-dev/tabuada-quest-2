@@ -1,8 +1,12 @@
 import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2303";
+import { SceneResolver } from "./runtime/SceneResolver.js?v=20260929-2303";
 
 const app = document.querySelector("#app");
+const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=20260929-2303");
+const resolved = resolver.resolve("login");
+
 const runtime = new SceneRuntime(app, { width: 390, height: 844 });
-await runtime.load("./src/scenes/login.scene.json?v=20260929-2303");
+await runtime.load(resolved.scene.path);
 
 // PROD policy: never keep stale Service Workers or Cache Storage.
 if ("serviceWorker" in navigator) {
