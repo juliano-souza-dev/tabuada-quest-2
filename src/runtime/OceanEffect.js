@@ -269,13 +269,12 @@ export class OceanEffect {
   sync(){
     const node=this.node;
     const canvas=this.canvas;
-    const ox=this.runtime.sceneOffset?.x||0;
-    const oy=this.runtime.sceneOffset?.y||0;
-    const width=Math.max(1,node.width||1);
-    const height=Math.max(1,node.height||1);
+    const layout=this.runtime.resolveNodeLayout(node);
+    const width=Math.max(1,layout.width||1);
+    const height=Math.max(1,layout.height||1);
 
-    canvas.style.left=(node.x+ox)+"px";
-    canvas.style.top=(node.y+oy)+"px";
+    canvas.style.left=layout.x+"px";
+    canvas.style.top=layout.y+"px";
     canvas.style.width=width+"px";
     canvas.style.height=height+"px";
     canvas.style.zIndex=String(node.z??0);
