@@ -14,7 +14,9 @@ export class SceneRuntime {
   }
   fit(){
     const r=this.stageHost.getBoundingClientRect();
-    this.viewportScale=Math.min(r.width/this.reference.width,r.height/this.reference.height);
+    // The reference size is a canonical coordinate system, never a physical screen limit.
+    // Scale from the available width so the game always fills the viewport horizontally.
+    this.viewportScale=r.width/this.reference.width;
     this.stage.style.width=this.reference.width+"px"; this.stage.style.height=this.reference.height+"px";
     this.stage.style.transform=`translate(-50%,-50%) scale(${this.viewportScale})`;
   }
