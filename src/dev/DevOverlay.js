@@ -151,13 +151,15 @@ export class DevOverlay {
         field("visible","Visible","checkbox")
       ]},
       {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
-      {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]}
+      {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
+      {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
     return sections.filter(s=>s.fields.length);
   }
   fieldMarkup(n,[key,label,type]){
     if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
     if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
+    if(type==="delete")return `<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>`;
     if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(v=>`<button type="button" data-layer="${v}" class="${Number(n[key])===v?"active":""}">${v}</button>`).join("")}</div></div>`;
     return `<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`;
   }
@@ -171,6 +173,9 @@ export class DevOverlay {
       const body=b.nextElementSibling,open=!body.hidden;body.hidden=open;b.setAttribute("aria-expanded",String(!open));b.querySelector("span").textContent=open?"▸":"▾";
     }));
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
+    content.querySelector("[data-delete-node]")?.addEventListener("click",()=>{
+      const id=n.id;if(confirm("Excluir este nó da cena?")){this.runtime.deleteNode(id);this.selected=null;this.renderInspector();}
+    });
     content.querySelectorAll("[data-layer]").forEach(button=>button.addEventListener("click",()=>{
       const value=Number(button.dataset.layer);this.runtime.updateNode(n.id,{z:value},true);this.selected=this.runtime.nodes.get(n.id)?.node||n;this.renderInspector();
     }));
