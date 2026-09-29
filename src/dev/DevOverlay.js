@@ -165,7 +165,7 @@ export class DevOverlay {
     if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
     if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
     if(type==="waterArea"){const count=n.composition?.area?.points?.length||0;return `<div class="tq-field"><span>${label}</span><button type="button" data-water-mark>Marcar ponto a ponto (${count})</button><button type="button" data-water-clear>Limpar área</button></div>`;}
-    if(type==="ripple"){const v=n.composition?.effects?.ripple?.strength??.18;return `<label class="tq-field"><span>${label} <small>${Number(v).toFixed(2)}</small></span><input type="range" min="0" max="1" step="0.01" value="${v}" data-ripple-strength></label>`;}
+    if(type==="ripple"){const v=n.composition?.effects?.ripple?.strength??.65;return `<label class="tq-field"><span>Intensidade <small data-ripple-value>${Math.round(Number(v)*100)}%</small></span><input type="range" min="0" max="3" step="0.05" value="${v}" data-ripple-strength></label>`;}
     if(type==="compositionType"){const current=n[key]??"";return `<label class="tq-field"><span>${label}</span><select data-prop="${key}"><option value="">Nenhum</option>${(this.compositionTypes||[]).map(t=>`<option value="${t.id}" ${current===t.id?"selected":""}>${t.label||t.id}</option>`).join("")}</select></label>`;}
     if(type==="delete")return `<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>`;
     if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(v=>`<button type="button" data-layer="${v}" class="${Number(n[key])===v?"active":""}">${v}</button>`).join("")}</div></div>`;
@@ -183,7 +183,7 @@ export class DevOverlay {
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
     content.querySelector("[data-water-mark]")?.addEventListener("click",()=>this.startWaterMarking(n));
     content.querySelector("[data-water-clear]")?.addEventListener("click",()=>{n.composition={...(n.composition||{}),area:{mode:"polygon",points:[]}};this.runtime.updateNode(n.id,{composition:n.composition},true);this.renderInspector();});
-    content.querySelector("[data-ripple-strength]")?.addEventListener("input",e=>{n.composition=n.composition||{};n.composition.effects=n.composition.effects||{};n.composition.effects.ripple={...(n.composition.effects.ripple||{}),strength:Number(e.target.value)};this.runtime.updateNode(n.id,{composition:n.composition});e.target.previousElementSibling&&(e.target.previousElementSibling.textContent=Number(e.target.value).toFixed(2));});
+    content.querySelector("[data-ripple-strength]")?.addEventListener("input",e=>{n.composition=n.composition||{};n.composition.effects=n.composition.effects||{};n.composition.effects.ripple={...(n.composition.effects.ripple||{}),strength:Number(e.target.value)};this.runtime.updateNode(n.id,{composition:n.composition});const out=content.querySelector("[data-ripple-value]");if(out)out.textContent=Math.round(Number(e.target.value)*100)+"%";});
     content.querySelector("[data-delete-node]")?.addEventListener("click",()=>{
       const id=n.id;if(confirm("Excluir este nó da cena?")){this.runtime.deleteNode(id);this.selected=null;this.renderInspector();}
     });
