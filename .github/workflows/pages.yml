@@ -1,11 +1,9 @@
-# Deploy the develop branch to GitHub Pages whenever develop changes.
-# The workflow file lives on main because main is the Pages-authorized branch.
-name: Deploy DEV preview to Pages
+name: Deploy Tabuada Quest PROD to Pages
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-  repository_dispatch:
-    types: [deploy-develop]
 
 permissions:
   contents: read
@@ -13,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages-prod
   cancel-in-progress: true
 
 jobs:
@@ -23,16 +21,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout develop
+      - name: Checkout main
         uses: actions/checkout@v4
-        with:
-          ref: develop
-      - name: Setup Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload DEV artifact
+      - name: Upload production site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
-      - name: Deploy DEV to GitHub Pages
+          path: .
+      - name: Deploy PROD
         id: deployment
         uses: actions/deploy-pages@v4
