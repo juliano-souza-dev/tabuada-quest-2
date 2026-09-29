@@ -1,5 +1,5 @@
 export class DevOverlay {
-  constructor(root,runtime){this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.waterEditSession=null;}
+  constructor(root,runtime){this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;}
   mount(){
     this.el=document.createElement("aside");this.el.className="tq-dev";
     this.el.innerHTML=`
@@ -136,8 +136,55 @@ export class DevOverlay {
     this.el.querySelector(".tq-dev__panel").hidden=mode!=="config";this.el.classList.toggle("is-play",mode==="play");
     if(mode==="config"){this.el.querySelector(".tq-dev__assets").hidden=true;this.renderInspector();}
   }
+
+  compositionDefinition(node){
+    return (this.compositionTypes||[]).find(type=>type.id===node?.compositionType)||null;
+  }
+
+  compositionPreset(definition,id){
+    const presets=definition?.animation?.presets||[];
+    return presets.find(preset=>preset.id===id)||presets[0]||null;
+  }
+
+  ensureCompositionAnimation(composition,definition){
+    const controls=definition?.animation?.controls||[];
+    const presetControl=controls.find(control=>control.control==="preset");
+    const presetId=composition.animation?.preset||presetControl?.default||definition?.animation?.presets?.[0]?.id||null;
+    const preset=this.compositionPreset(definition,presetId);
+    const current=composition.animation||{};
+    const defaults={...(preset?.defaults||{})};
+
+    for(const control of controls){
+      if(control.scope!=="animation"||control.control==="action"||control.control==="polygon-area")continue;
+      if(control.default!==undefined&&defaults[control.id]===undefined)defaults[control.id]=control.default;
+    }
+
+    composition.animation={...defaults,...current};
+    if(presetId&&!composition.animation.preset)composition.animation.preset=presetId;
+    return composition.animation;
+  }
+
+  compositionControlValue(node,definition,control){
+    const composition=node.composition||{};
+    if(control.control==="polygon-area"||control.control==="action")return null;
+
+    if(control.scope==="composition"){
+      const value=composition[control.id];
+      return value===undefined?control.default:value;
+    }
+
+    const animation=composition.animation||{};
+    if(animation[control.id]!==undefined)return animation[control.id];
+
+    const presetId=animation.preset||definition?.animation?.presets?.[0]?.id;
+    const preset=this.compositionPreset(definition,presetId);
+    if(preset?.defaults?.[control.id]!==undefined)return preset.defaults[control.id];
+    return control.default;
+  }
+
   configSections(node){
     const field=(key,label,type="number")=>[key,label,type];
+    const definition=this.compositionDefinition(node);
     const sections=[
       {id:"identity",title:"Identificação",fields:[
         field("id","ID","readonly"),field("kind","Tipo","readonly"),field("parentId","Parent","readonly"),
@@ -156,89 +203,122 @@ export class DevOverlay {
       ]},
       {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
       {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType")]},
-      ...(node.compositionType==="ocean"?[{id:"animation",title:"Animação",fields:[
-        field("__oceanActive","Ativo","oceanActive"),
-        field("__oceanPreset","Predefinição do oceano","oceanPreset"),
-        field("__oceanSpeed","Velocidade","oceanSpeed"),
-        field("__oceanMovement","Força das ondas","oceanMovement"),
-        field("__oceanShine","Brilho","oceanShine"),
-        field("__oceanFoam","Espuma","oceanFoam"),
-        field("__oceanTouch","Ondas ao toque","oceanTouch"),
-        field("__waterArea","Área do oceano","waterArea"),
-        field("__oceanQuality","Qualidade","oceanQuality"),
-        field("__oceanStart","Salvar e iniciar","oceanStart")
-      ]}]:[]),
+      ...(definition?.animation?.controls?.length?[{
+        id:"animation",
+        title:definition.animation.sectionLabel||"Animação",
+        fields:definition.animation.controls.map(control=>({compositionControl:control,definition}))
+      }]:[]),
       {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
       {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
     return sections.filter(section=>section.fields.length);
   }
 
-  fieldMarkup(n,[key,label,type]){
-    const animation=n.composition?.animation||{};
-    if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
-    if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
-    if(type==="oceanActive"){const value=n.composition?.active!==false;return `<label class="tq-field tq-field--check tq-ocean-toggle"><span>${label}</span><input type="checkbox" data-ocean-active ${value?"checked":""}></label>`;}
-    if(type==="oceanPreset"){const value=animation.preset||"adventure";return `<label class="tq-field"><span>${label}</span><select data-ocean-preset><option value="adventure" ${value==="adventure"?"selected":""}>Aventura</option></select></label>`;}
-    if(type==="oceanSpeed"){const value=Number(animation.speed??44);return this.oceanRangeMarkup(label,"speed",value);}
-    if(type==="oceanMovement"){const value=Number(animation.movement??52);return this.oceanRangeMarkup(label,"movement",value);}
-    if(type==="oceanShine"){const value=Number(animation.shine??20);return this.oceanRangeMarkup(label,"shine",value);}
-    if(type==="oceanFoam"){const value=Number(animation.foam??57);return this.oceanRangeMarkup(label,"foam",value);}
-    if(type==="oceanTouch"){const value=animation.ripples!==false;return `<label class="tq-field tq-field--check"><span>${label}</span><input type="checkbox" data-ocean-touch ${value?"checked":""}></label>`;}
-    if(type==="waterArea"){
-      const count=n.composition?.area?.points?.length||0;
-      return `<div class="tq-field tq-water-area-field"><span>${label}</span><small>Toque no cenário para contornar somente a água.</small><button type="button" data-water-mark>Marcar oceano ponto a ponto${count?" · "+count+" pontos":""}</button>${count?'<button type="button" data-water-clear>Limpar área publicada</button>':""}</div>`;
+  compositionControlMarkup(node,definition,control){
+    const value=this.compositionControlValue(node,definition,control);
+    const data=' data-composition-control="'+control.id+'"';
+
+    if(control.control==="checkbox"){
+      return '<label class="tq-field tq-field--check tq-composition-toggle"><span>'+control.label+'</span><input type="checkbox"'+data+' '+(value!==false?'checked':'')+'></label>';
     }
-    if(type==="oceanQuality"){
-      const value=animation.quality||"balanced";
-      return `<label class="tq-field"><span>${label}</span><select data-ocean-quality><option value="economy" ${value==="economy"?"selected":""}>Econômico</option><option value="balanced" ${value==="balanced"?"selected":""}>Balanceado</option><option value="high" ${value==="high"?"selected":""}>Alta</option></select></label>`;
+
+    if(control.control==="range"){
+      const min=Number(control.min??0),max=Number(control.max??100),step=Number(control.step??1);
+      const safe=Math.max(min,Math.min(max,Number(value??control.default??min)));
+      return '<label class="tq-field tq-composition-range"><span><b>'+control.label+'</b><output data-composition-output="'+control.id+'">'+Math.round(safe)+'</output></span><input type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+safe+'"'+data+'></label>';
     }
-    if(type==="oceanStart")return `<button type="button" class="tq-ocean-start" data-ocean-start>Salvar e iniciar</button>`;
+
+    if(control.control==="preset"){
+      const presets=definition?.animation?.presets||[];
+      const options=presets.map(preset=>'<option value="'+preset.id+'" '+(preset.id===value?'selected':'')+'>'+preset.label+'</option>').join("");
+      return '<label class="tq-field"><span>'+control.label+'</span><select'+data+'>'+options+'</select></label>';
+    }
+
+    if(control.control==="select"){
+      const options=(control.options||[]).map(option=>{
+        const item=typeof option==="string"?{value:option,label:option}:option;
+        return '<option value="'+item.value+'" '+(item.value===value?'selected':'')+'>'+item.label+'</option>';
+      }).join("");
+      return '<label class="tq-field"><span>'+control.label+'</span><select'+data+'>'+options+'</select></label>';
+    }
+
+    if(control.control==="polygon-area"){
+      const points=node.composition?.[control.id]?.points||[];
+      const hint=control.hint?'<small>'+control.hint+'</small>':"";
+      const mark=(control.buttonLabel||"Marcar ponto a ponto")+(points.length?" · "+points.length+" pontos":"");
+      const clear=points.length?'<button type="button" data-composition-area-clear="'+control.id+'">'+(control.clearLabel||"Limpar área")+'</button>':"";
+      return '<div class="tq-field tq-composition-area-field"><span>'+control.label+'</span>'+hint+'<button type="button" data-composition-area="'+control.id+'">'+mark+'</button>'+clear+'</div>';
+    }
+
+    if(control.control==="action"){
+      return '<button type="button" class="tq-composition-action" data-composition-action="'+(control.action||control.id)+'">'+control.label+'</button>';
+    }
+
+    return "";
+  }
+
+  fieldMarkup(node,field){
+    if(field?.compositionControl)return this.compositionControlMarkup(node,field.definition,field.compositionControl);
+
+    const [key,label,type]=field;
+    if(type==="readonly")return '<label class="tq-field"><span>'+label+'</span><input value="'+(node[key]??"")+'" readonly></label>';
+    if(type==="checkbox")return '<label class="tq-field tq-field--check"><span>'+label+'</span><input data-prop="'+key+'" type="checkbox" '+(node[key]?'checked':'')+'></label>';
     if(type==="compositionType"){
-      const current=n[key]??"";
-      return `<label class="tq-field"><span>${label}</span><select data-prop="${key}"><option value="">Nenhum</option>${(this.compositionTypes||[]).map(type=>`<option value="${type.id}" ${current===type.id?"selected":""}>${type.label||type.id}</option>`).join("")}</select></label>`;
+      const current=node[key]??"";
+      const options=(this.compositionTypes||[]).map(item=>'<option value="'+item.id+'" '+(current===item.id?'selected':'')+'>'+(item.label||item.id)+'</option>').join("");
+      return '<label class="tq-field"><span>'+label+'</span><select data-prop="'+key+'><option value="">Nenhum</option>'+options+'</select></label>';
     }
-    if(type==="delete")return `<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>`;
-    if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(value=>`<button type="button" data-layer="${value}" class="${Number(n[key])===value?"active":""}">${value}</button>`).join("")}</div></div>`;
-    return `<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`;
+    if(type==="delete")return '<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>';
+    if(type==="layer"){
+      const buttons=Array.from({length:10},(_,index)=>index+1).map(value=>'<button type="button" data-layer="'+value+'" class="'+(Number(node[key])===value?'active':'')+'">'+value+'</button>').join("");
+      return '<div class="tq-field tq-field--layer"><span>'+label+'</span><div class="tq-layer-grid">'+buttons+'</div></div>';
+    }
+    return '<label class="tq-field"><span>'+label+'</span><input data-prop="'+key+'" type="'+type+'" value="'+(node[key]??"")+'" '+(type==="number"?'step="0.01"':'')+'></label>';
   }
 
-  oceanRangeMarkup(label,key,value){
-    const safe=Math.max(0,Math.min(100,Number(value)||0));
-    return `<label class="tq-field tq-ocean-range"><span><b>${label}</b><output data-ocean-output="${key}">${Math.round(safe)}</output></span><input type="range" min="0" max="100" step="1" value="${safe}" data-ocean-range="${key}"></label>`;
+  applyCompositionPreset(node,definition,presetId){
+    node.composition=node.composition||{};
+    const preset=this.compositionPreset(definition,presetId);
+    const previous=node.composition.animation||{};
+    node.composition.animation={...previous,...(preset?.defaults||{}),preset:presetId};
+    this.runtime.updateNode(node.id,{composition:node.composition},true);
   }
 
-  ensureOceanAnimation(composition){
-    composition.animation={
-      preset:"adventure",
-      speed:44,
-      movement:52,
-      shine:20,
-      foam:57,
-      ripples:true,
-      quality:"balanced",
-      ...(composition.animation||{})
-    };
-    return composition.animation;
+  patchCompositionControl(node,definition,control,value,commit=false){
+    node.composition=node.composition||{};
+    const animation=this.ensureCompositionAnimation(node.composition,definition);
+
+    if(control.control==="preset"){
+      this.applyCompositionPreset(node,definition,value);
+      return;
+    }
+
+    if(control.scope==="composition")node.composition[control.id]=value;
+    else animation[control.id]=value;
+
+    this.runtime.updateNode(node.id,{composition:node.composition},commit);
   }
 
   renderInspector(){
     const content=this.el.querySelector(".tq-dev__content");
     const title=this.el.querySelector("[data-node-title]");
+
     if(!this.selected){
       title.textContent="Nenhum nó";
       content.innerHTML='<div class="tq-dev__empty">Selecione um nó para configurar.</div>';
       return;
     }
 
-    const n=this.selected;
-    title.textContent=`${n.id} · ${n.kind}`;
-    const sections=this.configSections(n);
-    const defaultOpen=n.compositionType==="ocean"?"animation":"identity";
-    content.innerHTML=`<div class="tq-inspector">${sections.map(section=>{
+    const node=this.selected;
+    const definition=this.compositionDefinition(node);
+    title.textContent=node.id+" · "+node.kind;
+    const sections=this.configSections(node);
+    const defaultOpen=definition?.animation?"animation":"identity";
+
+    content.innerHTML='<div class="tq-inspector">'+sections.map(section=>{
       const open=section.id===defaultOpen;
-      return `<section class="tq-config-area" data-area="${section.id}"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="${open}"><strong>${section.title}</strong><span>${open?"▾":"▸"}</span></button><div class="tq-config-area__body" ${open?"":"hidden"}>${section.fields.map(field=>this.fieldMarkup(n,field)).join("")}</div></section>`;
-    }).join("")}</div>`;
+      return '<section class="tq-config-area" data-area="'+section.id+'"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="'+open+'"><strong>'+section.title+'</strong><span>'+(open?'▾':'▸')+'</span></button><div class="tq-config-area__body" '+(open?'':'hidden')+'>'+section.fields.map(field=>this.fieldMarkup(node,field)).join("")+'</div></section>';
+    }).join("")+'</div>';
 
     content.querySelectorAll("[data-area-toggle]").forEach(button=>button.addEventListener("click",()=>{
       const body=button.nextElementSibling;
@@ -249,71 +329,97 @@ export class DevOverlay {
     }));
 
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
-    const patchOcean=(mutate,commit=false)=>{
-      n.composition=n.composition||{};
-      this.ensureOceanAnimation(n.composition);
-      mutate(n.composition,n.composition.animation);
-      this.runtime.updateNode(n.id,{composition:n.composition},commit);
-    };
 
-    content.querySelector("[data-ocean-active]")?.addEventListener("change",event=>patchOcean(composition=>composition.active=event.target.checked,true));
-    content.querySelector("[data-ocean-preset]")?.addEventListener("change",event=>patchOcean((composition,animation)=>animation.preset=event.target.value,true));
-    content.querySelectorAll("[data-ocean-range]").forEach(input=>{
-      input.addEventListener("input",event=>{
-        const key=event.target.dataset.oceanRange;
-        const value=Number(event.target.value);
-        patchOcean((composition,animation)=>animation[key]=value);
-        const output=content.querySelector(`[data-ocean-output="${key}"]`);
-        if(output)output.value=String(Math.round(value));
-      });
-      input.addEventListener("change",event=>{
-        const key=event.target.dataset.oceanRange;
-        patchOcean((composition,animation)=>animation[key]=Number(event.target.value),true);
-      });
-    });
-    content.querySelector("[data-ocean-touch]")?.addEventListener("change",event=>patchOcean((composition,animation)=>animation.ripples=event.target.checked,true));
-    content.querySelector("[data-ocean-quality]")?.addEventListener("change",event=>patchOcean((composition,animation)=>animation.quality=event.target.value,true));
-    content.querySelector("[data-ocean-start]")?.addEventListener("click",()=>{
-      patchOcean(composition=>composition.active=true,true);
-      this.selected=this.runtime.nodes.get(n.id)?.node||n;
-      this.renderInspector();
-    });
+    if(definition){
+      const controls=new Map((definition.animation?.controls||[]).map(control=>[control.id,control]));
 
-    content.querySelector("[data-water-mark]")?.addEventListener("click",()=>this.startWaterMarking(n));
-    content.querySelector("[data-water-clear]")?.addEventListener("click",()=>{
-      n.composition={...(n.composition||{}),area:{mode:"polygon",points:[]}};
-      this.runtime.updateNode(n.id,{composition:n.composition},true);
-      this.renderInspector();
-    });
+      content.querySelectorAll("[data-composition-control]").forEach(input=>{
+        const control=controls.get(input.dataset.compositionControl);
+        if(!control)return;
+
+        const readValue=()=>input.type==="checkbox"?input.checked:(input.type==="range"?Number(input.value):input.value);
+        const updateOutput=()=>{
+          const output=content.querySelector('[data-composition-output="'+control.id+'"]');
+          if(output)output.value=String(Math.round(Number(input.value)));
+        };
+
+        if(input.type==="range"){
+          input.addEventListener("input",()=>{
+            this.patchCompositionControl(node,definition,control,readValue(),false);
+            updateOutput();
+          });
+          input.addEventListener("change",()=>this.patchCompositionControl(node,definition,control,readValue(),true));
+        }else{
+          input.addEventListener("change",()=>{
+            this.patchCompositionControl(node,definition,control,readValue(),true);
+            this.selected=this.runtime.nodes.get(node.id)?.node||node;
+            if(control.control==="preset")this.renderInspector();
+          });
+        }
+      });
+
+      content.querySelectorAll("[data-composition-area]").forEach(button=>{
+        const control=controls.get(button.dataset.compositionArea);
+        if(control)button.addEventListener("click",()=>this.startCompositionAreaMarking(node,definition,control));
+      });
+
+      content.querySelectorAll("[data-composition-area-clear]").forEach(button=>{
+        const control=controls.get(button.dataset.compositionAreaClear);
+        if(!control)return;
+        button.addEventListener("click",()=>{
+          node.composition=node.composition||{};
+          node.composition[control.id]={mode:control.mode||"polygon",points:[]};
+          this.runtime.updateNode(node.id,{composition:node.composition},true);
+          this.renderInspector();
+        });
+      });
+
+      content.querySelectorAll("[data-composition-action]").forEach(button=>button.addEventListener("click",()=>{
+        const action=button.dataset.compositionAction;
+        if(action==="activate"){
+          node.composition=node.composition||{};
+          this.ensureCompositionAnimation(node.composition,definition);
+          node.composition.active=true;
+          this.runtime.updateNode(node.id,{composition:node.composition},true);
+          this.selected=this.runtime.nodes.get(node.id)?.node||node;
+          this.renderInspector();
+        }
+      }));
+    }
 
     content.querySelector("[data-delete-node]")?.addEventListener("click",()=>{
-      const id=n.id;
+      const id=node.id;
       if(confirm("Excluir este nó da cena?")){
         this.runtime.deleteNode(id);
         this.selected=null;
         this.renderInspector();
       }
     });
+
     content.querySelectorAll("[data-layer]").forEach(button=>button.addEventListener("click",()=>{
       const value=Number(button.dataset.layer);
-      this.runtime.updateNode(n.id,{z:value},true);
-      this.selected=this.runtime.nodes.get(n.id)?.node||n;
+      this.runtime.updateNode(node.id,{z:value},true);
+      this.selected=this.runtime.nodes.get(node.id)?.node||node;
       this.renderInspector();
     }));
   }
 
-  startWaterMarking(node){
+  startCompositionAreaMarking(node,definition,control){
     const item=this.runtime.nodes.get(node.id);
     if(!item)return;
-    this.cancelWaterMarking();
+
+    this.cancelCompositionAreaMarking();
 
     const previousMode=this.runtime.mode;
-    const previousPoints=(node.composition?.area?.points||[]).map(point=>({x:Number(point.x),y:Number(point.y)}));
+    const previousPoints=(node.composition?.[control.id]?.points||[]).map(point=>({x:Number(point.x),y:Number(point.y)}));
     const draft=previousPoints.map(point=>({...point}));
+    const maxPoints=Number(control.maxPoints??32);
+    const minPoints=Number(control.minPoints??3);
+
     this.runtime.setMode("area");
 
     const overlay=document.createElementNS("http://www.w3.org/2000/svg","svg");
-    overlay.dataset.waterOverlay=node.id;
+    overlay.dataset.compositionAreaOverlay=node.id;
     overlay.classList.add("tq-water-area-editor");
     overlay.setAttribute("preserveAspectRatio","none");
 
@@ -321,47 +427,50 @@ export class DevOverlay {
     const oy=this.runtime.sceneOffset?.y||0;
     const width=Math.max(1,node.width||item.el.offsetWidth||1);
     const height=Math.max(1,node.height||item.el.offsetHeight||1);
+
     Object.assign(overlay.style,{
       left:(node.x+ox)+"px",
       top:(node.y+oy)+"px",
       width:width+"px",
       height:height+"px",
       zIndex:String((node.z||0)+200000),
-      transform:`rotate(${node.rotation||0}deg) skew(${node.skewX||0}deg,${node.skewY||0}deg) scale(${node.scaleX||1},${node.scaleY||1})`,
+      transform:"rotate("+(node.rotation||0)+"deg) skew("+(node.skewX||0)+"deg,"+(node.skewY||0)+"deg) scale("+(node.scaleX||1)+","+(node.scaleY||1)+")",
       transformOrigin:"center center"
     });
-    overlay.setAttribute("viewBox",`0 0 ${width} ${height}`);
+
+    overlay.setAttribute("viewBox","0 0 "+width+" "+height);
     this.runtime.stage.append(overlay);
 
     const panel=document.createElement("section");
     panel.className="tq-water-editor-panel";
-    panel.innerHTML=`
-      <header><strong>Área da água</strong><span data-water-count>0 pontos</span></header>
-      <small>Toque no oceano para criar o contorno. O efeito só será aplicado ao concluir.</small>
-      <div class="tq-water-editor-actions">
-        <button type="button" data-water-undo>↶ Desfazer</button>
-        <button type="button" data-water-draft-clear>Limpar</button>
-        <button type="button" data-water-cancel>Cancelar</button>
-        <button type="button" class="is-primary" data-water-finish>✓ Concluir</button>
-      </div>`;
+    panel.innerHTML=
+      '<header><strong>'+(control.editorTitle||control.label||"Área")+'</strong><span data-area-count>0 pontos</span></header>'+
+      '<small>'+(control.editorHint||control.hint||"Toque para criar o contorno.")+'</small>'+
+      '<div class="tq-water-editor-actions">'+
+        '<button type="button" data-area-undo>↶ Desfazer</button>'+
+        '<button type="button" data-area-draft-clear>Limpar</button>'+
+        '<button type="button" data-area-cancel>Cancelar</button>'+
+        '<button type="button" class="is-primary" data-area-finish>✓ Concluir</button>'+
+      '</div>';
     this.el.append(panel);
 
     const redraw=()=>{
-      const polygon=draft.length>=3?`<polygon points="${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-polygon"/>`:"";
-      const polyline=draft.length?`<polyline points="${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-line"/>`:"";
-      const dots=draft.map((point,index)=>`<g><circle cx="${point.x*width}" cy="${point.y*height}" r="${index===0?7:5}" class="${index===0?"is-first":""}"/><text x="${point.x*width+8}" y="${point.y*height-8}">${index+1}</text></g>`).join("");
+      const polygon=draft.length>=minPoints?'<polygon points="'+draft.map(point=>(point.x*width)+","+(point.y*height)).join(" ")+'" class="tq-water-polygon"/>':"";
+      const polyline=draft.length?'<polyline points="'+draft.map(point=>(point.x*width)+","+(point.y*height)).join(" ")+'" class="tq-water-line"/>':"";
+      const dots=draft.map((point,index)=>'<g><circle cx="'+(point.x*width)+'" cy="'+(point.y*height)+'" r="'+(index===0?7:5)+'" class="'+(index===0?'is-first':'')+'"/><text x="'+(point.x*width+8)+'" y="'+(point.y*height-8)+'">'+(index+1)+'</text></g>').join("");
       overlay.innerHTML=polygon+polyline+dots;
-      panel.querySelector("[data-water-count]").textContent=`${draft.length} ponto${draft.length===1?"":"s"}`;
-      const finish=panel.querySelector("[data-water-finish]");
-      finish.disabled=draft.length<3;
+      panel.querySelector("[data-area-count]").textContent=draft.length+" ponto"+(draft.length===1?"":"s");
+      panel.querySelector("[data-area-finish]").disabled=draft.length<minPoints;
     };
 
     const addPoint=event=>{
       event.preventDefault();
       event.stopPropagation();
-      if(draft.length>=32)return;
+      if(draft.length>=maxPoints)return;
+
       const matrix=overlay.getScreenCTM();
       if(!matrix)return;
+
       const point=overlay.createSVGPoint();
       point.x=event.clientX;
       point.y=event.clientY;
@@ -371,35 +480,38 @@ export class DevOverlay {
       draft.push({x,y});
       redraw();
     };
+
     overlay.addEventListener("pointerdown",addPoint);
 
-    const close=(commit)=>{
+    const close=commit=>{
       overlay.remove();
       panel.remove();
-      this.waterEditSession=null;
+      this.areaEditSession=null;
       this.runtime.setMode(previousMode==="play"?"play":"config");
+
       if(commit){
         node.composition=node.composition||{};
-        this.ensureOceanAnimation(node.composition);
+        this.ensureCompositionAnimation(node.composition,definition);
         node.composition.active=true;
-        node.composition.area={mode:"polygon",points:draft.map(point=>({...point}))};
+        node.composition[control.id]={mode:control.mode||"polygon",points:draft.map(point=>({...point}))};
         this.runtime.updateNode(node.id,{composition:node.composition},true);
         this.selected=this.runtime.nodes.get(node.id)?.node||node;
       }
+
       this.renderInspector();
     };
 
-    panel.querySelector("[data-water-undo]").addEventListener("click",()=>{draft.pop();redraw();});
-    panel.querySelector("[data-water-draft-clear]").addEventListener("click",()=>{draft.splice(0,draft.length);redraw();});
-    panel.querySelector("[data-water-cancel]").addEventListener("click",()=>close(false));
-    panel.querySelector("[data-water-finish]").addEventListener("click",()=>{if(draft.length>=3)close(true);});
+    panel.querySelector("[data-area-undo]").addEventListener("click",()=>{draft.pop();redraw();});
+    panel.querySelector("[data-area-draft-clear]").addEventListener("click",()=>{draft.splice(0,draft.length);redraw();});
+    panel.querySelector("[data-area-cancel]").addEventListener("click",()=>close(false));
+    panel.querySelector("[data-area-finish]").addEventListener("click",()=>{if(draft.length>=minPoints)close(true);});
 
-    this.waterEditSession={overlay,panel,cancel:()=>close(false)};
+    this.areaEditSession={overlay,panel,cancel:()=>close(false)};
     redraw();
   }
 
-  cancelWaterMarking(){
-    if(this.waterEditSession?.cancel)this.waterEditSession.cancel();
+  cancelCompositionAreaMarking(){
+    if(this.areaEditSession?.cancel)this.areaEditSession.cancel();
   }
 
   applyInput(input){
