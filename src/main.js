@@ -1,9 +1,9 @@
-import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2340";
-import { SceneResolver } from "./runtime/SceneResolver.js?v=20260929-2340";
-import { DevOverlay } from "./dev/DevOverlay.js?v=20260929-2340";
+import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2341";
+import { SceneResolver } from "./runtime/SceneResolver.js?v=20260929-2341";
+import { DevOverlay } from "./dev/DevOverlay.js?v=20260929-2341";
 
 const app = document.querySelector("#app");
-const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=20260929-2340");
+const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=20260929-2341");
 const resolved = resolver.resolve("login");
 
 const runtime = new SceneRuntime(app, { width: 390, height: 844 }, { editorEnabled: true });
