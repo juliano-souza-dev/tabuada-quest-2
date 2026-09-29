@@ -527,7 +527,7 @@ export class DevOverlay {
           input.addEventListener("change",()=>{
             this.patchCompositionControl(node,definition,control,readValue(),true);
             this.selected=this.runtime.nodes.get(node.id)?.node||node;
-            if(control.control==="preset")this.renderInspector();
+            if(control.control==="preset"||control.linkedDefaults)this.renderInspector();
           });
         }
       });
