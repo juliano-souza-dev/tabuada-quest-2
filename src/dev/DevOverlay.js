@@ -1,5 +1,5 @@
 export class DevOverlay {
-  constructor(root,runtime){this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;}
+  constructor(root,runtime){this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();}
   mount(){
     this.el=document.createElement("aside");this.el.className="tq-dev";
     this.el.innerHTML=`
@@ -13,7 +13,15 @@ export class DevOverlay {
         <button data-assets>▦ <span>Assets</span></button>
         <button data-collapse aria-label="Recolher ferramentas" title="Recolher">‹</button>
       </div>
-      <section class="tq-dev__assets" hidden><header><div><strong>Assets</strong><small>Biblioteca do repositório</small></div><button data-assets-close aria-label="Fechar">×</button></header><div class="tq-assets__filters"><input data-asset-search type="search" placeholder="Buscar asset..."><select data-asset-category><option value="">Todas as categorias</option></select></div><div class="tq-assets__grid" data-assets-grid></div></section>
+      <section class="tq-dev__assets" hidden>
+        <header><div><strong>Assets</strong><small data-assets-path>assets</small></div><button data-assets-close aria-label="Fechar">×</button></header>
+        <div class="tq-assets__nav">
+          <button type="button" data-asset-up aria-label="Pasta anterior" title="Pasta anterior">↑</button>
+          <nav class="tq-assets__breadcrumbs" data-assets-breadcrumbs aria-label="Caminho de assets"></nav>
+        </div>
+        <div class="tq-assets__filters"><input data-asset-search type="search" placeholder="Buscar em /assets..."></div>
+        <div class="tq-assets__grid" data-assets-grid></div>
+      </section>
       <section class="tq-dev__panel" hidden>
         <header><div><strong>Config</strong><small data-node-title>Nenhum nó</small></div><button data-close aria-label="Fechar">×</button></header>
         <div class="tq-dev__content"><div class="tq-dev__empty">Selecione um nó para configurar.</div></div>
@@ -26,7 +34,7 @@ export class DevOverlay {
     this.el.querySelector("[data-assets]").addEventListener("click",()=>this.toggleAssets(true));
     this.el.querySelector("[data-assets-close]").addEventListener("click",()=>this.toggleAssets(false));
     this.el.querySelector("[data-asset-search]").addEventListener("input",()=>this.renderAssets());
-    this.el.querySelector("[data-asset-category]").addEventListener("change",()=>this.renderAssets());
+    this.el.querySelector("[data-asset-up]").addEventListener("click",()=>this.navigateAssetDirectory(this.parentAssetPath(this.assetDirectoryPath)));
     this.loadAssets();
     this.loadCompositionTypes();
     this.mountMold();
@@ -40,23 +48,93 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-catalog.json?v=20260929-2208",{cache:"no-store"});
-      const catalog=await r.json();this.assetCatalog=catalog.assets||[];
-      const select=this.el.querySelector("[data-asset-category]");
-      [...new Set(this.assetCatalog.map(a=>a.category))].sort().forEach(cat=>{const o=document.createElement("option");o.value=cat;o.textContent=cat;select.append(o)});
+      const r=await fetch("./src/config/asset-tree.json?v=20260929-2208",{cache:"no-store"});
+      const manifest=await r.json();
+      this.assetTree=manifest.root||null;
+      this.assetCatalog=manifest.assets||[];
+      this.assetDirectoryPath=this.assetTree?.path||"assets";
+      this.assetNodeIndex=new Map();
+      this.assetByPath=new Map(this.assetCatalog.map(asset=>[asset.path,asset]));
+      const indexNode=node=>{
+        if(!node?.path)return;
+        this.assetNodeIndex.set(node.path,node);
+        if(node.type==="directory")for(const child of node.children||[])indexNode(child);
+      };
+      indexNode(this.assetTree);
       this.renderAssets();
-    }catch(e){this.el.querySelector("[data-assets-grid]").textContent="Falha ao carregar biblioteca de assets."}
+    }catch(e){
+      console.warn("Asset tree load failed",e);
+      const grid=this.el.querySelector("[data-assets-grid]");
+      if(grid)grid.textContent="Falha ao carregar a árvore real de /assets.";
+    }
   }
   toggleAssets(show){
     const panel=this.el.querySelector(".tq-dev__assets");panel.hidden=!show;
     if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.renderAssets()}
   }
+  escapeHtml(value){
+    return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+  }
+  parentAssetPath(path){
+    if(!path||path==="assets")return "assets";
+    const parts=path.split("/");parts.pop();
+    return parts.join("/")||"assets";
+  }
+  navigateAssetDirectory(path){
+    const node=this.assetNodeIndex.get(path);
+    if(!node||node.type!=="directory")return;
+    this.assetDirectoryPath=path;
+    const search=this.el.querySelector("[data-asset-search]");
+    if(search)search.value="";
+    this.renderAssets();
+  }
+  renderAssetBreadcrumbs(){
+    const nav=this.el.querySelector("[data-assets-breadcrumbs]");
+    const label=this.el.querySelector("[data-assets-path]");
+    const up=this.el.querySelector("[data-asset-up]");
+    if(!nav)return;
+    const path=this.assetDirectoryPath||"assets";
+    const parts=path.split("/");
+    let current="";
+    nav.innerHTML=parts.map((part,index)=>{
+      current=current?current+"/"+part:part;
+      const separator=index?'<span class="tq-assets__crumb-separator">›</span>':"";
+      return separator+'<button type="button" data-asset-crumb="'+this.escapeHtml(current)+'">'+this.escapeHtml(part)+'</button>';
+    }).join("");
+    nav.querySelectorAll("[data-asset-crumb]").forEach(button=>button.addEventListener("click",()=>this.navigateAssetDirectory(button.dataset.assetCrumb)));
+    if(label)label.textContent=path;
+    if(up)up.disabled=path==="assets";
+  }
   renderAssets(){
-    const grid=this.el.querySelector("[data-assets-grid]");if(!grid||!this.assetCatalog)return;
-    const q=this.el.querySelector("[data-asset-search]").value.trim().toLowerCase(),cat=this.el.querySelector("[data-asset-category]").value;
-    const list=this.assetCatalog.filter(a=>(!cat||a.category===cat)&&(!q||a.path.toLowerCase().includes(q)));
-    grid.innerHTML=list.map((a,i)=>`<button class="tq-asset-card" data-asset-index="${this.assetCatalog.indexOf(a)}"><img src="./${a.path}" loading="lazy" alt=""><span>${a.name}</span><small>${a.category}</small></button>`).join("");
-    grid.querySelectorAll("[data-asset-index]").forEach(b=>b.addEventListener("click",()=>this.insertAsset(this.assetCatalog[Number(b.dataset.assetIndex)])));
+    const grid=this.el.querySelector("[data-assets-grid]");
+    if(!grid||!this.assetTree)return;
+
+    this.renderAssetBreadcrumbs();
+    const query=this.el.querySelector("[data-asset-search]")?.value.trim().toLowerCase()||"";
+
+    if(query){
+      const matches=this.assetCatalog.filter(asset=>asset.path.toLowerCase().includes(query));
+      grid.innerHTML=matches.length?matches.map(asset=>{
+        const parent=this.parentAssetPath(asset.path);
+        return '<button class="tq-asset-card" data-asset-file="'+this.escapeHtml(asset.path)+'"><img src="./'+this.escapeHtml(asset.path)+'" loading="lazy" alt=""><span>'+this.escapeHtml(asset.name)+'</span><small>'+this.escapeHtml(parent)+'</small></button>';
+      }).join(""):'<div class="tq-assets__empty">Nenhuma imagem encontrada em /assets.</div>';
+    }else{
+      const directory=this.assetNodeIndex.get(this.assetDirectoryPath)||this.assetTree;
+      const children=directory.children||[];
+      grid.innerHTML=children.length?children.map(entry=>{
+        if(entry.type==="directory"){
+          const count=(entry.children||[]).filter(child=>child.type==="image").length;
+          return '<button class="tq-asset-folder" data-asset-dir="'+this.escapeHtml(entry.path)+'"><span class="tq-asset-folder__icon" aria-hidden="true">📁</span><span>'+this.escapeHtml(entry.name)+'</span><small>'+count+' imagem'+(count===1?'':'s')+' nesta pasta</small></button>';
+        }
+        return '<button class="tq-asset-card" data-asset-file="'+this.escapeHtml(entry.path)+'"><img src="./'+this.escapeHtml(entry.path)+'" loading="lazy" alt=""><span>'+this.escapeHtml(entry.name)+'</span><small>'+this.escapeHtml(entry.path)+'</small></button>';
+      }).join(""):'<div class="tq-assets__empty">Esta pasta não contém subpastas ou imagens.</div>';
+    }
+
+    grid.querySelectorAll("[data-asset-dir]").forEach(button=>button.addEventListener("click",()=>this.navigateAssetDirectory(button.dataset.assetDir)));
+    grid.querySelectorAll("[data-asset-file]").forEach(button=>button.addEventListener("click",()=>{
+      const asset=this.assetByPath.get(button.dataset.assetFile);
+      if(asset)this.insertAsset(asset);
+    }));
   }
   insertAsset(asset){
     const src="./"+asset.path;
