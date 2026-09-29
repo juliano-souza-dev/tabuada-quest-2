@@ -24,3 +24,33 @@
 .tq-field--layer{display:grid;gap:8px}.tq-layer-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.tq-layer-grid button{min-width:0;aspect-ratio:1;padding:0;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:#06131f;color:#dcecff;font-weight:800}.tq-layer-grid button.active{background:#fff;color:#102233;border-color:#fff}
 
 .tq-webgl-ocean{position:absolute;transform-origin:center center;pointer-events:none;background:transparent}.tq-water-area-editor{position:absolute;overflow:visible;touch-action:none;cursor:crosshair}.tq-water-area-finish{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2147483647;padding:12px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.35);background:#083349;color:#fff;font-weight:800;pointer-events:auto}.tq-field [data-water-mark],.tq-field [data-water-clear]{width:100%;min-height:40px;margin-top:6px}.tq-field input[type=range]{width:100%}
+
+
+/* Ocean animator DEV controls */
+.tq-field select{width:100%;min-width:0;border:1px solid rgba(255,255,255,.14);border-radius:9px;background:#06131f;color:#fff;padding:9px;font:inherit}
+.tq-ocean-range>span{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tq-ocean-range>span b{font-weight:600;color:#bcd0df}
+.tq-ocean-range output{min-width:42px;padding:4px 7px;border:1px solid rgba(255,255,255,.14);border-radius:7px;background:#102535;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
+.tq-ocean-range input[type=range]{width:100%;padding:0;border:0;background:transparent;accent-color:#1a8cff}
+.tq-water-area-field>small{line-height:1.35;opacity:.72}
+.tq-water-area-field button,.tq-ocean-start{width:100%;min-height:42px;border:1px solid rgba(74,193,255,.7)!important;background:#123b54!important;color:#fff!important}
+.tq-ocean-start{margin-top:4px;background:#17699d!important;font-weight:800!important}
+
+/* Point-by-point water authoring lives above the canonical scene but is DEV-only. */
+.tq-water-area-editor{position:absolute;overflow:visible;touch-action:none;cursor:crosshair;pointer-events:auto}
+.tq-water-area-editor .tq-water-polygon{fill:rgba(34,196,255,.14);stroke:#66e7ff;stroke-width:2;vector-effect:non-scaling-stroke}
+.tq-water-area-editor .tq-water-line{fill:none;stroke:#d9f8ff;stroke-width:2;stroke-dasharray:7 6;vector-effect:non-scaling-stroke}
+.tq-water-area-editor circle{fill:#0bb7e7;stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}
+.tq-water-area-editor circle.is-first{fill:#ffb53a;stroke:#fff}
+.tq-water-area-editor text{fill:#fff;stroke:#062033;stroke-width:3;paint-order:stroke;font:700 11px/1 system-ui,-apple-system,sans-serif;pointer-events:none}
+
+.tq-water-editor-panel{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2147483646;width:min(430px,calc(100vw - 20px));padding:10px;border:1px solid rgba(89,220,255,.65);border-radius:14px;background:rgba(7,29,43,.96);box-shadow:0 12px 38px rgba(0,0,0,.55);backdrop-filter:blur(12px);pointer-events:auto}
+.tq-water-editor-panel header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.tq-water-editor-panel header span{color:#6ff4c3;font-size:12px;font-weight:800}
+.tq-water-editor-panel>small{display:block;color:#b9ccd8;font-size:11px;line-height:1.35;margin-bottom:9px}
+.tq-water-editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tq-water-editor-actions button{min-height:38px;border:1px solid rgba(255,255,255,.18)!important;border-radius:9px!important;background:#123044!important;color:#fff!important;padding:7px 9px!important}
+.tq-water-editor-actions button.is-primary{background:#126a52!important;border-color:#45d6a2!important}
+.tq-water-editor-actions button:disabled{opacity:.38;cursor:not-allowed}
+
+.tq-webgl-ocean{position:absolute;transform-origin:center center;pointer-events:none;background:transparent}
