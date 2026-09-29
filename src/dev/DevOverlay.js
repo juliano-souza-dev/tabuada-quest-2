@@ -104,23 +104,43 @@ export class DevOverlay {
     this.el.querySelector(".tq-dev__panel").hidden=mode!=="config";this.el.classList.toggle("is-play",mode==="play");
     if(mode==="config")this.renderInspector();
   }
-  fieldsFor(node){
-    const common=[
-      ["x","Position X","number"],["y","Position Y","number"],
-      ["scaleX","Scale X","number"],["scaleY","Scale Y","number"],
-      ["rotation","Rotation","number"],["skewX","Skew X","number"],["skewY","Skew Y","number"],
-      ["z","Z Index","number"],["visible","Visible","checkbox"],["locked","Locked","checkbox"]
+  configSections(node){
+    const field=(key,label,type="number")=>[key,label,type];
+    const sections=[
+      {id:"identity",title:"Identificação",fields:[
+        field("id","ID","readonly"),field("kind","Tipo","readonly"),field("parentId","Parent","readonly"),
+        ...(node.kind==="image"?[field("src","Asset","text")]:[]),
+        ...(node.kind==="function"?[field("function","Função","text")]:[])
+      ]},
+      {id:"transform",title:"Transformação",fields:[
+        field("x","Position X"),field("y","Position Y"),
+        ...(["image","text"].includes(node.kind)?[field("width","Width"),field("height","Height")]:[]),
+        field("scaleX","Scale X"),field("scaleY","Scale Y"),field("rotation","Rotation"),
+        field("skewX","Skew X"),field("skewY","Skew Y")
+      ]},
+      {id:"appearance",title:"Aparência",fields:[
+        ...(node.kind==="text"?[field("text","Texto","text")]:[]),
+        field("visible","Visible","checkbox")
+      ]},
+      {id:"layer",title:"Camada",fields:[field("z","Z Index")]},
+      {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]}
     ];
-    if(node.kind==="image")return [["src","Asset","text"],["width","Width","number"],["height","Height","number"],...common];
-    if(node.kind==="text")return [["text","Texto","text"],["width","Width","number"],["height","Height","number"],...common];
-    if(node.kind==="function")return [["function","Função","text"],...common];
-    return common;
+    return sections.filter(s=>s.fields.length);
+  }
+  fieldMarkup(n,[key,label,type]){
+    if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
+    if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
+    return `<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`;
   }
   renderInspector(){
     const content=this.el.querySelector(".tq-dev__content"),title=this.el.querySelector("[data-node-title]");
     if(!this.selected){title.textContent="Nenhum nó";content.innerHTML='<div class="tq-dev__empty">Selecione um nó para configurar.</div>';return;}
     const n=this.selected;title.textContent=`${n.id} · ${n.kind}`;
-    content.innerHTML=`<div class="tq-inspector"><div class="tq-inspector__meta"><span>Parent</span><strong>viewport</strong></div>${this.fieldsFor(n).map(([key,label,type])=>type==="checkbox"?`<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`:`<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`).join("")}</div>`;
+    const sections=this.configSections(n);
+    content.innerHTML=`<div class="tq-inspector">${sections.map((s,i)=>`<section class="tq-config-area" data-area="${s.id}"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="${i===0?"true":"false"}"><strong>${s.title}</strong><span>${i===0?"▾":"▸"}</span></button><div class="tq-config-area__body" ${i===0?"":"hidden"}>${s.fields.map(f=>this.fieldMarkup(n,f)).join("")}</div></section>`).join("")}</div>`;
+    content.querySelectorAll("[data-area-toggle]").forEach(b=>b.addEventListener("click",()=>{
+      const body=b.nextElementSibling,open=!body.hidden;body.hidden=open;b.setAttribute("aria-expanded",String(!open));b.querySelector("span").textContent=open?"▸":"▾";
+    }));
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
   }
   applyInput(input){
