@@ -1,17 +1,13 @@
 {
   "schema": "tq.composition-types",
-  "version": 2,
+  "version": 3,
   "types": [
     {
       "id": "ocean",
       "label": "Oceano",
-      "area": {
-        "mode": "polygon",
-        "label": "Área do oceano",
-        "minPoints": 3,
-        "maxPoints": 32
-      },
+      "renderer": "ocean",
       "animation": {
+        "sectionLabel": "Animação",
         "presets": [
           {
             "id": "adventure",
@@ -30,59 +26,105 @@
           {
             "id": "active",
             "label": "Ativo",
-            "control": "checkbox"
+            "control": "checkbox",
+            "scope": "composition",
+            "default": true
           },
           {
             "id": "preset",
             "label": "Predefinição do oceano",
-            "control": "select"
+            "control": "preset",
+            "scope": "animation",
+            "default": "adventure"
           },
           {
             "id": "speed",
             "label": "Velocidade",
             "control": "range",
+            "scope": "animation",
             "min": 0,
             "max": 100,
-            "step": 1
+            "step": 1,
+            "default": 44
           },
           {
             "id": "movement",
             "label": "Força das ondas",
             "control": "range",
+            "scope": "animation",
             "min": 0,
             "max": 100,
-            "step": 1
+            "step": 1,
+            "default": 52
           },
           {
             "id": "shine",
             "label": "Brilho",
             "control": "range",
+            "scope": "animation",
             "min": 0,
             "max": 100,
-            "step": 1
+            "step": 1,
+            "default": 20
           },
           {
             "id": "foam",
             "label": "Espuma",
             "control": "range",
+            "scope": "animation",
             "min": 0,
             "max": 100,
-            "step": 1
+            "step": 1,
+            "default": 57
           },
           {
             "id": "ripples",
             "label": "Ondas ao toque",
-            "control": "checkbox"
+            "control": "checkbox",
+            "scope": "animation",
+            "default": true
+          },
+          {
+            "id": "area",
+            "label": "Área do oceano",
+            "control": "polygon-area",
+            "scope": "composition",
+            "mode": "polygon",
+            "minPoints": 3,
+            "maxPoints": 32,
+            "hint": "Toque no cenário para contornar somente a água.",
+            "buttonLabel": "Marcar oceano ponto a ponto",
+            "clearLabel": "Limpar área publicada",
+            "editorTitle": "Área da água",
+            "editorHint": "Toque no oceano para criar o contorno. O efeito só será aplicado ao concluir."
           },
           {
             "id": "quality",
             "label": "Qualidade",
             "control": "select",
+            "scope": "animation",
+            "default": "balanced",
             "options": [
-              "economy",
-              "balanced",
-              "high"
+              {
+                "value": "economy",
+                "label": "Econômico"
+              },
+              {
+                "value": "balanced",
+                "label": "Balanceado"
+              },
+              {
+                "value": "high",
+                "label": "Alta"
+              }
             ]
+          },
+          {
+            "id": "activate",
+            "label": "Salvar e iniciar",
+            "control": "action",
+            "action": "activate",
+            "scope": "composition"
           }
         ]
       }
