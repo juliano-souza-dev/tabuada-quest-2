@@ -505,7 +505,33 @@
                 "value": "heavy",
                 "label": "Navio pesado"
               }
-            ]
+            ],
+            "linkedDefaults": {
+              "subtle": {
+                "wakeIntensity": 36,
+                "wakeLength": 34,
+                "wakeSpread": 32,
+                "wakeFoam": 34
+              },
+              "navigation": {
+                "wakeIntensity": 62,
+                "wakeLength": 56,
+                "wakeSpread": 44,
+                "wakeFoam": 62
+              },
+              "strong": {
+                "wakeIntensity": 86,
+                "wakeLength": 76,
+                "wakeSpread": 54,
+                "wakeFoam": 86
+              },
+              "heavy": {
+                "wakeIntensity": 74,
+                "wakeLength": 68,
+                "wakeSpread": 62,
+                "wakeFoam": 72
+              }
+            }
           },
           {
             "id": "wakeIntensity",
