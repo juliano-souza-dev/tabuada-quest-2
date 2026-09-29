@@ -465,6 +465,9 @@ export class DevOverlay {
     if(control.scope==="composition")node.composition[control.id]=value;
     else animation[control.id]=value;
 
+    const linked=control.linkedDefaults?.[value];
+    if(linked&&control.scope==="animation")Object.assign(animation,linked);
+
     this.runtime.updateNode(node.id,{composition:node.composition},commit);
   }
 
