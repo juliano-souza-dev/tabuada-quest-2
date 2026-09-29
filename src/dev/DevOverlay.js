@@ -1,5 +1,5 @@
 export class DevOverlay {
-  constructor(root,runtime){this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;}
+  constructor(root,runtime){this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.waterEditSession=null;}
   mount(){
     this.el=document.createElement("aside");this.el.className="tq-dev";
     this.el.innerHTML=`
@@ -156,69 +156,252 @@ export class DevOverlay {
       ]},
       {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
       {id:"composition",title:"Composição",fields:[field("compositionType","Tipo de composição","compositionType")]},
-      ...(node.compositionType==="ocean"?[{id:"animation",title:"Animação",fields:[field("__oceanActive","Ativo","oceanActive"),field("__oceanPreset","Predefinição do oceano","oceanPreset"),field("__oceanSpeed","Velocidade","oceanSpeed"),field("__rippleStrength","Força das ondas","ripple"),field("__oceanShine","Brilho","oceanShine"),field("__oceanFoam","Espuma","oceanFoam"),field("__oceanTouch","Ondas ao toque","oceanTouch"),field("__waterArea","Área do oceano","waterArea")]}]:[]),
+      ...(node.compositionType==="ocean"?[{id:"animation",title:"Animação",fields:[
+        field("__oceanActive","Ativo","oceanActive"),
+        field("__oceanPreset","Predefinição do oceano","oceanPreset"),
+        field("__oceanSpeed","Velocidade","oceanSpeed"),
+        field("__oceanMovement","Força das ondas","oceanMovement"),
+        field("__oceanShine","Brilho","oceanShine"),
+        field("__oceanFoam","Espuma","oceanFoam"),
+        field("__oceanTouch","Ondas ao toque","oceanTouch"),
+        field("__waterArea","Área do oceano","waterArea"),
+        field("__oceanQuality","Qualidade","oceanQuality"),
+        field("__oceanStart","Salvar e iniciar","oceanStart")
+      ]}]:[]),
       {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
       {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
-    return sections.filter(s=>s.fields.length);
+    return sections.filter(section=>section.fields.length);
   }
+
   fieldMarkup(n,[key,label,type]){
-    if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
-    if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
-    if(type==="oceanActive"){const v=n.composition?.active!==false;return `<label class="tq-field tq-field--check"><span>${label}</span><input type="checkbox" data-ocean-active ${v?"checked":""}></label>`;}
-    if(type==="oceanPreset")return `<label class="tq-field"><span>${label}</span><select data-ocean-preset><option value="adventure">Aventura</option></select></label>`;
-    if(type==="oceanSpeed"){const v=n.composition?.effects?.ripple?.speed??.75;return `<label class="tq-field"><span>${label} <small data-ocean-speed-value>${Math.round(v*100)}</small></span><input type="range" min="0" max="2" step="0.01" value="${v}" data-ocean-speed></label>`;}
-    if(type==="oceanShine"){const v=n.composition?.appearance?.shine??.20;return `<label class="tq-field"><span>${label} <small>${Math.round(v*100)}</small></span><input type="range" min="0" max="1" step="0.01" value="${v}" data-ocean-shine></label>`;}
-    if(type==="oceanFoam"){const v=n.composition?.appearance?.foam??.57;return `<label class="tq-field"><span>${label} <small>${Math.round(v*100)}</small></span><input type="range" min="0" max="1" step="0.01" value="${v}" data-ocean-foam></label>`;}
-    if(type==="oceanTouch"){const v=n.composition?.ripples!==false;return `<label class="tq-field tq-field--check"><span>${label}</span><input type="checkbox" data-ocean-touch ${v?"checked":""}></label>`;}
-    if(type==="waterArea"){const count=n.composition?.area?.points?.length||0;return `<div class="tq-field"><span>${label}</span><button type="button" data-water-mark>Marcar ponto a ponto (${count})</button><button type="button" data-water-clear>Limpar área</button></div>`;}
-    if(type==="ripple"){const v=n.composition?.effects?.ripple?.strength??.65;return `<label class="tq-field"><span>Intensidade <small data-ripple-value>${Math.round(Number(v)*100)}%</small></span><input type="range" min="0" max="3" step="0.05" value="${v}" data-ripple-strength></label>`;}
-    if(type==="compositionType"){const current=n[key]??"";return `<label class="tq-field"><span>${label}</span><select data-prop="${key}"><option value="">Nenhum</option>${(this.compositionTypes||[]).map(t=>`<option value="${t.id}" ${current===t.id?"selected":""}>${t.label||t.id}</option>`).join("")}</select></label>`;}
-    if(type==="delete")return `<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>`;
-    if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(v=>`<button type="button" data-layer="${v}" class="${Number(n[key])===v?"active":""}">${v}</button>`).join("")}</div></div>`;
-    return `<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`;
+    const animation=n.composition?.animation||{};
+    if(type==="readonly")return \`<label class="tq-field"><span>\${label}</span><input value="\${n[key]??""}" readonly></label>\`;
+    if(type==="checkbox")return \`<label class="tq-field tq-field--check"><span>\${label}</span><input data-prop="\${key}" type="checkbox" \${n[key]?"checked":""}></label>\`;
+    if(type==="oceanActive"){const value=n.composition?.active!==false;return \`<label class="tq-field tq-field--check tq-ocean-toggle"><span>\${label}</span><input type="checkbox" data-ocean-active \${value?"checked":""}></label>\`;}
+    if(type==="oceanPreset"){const value=animation.preset||"adventure";return \`<label class="tq-field"><span>\${label}</span><select data-ocean-preset><option value="adventure" \${value==="adventure"?"selected":""}>Aventura</option></select></label>\`;}
+    if(type==="oceanSpeed"){const value=Number(animation.speed??44);return this.oceanRangeMarkup(label,"speed",value);}
+    if(type==="oceanMovement"){const value=Number(animation.movement??52);return this.oceanRangeMarkup(label,"movement",value);}
+    if(type==="oceanShine"){const value=Number(animation.shine??20);return this.oceanRangeMarkup(label,"shine",value);}
+    if(type==="oceanFoam"){const value=Number(animation.foam??57);return this.oceanRangeMarkup(label,"foam",value);}
+    if(type==="oceanTouch"){const value=animation.ripples!==false;return \`<label class="tq-field tq-field--check"><span>\${label}</span><input type="checkbox" data-ocean-touch \${value?"checked":""}></label>\`;}
+    if(type==="waterArea"){
+      const count=n.composition?.area?.points?.length||0;
+      return \`<div class="tq-field tq-water-area-field"><span>\${label}</span><small>Toque no cenário para contornar somente a água.</small><button type="button" data-water-mark>Marcar oceano ponto a ponto\${count?" · "+count+" pontos":""}</button>\${count?'<button type="button" data-water-clear>Limpar área publicada</button>':""}</div>\`;
+    }
+    if(type==="oceanQuality"){
+      const value=animation.quality||"balanced";
+      return \`<label class="tq-field"><span>\${label}</span><select data-ocean-quality><option value="economy" \${value==="economy"?"selected":""}>Econômico</option><option value="balanced" \${value==="balanced"?"selected":""}>Balanceado</option><option value="high" \${value==="high"?"selected":""}>Alta</option></select></label>\`;
+    }
+    if(type==="oceanStart")return \`<button type="button" class="tq-ocean-start" data-ocean-start>Salvar e iniciar</button>\`;
+    if(type==="compositionType"){
+      const current=n[key]??"";
+      return \`<label class="tq-field"><span>\${label}</span><select data-prop="\${key}"><option value="">Nenhum</option>\${(this.compositionTypes||[]).map(type=>\`<option value="\${type.id}" \${current===type.id?"selected":""}>\${type.label||type.id}</option>\`).join("")}</select></label>\`;
+    }
+    if(type==="delete")return \`<button type="button" class="tq-delete-node" data-delete-node>Excluir nó</button>\`;
+    if(type==="layer")return \`<div class="tq-field tq-field--layer"><span>\${label}</span><div class="tq-layer-grid">\${Array.from({length:10},(_,i)=>i+1).map(value=>\`<button type="button" data-layer="\${value}" class="\${Number(n[key])===value?"active":""}">\${value}</button>\`).join("")}</div></div>\`;
+    return \`<label class="tq-field"><span>\${label}</span><input data-prop="\${key}" type="\${type}" value="\${n[key]??""}" \${type==="number"?'step="0.01"':""}></label>\`;
   }
+
+  oceanRangeMarkup(label,key,value){
+    const safe=Math.max(0,Math.min(100,Number(value)||0));
+    return \`<label class="tq-field tq-ocean-range"><span><b>\${label}</b><output data-ocean-output="\${key}">\${Math.round(safe)}</output></span><input type="range" min="0" max="100" step="1" value="\${safe}" data-ocean-range="\${key}"></label>\`;
+  }
+
+  ensureOceanAnimation(composition){
+    composition.animation={
+      preset:"adventure",
+      speed:44,
+      movement:52,
+      shine:20,
+      foam:57,
+      ripples:true,
+      quality:"balanced",
+      ...(composition.animation||{})
+    };
+    return composition.animation;
+  }
+
   renderInspector(){
-    const content=this.el.querySelector(".tq-dev__content"),title=this.el.querySelector("[data-node-title]");
-    if(!this.selected){title.textContent="Nenhum nó";content.innerHTML='<div class="tq-dev__empty">Selecione um nó para configurar.</div>';return;}
-    const n=this.selected;title.textContent=`${n.id} · ${n.kind}`;
+    const content=this.el.querySelector(".tq-dev__content");
+    const title=this.el.querySelector("[data-node-title]");
+    if(!this.selected){
+      title.textContent="Nenhum nó";
+      content.innerHTML='<div class="tq-dev__empty">Selecione um nó para configurar.</div>';
+      return;
+    }
+
+    const n=this.selected;
+    title.textContent=\`\${n.id} · \${n.kind}\`;
     const sections=this.configSections(n);
-    content.innerHTML=`<div class="tq-inspector">${sections.map((s,i)=>`<section class="tq-config-area" data-area="${s.id}"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="${i===0?"true":"false"}"><strong>${s.title}</strong><span>${i===0?"▾":"▸"}</span></button><div class="tq-config-area__body" ${i===0?"":"hidden"}>${s.fields.map(f=>this.fieldMarkup(n,f)).join("")}</div></section>`).join("")}</div>`;
-    content.querySelectorAll("[data-area-toggle]").forEach(b=>b.addEventListener("click",()=>{
-      const body=b.nextElementSibling,open=!body.hidden;body.hidden=open;b.setAttribute("aria-expanded",String(!open));b.querySelector("span").textContent=open?"▸":"▾";
+    const defaultOpen=n.compositionType==="ocean"?"animation":"identity";
+    content.innerHTML=\`<div class="tq-inspector">\${sections.map(section=>{
+      const open=section.id===defaultOpen;
+      return \`<section class="tq-config-area" data-area="\${section.id}"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="\${open}"><strong>\${section.title}</strong><span>\${open?"▾":"▸"}</span></button><div class="tq-config-area__body" \${open?"":"hidden"}>\${section.fields.map(field=>this.fieldMarkup(n,field)).join("")}</div></section>\`;
+    }).join("")}</div>\`;
+
+    content.querySelectorAll("[data-area-toggle]").forEach(button=>button.addEventListener("click",()=>{
+      const body=button.nextElementSibling;
+      const open=!body.hidden;
+      body.hidden=open;
+      button.setAttribute("aria-expanded",String(!open));
+      button.querySelector("span").textContent=open?"▸":"▾";
     }));
+
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
-    const patchOcean=(fn,commit=false)=>{n.composition=n.composition||{};fn(n.composition);this.runtime.updateNode(n.id,{composition:n.composition},commit)};
-    content.querySelector("[data-ocean-active]")?.addEventListener("change",e=>patchOcean(o=>o.active=e.target.checked,true));
-    content.querySelector("[data-ocean-speed]")?.addEventListener("input",e=>{patchOcean(o=>{o.effects=o.effects||{};o.effects.ripple={...(o.effects.ripple||{}),speed:Number(e.target.value)}});const out=content.querySelector("[data-ocean-speed-value]");if(out)out.textContent=Math.round(Number(e.target.value)*100)});
-    content.querySelector("[data-ocean-shine]")?.addEventListener("input",e=>patchOcean(o=>{o.appearance=o.appearance||{};o.appearance.shine=Number(e.target.value)}));
-    content.querySelector("[data-ocean-foam]")?.addEventListener("input",e=>patchOcean(o=>{o.appearance=o.appearance||{};o.appearance.foam=Number(e.target.value)}));
-    content.querySelector("[data-ocean-touch]")?.addEventListener("change",e=>patchOcean(o=>o.ripples=e.target.checked,true));
+    const patchOcean=(mutate,commit=false)=>{
+      n.composition=n.composition||{};
+      this.ensureOceanAnimation(n.composition);
+      mutate(n.composition,n.composition.animation);
+      this.runtime.updateNode(n.id,{composition:n.composition},commit);
+    };
+
+    content.querySelector("[data-ocean-active]")?.addEventListener("change",event=>patchOcean(composition=>composition.active=event.target.checked,true));
+    content.querySelector("[data-ocean-preset]")?.addEventListener("change",event=>patchOcean((composition,animation)=>animation.preset=event.target.value,true));
+    content.querySelectorAll("[data-ocean-range]").forEach(input=>{
+      input.addEventListener("input",event=>{
+        const key=event.target.dataset.oceanRange;
+        const value=Number(event.target.value);
+        patchOcean((composition,animation)=>animation[key]=value);
+        const output=content.querySelector(\`[data-ocean-output="\${key}"]\`);
+        if(output)output.value=String(Math.round(value));
+      });
+      input.addEventListener("change",event=>{
+        const key=event.target.dataset.oceanRange;
+        patchOcean((composition,animation)=>animation[key]=Number(event.target.value),true);
+      });
+    });
+    content.querySelector("[data-ocean-touch]")?.addEventListener("change",event=>patchOcean((composition,animation)=>animation.ripples=event.target.checked,true));
+    content.querySelector("[data-ocean-quality]")?.addEventListener("change",event=>patchOcean((composition,animation)=>animation.quality=event.target.value,true));
+    content.querySelector("[data-ocean-start]")?.addEventListener("click",()=>{
+      patchOcean(composition=>composition.active=true,true);
+      this.selected=this.runtime.nodes.get(n.id)?.node||n;
+      this.renderInspector();
+    });
+
     content.querySelector("[data-water-mark]")?.addEventListener("click",()=>this.startWaterMarking(n));
-    content.querySelector("[data-water-clear]")?.addEventListener("click",()=>{n.composition={...(n.composition||{}),area:{mode:"polygon",points:[]}};this.runtime.updateNode(n.id,{composition:n.composition},true);this.renderInspector();});
-    content.querySelector("[data-ripple-strength]")?.addEventListener("input",e=>{n.composition=n.composition||{};n.composition.effects=n.composition.effects||{};n.composition.effects.ripple={...(n.composition.effects.ripple||{}),strength:Number(e.target.value)};this.runtime.updateNode(n.id,{composition:n.composition});const out=content.querySelector("[data-ripple-value]");if(out)out.textContent=Math.round(Number(e.target.value)*100)+"%";});
+    content.querySelector("[data-water-clear]")?.addEventListener("click",()=>{
+      n.composition={...(n.composition||{}),area:{mode:"polygon",points:[]}};
+      this.runtime.updateNode(n.id,{composition:n.composition},true);
+      this.renderInspector();
+    });
+
     content.querySelector("[data-delete-node]")?.addEventListener("click",()=>{
-      const id=n.id;if(confirm("Excluir este nó da cena?")){this.runtime.deleteNode(id);this.selected=null;this.renderInspector();}
+      const id=n.id;
+      if(confirm("Excluir este nó da cena?")){
+        this.runtime.deleteNode(id);
+        this.selected=null;
+        this.renderInspector();
+      }
     });
     content.querySelectorAll("[data-layer]").forEach(button=>button.addEventListener("click",()=>{
-      const value=Number(button.dataset.layer);this.runtime.updateNode(n.id,{z:value},true);this.selected=this.runtime.nodes.get(n.id)?.node||n;this.renderInspector();
+      const value=Number(button.dataset.layer);
+      this.runtime.updateNode(n.id,{z:value},true);
+      this.selected=this.runtime.nodes.get(n.id)?.node||n;
+      this.renderInspector();
     }));
   }
+
   startWaterMarking(node){
-    const item=this.runtime.nodes.get(node.id);if(!item)return;
+    const item=this.runtime.nodes.get(node.id);
+    if(!item)return;
+    this.cancelWaterMarking();
+
+    const previousMode=this.runtime.mode;
+    const previousPoints=(node.composition?.area?.points||[]).map(point=>({x:Number(point.x),y:Number(point.y)}));
+    const draft=previousPoints.map(point=>({...point}));
     this.runtime.setMode("area");
-    let overlay=this.runtime.stage.querySelector('[data-water-overlay="'+node.id+'"]');if(overlay)overlay.remove();
-    overlay=document.createElementNS("http://www.w3.org/2000/svg","svg");overlay.dataset.waterOverlay=node.id;overlay.classList.add("tq-water-area-editor");
-    const ox=this.runtime.sceneOffset?.x||0,oy=this.runtime.sceneOffset?.y||0,w=node.width||item.el.offsetWidth,h=node.height||item.el.offsetHeight;
-    Object.assign(overlay.style,{left:(node.x+ox)+"px",top:(node.y+oy)+"px",width:w+"px",height:h+"px",zIndex:String((node.z||0)+200000)});overlay.setAttribute("viewBox",`0 0 ${w} ${h}`);this.runtime.stage.append(overlay);
-    node.composition=node.composition||{};node.composition.area={mode:"polygon",points:[]};
-    const redraw=()=>{const pts=node.composition.area.points;overlay.innerHTML=`<polygon points="${pts.map(p=>p.x*w+','+p.y*h).join(' ')}" fill="rgba(30,180,255,.16)" stroke="#5de1ff" stroke-width="2"/>${pts.map((p,i)=>`<circle cx="${p.x*w}" cy="${p.y*h}" r="5" fill="#fff" stroke="#00bde8" stroke-width="2"/>`).join("")}`;};
+
+    const overlay=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    overlay.dataset.waterOverlay=node.id;
+    overlay.classList.add("tq-water-area-editor");
+    overlay.setAttribute("preserveAspectRatio","none");
+
+    const ox=this.runtime.sceneOffset?.x||0;
+    const oy=this.runtime.sceneOffset?.y||0;
+    const width=Math.max(1,node.width||item.el.offsetWidth||1);
+    const height=Math.max(1,node.height||item.el.offsetHeight||1);
+    Object.assign(overlay.style,{
+      left:(node.x+ox)+"px",
+      top:(node.y+oy)+"px",
+      width:width+"px",
+      height:height+"px",
+      zIndex:String((node.z||0)+200000),
+      transform:\`rotate(\${node.rotation||0}deg) skew(\${node.skewX||0}deg,\${node.skewY||0}deg) scale(\${node.scaleX||1},\${node.scaleY||1})\`,
+      transformOrigin:"center center"
+    });
+    overlay.setAttribute("viewBox",\`0 0 \${width} \${height}\`);
+    this.runtime.stage.append(overlay);
+
+    const panel=document.createElement("section");
+    panel.className="tq-water-editor-panel";
+    panel.innerHTML=\`
+      <header><strong>Área da água</strong><span data-water-count>0 pontos</span></header>
+      <small>Toque no oceano para criar o contorno. O efeito só será aplicado ao concluir.</small>
+      <div class="tq-water-editor-actions">
+        <button type="button" data-water-undo>↶ Desfazer</button>
+        <button type="button" data-water-draft-clear>Limpar</button>
+        <button type="button" data-water-cancel>Cancelar</button>
+        <button type="button" class="is-primary" data-water-finish>✓ Concluir</button>
+      </div>\`;
+    this.el.append(panel);
+
+    const redraw=()=>{
+      const polygon=draft.length>=3?\`<polygon points="\${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-polygon"/>\`:"";
+      const polyline=draft.length?\`<polyline points="\${draft.map(point=>point.x*width+","+point.y*height).join(" ")}" class="tq-water-line"/>\`:"";
+      const dots=draft.map((point,index)=>\`<g><circle cx="\${point.x*width}" cy="\${point.y*height}" r="\${index===0?7:5}" class="\${index===0?"is-first":""}"/><text x="\${point.x*width+8}" y="\${point.y*height-8}">\${index+1}</text></g>\`).join("");
+      overlay.innerHTML=polygon+polyline+dots;
+      panel.querySelector("[data-water-count]").textContent=\`\${draft.length} ponto\${draft.length===1?"":"s"}\`;
+      const finish=panel.querySelector("[data-water-finish]");
+      finish.disabled=draft.length<3;
+    };
+
+    const addPoint=event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      if(draft.length>=32)return;
+      const matrix=overlay.getScreenCTM();
+      if(!matrix)return;
+      const point=overlay.createSVGPoint();
+      point.x=event.clientX;
+      point.y=event.clientY;
+      const local=point.matrixTransform(matrix.inverse());
+      const x=Math.max(0,Math.min(1,local.x/width));
+      const y=Math.max(0,Math.min(1,local.y/height));
+      draft.push({x,y});
+      redraw();
+    };
+    overlay.addEventListener("pointerdown",addPoint);
+
+    const close=(commit)=>{
+      overlay.remove();
+      panel.remove();
+      this.waterEditSession=null;
+      this.runtime.setMode(previousMode==="play"?"play":"config");
+      if(commit){
+        node.composition=node.composition||{};
+        this.ensureOceanAnimation(node.composition);
+        node.composition.active=true;
+        node.composition.area={mode:"polygon",points:draft.map(point=>({...point}))};
+        this.runtime.updateNode(node.id,{composition:node.composition},true);
+        this.selected=this.runtime.nodes.get(node.id)?.node||node;
+      }
+      this.renderInspector();
+    };
+
+    panel.querySelector("[data-water-undo]").addEventListener("click",()=>{draft.pop();redraw();});
+    panel.querySelector("[data-water-draft-clear]").addEventListener("click",()=>{draft.splice(0,draft.length);redraw();});
+    panel.querySelector("[data-water-cancel]").addEventListener("click",()=>close(false));
+    panel.querySelector("[data-water-finish]").addEventListener("click",()=>{if(draft.length>=3)close(true);});
+
+    this.waterEditSession={overlay,panel,cancel:()=>close(false)};
     redraw();
-    const add=e=>{e.preventDefault();e.stopPropagation();const r=overlay.getBoundingClientRect();const x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(e.clientY-r.top)/r.height));if(node.composition.area.points.length<32){node.composition.area.points.push({x,y});redraw();this.runtime.updateNode(node.id,{composition:node.composition});}};
-    overlay.addEventListener("pointerdown",add);
-    const finish=document.createElement("button");finish.type="button";finish.className="tq-water-area-finish";finish.textContent="Concluir área";this.el.append(finish);
-    finish.addEventListener("click",()=>{if(node.composition.area.points.length<3)return;overlay.remove();finish.remove();this.runtime.setMode("config");this.runtime.updateNode(node.id,{composition:node.composition},true);this.selected=node;this.renderInspector();});
   }
+
+  cancelWaterMarking(){
+    if(this.waterEditSession?.cancel)this.waterEditSession.cancel();
+  }
+
   applyInput(input){
     if(!this.selected)return;const key=input.dataset.prop;
     let value=input.type==="checkbox"?input.checked:input.type==="number"?Number(input.value):input.value;
