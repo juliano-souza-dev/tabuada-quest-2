@@ -70,6 +70,7 @@ export class ShipEffect {
       pivotX:Math.max(0,Math.min(1,(Number(animation.pivotX??50)>1?Number(animation.pivotX??50)/100:Number(animation.pivotX??.5)))),
       pivotY:Math.max(0,Math.min(1,(Number(animation.pivotY??76)>1?Number(animation.pivotY??76)/100:Number(animation.pivotY??.76)))),
       routePreset:ROUTE_PRESETS[animation.routePreset]?animation.routePreset:"none",
+      route:animation.route&&typeof animation.route==="object"?animation.route:null,
       routeSpeed:percent(animation.routeSpeed,50),
       routeLoop:animation.routeLoop===true,
       wakeEnabled:animation.wakeEnabled!==false,
@@ -99,6 +100,19 @@ export class ShipEffect {
   }
 
   buildRouteConfig(config=this.config()){
+    if(Array.isArray(config.route?.frames)&&config.route.frames.length>=2){
+      return {
+        enabled:config.route.enabled!==false,
+        frames:config.route.frames,
+        interpolation:config.route.interpolation||"curve",
+        timing:config.route.timing||"distance",
+        speed:Math.max(.01,Number(config.route.speed)||1),
+        durationMs:Math.max(0,Number(config.route.durationMs)||0),
+        loop:config.route.loop===true,
+        restartAtOrigin:config.route.restartAtOrigin===true
+      };
+    }
+
     const preset=ROUTE_PRESETS[config.routePreset]||ROUTE_PRESETS.none;
     if(!preset.enabled&&config.routePreset==="none")return {enabled:false,frames:[]};
 
