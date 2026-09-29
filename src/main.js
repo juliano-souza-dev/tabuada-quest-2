@@ -1,10 +1,10 @@
-import { SceneRuntime } from "./runtime/SceneRuntime.js";
+import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2200";
 
 const app = document.querySelector("#app");
 const runtime = new SceneRuntime(app, { width: 390, height: 844 });
-await runtime.load("./src/scenes/login.scene.json");
+await runtime.load("./src/scenes/login.scene.json?v=20260929-2200");
 
-// Current project policy: do not keep stale service workers or Cache Storage.
+// PROD policy: never keep stale Service Workers or Cache Storage.
 if ("serviceWorker" in navigator) {
   const registrations = await navigator.serviceWorker.getRegistrations();
   await Promise.all(registrations.map(registration => registration.unregister()));
