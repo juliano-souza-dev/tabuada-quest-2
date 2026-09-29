@@ -93,9 +93,12 @@ export class ShipEffect {
       return;
     }
 
-    if(this.runtime.mode==="play"){
+    const previewMode=this.runtime.editorEnabled&&this.runtime.mode==="config";
+    if(this.runtime.mode==="play"||previewMode){
       this.path.node=this.node;
       this.path.sync(this.buildRouteConfig(config));
+    }else{
+      this.path.stop();
     }
   }
 
@@ -211,12 +214,14 @@ export class ShipEffect {
     const config=this.config();
     if(this.lastMode!==this.runtime.mode){
       this.lastMode=this.runtime.mode;
-      if(this.runtime.mode==="play"&&config.active)this.path.play(this.buildRouteConfig(config));
+      const previewMode=this.runtime.editorEnabled&&this.runtime.mode==="config";
+      if((this.runtime.mode==="play"||previewMode)&&config.active)this.path.play(this.buildRouteConfig(config));
       else this.path.stop();
     }
 
     const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    const animateLocal=config.active&&this.node.visible!==false&&this.runtime.mode==="play"&&(!reduced||this.runtime.editorEnabled);
+    const previewMode=this.runtime.editorEnabled&&this.runtime.mode==="config";
+    const animateLocal=config.active&&this.node.visible!==false&&(this.runtime.mode==="play"||previewMode)&&(!reduced||this.runtime.editorEnabled);
 
     if(animateLocal){
       const motion=this.seaMotion(now,config);
