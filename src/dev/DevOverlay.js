@@ -150,7 +150,7 @@ export class DevOverlay {
         ...(node.kind==="text"?[field("text","Texto","text")]:[]),
         field("visible","Visible","checkbox")
       ]},
-      {id:"layer",title:"Camada",fields:[field("z","Z Index")]},
+      {id:"layer",title:"Camada",fields:[field("z","Camada","layer")]},
       {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]}
     ];
     return sections.filter(s=>s.fields.length);
@@ -158,6 +158,7 @@ export class DevOverlay {
   fieldMarkup(n,[key,label,type]){
     if(type==="readonly")return `<label class="tq-field"><span>${label}</span><input value="${n[key]??""}" readonly></label>`;
     if(type==="checkbox")return `<label class="tq-field tq-field--check"><span>${label}</span><input data-prop="${key}" type="checkbox" ${n[key]?"checked":""}></label>`;
+    if(type==="layer")return `<div class="tq-field tq-field--layer"><span>${label}</span><div class="tq-layer-grid">${Array.from({length:10},(_,i)=>i+1).map(v=>`<button type="button" data-layer="${v}" class="${Number(n[key])===v?"active":""}">${v}</button>`).join("")}</div></div>`;
     return `<label class="tq-field"><span>${label}</span><input data-prop="${key}" type="${type}" value="${n[key]??""}" ${type==="number"?'step="0.01"':""}></label>`;
   }
   renderInspector(){
@@ -170,6 +171,9 @@ export class DevOverlay {
       const body=b.nextElementSibling,open=!body.hidden;body.hidden=open;b.setAttribute("aria-expanded",String(!open));b.querySelector("span").textContent=open?"▸":"▾";
     }));
     content.querySelectorAll("[data-prop]").forEach(input=>input.addEventListener("change",()=>this.applyInput(input)));
+    content.querySelectorAll("[data-layer]").forEach(button=>button.addEventListener("click",()=>{
+      const value=Number(button.dataset.layer);this.runtime.updateNode(n.id,{z:value},true);this.selected=this.runtime.nodes.get(n.id)?.node||n;this.renderInspector();
+    }));
   }
   applyInput(input){
     if(!this.selected)return;const key=input.dataset.prop;
