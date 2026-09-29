@@ -36,7 +36,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-catalog.json",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-catalog.json?v=20260929-1946",{cache:"no-store"});
       const catalog=await r.json();this.assetCatalog=catalog.assets||[];
       const select=this.el.querySelector("[data-asset-category]");
       [...new Set(this.assetCatalog.map(a=>a.category))].sort().forEach(cat=>{const o=document.createElement("option");o.value=cat;o.textContent=cat;select.append(o)});
