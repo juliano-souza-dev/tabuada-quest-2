@@ -1,8 +1,10 @@
 import { CompositionEngine } from "./CompositionEngine.js?v=20260929-2232";
 import { OceanEffect } from "../OceanEffect.js?v=20260929-2232";
+import { ShipEffect } from "../ShipEffect.js?v=20260929-2232";
 
 export function createCompositionEngine(runtime) {
   return new CompositionEngine(runtime, {
-    ocean: OceanEffect
+    ocean: OceanEffect,
+    ship: ShipEffect
   });
 }
