@@ -1,5 +1,43 @@
 {
   "schema": "tq.composition-types",
   "version": 1,
-  "types": []
+  "types": [
+    {
+      "id": "ocean",
+      "label": "Oceano",
+      "area": {
+        "mode": "polygon",
+        "label": "Área de água",
+        "minPoints": 3,
+        "maxPoints": 32
+      },
+      "effects": [
+        {
+          "id": "ripple",
+          "label": "Ondulação",
+          "enabledByDefault": true,
+          "properties": [
+            {
+              "id": "strength",
+              "label": "Intensidade",
+              "control": "range",
+              "min": 0,
+              "max": 1,
+              "step": 0.01,
+              "default": 0.18
+            },
+            {
+              "id": "speed",
+              "label": "Velocidade",
+              "control": "range",
+              "min": 0,
+              "max": 2,
+              "step": 0.01,
+              "default": 0.45
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
