@@ -14,23 +14,58 @@
   },
   "nodes": [
     {
-      "id": "login.single-asset",
-      "parentId": "viewport",
+      "id": "login.scene-ocean",
       "kind": "image",
-      "src": "./assets/pwa/icon-192.svg",
-      "x": -49.449255751014874,
-      "y": 276.9120433017591,
-      "width": 190.81461434370772,
-      "height": 190.81461434370772,
+      "src": "./assets/backgrounds/scene-ocean.webp",
+      "x": 3.0866035182679212,
+      "y": 111.30987821380243,
+      "width": 387.25304465493906,
+      "height": 621.3802435723951,
       "scaleX": 1,
       "scaleY": 1,
       "rotation": 0,
+      "skewX": 0,
+      "skewY": 0.5145021078840675,
       "z": 1,
       "visible": true,
       "locked": false,
-      "alt": "Tabuada Quest",
-      "skewX": 0,
-      "skewY": 0
+      "alt": "scene-ocean.webp",
+      "parentId": "viewport",
+      "compositionType": "ocean",
+      "composition": {
+        "area": {
+          "mode": "polygon",
+          "points": [
+            {"x": 0.026676606075578257, "y": 0.2370838639462036},
+            {"x": 0.35698882754855926, "y": 0.15068753058071335},
+            {"x": 0.9202890462100245, "y": 0.15856301291063687},
+            {"x": 0.9940194869143083, "y": 0.2261561952650755},
+            {"x": 0.985171862399689, "y": 0.8456098450185531},
+            {"x": 0.0030828785209821054, "y": 0.8621340624712901},
+            {"x": 0.0030828785209821054, "y": 0.2592718407169036}
+          ]
+        },
+        "effects": {
+          "ripple": {
+            "strength": 3,
+            "speed": 2
+          }
+        },
+        "active": true,
+        "appearance": {
+          "shine": 1,
+          "foam": 1
+        },
+        "animation": {
+          "speed": 81,
+          "movement": 31,
+          "shine": 30,
+          "foam": 100,
+          "ripples": true,
+          "quality": "economy",
+          "preset": "adventure"
+        }
+      }
     }
   ],
   "meta": {
