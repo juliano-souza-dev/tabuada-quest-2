@@ -1,6 +1,4 @@
-# Deploy develop directly to GitHub Pages.
-# Requires the github-pages environment to allow the develop branch.
-name: Deploy Tabuada Quest DEV to Pages
+name: Publish Tabuada Quest DEV
 
 on:
   push:
@@ -9,28 +7,38 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: publish-dev
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout develop
         uses: actions/checkout@v4
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-      - name: Upload static site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - name: Deploy DEV
-        id: deployment
-        uses: actions/deploy-pages@v4
+
+      - name: Configure DEV deploy key
+        env:
+          DEV_DEPLOY_KEY: ${{ secrets.DEV_DEPLOY_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEV_DEPLOY_KEY" > ~/.ssh/tabuada_quest_dev
+          chmod 600 ~/.ssh/tabuada_quest_dev
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Publish develop snapshot
+        env:
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/tabuada_quest_dev -o IdentitiesOnly=yes
+        run: |
+          rm -rf .git
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "deploy: sync develop ${GITHUB_SHA}"
+          git branch -M main
+          git remote add dev git@github.com:juliano-souza-dev/tabuada-quest-2-dev.git
+          git push --force dev main
