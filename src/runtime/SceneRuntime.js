@@ -2,7 +2,7 @@ import { createCompositionEngine } from "./composition/registry.js?v=20260929-21
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
-    this.selectedId=null; this.nodes=new Map(); this.compositions=createCompositionEngine(this); this.effects=this.compositions.instances; this.storageKey=null; this.mount();
+    this.selectedId=null; this.nodes=new Map(); this.compositions=createCompositionEngine(this); this.storageKey=null; this.mount();
   }
   mount(){
     this.root.innerHTML="";
