@@ -1,108 +1,72 @@
 export class SceneRuntime {
-  constructor(root, reference = { width: 390, height: 844 }) {
-    this.root = root;
-    this.reference = reference;
-    this.mode = "edit";
-    this.selectedId = null;
-    this.nodes = new Map();
-    this.mount();
+  constructor(root, reference={width:390,height:844}) {
+    this.root=root; this.reference=reference; this.mode="edit";
+    this.selectedId=null; this.nodes=new Map(); this.mount();
   }
-
-  mount() {
-    this.root.innerHTML = "";
-    this.stageHost = document.createElement("main");
-    this.stageHost.className = "tq-stage-host";
-    this.stage = document.createElement("section");
-    this.stage.className = "tq-stage";
-    this.stage.style.setProperty("--scene-w", this.reference.width);
-    this.stage.style.setProperty("--scene-h", this.reference.height);
-    this.stageHost.append(this.stage);
-    this.root.append(this.stageHost);
-    this.resizeObserver = new ResizeObserver(() => this.fit());
-    this.resizeObserver.observe(this.stageHost);
-    this.fit();
+  mount(){
+    this.root.innerHTML="";
+    this.stageHost=document.createElement("main"); this.stageHost.className="tq-stage-host";
+    this.stage=document.createElement("section"); this.stage.className="tq-stage";
+    this.stage.dataset.nodeId="viewport"; this.stage.dataset.canonicalParent="true";
+    this.stageHost.append(this.stage); this.root.append(this.stageHost);
+    this.stage.addEventListener("pointerdown",e=>{if(this.mode==="edit"&&e.target===this.stage)this.select(null)});
+    this.resizeObserver=new ResizeObserver(()=>this.fit()); this.resizeObserver.observe(this.stageHost); this.fit();
   }
-
-  fit() {
-    const r = this.stageHost.getBoundingClientRect();
-    const scale = Math.min(r.width / this.reference.width, r.height / this.reference.height);
-    this.stage.style.width = this.reference.width + "px";
-    this.stage.style.height = this.reference.height + "px";
-    this.stage.style.transform = `translate(-50%,-50%) scale(${scale})`;
+  fit(){
+    const r=this.stageHost.getBoundingClientRect();
+    this.viewportScale=Math.min(r.width/this.reference.width,r.height/this.reference.height);
+    this.stage.style.width=this.reference.width+"px"; this.stage.style.height=this.reference.height+"px";
+    this.stage.style.transform=`translate(-50%,-50%) scale(${this.viewportScale})`;
   }
-
-  async load(url) {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Scene load failed: ${res.status}`);
-    this.scene = await res.json();
-    this.render();
+  async load(url){
+    const res=await fetch(url,{cache:"no-store"}); if(!res.ok)throw new Error(`Scene load failed: ${res.status}`);
+    this.scene=await res.json(); this.reference=this.scene.reference||this.reference; this.fit(); this.render();
   }
-
-  render() {
-    this.stage.replaceChildren();
-    this.nodes.clear();
-    const ordered = [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0));
-    for (const node of ordered) this.stage.append(this.createNode(node));
+  render(){
+    this.stage.replaceChildren(); this.nodes.clear();
+    for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
   }
-
-  createNode(node) {
-    const el = node.kind === "text" ? document.createElement("div") : document.createElement("img");
-    el.className = "tq-node";
-    el.dataset.nodeId = node.id;
-    if (node.kind === "image") {
-      el.src = node.src;
-      el.alt = node.alt || "";
-      el.draggable = false;
-    } else {
-      el.textContent = node.text || "";
-    }
+  normalizeNode(node){
+    node.parentId="viewport";
+    node.x=Number(node.x??0); node.y=Number(node.y??0);
+    node.scaleX=Number(node.scaleX??1); node.scaleY=Number(node.scaleY??1);
+    node.rotation=Number(node.rotation??0); node.z=Number(node.z??0);
+    return node;
+  }
+  createNode(raw){
+    const node=this.normalizeNode(raw);
+    const el=node.kind==="text"?document.createElement("div"):document.createElement("img");
+    el.className="tq-node"; el.dataset.nodeId=node.id; el.dataset.parentId="viewport";
+    if(node.kind==="image"){el.src=node.src;el.alt=node.alt||"";el.draggable=false}else el.textContent=node.text||"";
     this.applyTransform(el,node);
-    el.addEventListener("pointerdown", e => {
-      if (this.mode !== "edit") return;
-      e.preventDefault();
-      this.select(node.id);
-      this.beginDrag(e,node,el);
+    el.addEventListener("pointerdown",e=>{
+      if(this.mode!=="edit"||node.locked)return;
+      e.preventDefault();e.stopPropagation();this.select(node.id);this.beginDrag(e,node,el);
     });
-    this.nodes.set(node.id,{node,el});
-    return el;
+    this.nodes.set(node.id,{node,el}); return el;
   }
-
-  applyTransform(el,node) {
-    el.style.left=(node.x??0)+"px";
-    el.style.top=(node.y??0)+"px";
-    if(node.width) el.style.width=node.width+"px";
-    if(node.height) el.style.height=node.height+"px";
-    el.style.zIndex=node.z??0;
-    el.style.transform=`rotate(${node.rotation??0}deg) scale(${node.scaleX??1},${node.scaleY??1})`;
+  applyTransform(el,node){
+    el.style.left=node.x+"px";el.style.top=node.y+"px";
+    if(node.width!=null)el.style.width=node.width+"px";if(node.height!=null)el.style.height=node.height+"px";
+    el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) scale(${node.scaleX},${node.scaleY})`;
+    el.hidden=node.visible===false;
   }
-
-  select(id) {
+  select(id){
     this.selectedId=id;
-    for(const [nodeId,{el}] of this.nodes) el.classList.toggle("is-selected",nodeId===id);
-    this.dispatchEvent("selectionchange",{id,node:this.nodes.get(id)?.node});
+    for(const [nodeId,{el}] of this.nodes)el.classList.toggle("is-selected",nodeId===id);
+    this.dispatchEvent("selectionchange",{id,node:id?this.nodes.get(id)?.node:null,parentId:"viewport"});
   }
-
-  beginDrag(event,node,el) {
+  beginDrag(event,node,el){
     el.setPointerCapture(event.pointerId);
-    const start={px:event.clientX,py:event.clientY,x:node.x??0,y:node.y??0};
-    const scale=this.stage.getBoundingClientRect().width/this.reference.width;
+    const start={px:event.clientX,py:event.clientY,x:node.x,y:node.y};
     const move=e=>{
-      node.x=start.x+(e.clientX-start.px)/scale;
-      node.y=start.y+(e.clientY-start.py)/scale;
-      this.applyTransform(el,node);
-      this.dispatchEvent("nodechange",{node});
+      const scale=this.viewportScale||1;
+      node.x=start.x+(e.clientX-start.px)/scale;node.y=start.y+(e.clientY-start.py)/scale;
+      this.applyTransform(el,node);this.dispatchEvent("nodechange",{node,parentId:"viewport"});
     };
-    const end=()=>{el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);};
-    el.addEventListener("pointermove",move);
-    el.addEventListener("pointerup",end);
+    const end=e=>{if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
+    el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
   }
-
-  setMode(mode) {
-    this.mode=mode;
-    this.stage.dataset.mode=mode;
-    if(mode==="play") this.select(null);
-    this.dispatchEvent("modechange",{mode});
-  }
-
-  dispatchEvent(name,detail){ window.dispatchEvent(new CustomEvent("tq:"+name,{detail})); }
+  setMode(mode){this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);this.dispatchEvent("modechange",{mode});}
+  dispatchEvent(name,detail){window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
 }

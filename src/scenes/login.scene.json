@@ -7,16 +7,27 @@
     "width": 390,
     "height": 844
   },
+  "root": {
+    "id": "viewport",
+    "kind": "viewport",
+    "canonical": true
+  },
   "nodes": [
     {
       "id": "login.single-asset",
+      "parentId": "viewport",
       "kind": "image",
       "src": "./assets/pwa/icon-192.svg",
       "x": 131,
       "y": 358,
       "width": 128,
       "height": 128,
+      "scaleX": 1,
+      "scaleY": 1,
+      "rotation": 0,
       "z": 1,
+      "visible": true,
+      "locked": false,
       "alt": "Tabuada Quest"
     }
   ]
