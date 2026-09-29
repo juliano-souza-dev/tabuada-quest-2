@@ -64,3 +64,21 @@
 .tq-composition-area-field>small{line-height:1.35;opacity:.72}
 .tq-composition-area-field button,.tq-composition-action{width:100%;min-height:42px;border:1px solid rgba(74,193,255,.7)!important;background:#123b54!important;color:#fff!important}
 .tq-composition-action{margin-top:4px;background:#17699d!important;font-weight:800!important}
+
+
+/* DEV Assets explorer mirrors the real repository /assets tree. */
+.tq-assets__nav{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;padding:0 12px 10px}
+.tq-assets__nav>[data-asset-up]{width:40px;min-width:40px;height:40px;padding:0;border:1px solid rgba(255,255,255,.14);background:#0c2233;color:#fff}
+.tq-assets__nav>[data-asset-up]:disabled{opacity:.35}
+.tq-assets__breadcrumbs{display:flex;align-items:center;gap:3px;min-width:0;overflow:auto;scrollbar-width:thin}
+.tq-assets__breadcrumbs button{flex:0 0 auto;min-height:34px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.055);color:#dcecff;font-size:11px;font-weight:700}
+.tq-assets__crumb-separator{flex:0 0 auto;opacity:.45;font-weight:900}
+.tq-assets__filters{display:block;padding:0 12px 12px}
+.tq-assets__filters input{width:100%}
+.tq-assets__grid{height:calc(100% - 154px)}
+.tq-asset-folder{min-width:0;min-height:118px;padding:10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:11px!important;background:rgba(255,255,255,.045)!important;color:#fff!important;text-align:left!important;overflow:hidden}
+.tq-asset-folder__icon{display:grid;place-items:center;width:100%;height:62px;margin-bottom:6px;border-radius:8px;background:rgba(255,255,255,.035);font-size:34px}
+.tq-asset-folder>span:not(.tq-asset-folder__icon),.tq-asset-folder small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tq-asset-folder>span:not(.tq-asset-folder__icon){font-size:11px}
+.tq-asset-folder small{margin-top:2px;font-size:9px;opacity:.55}
+.tq-assets__empty{grid-column:1/-1;padding:28px 12px;text-align:center;color:#bcd0df;opacity:.72;font-size:12px}
