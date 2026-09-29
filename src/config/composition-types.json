@@ -1,6 +1,6 @@
 {
   "schema": "tq.composition-types",
-  "version": 3,
+  "version": 4,
   "types": [
     {
       "id": "ocean",
@@ -118,6 +118,132 @@
                 "label": "Alta"
               }
             ]
+          },
+          {
+            "id": "activate",
+            "label": "Salvar e iniciar",
+            "control": "action",
+            "action": "activate",
+            "scope": "composition"
+          }
+        ]
+      },
+      "inference": {
+        "autoApplyMinScore": 90,
+        "rules": [
+          {
+            "kind": "path-exact",
+            "value": "assets/backgrounds/scene-ocean.webp",
+            "score": 100,
+            "reason": "Asset canônico de oceano"
+          },
+          {
+            "kind": "filename-token",
+            "values": [
+              "ocean",
+              "oceano"
+            ],
+            "score": 55,
+            "reason": "Nome do arquivo sugere oceano"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ship",
+      "label": "Navio",
+      "renderer": "ship",
+      "inference": {
+        "autoApplyMinScore": 90,
+        "rules": [
+          {
+            "kind": "path-prefix",
+            "value": "assets/ships/",
+            "score": 100,
+            "reason": "Asset dentro de /assets/ships"
+          },
+          {
+            "kind": "filename-token",
+            "values": [
+              "navio",
+              "ship",
+              "barco",
+              "boat",
+              "vessel"
+            ],
+            "score": 60,
+            "reason": "Nome do arquivo sugere navio"
+          }
+        ]
+      },
+      "animation": {
+        "sectionLabel": "Animação",
+        "presets": [
+          {
+            "id": "navigation",
+            "label": "Navegação",
+            "defaults": {
+              "speed": 46,
+              "bob": 42,
+              "roll": 34,
+              "sway": 24
+            }
+          }
+        ],
+        "controls": [
+          {
+            "id": "active",
+            "label": "Ativo",
+            "control": "checkbox",
+            "scope": "composition",
+            "default": true
+          },
+          {
+            "id": "preset",
+            "label": "Predefinição do navio",
+            "control": "preset",
+            "scope": "animation",
+            "default": "navigation"
+          },
+          {
+            "id": "speed",
+            "label": "Velocidade",
+            "control": "range",
+            "scope": "animation",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "default": 46
+          },
+          {
+            "id": "bob",
+            "label": "Balanço vertical",
+            "control": "range",
+            "scope": "animation",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "default": 42
+          },
+          {
+            "id": "roll",
+            "label": "Inclinação",
+            "control": "range",
+            "scope": "animation",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "default": 34
+          },
+          {
+            "id": "sway",
+            "label": "Deriva horizontal",
+            "control": "range",
+            "scope": "animation",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "default": 24
           },
           {
             "id": "activate",
