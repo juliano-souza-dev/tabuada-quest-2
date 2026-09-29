@@ -1,6 +1,6 @@
 export class SceneRuntime {
-  constructor(root, reference={width:390,height:844}) {
-    this.root=root; this.reference=reference; this.mode="edit";
+  constructor(root, reference={width:390,height:844}, options={}) {
+    this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
     this.selectedId=null; this.nodes=new Map(); this.mount();
   }
   mount(){
@@ -25,7 +25,7 @@ export class SceneRuntime {
   render(){
     this.stage.replaceChildren(); this.nodes.clear();
     for(const node of [...this.scene.nodes].sort((a,b)=>(a.z??0)-(b.z??0))) this.stage.append(this.createNode(node));
-    for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); this.attachSkewHandles(node,el); }
+    if(this.editorEnabled) for(const {node,el} of this.nodes.values()) { this.attachEditHandles(node,el); this.attachRotateHandle(node,el); this.attachSkewHandles(node,el); }
   }
   normalizeNode(node){
     node.parentId="viewport";
@@ -41,7 +41,7 @@ export class SceneRuntime {
     if(node.kind==="image"){el.src=node.src;el.alt=node.alt||"";el.draggable=false}else el.textContent=node.text||"";
     this.applyTransform(el,node);
     el.addEventListener("pointerdown",e=>{
-      if(this.mode!=="edit"||node.locked)return;
+      if(!this.editorEnabled||this.mode!=="edit"||node.locked)return;
       e.preventDefault();e.stopPropagation();this.select(node.id);this.beginDrag(e,node,el);
     });
     this.nodes.set(node.id,{node,el}); return el;
@@ -134,6 +134,6 @@ export class SceneRuntime {
     const end=e=>{if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
     el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
   }
-  setMode(mode){this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);else for(const {node} of this.nodes.values())this.positionHandle(node);this.dispatchEvent("modechange",{mode});}
+  setMode(mode){if(!this.editorEnabled&&mode!=="play")return;this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);else for(const {node} of this.nodes.values())this.positionHandle(node);this.dispatchEvent("modechange",{mode});}
   dispatchEvent(name,detail){window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
 }
