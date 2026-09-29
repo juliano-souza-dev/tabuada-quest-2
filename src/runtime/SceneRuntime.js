@@ -14,10 +14,14 @@ export class SceneRuntime {
   }
   fit(){
     const r=this.stageHost.getBoundingClientRect();
-    // The reference size is a canonical coordinate system, never a physical screen limit.
-    // Scale from the available width so the game always fills the viewport horizontally.
-    this.viewportScale=r.width/this.reference.width;
-    this.stage.style.width=this.reference.width+"px"; this.stage.style.height=this.reference.height+"px";
+    // The reference is a coordinate system, not the physical game boundary.
+    // Keep canonical content at a contain scale while the actual stage fills the entire viewport.
+    // This prevents desktop/tablet widths from inflating game nodes into giant UI.
+    this.viewportScale=Math.min(r.width/this.reference.width,r.height/this.reference.height);
+    this.viewportScale=Math.max(this.viewportScale,0.01);
+    this.logicalViewport={width:r.width/this.viewportScale,height:r.height/this.viewportScale};
+    this.sceneOffset={x:(this.logicalViewport.width-this.reference.width)/2,y:(this.logicalViewport.height-this.reference.height)/2};
+    this.stage.style.width=this.logicalViewport.width+"px"; this.stage.style.height=this.logicalViewport.height+"px";
     this.stage.style.transform=`translate(-50%,-50%) scale(${this.viewportScale})`;
   }
   async load(url){
@@ -98,8 +102,8 @@ export class SceneRuntime {
   positionHandle(node){
     const h=[...this.stage.querySelectorAll(".tq-node-handle")].find(el=>el.dataset.forNode===node.id);if(!h)return;
     h.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;
-    h.style.left=(node.x+(node.width??0))+"px";h.style.top=(node.y+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
-    const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;rh.style.left=(node.x+(node.width??0)/2)+"px";rh.style.top=(node.y-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
+    h.style.left=(node.x+(this.sceneOffset?.x||0)+(node.width??0))+"px";h.style.top=(node.y+(this.sceneOffset?.y||0)+(node.height??0))+"px";h.style.zIndex=(node.z??0)+100000;
+    const rh=[...this.stage.querySelectorAll(".tq-rotate-handle")].find(el=>el.dataset.forNode===node.id);if(rh){rh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;rh.style.left=(node.x+(this.sceneOffset?.x||0)+(node.width??0)/2)+"px";rh.style.top=(node.y+(this.sceneOffset?.y||0)-38)+"px";rh.style.zIndex=(node.z??0)+100000;}
     for(const axis of ["x","y"]){const sh=[...this.stage.querySelectorAll(".tq-skew-handle")].find(el=>el.dataset.forNode===node.id&&el.dataset.axis===axis);if(sh){sh.hidden=this.selectedId!==node.id||this.mode!=="edit"||node.locked;sh.style.left=(axis==="x"?node.x+(node.width??0)/2:node.x-24)+"px";sh.style.top=(axis==="x"?node.y+(node.height??0)+24:node.y+(node.height??0)/2)+"px";sh.style.zIndex=(node.z??0)+100000;}}
   }
   beginResize(event,node,el,handle){
@@ -113,7 +117,7 @@ export class SceneRuntime {
     handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
   }
   applyTransform(el,node){
-    el.style.left=node.x+"px";el.style.top=node.y+"px";
+    el.style.left=(node.x+(this.sceneOffset?.x||0))+"px";el.style.top=(node.y+(this.sceneOffset?.y||0))+"px";
     if(node.width!=null)el.style.width=node.width+"px";if(node.height!=null)el.style.height=node.height+"px";
     el.style.zIndex=node.z;el.style.transform=`rotate(${node.rotation}deg) skew(${node.skewX}deg,${node.skewY}deg) scale(${node.scaleX},${node.scaleY})`;
     el.hidden=node.visible===false;this.positionHandle(node);
