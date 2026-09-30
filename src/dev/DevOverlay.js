@@ -1,4 +1,4 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0050";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0110";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
@@ -121,8 +121,10 @@ export class DevOverlay {
       if(this.workspace!=="world")return;
       const entity=e.detail?.entity;
       if(entity&&this.selected?.id===entity.id)this.selected=entity;
-      if(e.detail?.commit)this.syncLocalWorldFromEditor();
-      if(this.mode==="config")this.renderWorldInspector();
+      if(e.detail?.commit){
+        this.syncLocalWorldFromEditor();
+        if(this.mode==="config")this.renderWorldInspector();
+      }
       this.renderWorlds();
     });
     window.addEventListener("tq:worldchange",()=>{
@@ -151,7 +153,7 @@ export class DevOverlay {
     try{
       if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
       else{
-        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0050",{cache:"no-store"});
+        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0110",{cache:"no-store"});
         if(!response.ok)throw new Error("HTTP "+response.status);
         this.sceneCatalog=await response.json();
       }
@@ -388,7 +390,7 @@ export class DevOverlay {
 
   async loadWorldCatalog(){
     try{
-      const response=await fetch("./src/config/world-catalog.json?v=20260930-0050",{cache:"no-store"});
+      const response=await fetch("./src/config/world-catalog.json?v=20260930-0110",{cache:"no-store"});
       if(!response.ok)throw new Error("HTTP "+response.status);
       this.worldCatalog=await response.json();
     }catch(error){
@@ -680,9 +682,13 @@ export class DevOverlay {
       return;
     }
 
-    const num=(key,label)=>'<label class="tq-world-field"><span>'+label+'</span><input data-world-prop="'+key+'" type="number" step="0.01" value="'+this.escapeHtml(entity[key]??"")+'"></label>';
+    const motion=this.worldEditor.getEntityMotion(entity.id)||{active:false,preset:"none",speed:50,heave:0,pitch:0,roll:0,sway:0};
+    const num=(key,label,min="",max="",step="0.01")=>'<label class="tq-world-field"><span>'+label+'</span><input data-world-prop="'+key+'" type="number" '+(min!==""?'min="'+min+'" ':'')+(max!==""?'max="'+max+'" ':'')+'step="'+step+'" value="'+this.escapeHtml(entity[key]??"")+'"></label>';
     const text=(key,label)=>'<label class="tq-world-field"><span>'+label+'</span><input data-world-prop="'+key+'" type="text" value="'+this.escapeHtml(entity[key]??"")+'"></label>';
+    const motionRange=(key,label)=>'<label class="tq-world-motion-range"><span><b>'+label+'</b><output data-motion-output="'+key+'">'+Math.round(Number(motion[key]||0))+'</output></span><input data-motion-prop="'+key+'" type="range" min="0" max="100" step="1" value="'+Number(motion[key]||0)+'"></label>';
     const typeOptions=["object","barrel","treasure","ship","location"].map(value=>'<option value="'+value+'" '+(entity.type===value?'selected':'')+'>'+value+'</option>').join("");
+    const motionPresets=[["none","Sem balanço"],["calm","Mar calmo"],["navigation","Navegação natural"],["rough","Mar agitado"],["heavy","Objeto pesado"]]
+      .map(([value,label])=>'<option value="'+value+'" '+(motion.preset===value?'selected':'')+'>'+label+'</option>').join("");
 
     title.textContent=entity.id+" · "+(entity.type||"object");
     content.innerHTML=
@@ -694,11 +700,25 @@ export class DevOverlay {
           text("src","Asset")+
         '</div></section>'+
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Transformação</strong><span>▾</span></button><div class="tq-config-area__body">'+
-          num("x","Position X")+num("y","Position Y")+num("width","Width")+num("height","Height")+num("rotation","Rotation")+
+          num("x","Position X")+num("y","Position Y")+
+          num("width","Width",16,2400)+num("height","Height",16,2400)+
+          '<label class="tq-field tq-field--check"><span>Manter proporção</span><input data-world-prop="lockAspect" type="checkbox" '+(entity.lockAspect!==false?'checked':'')+'></label>'+
+          '<label class="tq-world-motion-range"><span><b>Rotação</b><output data-world-rotation-output>'+Math.round(Number(entity.rotation||0))+'°</output></span><input data-world-prop="rotation" type="range" min="-180" max="180" step="1" value="'+Number(entity.rotation||0)+'"></label>'+
+          '<div class="tq-world-transform-actions"><button type="button" data-world-rotate="-90">↶ -90°</button><button type="button" data-world-rotate="0">0°</button><button type="button" data-world-rotate="90">↷ +90°</button></div>'+
+          '<small class="tq-world-editor-note">No canvas: arraste o objeto para mover, o círculo superior para girar e o canto inferior para redimensionar.</small>'+
+        '</div></section>'+
+        '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Balanço / água</strong><span>▾</span></button><div class="tq-config-area__body">'+
+          '<label class="tq-field tq-field--check"><span>Efeito ativo</span><input data-motion-prop="active" type="checkbox" '+(motion.active?'checked':'')+'></label>'+
+          '<label class="tq-world-field"><span>Predefinição</span><select data-motion-prop="preset">'+motionPresets+'</select></label>'+
+          motionRange("speed","Velocidade")+
+          motionRange("heave","Elevação pela água")+
+          motionRange("pitch","Inclinação pela onda")+
+          motionRange("roll","Balanço lateral")+
+          motionRange("sway","Deriva lateral")+
+          '<small class="tq-world-editor-note">Usa a mesma linguagem do motor de composição de navios: heave, pitch, roll e sway. O preview roda no próprio mundo.</small>'+
         '</div></section>'+
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Comportamento</strong><span>▾</span></button><div class="tq-config-area__body">'+
-          num("interactionRadius","Raio de interação")+
-          (entity.type==="barrel"?num("drift","Deriva")+num("bob","Balanço"):"")+
+          num("interactionRadius","Raio de interação",0,2000)+
           text("scene","Cena vinculada")+
         '</div></section>'+
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Ações</strong><span>▾</span></button><div class="tq-config-area__body tq-world-inspector-actions">'+
@@ -714,14 +734,68 @@ export class DevOverlay {
       button.querySelector("span").textContent=body.hidden?"▸":"▾";
     }));
 
-    const numeric=new Set(["x","y","width","height","rotation","interactionRadius","drift","bob"]);
-    content.querySelectorAll("[data-world-prop]").forEach(input=>input.addEventListener("change",()=>{
+    const numeric=new Set(["x","y","width","height","rotation","interactionRadius"]);
+    const commitWorldProp=input=>{
       const key=input.dataset.worldProp;
-      const value=numeric.has(key)?Number(input.value):input.value;
-      const updated=this.worldEditor.updateEntity(entity.id,{[key]:value},true);
+      const value=input.type==="checkbox"?input.checked:(numeric.has(key)?Number(input.value):input.value);
+      const patch={[key]:value};
+
+      if((key==="width"||key==="height")&&entity.lockAspect!==false){
+        const width=Math.max(1,Number(entity.width||96));
+        const height=Math.max(1,Number(entity.height||96));
+        const ratio=width/height;
+        if(key==="width")patch.height=Math.max(16,value/ratio);
+        if(key==="height")patch.width=Math.max(16,value*ratio);
+      }
+
+      const updated=this.worldEditor.updateEntity(entity.id,patch,true);
       this.selected=updated||this.selected;
-      if(key==="type")this.renderWorldInspector();
+      if(key==="type"||key==="width"||key==="height"||key==="lockAspect")this.renderWorldInspector();
+    };
+
+    content.querySelectorAll("[data-world-prop]").forEach(input=>{
+      if(input.dataset.worldProp==="rotation"){
+        input.addEventListener("input",()=>{
+          const value=Number(input.value);
+          const output=content.querySelector("[data-world-rotation-output]");
+          if(output)output.value=Math.round(value)+"°";
+          this.selected=this.worldEditor.updateEntity(entity.id,{rotation:value},false)||this.selected;
+        });
+      }
+      input.addEventListener("change",()=>commitWorldProp(input));
+    });
+
+    content.querySelectorAll("[data-world-rotate]").forEach(button=>button.addEventListener("click",()=>{
+      const value=Number(button.dataset.worldRotate);
+      const current=Number(this.worldEditor.getSelected()?.rotation||0);
+      const rotation=value===0?0:Math.max(-180,Math.min(180,current+value));
+      this.selected=this.worldEditor.updateEntity(entity.id,{rotation},true)||this.selected;
+      this.renderWorldInspector();
     }));
+
+    const motionNumeric=new Set(["speed","heave","pitch","roll","sway"]);
+    content.querySelectorAll("[data-motion-prop]").forEach(input=>{
+      const read=()=>input.type==="checkbox"?input.checked:(motionNumeric.has(input.dataset.motionProp)?Number(input.value):input.value);
+
+      if(input.type==="range"){
+        input.addEventListener("input",()=>{
+          const key=input.dataset.motionProp;
+          const value=read();
+          const output=content.querySelector('[data-motion-output="'+key+'"]');
+          if(output)output.value=String(Math.round(value));
+          this.worldEditor.updateEntityMotion(entity.id,{[key]:value},false);
+          this.selected=this.worldEditor.getSelected()||this.selected;
+        });
+      }
+
+      input.addEventListener("change",()=>{
+        const key=input.dataset.motionProp;
+        const value=read();
+        this.worldEditor.updateEntityMotion(entity.id,{[key]:value},true);
+        this.selected=this.worldEditor.getSelected()||this.selected;
+        if(key==="preset")this.renderWorldInspector();
+      });
+    });
 
     content.querySelector("[data-world-delete]")?.addEventListener("click",()=>{
       if(confirm("Excluir esta entidade do mundo?")){
@@ -736,7 +810,7 @@ export class DevOverlay {
 
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260930-0050",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260930-0110",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -746,7 +820,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260930-0050",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260930-0110",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
