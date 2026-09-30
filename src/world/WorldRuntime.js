@@ -1,6 +1,7 @@
 import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0148";
 import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0148";
 import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0148";
+import { normalizeJoystickVector, screenPointToWorld, targetNavigationVector } from "./WorldNavigationInput.mjs?v=20260930-0615";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
@@ -30,6 +31,8 @@ export class WorldRuntime {
     this.collected=new Set(this.state.collected||[]);
     this.keys=new Set();
     this.pointerDirections=new Set();
+    this.joystick={x:0,y:0,active:false,pointerId:null};
+    this.navigationTarget=null;
     this.entities=(config.entities||[]).map((entity,index)=>({
       ...structuredClone(entity),
       index,
@@ -55,6 +58,7 @@ export class WorldRuntime {
         <div class="tq-world-stage">
           <div class="tq-world-ocean"></div>
           <div class="tq-world-entities"></div>
+          <div class="tq-world-nav-target" hidden aria-hidden="true"></div>
           <img class="tq-world-player" alt="Navio do jogador">
         </div>
       </div>
@@ -69,13 +73,12 @@ export class WorldRuntime {
         <button type="button" data-world-action></button>
       </div>
       <div class="tq-world-controls" aria-label="Controles de navegação">
-        <div class="tq-world-dpad">
-          <button type="button" data-dir="up" aria-label="Navegar para cima">▲</button>
-          <button type="button" data-dir="left" aria-label="Navegar para esquerda">◀</button>
-          <button type="button" data-dir="right" aria-label="Navegar para direita">▶</button>
-          <button type="button" data-dir="down" aria-label="Navegar para baixo">▼</button>
+        <div class="tq-world-joystick" data-world-joystick aria-label="Joystick analógico">
+          <div class="tq-world-joystick__base">
+            <div class="tq-world-joystick__thumb" data-world-joystick-thumb></div>
+          </div>
         </div>
-        <div class="tq-world-help">WASD / setas<br>ou controles touch</div>
+        <div class="tq-world-help">Joystick analógico · WASD / setas<br>toque ou clique no oceano para navegar</div>
       </div>`;
 
     this.root.append(this.host);
@@ -83,6 +86,9 @@ export class WorldRuntime {
     this.stage=this.host.querySelector(".tq-world-stage");
     this.entityLayer=this.host.querySelector(".tq-world-entities");
     this.playerEl=this.host.querySelector(".tq-world-player");
+    this.navTargetEl=this.host.querySelector(".tq-world-nav-target");
+    this.joystickEl=this.host.querySelector("[data-world-joystick]");
+    this.joystickThumbEl=this.host.querySelector("[data-world-joystick-thumb]");
     this.coordsEl=this.host.querySelector("[data-world-coords]");
     this.progressEl=this.host.querySelector("[data-world-progress]");
     this.zoomEl=this.host.querySelector("[data-world-zoom]");
@@ -371,6 +377,23 @@ export class WorldRuntime {
     });
   }
 
+  clearNavigationTarget({brake=false}={}){
+    this.navigationTarget=null;
+    if(this.navTargetEl)this.navTargetEl.hidden=true;
+    if(brake){
+      this.player.vx*=.28;
+      this.player.vy*=.28;
+    }
+  }
+
+  resetJoystick(){
+    this.joystick.x=0;
+    this.joystick.y=0;
+    this.joystick.active=false;
+    this.joystick.pointerId=null;
+    if(this.joystickThumbEl)this.joystickThumbEl.style.transform="translate3d(0,0,0)";
+  }
+
   bindControls(){
     const keyMap={
       ArrowUp:"up",KeyW:"up",
@@ -384,6 +407,7 @@ export class WorldRuntime {
       const dir=keyMap[e.code];
       if(!dir)return;
       e.preventDefault();
+      this.clearNavigationTarget();
       this.keys.add(dir);
     };
     const keyup=e=>{
@@ -398,33 +422,97 @@ export class WorldRuntime {
       window.removeEventListener("keyup",keyup);
     });
 
-    for(const button of this.host.querySelectorAll("[data-dir]")){
-      const dir=button.dataset.dir;
-      const start=e=>{
-        if(this.mode!=="play")return;
-        e.preventDefault();
-        this.pointerDirections.add(dir);
-        try{button.setPointerCapture(e.pointerId)}catch{}
-      };
-      const end=e=>{
-        this.pointerDirections.delete(dir);
-        try{if(button.hasPointerCapture(e.pointerId))button.releasePointerCapture(e.pointerId)}catch{}
-      };
-      button.addEventListener("pointerdown",start);
-      button.addEventListener("pointerup",end);
-      button.addEventListener("pointercancel",end);
-      button.addEventListener("pointerleave",end);
-      this.cleanups.push(()=>{
-        button.removeEventListener("pointerdown",start);
-        button.removeEventListener("pointerup",end);
-        button.removeEventListener("pointercancel",end);
-        button.removeEventListener("pointerleave",end);
+    const joystick=this.joystickEl;
+    const thumb=this.joystickThumbEl;
+    const updateJoystick=e=>{
+      if(!joystick||!thumb)return;
+      const base=joystick.getBoundingClientRect();
+      const centerX=base.left+base.width/2;
+      const centerY=base.top+base.height/2;
+      const thumbRadius=Math.max(10,thumb.getBoundingClientRect().width/2);
+      const travel=Math.max(24,Math.min(base.width,base.height)/2-thumbRadius-8);
+      const dx=e.clientX-centerX;
+      const dy=e.clientY-centerY;
+      const vector=normalizeJoystickVector(dx,dy,travel);
+      this.joystick.x=vector.x;
+      this.joystick.y=vector.y;
+
+      const raw=Math.hypot(dx,dy);
+      const visualScale=raw>0?Math.min(1,raw/travel):0;
+      const visualX=raw>0?dx/raw*travel*visualScale:0;
+      const visualY=raw>0?dy/raw*travel*visualScale:0;
+      thumb.style.transform=`translate3d(${visualX}px,${visualY}px,0)`;
+    };
+
+    const joystickStart=e=>{
+      if(this.mode!=="play"||!joystick)return;
+      e.preventDefault();
+      e.stopPropagation();
+      this.clearNavigationTarget();
+      this.joystick.active=true;
+      this.joystick.pointerId=e.pointerId;
+      try{joystick.setPointerCapture(e.pointerId)}catch{}
+      updateJoystick(e);
+    };
+    const joystickMove=e=>{
+      if(!this.joystick.active||this.joystick.pointerId!==e.pointerId)return;
+      e.preventDefault();
+      updateJoystick(e);
+    };
+    const joystickEnd=e=>{
+      if(this.joystick.pointerId!==null&&this.joystick.pointerId!==e.pointerId)return;
+      try{if(joystick?.hasPointerCapture(e.pointerId))joystick.releasePointerCapture(e.pointerId)}catch{}
+      this.resetJoystick();
+    };
+
+    joystick?.addEventListener("pointerdown",joystickStart);
+    joystick?.addEventListener("pointermove",joystickMove);
+    joystick?.addEventListener("pointerup",joystickEnd);
+    joystick?.addEventListener("pointercancel",joystickEnd);
+
+    const navigateToPointer=e=>{
+      if(this.mode!=="play")return;
+      if(e.button!==undefined&&e.button!==0)return;
+      if(e.target?.closest?.(".tq-world-controls,.tq-world-action"))return;
+
+      const rect=this.viewport.getBoundingClientRect();
+      const target=screenPointToWorld(e.clientX,e.clientY,{
+        viewportLeft:rect.left,
+        viewportTop:rect.top,
+        viewportWidth:rect.width,
+        viewportHeight:rect.height,
+        cameraX:this.camera.x,
+        cameraY:this.camera.y,
+        zoom:this.zoom,
+        worldWidth:this.config.width,
+        worldHeight:this.config.height,
+        marginX:55,
+        marginY:70
       });
-    }
+      this.navigationTarget=target;
+      this.keys.clear();
+      this.pointerDirections.clear();
+      this.resetJoystick();
+
+      if(this.navTargetEl){
+        this.navTargetEl.hidden=false;
+        this.navTargetEl.style.left=target.x+"px";
+        this.navTargetEl.style.top=target.y+"px";
+      }
+    };
+
+    this.viewport.addEventListener("click",navigateToPointer);
 
     const action=()=>this.activateNearby();
     this.actionButton.addEventListener("click",action);
-    this.cleanups.push(()=>this.actionButton.removeEventListener("click",action));
+    this.cleanups.push(()=>{
+      joystick?.removeEventListener("pointerdown",joystickStart);
+      joystick?.removeEventListener("pointermove",joystickMove);
+      joystick?.removeEventListener("pointerup",joystickEnd);
+      joystick?.removeEventListener("pointercancel",joystickEnd);
+      this.viewport.removeEventListener("click",navigateToPointer);
+      this.actionButton.removeEventListener("click",action);
+    });
   }
 
   setMode(mode){
@@ -436,9 +524,15 @@ export class WorldRuntime {
     if(this.mode==="play"){
       this.keys.clear();
       this.pointerDirections.clear();
+      this.resetJoystick();
+      this.clearNavigationTarget();
       this.zoom=this.playZoom;
       this.selectEntity(null);
     }else{
+      this.keys.clear();
+      this.pointerDirections.clear();
+      this.resetJoystick();
+      this.clearNavigationTarget();
       this.nearby=null;
       if(this.actionWrap)this.actionWrap.hidden=true;
       this.zoom=clamp(Number(this.zoom||.58),.25,1.5);
@@ -452,11 +546,26 @@ export class WorldRuntime {
     const active=new Set([...this.keys,...this.pointerDirections]);
     let x=(active.has("right")?1:0)-(active.has("left")?1:0);
     let y=(active.has("down")?1:0)-(active.has("up")?1:0);
+
+    x+=Number(this.joystick.x)||0;
+    y+=Number(this.joystick.y)||0;
+
     if(x||y){
       const length=Math.hypot(x,y)||1;
-      x/=length;y/=length;
+      if(length>1){x/=length;y/=length}
+      return {x,y};
     }
-    return {x,y};
+
+    if(this.mode==="play"&&this.navigationTarget){
+      const target=targetNavigationVector(this.player,this.navigationTarget);
+      if(target.arrived){
+        this.clearNavigationTarget({brake:true});
+        return {x:0,y:0};
+      }
+      return {x:target.x,y:target.y};
+    }
+
+    return {x:0,y:0};
   }
 
   resize(){
