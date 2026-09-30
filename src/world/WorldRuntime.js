@@ -1,5 +1,6 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0110";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0110";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0148";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0148";
+import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0148";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
@@ -117,18 +118,15 @@ export class WorldRuntime {
     this.gizmoEl=null;
 
     for(const entity of this.entities){
-      const el=document.createElement(entity.type==="location"?"article":"div");
+      const presentation=resolveEntityPresentation(entity);
+      const el=document.createElement("div");
       el.className="tq-world-entity tq-world-entity--"+(entity.type||"object");
       el.dataset.entityId=entity.id;
+      el.dataset.renderMode=presentation.renderMode;
+      el.dataset.logicalType=entity.type||"object";
       el.style.zIndex=String(entity.z??10);
 
-      if(entity.type==="location"){
-        el.innerHTML='<img alt=""><span class="tq-world-location-label"></span>';
-        const img=el.querySelector("img");
-        img.src=entity.src||"";
-        img.alt=entity.label||"Local";
-        el.querySelector(".tq-world-location-label").textContent=entity.label||entity.id;
-      }else{
+      if(presentation.hasSprite){
         const img=document.createElement("img");
         img.src=entity.src||"";
         img.alt=entity.label||entity.type||"Objeto";
@@ -156,8 +154,9 @@ export class WorldRuntime {
     el.style.width=(entity.width||96)+"px";
     el.style.height=(entity.height||96)+"px";
     el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)}deg)`;
-    const label=el.querySelector(".tq-world-location-label");
-    if(label)label.textContent=entity.label||entity.id;
+    const logicalOnly=el.dataset.renderMode==="logical";
+    el.classList.toggle("is-logical-only",logicalOnly);
+    el.style.visibility=logicalOnly&&this.mode==="play"?"hidden":"visible";
     const img=el.querySelector("img");
     if(img&&img.getAttribute("src")!==String(entity.src||""))img.src=entity.src||"";
   }
@@ -444,6 +443,7 @@ export class WorldRuntime {
       if(this.actionWrap)this.actionWrap.hidden=true;
       this.zoom=clamp(Number(this.zoom||.58),.25,1.5);
     }
+    for(const entity of this.entities)this.applyEntityVisual(entity);
     this.resize();
     this.syncGizmo();
   }
