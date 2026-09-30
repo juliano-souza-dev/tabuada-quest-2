@@ -92,13 +92,11 @@ test("navigator ship selector refreshes from asset manifest", async()=>{
 });
 
 
-test("world editor pinch zoom stays viewport-safe and focal", async()=>{
+test("world editor disables touch pinch zoom but keeps wheel zoom", async()=>{
   const runtime=await readFile(new URL("../src/world/WorldRuntime.js",import.meta.url),"utf8");
-  assert.match(runtime,/editorMinZoom\(\)/);
-  assert.match(runtime,/viewportSize\.width\/Math\.max\(1,this\.config\.width\)/);
-  assert.match(runtime,/viewportSize\.height\/Math\.max\(1,this\.config\.height\)/);
-  assert.match(runtime,/setEditorZoomAt\(value,clientX,clientY,anchorWorld=null\)/);
-  assert.match(runtime,/pointerCenter=/);
-  assert.match(runtime,/pinch\.world/);
+  assert.match(runtime,/Pinch\/multi-touch zoom is intentionally disabled/);
+  assert.doesNotMatch(runtime,/let pinch=null/);
+  assert.doesNotMatch(runtime,/pointerCenter=/);
+  assert.doesNotMatch(runtime,/pinch\.world/);
   assert.match(runtime,/setEditorZoomAt\(this\.zoom\*factor,event\.clientX,event\.clientY\)/);
 });
