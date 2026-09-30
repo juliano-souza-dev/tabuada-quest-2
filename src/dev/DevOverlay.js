@@ -1,4 +1,4 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0158";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0205";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
@@ -153,7 +153,7 @@ export class DevOverlay {
     try{
       if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
       else{
-        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0158",{cache:"no-store"});
+        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0205",{cache:"no-store"});
         if(!response.ok)throw new Error("HTTP "+response.status);
         this.sceneCatalog=await response.json();
       }
@@ -390,7 +390,7 @@ export class DevOverlay {
 
   async loadWorldCatalog(){
     try{
-      const response=await fetch("./src/config/world-catalog.json?v=20260930-0158",{cache:"no-store"});
+      const response=await fetch("./src/config/world-catalog.json?v=20260930-0205",{cache:"no-store"});
       if(!response.ok)throw new Error("HTTP "+response.status);
       this.worldCatalog=await response.json();
     }catch(error){
@@ -682,11 +682,15 @@ export class DevOverlay {
       return;
     }
 
+    const presentation=this.worldEditor.getEntityPresentation(entity.id)||{depth:"gameplay",parallax:1,scale:1,opacity:1,blur:0,tint:"#ffffff",tintStrength:0,shadow:.38};
     const motion=this.worldEditor.getEntityMotion(entity.id)||{active:false,preset:"none",speed:50,heave:0,pitch:0,roll:0,sway:0};
     const num=(key,label,min="",max="",step="0.01")=>'<label class="tq-world-field"><span>'+label+'</span><input data-world-prop="'+key+'" type="number" '+(min!==""?'min="'+min+'" ':'')+(max!==""?'max="'+max+'" ':'')+'step="'+step+'" value="'+this.escapeHtml(entity[key]??"")+'"></label>';
     const text=(key,label)=>'<label class="tq-world-field"><span>'+label+'</span><input data-world-prop="'+key+'" type="text" value="'+this.escapeHtml(entity[key]??"")+'"></label>';
     const motionRange=(key,label)=>'<label class="tq-world-motion-range"><span><b>'+label+'</b><output data-motion-output="'+key+'">'+Math.round(Number(motion[key]||0))+'</output></span><input data-motion-prop="'+key+'" type="range" min="0" max="100" step="1" value="'+Number(motion[key]||0)+'"></label>';
+    const depthRange=(key,label,min,max,step)=>'<label class="tq-world-motion-range"><span><b>'+label+'</b><output data-depth-output="'+key+'">'+Number(presentation[key]||0).toFixed(step<.1?2:1)+'</output></span><input data-depth-prop="'+key+'" type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+Number(presentation[key]||0)+'"></label>';
     const typeOptions=["object","barrel","treasure","ship","location"].map(value=>'<option value="'+value+'" '+(entity.type===value?'selected':'')+'>'+value+'</option>').join("");
+    const depthPresets=[["far","Fundo · longínquo"],["gameplay","Meio · gameplay"],["foreground","Frente · primeiro plano"]]
+      .map(([value,label])=>'<option value="'+value+'" '+(presentation.depth===value?'selected':'')+'>'+label+'</option>').join("");
     const motionPresets=[["none","Sem balanço"],["calm","Mar calmo"],["navigation","Navegação natural"],["rough","Mar agitado"],["heavy","Objeto pesado"]]
       .map(([value,label])=>'<option value="'+value+'" '+(motion.preset===value?'selected':'')+'>'+label+'</option>').join("");
 
@@ -707,6 +711,17 @@ export class DevOverlay {
           '<label class="tq-world-motion-range"><span><b>Rotação</b><output data-world-rotation-output>'+Math.round(Number(entity.rotation||0))+'°</output></span><input data-world-prop="rotation" type="range" min="-180" max="180" step="1" value="'+Number(entity.rotation||0)+'"></label>'+
           '<div class="tq-world-transform-actions"><button type="button" data-world-rotate="-90">↶ -90°</button><button type="button" data-world-rotate="0">0°</button><button type="button" data-world-rotate="90">↷ +90°</button></div>'+
           '<small class="tq-world-editor-note">No canvas: arraste o objeto para mover, o círculo superior para girar e o canto inferior para redimensionar.</small>'+
+        '</div></section>'+
+        '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Profundidade / parallax</strong><span>▾</span></button><div class="tq-config-area__body">'+
+          '<label class="tq-world-field"><span>Camada</span><select data-depth-prop="depth">'+depthPresets+'</select></label>'+
+          depthRange("parallax","Velocidade parallax",.05,2.5,.05)+
+          depthRange("scale","Escala visual",.1,2.5,.05)+
+          depthRange("opacity","Opacidade",.05,1,.05)+
+          depthRange("blur","Blur",0,8,.1)+
+          '<label class="tq-world-field"><span>Tom de névoa</span><input data-depth-prop="tint" type="color" value="'+this.escapeHtml(presentation.tint||"#ffffff")+'"></label>'+
+          depthRange("tintStrength","Intensidade do tom",0,1,.05)+
+          depthRange("shadow","Sombra",0,1,.05)+
+          '<small class="tq-world-editor-note">Fundo, gameplay e frente são presets iniciais. Todos os valores continuam editáveis e o Y permanece coordenada real do mundo.</small>'+
         '</div></section>'+
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Balanço / água</strong><span>▾</span></button><div class="tq-config-area__body">'+
           '<label class="tq-field tq-field--check"><span>Efeito ativo</span><input data-motion-prop="active" type="checkbox" '+(motion.active?'checked':'')+'></label>'+
@@ -774,6 +789,27 @@ export class DevOverlay {
       this.renderWorldInspector();
     }));
 
+    const depthNumeric=new Set(["parallax","scale","opacity","blur","tintStrength","shadow"]);
+    content.querySelectorAll("[data-depth-prop]").forEach(input=>{
+      const read=()=>depthNumeric.has(input.dataset.depthProp)?Number(input.value):input.value;
+      const preview=()=>{
+        const key=input.dataset.depthProp;
+        const value=read();
+        const output=content.querySelector('[data-depth-output="'+key+'"]');
+        if(output&&typeof value==="number")output.value=value.toFixed(Number(input.step)<.1?2:1);
+        this.worldEditor.updateEntityPresentation(entity.id,{[key]:value},false);
+        this.selected=this.worldEditor.getSelected()||this.selected;
+      };
+      if(input.type==="range"||input.type==="color")input.addEventListener("input",preview);
+      input.addEventListener("change",()=>{
+        const key=input.dataset.depthProp;
+        const value=read();
+        this.worldEditor.updateEntityPresentation(entity.id,{[key]:value},true);
+        this.selected=this.worldEditor.getSelected()||this.selected;
+        if(key==="depth")this.renderWorldInspector();
+      });
+    });
+
     const motionNumeric=new Set(["speed","heave","pitch","roll","sway"]);
     content.querySelectorAll("[data-motion-prop]").forEach(input=>{
       const read=()=>input.type==="checkbox"?input.checked:(motionNumeric.has(input.dataset.motionProp)?Number(input.value):input.value);
@@ -811,7 +847,7 @@ export class DevOverlay {
 
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260930-0158",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260930-0205",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -821,7 +857,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260930-0158",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260930-0205",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
