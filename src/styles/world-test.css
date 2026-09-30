@@ -2,7 +2,7 @@
 .tq-world-test-active{position:fixed;inset:0}
 .tq-world-editor-root{position:fixed;inset:0;z-index:1;background:#03131f}
 .tq-world-editor-root[hidden]{display:none}
-.tq-world-host{position:fixed;inset:0;overflow:hidden;background:#03131f;color:#fff;touch-action:none;font-family:system-ui,-apple-system,sans-serif}
+.tq-world-host{position:fixed;inset:0;overflow:hidden;background:#03131f;color:#fff;touch-action:none;font-family:system-ui,-apple-system,sans-serif;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .tq-world-viewport{position:absolute;inset:0;overflow:hidden;background:#02101a}
 .tq-world-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 .tq-world-host.is-editor .tq-world-stage{box-shadow:0 0 0 4px #66d9ff99,0 0 80px #000c}
@@ -14,7 +14,7 @@
 .tq-world-depth-layer--far{z-index:10}
 .tq-world-depth-layer--gameplay{z-index:40}
 .tq-world-depth-layer--foreground{z-index:120}
-.tq-world-player{position:absolute;width:108px;height:150px;object-fit:contain;z-index:100;transform-origin:50% 62%;filter:drop-shadow(0 9px 6px #001a2e80);will-change:left,top,transform;pointer-events:none}
+.tq-world-player{position:absolute;width:108px;height:150px;object-fit:contain;z-index:100;transform-origin:50% 62%;filter:drop-shadow(0 9px 6px #001a2e80);will-change:left,top,transform;pointer-events:none;-webkit-user-drag:none}
 .tq-world-entity{position:absolute;transform:translate(-50%,-50%);transform-origin:center;will-change:left,top,transform,opacity;touch-action:none;pointer-events:auto}
 .tq-world-entity::after{content:"";position:absolute;inset:0;background:var(--entity-tint,#fff);opacity:var(--entity-tint-strength,0);-webkit-mask-image:var(--entity-mask,none);mask-image:var(--entity-mask,none);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;pointer-events:none}
 .tq-world-host.is-editor .tq-world-entity{cursor:move}
@@ -171,3 +171,11 @@
 
 .tq-world-player-preview{display:grid;place-items:center;min-height:120px;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.035)}
 .tq-world-player-preview img{display:block;max-width:140px;max-height:150px;object-fit:contain;filter:drop-shadow(0 8px 7px rgba(0,18,34,.55))}
+
+.tq-world-nav-target{position:absolute;width:34px;height:34px;z-index:95;transform:translate(-50%,-50%);border:3px solid rgba(126,231,255,.9);border-radius:50%;box-shadow:0 0 0 5px rgba(6,27,45,.55),0 0 20px rgba(73,200,255,.85);pointer-events:none;animation:tq-world-nav-pulse 1s ease-in-out infinite alternate}
+.tq-world-nav-target::before,.tq-world-nav-target::after{content:"";position:absolute;background:rgba(255,255,255,.9);left:50%;top:50%;transform:translate(-50%,-50%)}
+.tq-world-nav-target::before{width:3px;height:46px}
+.tq-world-nav-target::after{width:46px;height:3px}
+.tq-world-nav-target[hidden]{display:none}
+@keyframes tq-world-nav-pulse{from{opacity:.58;scale:.88}to{opacity:1;scale:1}}
+.tq-world-host img{-webkit-user-drag:none;-webkit-touch-callout:none;user-select:none}

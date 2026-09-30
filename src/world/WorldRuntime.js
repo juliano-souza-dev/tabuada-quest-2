@@ -51,6 +51,7 @@ export class WorldRuntime {
     this.collected=new Set(this.state.collected||[]);
     this.keys=new Set();
     this.pointerDirections=new Set();
+    this.navigationTarget=null;
     this.entities=(config.entities||[]).map((entity,index)=>({
       ...structuredClone(entity),
       scaleX:Number.isFinite(Number(entity.scaleX))?Number(entity.scaleX):1,
@@ -80,7 +81,8 @@ export class WorldRuntime {
         <div class="tq-world-stage">
           <div class="tq-world-ocean"></div>
           <div class="tq-world-entities"></div>
-          <img class="tq-world-player" alt="Navio do jogador">
+          <div class="tq-world-nav-target" hidden aria-hidden="true"></div>
+          <img class="tq-world-player" alt="Navio do jogador" draggable="false">
         </div>
       </div>
       <section class="tq-world-hud">
@@ -100,7 +102,7 @@ export class WorldRuntime {
           <button type="button" data-dir="right" aria-label="Navegar para direita">▶</button>
           <button type="button" data-dir="down" aria-label="Navegar para baixo">▼</button>
         </div>
-        <div class="tq-world-help">WASD / setas<br>ou controles touch</div>
+        <div class="tq-world-help">WASD / setas · toque/clique para navegar<br>controles touch também disponíveis</div>
       </div>`;
 
     this.root.append(this.host);
@@ -108,6 +110,7 @@ export class WorldRuntime {
     this.stage=this.host.querySelector(".tq-world-stage");
     this.entityLayer=this.host.querySelector(".tq-world-entities");
     this.playerEl=this.host.querySelector(".tq-world-player");
+    this.navTargetEl=this.host.querySelector(".tq-world-nav-target");
     this.coordsEl=this.host.querySelector("[data-world-coords]");
     this.progressEl=this.host.querySelector("[data-world-progress]");
     this.zoomEl=this.host.querySelector("[data-world-zoom]");
@@ -168,6 +171,7 @@ export class WorldRuntime {
         const img=document.createElement("img");
         img.src=entity.src||"";
         img.alt=entity.label||entity.type||"Objeto";
+        img.draggable=false;
         el.append(img);
       }
 
@@ -587,11 +591,17 @@ export class WorldRuntime {
       ArrowRight:"right",KeyD:"right"
     };
 
+    const clearNavigationTarget=()=>{
+      this.navigationTarget=null;
+      if(this.navTargetEl)this.navTargetEl.hidden=true;
+    };
+
     const keydown=e=>{
       if(this.mode!=="play")return;
       const dir=keyMap[e.code];
       if(!dir)return;
       e.preventDefault();
+      clearNavigationTarget();
       this.keys.add(dir);
     };
     const keyup=e=>{
@@ -611,6 +621,7 @@ export class WorldRuntime {
       const start=e=>{
         if(this.mode!=="play")return;
         e.preventDefault();
+        clearNavigationTarget();
         this.pointerDirections.add(dir);
         try{button.setPointerCapture(e.pointerId)}catch{}
       };
@@ -630,9 +641,40 @@ export class WorldRuntime {
       });
     }
 
+    const navigateToPointer=event=>{
+      if(this.mode!=="play")return;
+      if(event.button!==undefined&&event.button!==0)return;
+      const rect=this.viewport.getBoundingClientRect();
+      const zoom=Math.max(.1,this.zoom||1);
+      const x=clamp(this.camera.x+(event.clientX-rect.left-rect.width/2)/zoom,55,this.config.width-55);
+      const y=clamp(this.camera.y+(event.clientY-rect.top-rect.height/2)/zoom,70,this.config.height-70);
+      this.navigationTarget={x,y};
+      if(this.navTargetEl){
+        this.navTargetEl.hidden=false;
+        this.navTargetEl.style.left=x+"px";
+        this.navTargetEl.style.top=y+"px";
+      }
+    };
+
+    const blockContextMenu=e=>{
+      if(this.host.contains(e.target))e.preventDefault();
+    };
+    const blockDrag=e=>{
+      if(e.target?.closest?.(".tq-world-host"))e.preventDefault();
+    };
+
+    this.viewport.addEventListener("click",navigateToPointer);
+    this.host.addEventListener("contextmenu",blockContextMenu);
+    this.host.addEventListener("dragstart",blockDrag);
+
     const action=()=>this.activateNearby();
     this.actionButton.addEventListener("click",action);
-    this.cleanups.push(()=>this.actionButton.removeEventListener("click",action));
+    this.cleanups.push(()=>{
+      this.viewport.removeEventListener("click",navigateToPointer);
+      this.host.removeEventListener("contextmenu",blockContextMenu);
+      this.host.removeEventListener("dragstart",blockDrag);
+      this.actionButton.removeEventListener("click",action);
+    });
   }
 
   setMode(mode){
@@ -647,6 +689,8 @@ export class WorldRuntime {
       this.zoom=this.playZoom;
       this.selectEntity(null);
     }else{
+      this.navigationTarget=null;
+      if(this.navTargetEl)this.navTargetEl.hidden=true;
       this.nearby=null;
       if(this.actionWrap)this.actionWrap.hidden=true;
       this.zoom=clamp(Number(this.zoom||.58),.25,1.5);
@@ -660,6 +704,20 @@ export class WorldRuntime {
     const active=new Set([...this.keys,...this.pointerDirections]);
     let x=(active.has("right")?1:0)-(active.has("left")?1:0);
     let y=(active.has("down")?1:0)-(active.has("up")?1:0);
+
+    if(!x&&!y&&this.mode==="play"&&this.navigationTarget){
+      const dx=this.navigationTarget.x-this.player.x;
+      const dy=this.navigationTarget.y-this.player.y;
+      const remaining=Math.hypot(dx,dy);
+      if(remaining<=18){
+        this.navigationTarget=null;
+        if(this.navTargetEl)this.navTargetEl.hidden=true;
+      }else{
+        x=dx/remaining;
+        y=dy/remaining;
+      }
+    }
+
     if(x||y){
       const length=Math.hypot(x,y)||1;
       x/=length;y/=length;
