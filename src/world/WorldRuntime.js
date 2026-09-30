@@ -1,4 +1,5 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0050";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0110";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0110";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
@@ -113,6 +114,7 @@ export class WorldRuntime {
   renderEntities(){
     if(!this.entityLayer)return;
     this.entityLayer.replaceChildren();
+    this.gizmoEl=null;
 
     for(const entity of this.entities){
       const el=document.createElement(entity.type==="location"?"article":"div");
@@ -140,7 +142,9 @@ export class WorldRuntime {
       this.entityLayer.append(el);
     }
 
+    this.ensureGizmo();
     this.applySelectionVisual();
+    this.syncGizmo();
     this.updateProgress();
   }
 
@@ -156,6 +160,114 @@ export class WorldRuntime {
     if(label)label.textContent=entity.label||entity.id;
     const img=el.querySelector("img");
     if(img&&img.getAttribute("src")!==String(entity.src||""))img.src=entity.src||"";
+  }
+
+  ensureGizmo(){
+    if(!this.editorEnabled||!this.entityLayer)return null;
+    if(this.gizmoEl?.isConnected)return this.gizmoEl;
+
+    const gizmo=document.createElement("div");
+    gizmo.className="tq-world-gizmo";
+    gizmo.hidden=true;
+    gizmo.innerHTML='<span class="tq-world-gizmo__stem"></span><button type="button" class="tq-world-gizmo__rotate" aria-label="Girar entidade" title="Girar"></button><button type="button" class="tq-world-gizmo__resize" aria-label="Redimensionar entidade" title="Redimensionar"></button>';
+    this.entityLayer.append(gizmo);
+    this.gizmoEl=gizmo;
+
+    const rotate=gizmo.querySelector(".tq-world-gizmo__rotate");
+    rotate.addEventListener("pointerdown",event=>{
+      if(this.mode!=="edit"||!this.selectedId)return;
+      const entity=this.entities.find(item=>item.id===this.selectedId);
+      if(!entity)return;
+      event.preventDefault();event.stopPropagation();
+      const rect=entity.el?.getBoundingClientRect();
+      if(!rect)return;
+      const center={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+      try{rotate.setPointerCapture(event.pointerId)}catch{}
+
+      const move=e=>{
+        const angle=Math.atan2(e.clientY-center.y,e.clientX-center.x)*180/Math.PI+90;
+        entity.rotation=((angle+180)%360+360)%360-180;
+        this.applyEntityVisual(entity);
+        this.syncGizmo();
+        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),false);
+      };
+      const end=e=>{
+        try{if(rotate.hasPointerCapture(e.pointerId))rotate.releasePointerCapture(e.pointerId)}catch{}
+        rotate.removeEventListener("pointermove",move);
+        rotate.removeEventListener("pointerup",end);
+        rotate.removeEventListener("pointercancel",end);
+        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),true);
+      };
+      rotate.addEventListener("pointermove",move);
+      rotate.addEventListener("pointerup",end);
+      rotate.addEventListener("pointercancel",end);
+    });
+
+    const resize=gizmo.querySelector(".tq-world-gizmo__resize");
+    resize.addEventListener("pointerdown",event=>{
+      if(this.mode!=="edit"||!this.selectedId)return;
+      const entity=this.entities.find(item=>item.id===this.selectedId);
+      if(!entity)return;
+      event.preventDefault();event.stopPropagation();
+      const rect=entity.el?.getBoundingClientRect();
+      if(!rect)return;
+      const center={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+      const startDistance=Math.max(1,Math.hypot(event.clientX-center.x,event.clientY-center.y));
+      const startWidth=Math.max(16,Number(entity.width||96));
+      const startHeight=Math.max(16,Number(entity.height||96));
+      const startAngle=Number(entity.rotation||0)*Math.PI/180;
+      const start={x:event.clientX,y:event.clientY};
+      try{resize.setPointerCapture(event.pointerId)}catch{}
+
+      const move=e=>{
+        if(entity.lockAspect!==false){
+          const scale=Math.max(.12,Math.hypot(e.clientX-center.x,e.clientY-center.y)/startDistance);
+          entity.width=clamp(startWidth*scale,16,2400);
+          entity.height=clamp(startHeight*scale,16,2400);
+        }else{
+          const zoom=Math.max(.1,this.zoom||1);
+          const dx=(e.clientX-start.x)/zoom;
+          const dy=(e.clientY-start.y)/zoom;
+          const localX=dx*Math.cos(-startAngle)-dy*Math.sin(-startAngle);
+          const localY=dx*Math.sin(-startAngle)+dy*Math.cos(-startAngle);
+          entity.width=clamp(startWidth+localX*2,16,2400);
+          entity.height=clamp(startHeight+localY*2,16,2400);
+        }
+        this.applyEntityVisual(entity);
+        this.syncGizmo();
+        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),false);
+      };
+      const end=e=>{
+        try{if(resize.hasPointerCapture(e.pointerId))resize.releasePointerCapture(e.pointerId)}catch{}
+        resize.removeEventListener("pointermove",move);
+        resize.removeEventListener("pointerup",end);
+        resize.removeEventListener("pointercancel",end);
+        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),true);
+      };
+      resize.addEventListener("pointermove",move);
+      resize.addEventListener("pointerup",end);
+      resize.addEventListener("pointercancel",end);
+    });
+
+    return gizmo;
+  }
+
+  syncGizmo(){
+    const gizmo=this.ensureGizmo();
+    if(!gizmo)return;
+    const entity=this.entities.find(item=>item.id===this.selectedId);
+    const visible=this.mode==="edit"&&entity&&!this.collected.has(entity.id);
+    gizmo.hidden=!visible;
+    if(!visible)return;
+
+    gizmo.style.left=entity.x+"px";
+    gizmo.style.top=entity.y+"px";
+    gizmo.style.width=Math.max(16,Number(entity.width||96))+"px";
+    gizmo.style.height=Math.max(16,Number(entity.height||96))+"px";
+    gizmo.style.transform="translate(-50%,-50%) rotate("+Number(entity.rotation||0)+"deg)";
+    const size=22/Math.max(.25,this.zoom||1);
+    gizmo.style.setProperty("--gizmo-handle-size",size+"px");
+    gizmo.style.setProperty("--gizmo-line-width",Math.max(1,2/Math.max(.25,this.zoom||1))+"px");
   }
 
   bindEntityEditing(entity){
@@ -183,6 +295,7 @@ export class WorldRuntime {
         entity.anchorX=entity.x;
         entity.anchorY=entity.y;
         this.applyEntityVisual(entity);
+        this.syncGizmo();
         this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),false);
       };
 
@@ -332,6 +445,7 @@ export class WorldRuntime {
       this.zoom=clamp(Number(this.zoom||.58),.25,1.5);
     }
     this.resize();
+    this.syncGizmo();
   }
 
   inputVector(){
@@ -391,21 +505,39 @@ export class WorldRuntime {
     this.playerEl.style.transform=`translate(-50%,-50%) rotate(${this.player.rotation}deg)`;
   }
 
-  updateFloating(time){
+  getEntityMotion(id){
+    const entity=this.entities.find(item=>item.id===id);
+    if(!entity)return null;
+    return normalizeEntityMotion(entity.motion||defaultEntityMotion(entity.type),entity.type);
+  }
+
+  updateEntityMotion(id,patch={},commit=true){
+    const entity=this.entities.find(item=>item.id===id);
+    if(!entity)return null;
+    const current=this.getEntityMotion(id)||defaultEntityMotion(entity.type);
+    const next=patch.preset&&patch.preset!==current.preset
+      ? applyEntityMotionPreset(current,patch.preset,entity.type)
+      : current;
+    entity.motion=normalizeEntityMotion({...next,...structuredClone(patch)},entity.type);
+    this.applyEntityVisual(entity);
+    this.syncGizmo();
+    const clean=this.getEntity(id);
+    this.onEntityChange?.(clean,commit);
+    return structuredClone(entity.motion);
+  }
+
+  updateEntityMotionFrame(time){
     for(const entity of this.entities){
-      if(entity.type!=="barrel"||this.collected.has(entity.id)||!entity.el)continue;
-      if(this.mode!=="play"){
+      if(this.collected.has(entity.id)||!entity.el)continue;
+      const motion=this.getEntityMotion(entity.id);
+      if(!motion?.active){
         this.applyEntityVisual(entity);
         continue;
       }
-      const phase=(entity.index+1)*1.71;
-      const drift=Number(entity.drift??20);
-      const bob=Number(entity.bob??9);
-      const x=entity.anchorX+Math.sin(time*.00032+phase)*drift;
-      const y=entity.anchorY+Math.cos(time*.00047+phase)*bob;
-      entity.el.style.left=x+"px";
-      entity.el.style.top=y+"px";
-      entity.el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)+Math.sin(time*.0007+phase)*5}deg)`;
+      const frame=computeEntityMotionFrame(motion,time,(entity.index+1)*1.71,entity.type);
+      entity.el.style.left=(entity.x+frame.offsetX)+"px";
+      entity.el.style.top=(entity.y+frame.offsetY)+"px";
+      entity.el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)+frame.rotation}deg) scale(1,${frame.scaleY})`;
     }
   }
 
@@ -432,6 +564,7 @@ export class WorldRuntime {
     const tx=Math.round(vw/2-this.camera.x*zoom);
     const ty=Math.round(vh/2-this.camera.y*zoom);
     this.stage.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${zoom})`;
+    this.syncGizmo();
   }
 
   updateNearby(){
@@ -567,6 +700,7 @@ export class WorldRuntime {
   selectEntity(id){
     this.selectedId=id&&this.entities.some(entity=>entity.id===id)?id:null;
     this.applySelectionVisual();
+    this.syncGizmo();
     this.onSelectionChange?.(this.getSelected());
   }
 
@@ -579,14 +713,24 @@ export class WorldRuntime {
   updateEntity(id,patch={},commit=true){
     const entity=this.entities.find(item=>item.id===id);
     if(!entity)return null;
+    const previousType=entity.type;
     Object.assign(entity,structuredClone(patch));
     entity.x=clamp(Number(entity.x??0),0,this.config.width);
     entity.y=clamp(Number(entity.y??0),0,this.config.height);
+    entity.width=clamp(Number(entity.width??96),16,2400);
+    entity.height=clamp(Number(entity.height??96),16,2400);
+    entity.rotation=Number(entity.rotation||0);
     entity.anchorX=entity.x;
     entity.anchorY=entity.y;
-    this.renderEntities();
-    this.selectEntity(id);
+    if(previousType!==entity.type)this.renderEntities();
+    else{
+      this.applyEntityVisual(entity);
+      this.syncGizmo();
+    }
+    this.selectedId=id;
+    this.applySelectionVisual();
     const clean=this.getEntity(id);
+    this.onSelectionChange?.(clean);
     this.onEntityChange?.(clean,commit);
     return clean;
   }
@@ -644,7 +788,7 @@ export class WorldRuntime {
     if(this.mode==="play")this.updatePlayer(dt);
     this.updatePlayerVisual();
     this.updateOceanFrame(time);
-    this.updateFloating(time);
+    this.updateEntityMotionFrame(time);
     this.updateCamera();
     this.updateNearby();
 
