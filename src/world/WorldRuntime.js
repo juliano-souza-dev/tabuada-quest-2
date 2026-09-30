@@ -1,8 +1,8 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0447";
-import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0447";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0447";
-import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0447";
-import { NAVIGATION_DEFAULTS, applyCounterSteer, computeCameraFollowTarget, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0447";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0352";
+import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0352";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0352";
+import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0352";
+import { NAVIGATION_DEFAULTS, applyCounterSteer, computeCameraFollowTarget, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0352";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
@@ -469,84 +469,32 @@ export class WorldRuntime {
 
   bindEditorCamera(){
     let pan=null;
-    let pinch=null;
-    const pointers=new Map();
 
-    const pointerValues=()=>[...pointers.values()];
-    const pointerDistance=()=>{
-      const values=pointerValues();
-      if(values.length<2)return 0;
-      return Math.hypot(values[1].x-values[0].x,values[1].y-values[0].y);
-    };
-    const pointerCenter=()=>{
-      const values=pointerValues();
-      if(values.length<2)return null;
-      return {
-        x:(values[0].x+values[1].x)/2,
-        y:(values[0].y+values[1].y)/2
-      };
-    };
-
-    const beginPan=pointer=>{
+    const beginPan=event=>{
       pan={
-        pointerId:pointer.id,
-        px:pointer.x,
-        py:pointer.y,
+        pointerId:event.pointerId,
+        px:event.clientX,
+        py:event.clientY,
         x:this.camera.x,
         y:this.camera.y
-      };
-    };
-
-    const beginPinch=()=>{
-      const center=pointerCenter();
-      if(!center)return;
-      pan=null;
-      pinch={
-        distance:Math.max(1,pointerDistance()),
-        zoom:this.zoom,
-        world:this.editorScreenToWorld(center.x,center.y,this.zoom)
       };
     };
 
     const down=event=>{
       if(this.mode!=="edit")return;
       if(event.target.closest?.(".tq-world-entity"))return;
+
+      // Pinch/multi-touch zoom is intentionally disabled. A second touch is ignored.
+      if(pan&&pan.pointerId!==event.pointerId)return;
+
       event.preventDefault();
-
-      if(event.pointerType==="touch"){
-        pointers.set(event.pointerId,{id:event.pointerId,x:event.clientX,y:event.clientY});
-        if(pointers.size>=2){
-          beginPinch();
-        }else{
-          beginPan({id:event.pointerId,x:event.clientX,y:event.clientY});
-          this.selectEntity(null);
-        }
-      }else{
-        beginPan({id:event.pointerId,x:event.clientX,y:event.clientY});
-        this.selectEntity(null);
-      }
-
+      beginPan(event);
+      this.selectEntity(null);
       try{this.viewport.setPointerCapture(event.pointerId)}catch{}
     };
 
     const move=event=>{
-      if(this.mode!=="edit")return;
-
-      if(event.pointerType==="touch"&&pointers.has(event.pointerId)){
-        pointers.set(event.pointerId,{id:event.pointerId,x:event.clientX,y:event.clientY});
-
-        if(pointers.size>=2&&pinch){
-          event.preventDefault();
-          const center=pointerCenter();
-          if(!center)return;
-          const distance=Math.max(1,pointerDistance());
-          const next=pinch.zoom*(distance/pinch.distance);
-          this.setEditorZoomAt(next,center.x,center.y,pinch.world);
-          return;
-        }
-      }
-
-      if(!pan||pan.pointerId!==event.pointerId)return;
+      if(this.mode!=="edit"||!pan||pan.pointerId!==event.pointerId)return;
       event.preventDefault();
       const zoom=Math.max(.1,this.zoom||1);
       this.camera.x=pan.x-(event.clientX-pan.px)/zoom;
@@ -556,23 +504,8 @@ export class WorldRuntime {
     };
 
     const end=event=>{
-      if(event.pointerType==="touch"){
-        pointers.delete(event.pointerId);
-        if(pointers.size>=2){
-          beginPinch();
-        }else{
-          pinch=null;
-          if(pointers.size===1){
-            const remaining=pointerValues()[0];
-            beginPan(remaining);
-          }else{
-            pan=null;
-          }
-        }
-      }else if(pan?.pointerId===event.pointerId){
-        pan=null;
-      }
-
+      if(!pan||pan.pointerId!==event.pointerId)return;
+      pan=null;
       try{if(this.viewport.hasPointerCapture(event.pointerId))this.viewport.releasePointerCapture(event.pointerId)}catch{}
     };
 
@@ -590,8 +523,6 @@ export class WorldRuntime {
     this.viewport.addEventListener("wheel",wheel,{passive:false});
 
     this.cleanups.push(()=>{
-      pointers.clear();
-      pinch=null;
       pan=null;
       this.viewport.removeEventListener("pointerdown",down);
       this.viewport.removeEventListener("pointermove",move);
