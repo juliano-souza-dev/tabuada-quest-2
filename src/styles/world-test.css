@@ -8,7 +8,7 @@
 .tq-world-host.is-editor .tq-world-stage{box-shadow:0 0 0 4px #66d9ff99,0 0 80px #000c}
 .tq-world-host.is-editor .tq-world-viewport{cursor:grab}
 .tq-world-host.is-editor .tq-world-viewport:active{cursor:grabbing}
-.tq-world-ocean{position:absolute;inset:0;background:#0875a7 url("../../assets/backgrounds/scene-ocean.webp") repeat;background-size:720px auto;filter:saturate(.9)}
+.tq-world-ocean{position:absolute;inset:-3%;background-color:#0875a7;background-repeat:repeat;background-size:720px auto;will-change:background-position,transform,filter;pointer-events:none}
 .tq-world-entities{position:absolute;inset:0}
 .tq-world-player{position:absolute;width:108px;height:150px;object-fit:contain;z-index:100;transform-origin:50% 62%;filter:drop-shadow(0 9px 6px #001a2e80);will-change:left,top,transform;pointer-events:none}
 .tq-world-entity{position:absolute;transform:translate(-50%,-50%);transform-origin:center;will-change:left,top,transform;touch-action:none}
@@ -70,3 +70,13 @@
   .tq-world-action{bottom:40px}
   .tq-dev__worlds{left:50%;right:auto;top:72px;bottom:18px;width:min(560px,calc(100vw - 36px));transform:translateX(-50%);border-radius:16px}
 }
+
+.tq-worlds__create-open{width:100%;min-height:44px;margin-top:10px;border:1px solid rgba(74,193,255,.5)!important;background:#123b54!important;color:#fff!important}
+.tq-worlds__create{display:grid;gap:10px;margin-top:10px;padding:12px;border:1px solid rgba(74,193,255,.35);border-radius:12px;background:rgba(18,59,84,.22)}
+.tq-worlds__create[hidden]{display:none}
+.tq-worlds__create>strong{font-size:14px}
+.tq-worlds__create label{display:grid;gap:5px;color:#bcd0df;font-size:11px}
+.tq-worlds__create input,.tq-worlds__create select{width:100%;min-width:0;padding:10px;border:1px solid rgba(255,255,255,.14);border-radius:9px;background:#06131f;color:#fff;font:inherit}
+.tq-worlds__create-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tq-worlds__actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tq-world-ocean-note{display:block;padding:8px;border-radius:8px;background:#ffffff08;color:#90cfe5;line-height:1.35}
