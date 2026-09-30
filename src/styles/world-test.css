@@ -9,12 +9,17 @@
 .tq-world-host.is-editor .tq-world-viewport{cursor:grab}
 .tq-world-host.is-editor .tq-world-viewport:active{cursor:grabbing}
 .tq-world-ocean{position:absolute;inset:-3%;background-color:#0875a7;background-repeat:repeat;background-size:720px auto;will-change:background-position,transform,filter;pointer-events:none}
-.tq-world-entities{position:absolute;inset:0}
+.tq-world-entities{position:absolute;inset:0;pointer-events:none}
+.tq-world-depth-layer{position:absolute;inset:0;pointer-events:none}
+.tq-world-depth-layer--far{z-index:10}
+.tq-world-depth-layer--gameplay{z-index:40}
+.tq-world-depth-layer--foreground{z-index:120}
 .tq-world-player{position:absolute;width:108px;height:150px;object-fit:contain;z-index:100;transform-origin:50% 62%;filter:drop-shadow(0 9px 6px #001a2e80);will-change:left,top,transform;pointer-events:none}
-.tq-world-entity{position:absolute;transform:translate(-50%,-50%);transform-origin:center;will-change:left,top,transform;touch-action:none}
+.tq-world-entity{position:absolute;transform:translate(-50%,-50%);transform-origin:center;will-change:left,top,transform,opacity;touch-action:none;pointer-events:auto}
+.tq-world-entity::after{content:"";position:absolute;inset:0;background:var(--entity-tint,#fff);opacity:var(--entity-tint-strength,0);-webkit-mask-image:var(--entity-mask,none);mask-image:var(--entity-mask,none);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;pointer-events:none}
 .tq-world-host.is-editor .tq-world-entity{cursor:move}
 .tq-world-host.is-editor .tq-world-entity.is-selected{outline:4px solid #fff;outline-offset:7px;filter:drop-shadow(0 0 11px #39c8ff)}
-.tq-world-entity img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 4px #001a2e80);pointer-events:none}
+.tq-world-entity img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .tq-world-entity.is-logical-only{background:transparent}
 .tq-world-host.is-editor .tq-world-entity.is-logical-only{outline:1px dashed rgba(126,231,255,.48);outline-offset:0}
 .tq-world-hud{position:fixed;left:max(10px,env(safe-area-inset-left));top:max(72px,calc(env(safe-area-inset-top) + 62px));z-index:500;display:grid;gap:2px;min-width:180px;padding:9px 12px;border:1px solid #ffffff38;border-radius:12px;background:#061b2dcc;backdrop-filter:blur(8px);box-shadow:0 5px 18px #0006;pointer-events:none}
