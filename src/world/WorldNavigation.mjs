@@ -4,7 +4,8 @@ export const NAVIGATION_DEFAULTS=Object.freeze({
   rotationSharpness:8.5,
   cameraSharpness:7.7,
   cameraLookAheadDistance:150,
-  cameraDeadZone:72
+  cameraDeadZone:72,
+  counterSteerRetention:0
 });
 
 export const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
@@ -33,6 +34,15 @@ export function velocityHeading(vx,vy,fallback=0,minSpeed=NAVIGATION_DEFAULTS.mi
   const y=Number(vy)||0;
   if(Math.hypot(x,y)<Math.max(0,Number(minSpeed)||0))return normalizeDegrees(fallback);
   return normalizeDegrees(Math.atan2(y,x)*180/Math.PI+90);
+}
+
+export function applyCounterSteer(velocity,input,{
+  retention=NAVIGATION_DEFAULTS.counterSteerRetention
+}={}){
+  const v=Number(velocity)||0;
+  const intent=Number(input)||0;
+  if(!intent||!v||Math.sign(v)===Math.sign(intent))return v;
+  return v*clamp(Number(retention)||0,0,1);
 }
 
 export function computeCameraLookAhead(vx,vy,{
