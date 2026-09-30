@@ -1,4 +1,4 @@
-import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0148";
+import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0205";
 
 export class WorldEditor {
   constructor(root,{sceneRuntime}={}){
@@ -132,6 +132,7 @@ export class WorldEditor {
       z:20,
       rotation:0,
       lockAspect:true,
+      presentation:{depth:"gameplay"},
       ...extra
     });
     this.persist();
@@ -143,6 +144,16 @@ export class WorldEditor {
     const entity=this.runtime?.updateEntity(id,patch,commit)||null;
     if(commit){this.persist();this.emitWorldChange()}
     return entity;
+  }
+
+  getEntityPresentation(id){
+    return this.runtime?.getEntityPresentation(id)||null;
+  }
+
+  updateEntityPresentation(id,patch,commit=true){
+    const presentation=this.runtime?.updateEntityPresentation(id,patch,commit)||null;
+    if(commit){this.persist();this.emitWorldChange()}
+    return presentation;
   }
 
   getEntityMotion(id){
