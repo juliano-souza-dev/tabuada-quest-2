@@ -24,7 +24,7 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ⬜ Som de água que reage à velocidade e rangido de madeira em curvas.
 - ⬜ Reflexo/sombra dinâmica do navio na água.
 - ⬜ Esteira dinâmica ligada à velocidade real do navio.
-- ⬜ Parallax em camadas de mundo, com fatores diferentes por camada.
+- ✅ Parallax em camadas de mundo, com presets Fundo, Gameplay e Primeiro plano e fatores editáveis por entidade.
 
 ## Oceano
 
@@ -69,7 +69,7 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ⬜ Snap opcional em grid.
 - ⬜ Duplicar entidade por atalho.
 - ⬜ Undo/redo global do World Editor.
-- ⬜ Camadas editáveis com parallax por entidade.
+- ✅ Camadas editáveis com parallax por entidade, incluindo escala visual, opacidade, blur, névoa/tint e sombra.
 - ⬜ Inspector de colisão e hitbox.
 
 ## Presets de balanço reutilizados do conceito do motor de cenas
@@ -99,3 +99,14 @@ A regra arquitetural continua sendo:
 WORLD coordinates != SCENE coordinates != UI coordinates
 
 O mundo não deve transformar 390x844 em limite físico. A referência de cena continua sendo apenas um sistema de coordenadas canônico.
+
+
+## Safety checkpoint antes do parallax
+
+Antes da implementação de profundidade/parallax, o estado estável foi preservado no Git:
+
+- branch: `safety/pre-parallax-20260930-0200`
+- commit: `66e36ac541f30106e4d5796f70708cfa4484d6e2`
+- descrição: versão imediatamente anterior ao sistema de profundidade/parallax por entidade
+
+Se a implementação de parallax causar regressão grave, esse branch é o ponto de retorno conhecido.
