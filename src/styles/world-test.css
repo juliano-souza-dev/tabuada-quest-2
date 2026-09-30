@@ -96,3 +96,19 @@
 .tq-world-motion-range output{min-width:48px;padding:4px 7px;border:1px solid rgba(255,255,255,.14);border-radius:7px;background:#102535;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
 .tq-world-motion-range input[type=range]{width:100%;padding:0;border:0;background:transparent;accent-color:#1a8cff}
 .tq-world-editor-note{display:block;padding:8px;border-radius:8px;background:rgba(255,255,255,.04);color:#9fc6d8;font-size:10px;line-height:1.4}
+
+
+/* Analog world navigation */
+.tq-world-joystick{position:relative;width:132px;height:132px;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+.tq-world-joystick__base{position:absolute;inset:0;border:2px solid rgba(255,255,255,.48);border-radius:50%;background:radial-gradient(circle at 50% 50%,rgba(25,83,116,.5),rgba(6,31,48,.78));box-shadow:inset 0 0 0 12px rgba(255,255,255,.035),0 7px 22px rgba(0,0,0,.38);backdrop-filter:blur(5px)}
+.tq-world-joystick__base::before,.tq-world-joystick__base::after{content:"";position:absolute;left:50%;top:50%;background:rgba(255,255,255,.14);transform:translate(-50%,-50%);pointer-events:none}
+.tq-world-joystick__base::before{width:2px;height:76%}
+.tq-world-joystick__base::after{width:76%;height:2px}
+.tq-world-joystick__thumb{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border:2px solid rgba(255,255,255,.82);border-radius:50%;background:rgba(19,105,151,.92);box-shadow:0 5px 15px rgba(0,0,0,.48),inset 0 0 0 5px rgba(255,255,255,.07);will-change:transform;pointer-events:none}
+.tq-world-nav-target{position:absolute;width:32px;height:32px;z-index:95;transform:translate(-50%,-50%);border:3px solid rgba(126,231,255,.92);border-radius:50%;box-shadow:0 0 0 5px rgba(6,27,45,.48),0 0 18px rgba(73,200,255,.72);pointer-events:none;animation:tq-world-nav-target-pulse .8s ease-in-out infinite alternate}
+.tq-world-nav-target::before,.tq-world-nav-target::after{content:"";position:absolute;left:50%;top:50%;background:rgba(255,255,255,.9);transform:translate(-50%,-50%);pointer-events:none}
+.tq-world-nav-target::before{width:2px;height:42px}
+.tq-world-nav-target::after{width:42px;height:2px}
+.tq-world-nav-target[hidden]{display:none}
+@keyframes tq-world-nav-target-pulse{from{opacity:.55;scale:.9}to{opacity:1;scale:1}}
+@media(max-width:430px){.tq-world-joystick{width:118px;height:118px}.tq-world-joystick__thumb{width:50px;height:50px;margin:-25px 0 0 -25px}.tq-world-help{max-width:150px}}
