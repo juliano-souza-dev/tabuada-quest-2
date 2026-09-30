@@ -1,8 +1,8 @@
-import { WorldRuntime } from "./WorldRuntime.js?v=20260930-0400";
-import { SceneRuntime } from "../runtime/SceneRuntime.js?v=20260930-0400";
+import { WorldRuntime } from "./WorldRuntime.js?v=20260930-0403";
+import { SceneRuntime } from "../runtime/SceneRuntime.js?v=20260930-0403";
 
 export async function launchWorldTest(root){
-  const response=await fetch("./src/world/world-test.world.json?v=20260930-0400",{cache:"no-store"});
+  const response=await fetch("./src/world/world-test.world.json?v=20260930-0403",{cache:"no-store"});
   if(!response.ok)throw new Error("World test config failed: "+response.status);
   const config=await response.json();
 
