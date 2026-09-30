@@ -1,5 +1,6 @@
 import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260929-2358";
 import { SceneResolver } from "./runtime/SceneResolver.js?v=20260929-2358";
+import { installAuthRuntime } from "./runtime/auth/AuthRuntimeBridge.js?v=20260929-2358";
 import { DevOverlay } from "./dev/DevOverlay.js?v=20260929-2358";
 
 const app = document.querySelector("#app");
@@ -7,10 +8,20 @@ const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=202
 const resolved = resolver.resolve("login");
 
 const runtime = new SceneRuntime(app, { width: 390, height: 844 }, { editorEnabled: true });
+const services = await installAuthRuntime(runtime, {
+  configUrl: "./src/config/firebase-public.json?v=20260929-2358"
+});
 await runtime.load(resolved.scene.path);
 
 const dev = new DevOverlay(document.body, runtime, { sceneResolver: resolver });
 dev.mount();
+
+globalThis.TabuadaQuest = Object.freeze({
+  runtime,
+  auth: services.auth,
+  playerState: services.playerState,
+  getAccessStatus: services.getStatus
+});
 
 // DEV policy: never register a Service Worker and purge old caches/registrations.
 // Every reload must request the current repository deployment.
