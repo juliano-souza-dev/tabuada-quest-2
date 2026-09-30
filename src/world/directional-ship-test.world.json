@@ -12,16 +12,16 @@
     "width": 180,
     "height": 180,
     "direction": "n",
-    "src": "./assets/ships/ship_n.png",
+    "src": "./assets/ships/ship_s.png",
     "directions": {
-      "n": "./assets/ships/ship_n.png",
-      "ne": "./assets/ships/ship_ne.png",
-      "e": "./assets/ships/ship_e.png",
-      "se": "./assets/ships/ship_se.png",
-      "s": "./assets/ships/ship_s.png",
-      "sw": "./assets/ships/ship_sw.png",
-      "w": "./assets/ships/ship_w.png",
-      "nw": "./assets/ships/ship_nw.png"
+      "n": "./assets/ships/ship_s.png",
+      "ne": "./assets/ships/ship_sw.png",
+      "e": "./assets/ships/ship_w.png",
+      "se": "./assets/ships/ship_nw.png",
+      "s": "./assets/ships/ship_n.png",
+      "sw": "./assets/ships/ship_ne.png",
+      "w": "./assets/ships/ship_e.png",
+      "nw": "./assets/ships/ship_se.png"
     }
   },
   "entities": [],
@@ -31,9 +31,11 @@
   "meta": {
     "schema": "tq.world",
     "version": 1,
-    "sourceRevision": "20260930-0718",
+    "sourceRevision": "20260930-0732",
     "editorVersion": 1,
-    "testPurpose": "8-direction ship navigation"
+    "testPurpose": "8-direction ship navigation",
+    "directionConvention": "movement-heading",
+    "assetConvention": "camera-viewpoint-opposite-heading"
   },
   "editor": {
     "cameraX": 1200,
