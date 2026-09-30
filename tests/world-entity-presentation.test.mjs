@@ -29,3 +29,13 @@ test("entity without sprite can remain logical only",()=>{
   assert.equal(isLogicalOnlyEntity(entity),true);
   assert.equal(resolveEntityPresentation(entity).hasSprite,false);
 });
+
+test("labels remain opt-in metadata without visual chrome",()=>{
+  const presentation=resolveEntityPresentation({
+    type:"location",
+    src:"./assets/backgrounds/island.webp",
+    showLabel:true
+  });
+  assert.equal(presentation.showLabel,true);
+  assert.equal(presentation.visualChrome,false);
+});
