@@ -854,7 +854,14 @@ export class WorldRuntime {
     const current=this.config.ocean||{};
     const preset=patch.preset;
     const base=preset&&preset!==current.preset?applyOceanPreset(current,preset):current;
-    this.config.ocean=normalizeOceanConfig({...base,...structuredClone(patch)});
+    const next={...base,...structuredClone(patch)};
+    if(patch.layers){
+      next.layers={...(base.layers||{})};
+      for(const [key,value] of Object.entries(patch.layers)){
+        next.layers[key]={...(base.layers?.[key]||{}),...structuredClone(value||{})};
+      }
+    }
+    this.config.ocean=normalizeOceanConfig(next);
     this.applyOceanStatic();
     return this.getOcean();
   }
