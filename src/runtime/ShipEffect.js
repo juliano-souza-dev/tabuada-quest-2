@@ -37,7 +37,7 @@ export class ShipEffect {
     this.runtime=runtime;
     this.node=node;
     this.phase=(this.hash(node.id)%997)/997*Math.PI*2;
-    this.physics={x:0,xVelocity:0,y:0,yVelocity:0,rotation:0,rotationVelocity:0,lastNow:performance.now()};
+    this.physics={x:0,xVelocity:0,y:0,yVelocity:0,rotation:0,rotationVelocity:0,motionBlend:1,lastNow:performance.now()};
     this.path=new PathAnimator(runtime,node,{channel:"ship-route"});
     this.lastMode=runtime.mode;
     this.loop=this.loop.bind(this);
@@ -178,14 +178,20 @@ export class ShipEffect {
     const center=this.sampleSea(centerX,waterlineY,now,0);
 
     const coupling=config.coupling/100;
+    const moving=this.path.running===true;
+    const targetMotionBlend=moving?.24:1;
+    const blendDt=Math.max(1/120,Math.min(.05,(now-this.physics.lastNow)/1000||1/60));
+    const blendRate=moving?4.8:2.6;
+    this.physics.motionBlend+=(targetMotionBlend-this.physics.motionBlend)*(1-Math.exp(-blendRate*blendDt));
+    const seaStrength=Math.max(.18,Math.min(1,this.physics.motionBlend));
     const movement=Math.max(.18,Number(center.movement)||Number(bow.movement)||.55);
     const meanHeight=((Number(stern.height)||0)+(Number(center.height)||0)+(Number(bow.height)||0))/3;
     const slope=(Number(bow.height)||0)-(Number(stern.height)||0);
     const secondaryRoll=Math.sin(now*.00072+this.phase*1.41)+Math.sin(now*.00113+this.phase*.57)*.42;
 
-    const targetY=meanHeight*(1.5+(config.heave/100)*13)*coupling*(.65+movement*.75);
-    const targetRotation=(slope*(config.pitch/100)*7.2+secondaryRoll*(config.roll/100)*1.9)*coupling;
-    const targetX=(Math.sin(now*.00043+this.phase)+Math.sin(now*.00081+this.phase*1.27)*.35)*(config.sway/100)*4.5*coupling;
+    const targetY=meanHeight*(1.5+(config.heave/100)*13)*coupling*(.65+movement*.75)*seaStrength;
+    const targetRotation=(slope*(config.pitch/100)*7.2+secondaryRoll*(config.roll/100)*1.9)*coupling*seaStrength;
+    const targetX=(Math.sin(now*.00043+this.phase)+Math.sin(now*.00081+this.phase*1.27)*.35)*(config.sway/100)*4.5*coupling*seaStrength;
 
     const dt=Math.max(1/120,Math.min(.05,(now-this.physics.lastNow)/1000||1/60));
     this.physics.lastNow=now;
@@ -196,7 +202,7 @@ export class ShipEffect {
       x:springAxis(this.physics,"x",targetX,stiffness*.72,damping,dt),
       y:springAxis(this.physics,"y",targetY,stiffness,damping,dt),
       rotation:springAxis(this.physics,"rotation",targetRotation,stiffness*.84,damping,dt),
-      scale:1+meanHeight*coupling*(config.heave/100)*.0022
+      scale:1+meanHeight*coupling*(config.heave/100)*.0022*seaStrength
     };
   }
 
@@ -205,6 +211,7 @@ export class ShipEffect {
     this.physics.x=0;this.physics.xVelocity=0;
     this.physics.y=0;this.physics.yVelocity=0;
     this.physics.rotation=0;this.physics.rotationVelocity=0;
+    this.physics.motionBlend=1;
     this.physics.lastNow=performance.now();
   }
 
