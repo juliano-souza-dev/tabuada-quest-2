@@ -2,7 +2,8 @@ import { createCompositionEngine } from "./composition/registry.js?v=20260929-23
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
-    this.selectedId=null; this.nodes=new Map(); this.animationChannels=new Map(); this.compositions=createCompositionEngine(this); this.storageKey=null; this.mount();
+    this.selectedId=null; this.nodes=new Map(); this.animationChannels=new Map(); this.actions=new Map(); this.actionBusy=new Set();
+    this.compositions=createCompositionEngine(this); this.storageKey=null; this.mount();
   }
   mount(){
     this.root.innerHTML="";
@@ -98,6 +99,7 @@ export class SceneRuntime {
     node.scaleX=Number(node.scaleX??1); node.scaleY=Number(node.scaleY??1);
     node.rotation=Number(node.rotation??0); node.skewX=Number(node.skewX??0); node.skewY=Number(node.skewY??0); node.z=Number(node.z??0); node.visible=node.visible!==false; node.locked=Boolean(node.locked);
     if(node.compositionType!=null)node.compositionType=String(node.compositionType);
+    if(node.action!=null)node.action=String(node.action);
     return node;
   }
   createNode(raw){
@@ -106,9 +108,15 @@ export class SceneRuntime {
     el.className="tq-node"; el.dataset.nodeId=node.id; el.dataset.parentId="viewport";
     if(node.kind==="image"){el.src=node.src;el.alt=node.alt||"";el.draggable=false}else el.textContent=node.text||"";
     this.applyTransform(el,node);
+    this.syncActionElement(node,el);
     el.addEventListener("pointerdown",e=>{
       if(!this.editorEnabled||this.mode!=="edit"||node.locked)return;
       e.preventDefault();e.stopPropagation();this.select(node.id);this.beginDrag(e,node,el);
+    });
+    el.addEventListener("click",e=>{if(this.mode==="play"&&node.action)this.invokeNodeAction(node,e)});
+    el.addEventListener("keydown",e=>{
+      if(this.mode!=="play"||!node.action||!["Enter"," "].includes(e.key))return;
+      e.preventDefault();this.invokeNodeAction(node,e);
     });
     this.nodes.set(node.id,{node,el}); return el;
   }
@@ -183,6 +191,69 @@ export class SceneRuntime {
     };
     const end=e=>{if(handle.hasPointerCapture(e.pointerId))handle.releasePointerCapture(e.pointerId);handle.removeEventListener("pointermove",move);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
     handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
+  }
+  normalizeActionPath(value){
+    return String(value??"").split("?")[0].split("#")[0].replace(/^\.\//,"").replace(/^\/+/, "").toLowerCase();
+  }
+  registerAction(id,handler,options={}){
+    const actionId=String(id||"").trim();
+    if(!actionId||typeof handler!=="function")throw new TypeError("Invalid runtime action");
+    this.actions.set(actionId,{
+      id:actionId,
+      label:String(options.label||actionId),
+      handler,
+      assetPaths:(options.assetPaths||[]).map(value=>this.normalizeActionPath(value))
+    });
+    for(const {node,el} of this.nodes.values())this.syncActionElement(node,el);
+    return this;
+  }
+  listActions(){
+    return [...this.actions.values()].map(({id,label})=>({id,label}));
+  }
+  suggestAction(node){
+    const path=this.normalizeActionPath(node?.src||node?.path||"");
+    if(!path)return null;
+    return [...this.actions.values()].find(action=>action.assetPaths.includes(path))||null;
+  }
+  syncActionElement(node,el=this.nodes.get(node.id)?.el){
+    if(!el)return;
+    const action=node.action?this.actions.get(String(node.action)):null;
+    const enabled=Boolean(action)&&this.mode==="play";
+    el.classList.toggle("is-action",Boolean(action));
+    el.classList.toggle("is-action-busy",this.actionBusy.has(node.id));
+    if(!action){
+      delete el.dataset.action;
+      el.removeAttribute("role");
+      el.removeAttribute("tabindex");
+      el.removeAttribute("aria-disabled");
+      return;
+    }
+    el.dataset.action=action.id;
+    el.setAttribute("role","button");
+    el.setAttribute("tabindex",enabled?"0":"-1");
+    el.setAttribute("aria-label",String(node.actionLabel||action.label||node.alt||action.id));
+    el.setAttribute("aria-disabled",this.actionBusy.has(node.id)?"true":"false");
+  }
+  async invokeNodeAction(node,event){
+    if(this.mode!=="play"||!node?.action||this.actionBusy.has(node.id))return false;
+    const action=this.actions.get(String(node.action));
+    if(!action)return false;
+
+    this.actionBusy.add(node.id);
+    this.syncActionElement(node);
+    this.dispatchEvent("actionstart",{action:action.id,node});
+    try{
+      await action.handler({runtime:this,node,event,action});
+      this.dispatchEvent("actioncomplete",{action:action.id,node});
+      return true;
+    }catch(error){
+      console.error("Runtime action failed",action.id,error);
+      this.dispatchEvent("actionerror",{action:action.id,node,error:String(error?.message||error)});
+      return false;
+    }finally{
+      this.actionBusy.delete(node.id);
+      this.syncActionElement(node);
+    }
   }
   syncComposition(node){return this.compositions.syncNode(node);}
   setAnimationTransform(id,channel="default",transform={}){
@@ -282,7 +353,7 @@ export class SceneRuntime {
     this.persistDraft();this.dispatchEvent("nodecommit",{node:null,id,parentId:"viewport",deleted:true});
     return true;
   }
-  updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.syncComposition(item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
+  updateNode(id,patch,commit=false){const item=this.nodes.get(id);if(!item)return;Object.assign(item.node,patch);this.normalizeNode(item.node);this.applyTransform(item.el,item.node);this.syncActionElement(item.node,item.el);this.syncComposition(item.node);this.dispatchEvent(commit?"nodecommit":"nodechange",{node:item.node,parentId:"viewport"});}
   select(id){
     this.selectedId=id;
     for(const [nodeId,{el}] of this.nodes)el.classList.toggle("is-selected",nodeId===id);
@@ -300,7 +371,7 @@ export class SceneRuntime {
     const end=e=>{if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end);this.dispatchEvent("nodecommit",{node,parentId:"viewport"});};
     el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
   }
-  setMode(mode){if(!this.editorEnabled&&mode!=="play")return;this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);else for(const {node} of this.nodes.values())this.positionHandle(node);this.dispatchEvent("modechange",{mode});}
+  setMode(mode){if(!this.editorEnabled&&mode!=="play")return;this.mode=mode;this.stage.dataset.mode=mode;if(mode==="play")this.select(null);else for(const {node} of this.nodes.values())this.positionHandle(node);for(const {node,el} of this.nodes.values())this.syncActionElement(node,el);this.dispatchEvent("modechange",{mode});}
   persistDraft(){if(!this.editorEnabled||!this.storageKey||!this.scene)return;try{localStorage.setItem(this.storageKey,JSON.stringify(this.scene))}catch(err){console.warn("DEV draft save failed",err)}}
   dispatchEvent(name,detail){if(this.editorEnabled&&(name==="nodechange"||name==="nodecommit"))this.persistDraft();window.dispatchEvent(new CustomEvent("tq:"+name,{detail}))}
 }
