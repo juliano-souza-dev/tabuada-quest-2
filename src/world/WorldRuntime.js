@@ -2,7 +2,7 @@ import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./Wor
 import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0348";
 import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0348";
 import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0348";
-import { NAVIGATION_DEFAULTS, computeCameraLookAhead, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0348";
+import { NAVIGATION_DEFAULTS, computeCameraFollowTarget, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0400";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
@@ -896,17 +896,17 @@ export class WorldRuntime {
 
     if(this.mode==="play"){
       const zoom=this.playZoom;
-      const halfW=Math.min(this.config.width/2,vw/(2*zoom));
-      const halfH=Math.min(this.config.height/2,vh/(2*zoom));
-      const lookAhead=computeCameraLookAhead(this.player.vx,this.player.vy,{
-        maxSpeed:NAVIGATION_DEFAULTS.maxSpeed,
-        maxDistance:NAVIGATION_DEFAULTS.cameraLookAheadDistance
+      const target=computeCameraFollowTarget(this.player,this.camera,{
+        viewportWidth:vw,
+        viewportHeight:vh,
+        zoom,
+        worldWidth:this.config.width,
+        worldHeight:this.config.height,
+        deadZone:NAVIGATION_DEFAULTS.cameraDeadZone
       });
-      const targetX=clamp(this.player.x+lookAhead.x,halfW,this.config.width-halfW);
-      const targetY=clamp(this.player.y+lookAhead.y,halfH,this.config.height-halfH);
       const factor=immediate?1:expSmoothingFactor(dt,NAVIGATION_DEFAULTS.cameraSharpness);
-      this.camera.x+=(targetX-this.camera.x)*factor;
-      this.camera.y+=(targetY-this.camera.y)*factor;
+      this.camera.x+=(target.x-this.camera.x)*factor;
+      this.camera.y+=(target.y-this.camera.y)*factor;
       this.zoom=zoom;
     }else{
       this.clampEditorCamera();
