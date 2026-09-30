@@ -1,5 +1,5 @@
-import { WorldRuntime } from "./WorldRuntime.js?v=20260930-0620";
-import { SceneRuntime } from "../runtime/SceneRuntime.js?v=20260930-0620";
+import { WorldRuntime } from "./WorldRuntime.js?v=20260930-0718";
+import { SceneRuntime } from "../runtime/SceneRuntime.js?v=20260930-0718";
 
 export async function launchWorldTest(root,{worldId="ocean-prototype"}={}){
   const catalogResponse=await fetch("./src/config/world-catalog.json?v=20260930-0718",{cache:"no-store"});
