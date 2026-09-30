@@ -21,6 +21,25 @@ export class PlayerStateStore extends EventTarget {
     return this.keyPrefix+"."+String(uid||"").trim();
   }
 
+  metaKey(uid){
+    return this.accountKey(uid)+".meta";
+  }
+
+  readMeta(uid){
+    try{return JSON.parse(this.storage?.getItem?.(this.metaKey(uid))||"{}")||{}}catch{return {}}
+  }
+
+  writeMeta(uid,patch={}){
+    if(!uid)return;
+    const next={...this.readMeta(uid),...patch};
+    try{this.storage?.setItem?.(this.metaKey(uid),JSON.stringify(next))}catch{}
+  }
+
+  hasPendingLocal(){
+    const auth=this.auth.status();
+    return Boolean(auth.uid&&this.readMeta(auth.uid).pendingSync);
+  }
+
   status(){
     const auth=this.auth.status();
     return Object.freeze({
@@ -57,6 +76,7 @@ export class PlayerStateStore extends EventTarget {
     if(!auth.authenticated||!auth.uid)return state;
     const payload=JSON.stringify(state);
     try{this.storage?.setItem?.(this.accountKey(auth.uid),payload)}catch{}
+    this.writeMeta(auth.uid,{updatedAt:Date.now(),pendingSync:Boolean(sync)});
     if(sync)this.scheduleSync();
     return state;
   }
@@ -66,6 +86,7 @@ export class PlayerStateStore extends EventTarget {
     if(!auth.uid)return false;
     try{
       this.storage?.removeItem?.(this.accountKey(auth.uid));
+      this.storage?.removeItem?.(this.metaKey(auth.uid));
       return true;
     }catch{return false}
   }
@@ -127,6 +148,7 @@ export class PlayerStateStore extends EventTarget {
 
     const state=this.load();
     if(!state)return {ok:false,code:"local_state_empty"};
+    const localMeta=this.readMeta(auth.uid);
 
     try{
       const token=await this.auth.ensureFreshToken();
@@ -141,13 +163,14 @@ export class PlayerStateStore extends EventTarget {
         body:JSON.stringify({
           fields:{
             payload:{stringValue:JSON.stringify(state)},
-            deviceUpdatedAt:{integerValue:String(Date.now())},
+            deviceUpdatedAt:{integerValue:String(Number(localMeta.updatedAt)||Date.now())},
             clientSyncedAt:{timestampValue:new Date().toISOString()}
           }
         })
       });
 
       const result={ok:response.ok,code:response.ok?"synced":"sync_pending"};
+      if(response.ok)this.writeMeta(auth.uid,{pendingSync:false,lastSyncedAt:Date.now()});
       this.emit("sync",result);
       return result;
     }catch{
