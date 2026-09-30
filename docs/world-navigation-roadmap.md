@@ -15,6 +15,7 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ✅ Limite de velocidade máxima.
 - ✅ Normalização diagonal para impedir ganho de velocidade em diagonal.
 - ✅ Movimento baseado em deltaTime.
+- ✅ Contra-comando responsivo: pressionar a direção oposta cancela imediatamente o momentum daquele eixo, sem remover a inércia ao soltar os controles.
 - ✅ Rotação suave do navio para a direção do movimento usando interpolação pelo menor ângulo e deltaTime.
 - ✅ Câmera com seguimento suave e look-ahead proporcional à velocidade, com retorno amortecido ao centro.
 - ⬜ Colisão suave com bordas e obstáculos, incluindo quique amortecido e deslizamento pela superfície.
