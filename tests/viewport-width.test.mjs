@@ -130,3 +130,13 @@ test("committed scene backgrounds explicitly declare viewport-cover", async () =
     }
   }
 });
+
+
+test("DEV toolbar remains horizontally reachable on narrow viewports", async () => {
+  const css = await readFile(join(root, "src", "styles", "app.css"), "utf8");
+  assert.match(css, /\.tq-dev\{[^}]*max-width:calc\(100vw - 12px\)/);
+  assert.match(css, /\.tq-dev__bar\{[^}]*overflow-x:auto/);
+  assert.match(css, /\.tq-dev__bar>button\{flex:0 0 auto\}/);
+  assert.match(css, /\[data-drag\]\{position:sticky;left:0/);
+  assert.match(css, /\[data-collapse\]\{position:sticky;right:0/);
+});
