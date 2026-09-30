@@ -1,8 +1,8 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0342";
-import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0342";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0305";
-import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0305";
-import { NAVIGATION_DEFAULTS, computeCameraLookAhead, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0305";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0348";
+import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0348";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0348";
+import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0348";
+import { NAVIGATION_DEFAULTS, computeCameraLookAhead, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0348";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
@@ -472,10 +472,19 @@ export class WorldRuntime {
     let pinch=null;
     const pointers=new Map();
 
+    const pointerValues=()=>[...pointers.values()];
     const pointerDistance=()=>{
-      const values=[...pointers.values()];
+      const values=pointerValues();
       if(values.length<2)return 0;
       return Math.hypot(values[1].x-values[0].x,values[1].y-values[0].y);
+    };
+    const pointerCenter=()=>{
+      const values=pointerValues();
+      if(values.length<2)return null;
+      return {
+        x:(values[0].x+values[1].x)/2,
+        y:(values[0].y+values[1].y)/2
+      };
     };
 
     const beginPan=pointer=>{
@@ -488,6 +497,17 @@ export class WorldRuntime {
       };
     };
 
+    const beginPinch=()=>{
+      const center=pointerCenter();
+      if(!center)return;
+      pan=null;
+      pinch={
+        distance:Math.max(1,pointerDistance()),
+        zoom:this.zoom,
+        world:this.editorScreenToWorld(center.x,center.y,this.zoom)
+      };
+    };
+
     const down=event=>{
       if(this.mode!=="edit")return;
       if(event.target.closest?.(".tq-world-entity"))return;
@@ -496,11 +516,7 @@ export class WorldRuntime {
       if(event.pointerType==="touch"){
         pointers.set(event.pointerId,{id:event.pointerId,x:event.clientX,y:event.clientY});
         if(pointers.size>=2){
-          pan=null;
-          pinch={
-            distance:Math.max(1,pointerDistance()),
-            zoom:this.zoom
-          };
+          beginPinch();
         }else{
           beginPan({id:event.pointerId,x:event.clientX,y:event.clientY});
           this.selectEntity(null);
@@ -521,13 +537,11 @@ export class WorldRuntime {
 
         if(pointers.size>=2&&pinch){
           event.preventDefault();
+          const center=pointerCenter();
+          if(!center)return;
           const distance=Math.max(1,pointerDistance());
-          const before=this.zoom;
-          this.zoom=clamp(pinch.zoom*(distance/pinch.distance),.25,1.5);
-          if(Math.abs(before-this.zoom)>.0001){
-            this.clampEditorCamera();
-            this.updateCamera(true);
-          }
+          const next=pinch.zoom*(distance/pinch.distance);
+          this.setEditorZoomAt(next,center.x,center.y,pinch.world);
           return;
         }
       }
@@ -544,12 +558,16 @@ export class WorldRuntime {
     const end=event=>{
       if(event.pointerType==="touch"){
         pointers.delete(event.pointerId);
-        if(pointers.size<2)pinch=null;
-        if(pointers.size===1){
-          const remaining=[...pointers.values()][0];
-          beginPan(remaining);
-        }else if(!pointers.size){
-          pan=null;
+        if(pointers.size>=2){
+          beginPinch();
+        }else{
+          pinch=null;
+          if(pointers.size===1){
+            const remaining=pointerValues()[0];
+            beginPan(remaining);
+          }else{
+            pan=null;
+          }
         }
       }else if(pan?.pointerId===event.pointerId){
         pan=null;
@@ -561,13 +579,8 @@ export class WorldRuntime {
     const wheel=event=>{
       if(this.mode!=="edit")return;
       event.preventDefault();
-      const before=this.zoom;
       const factor=event.deltaY>0?.9:1.1;
-      this.zoom=clamp(this.zoom*factor,.25,1.5);
-      if(Math.abs(before-this.zoom)>.0001){
-        this.clampEditorCamera();
-        this.updateCamera(true);
-      }
+      this.setEditorZoomAt(this.zoom*factor,event.clientX,event.clientY);
     };
 
     this.viewport.addEventListener("pointerdown",down);
@@ -733,6 +746,44 @@ export class WorldRuntime {
   resize(){
     const rect=this.viewport.getBoundingClientRect();
     this.viewportSize={width:rect.width,height:rect.height};
+    if(this.mode==="edit")this.zoom=this.clampEditorZoom(this.zoom);
+    this.clampEditorCamera();
+    this.updateCamera(true);
+  }
+
+  editorMinZoom(){
+    if(!this.viewportSize)return .25;
+    const cover=Math.max(
+      this.viewportSize.width/Math.max(1,this.config.width),
+      this.viewportSize.height/Math.max(1,this.config.height)
+    );
+    return clamp(cover,.25,1.5);
+  }
+
+  clampEditorZoom(value){
+    return clamp(Number(value)||.58,this.editorMinZoom(),1.5);
+  }
+
+  editorScreenToWorld(clientX,clientY,zoom=this.zoom){
+    const rect=this.viewport.getBoundingClientRect();
+    const safeZoom=Math.max(.1,Number(zoom)||1);
+    return {
+      x:this.camera.x+(clientX-rect.left-rect.width/2)/safeZoom,
+      y:this.camera.y+(clientY-rect.top-rect.height/2)/safeZoom
+    };
+  }
+
+  setEditorZoomAt(value,clientX,clientY,anchorWorld=null){
+    if(this.mode!=="edit"||!this.viewportSize)return;
+    const rect=this.viewport.getBoundingClientRect();
+    const anchor=anchorWorld||this.editorScreenToWorld(clientX,clientY,this.zoom);
+    const next=this.clampEditorZoom(value);
+    const offsetX=clientX-rect.left-rect.width/2;
+    const offsetY=clientY-rect.top-rect.height/2;
+
+    this.zoom=next;
+    this.camera.x=anchor.x-offsetX/next;
+    this.camera.y=anchor.y-offsetY/next;
     this.clampEditorCamera();
     this.updateCamera(true);
   }
