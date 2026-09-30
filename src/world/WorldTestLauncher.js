@@ -1,8 +1,15 @@
 import { WorldRuntime } from "./WorldRuntime.js?v=20260930-0620";
 import { SceneRuntime } from "../runtime/SceneRuntime.js?v=20260930-0620";
 
-export async function launchWorldTest(root){
-  const response=await fetch("./src/world/world-test.world.json?v=20260930-0620",{cache:"no-store"});
+export async function launchWorldTest(root,{worldId="ocean-prototype"}={}){
+  const catalogResponse=await fetch("./src/config/world-catalog.json?v=20260930-0718",{cache:"no-store"});
+  if(!catalogResponse.ok)throw new Error("World catalog failed: "+catalogResponse.status);
+  const catalog=await catalogResponse.json();
+  const entry=(catalog.worlds||[]).find(item=>item.id===worldId)
+    ||(catalog.worlds||[]).find(item=>item.id==="ocean-prototype");
+  if(!entry?.path)throw new Error("World test not found: "+worldId);
+
+  const response=await fetch(entry.path+"?v=20260930-0718",{cache:"no-store"});
   if(!response.ok)throw new Error("World test config failed: "+response.status);
   const config=await response.json();
 
@@ -22,7 +29,8 @@ export async function launchWorldTest(root){
     globalThis.TabuadaQuest={
       ...(globalThis.TabuadaQuest||{}),
       world,
-      worldTest:true
+      worldTest:true,
+      worldTestId:config.id
     };
   };
 
