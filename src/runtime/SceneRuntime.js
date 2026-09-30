@@ -1,5 +1,5 @@
-import { createCompositionEngine } from "./composition/registry.js?v=20260930-0228";
-import { computeViewportMetrics, enforceViewportBackgroundLayout, resolveViewportNodeLayout } from "./layout/ViewportLayout.mjs?v=20260930-0228";
+import { createCompositionEngine } from "./composition/registry.js?v=20260930-0250";
+import { computeViewportMetrics, enforceViewportBackgroundLayout, resolveViewportNodeLayout } from "./layout/ViewportLayout.mjs?v=20260930-0250";
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
