@@ -1,6 +1,6 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0148";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0148";
-import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0148";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0615";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0615";
+import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0615";
 import { normalizeJoystickVector, screenPointToWorld, targetNavigationVector } from "./WorldNavigationInput.mjs?v=20260930-0615";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
