@@ -1,4 +1,4 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0205";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0213";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
@@ -707,10 +707,12 @@ export class DevOverlay {
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Transformação</strong><span>▾</span></button><div class="tq-config-area__body">'+
           num("x","Position X")+num("y","Position Y")+
           num("width","Width",16,2400)+num("height","Height",16,2400)+
-          '<label class="tq-field tq-field--check"><span>Manter proporção</span><input data-world-prop="lockAspect" type="checkbox" '+(entity.lockAspect!==false?'checked':'')+'></label>'+
+          num("scaleX","Scale X",.05,20,.05)+num("scaleY","Scale Y",.05,20,.05)+
+          num("skewX","Skew X",-75,75,.5)+num("skewY","Skew Y",-75,75,.5)+
+          '<label class="tq-field tq-field--check"><span>Manter proporção nos cantos</span><input data-world-prop="lockAspect" type="checkbox" '+(entity.lockAspect!==false?'checked':'')+'></label>'+
           '<label class="tq-world-motion-range"><span><b>Rotação</b><output data-world-rotation-output>'+Math.round(Number(entity.rotation||0))+'°</output></span><input data-world-prop="rotation" type="range" min="-180" max="180" step="1" value="'+Number(entity.rotation||0)+'"></label>'+
           '<div class="tq-world-transform-actions"><button type="button" data-world-rotate="-90">↶ -90°</button><button type="button" data-world-rotate="0">0°</button><button type="button" data-world-rotate="90">↷ +90°</button></div>'+
-          '<small class="tq-world-editor-note">No canvas: arraste o objeto para mover, o círculo superior para girar e o canto inferior para redimensionar.</small>'+
+          '<small class="tq-world-editor-note">No canvas: arraste para mover; círculo superior = rotação; alças azuis nas 8 bordas/cantos = redimensionar/esticar; alças roxas = Skew X/Y.</small>'+
         '</div></section>'+
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Profundidade / parallax</strong><span>▾</span></button><div class="tq-config-area__body">'+
           '<label class="tq-world-field"><span>Camada</span><select data-depth-prop="depth">'+depthPresets+'</select></label>'+
@@ -750,7 +752,7 @@ export class DevOverlay {
       button.querySelector("span").textContent=body.hidden?"▸":"▾";
     }));
 
-    const numeric=new Set(["x","y","width","height","rotation","interactionRadius"]);
+    const numeric=new Set(["x","y","width","height","scaleX","scaleY","rotation","skewX","skewY","interactionRadius"]);
     const commitWorldProp=input=>{
       const key=input.dataset.worldProp;
       const value=input.type==="checkbox"?input.checked:(numeric.has(key)?Number(input.value):input.value);
