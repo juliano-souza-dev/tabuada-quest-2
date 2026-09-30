@@ -1,6 +1,6 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0148";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0148";
-import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0148";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0205";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0205";
+import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0205";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
@@ -116,6 +116,15 @@ export class WorldRuntime {
     if(!this.entityLayer)return;
     this.entityLayer.replaceChildren();
     this.gizmoEl=null;
+    this.depthLayers=new Map();
+
+    for(const depth of ["far","gameplay","foreground"]){
+      const layer=document.createElement("div");
+      layer.className="tq-world-depth-layer tq-world-depth-layer--"+depth;
+      layer.dataset.depthLayer=depth;
+      this.entityLayer.append(layer);
+      this.depthLayers.set(depth,layer);
+    }
 
     for(const entity of this.entities){
       const presentation=resolveEntityPresentation(entity);
@@ -124,6 +133,7 @@ export class WorldRuntime {
       el.dataset.entityId=entity.id;
       el.dataset.renderMode=presentation.renderMode;
       el.dataset.logicalType=entity.type||"object";
+      el.dataset.depth=presentation.depth;
       el.style.zIndex=String(entity.z??10);
 
       if(presentation.hasSprite){
@@ -134,10 +144,10 @@ export class WorldRuntime {
       }
 
       entity.el=el;
+      this.depthLayerFor(entity)?.append(el);
       this.applyEntityVisual(entity);
       if(this.collected.has(entity.id))el.hidden=true;
       if(this.editorEnabled)this.bindEntityEditing(entity);
-      this.entityLayer.append(el);
     }
 
     this.ensureGizmo();
@@ -146,19 +156,53 @@ export class WorldRuntime {
     this.updateProgress();
   }
 
-  applyEntityVisual(entity){
+  depthLayerFor(entity){
+    const depth=resolveEntityPresentation(entity).depth;
+    return this.depthLayers?.get(depth)||this.depthLayers?.get("gameplay")||this.entityLayer;
+  }
+
+  entityVisualPoint(entity,offsetX=0,offsetY=0){
+    const presentation=resolveEntityPresentation(entity);
+    return computeParallaxPoint({
+      x:Number(entity.x||0)+Number(offsetX||0),
+      y:Number(entity.y||0)+Number(offsetY||0)
+    },this.camera,presentation);
+  }
+
+  applyEntityVisual(entity,frame=entity.motionFrame||null){
     const el=entity.el;
     if(!el)return;
-    el.style.left=entity.x+"px";
-    el.style.top=entity.y+"px";
-    el.style.width=(entity.width||96)+"px";
-    el.style.height=(entity.height||96)+"px";
-    el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)}deg)`;
+    const presentation=resolveEntityPresentation(entity);
+    const point=this.entityVisualPoint(entity,frame?.offsetX||0,frame?.offsetY||0);
+    const visualScale=presentation.scale;
+    const layer=this.depthLayerFor(entity);
+    if(layer&&el.parentElement!==layer)layer.append(el);
+
+    el.dataset.depth=presentation.depth;
+    el.style.left=point.x+"px";
+    el.style.top=point.y+"px";
+    el.style.width=(Number(entity.width||96)*visualScale)+"px";
+    el.style.height=(Number(entity.height||96)*visualScale)+"px";
+    el.style.opacity=String(presentation.opacity);
+    el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)+Number(frame?.rotation||0)}deg) scale(1,${Number(frame?.scaleY||1)})`;
+
     const logicalOnly=el.dataset.renderMode==="logical";
     el.classList.toggle("is-logical-only",logicalOnly);
     el.style.visibility=logicalOnly&&this.mode==="play"?"hidden":"visible";
+
+    const safeSrc=String(entity.src||"").replace(/["\\]/g,"");
+    el.style.setProperty("--entity-mask",safeSrc?'url("'+safeSrc+'")':"none");
+    el.style.setProperty("--entity-tint",presentation.tint);
+    el.style.setProperty("--entity-tint-strength",String(presentation.tintStrength));
+
     const img=el.querySelector("img");
-    if(img&&img.getAttribute("src")!==String(entity.src||""))img.src=entity.src||"";
+    if(img){
+      if(img.getAttribute("src")!==String(entity.src||""))img.src=entity.src||"";
+      const shadowY=(2+presentation.shadow*8).toFixed(2);
+      const shadowBlur=(3+presentation.shadow*8).toFixed(2);
+      const shadowAlpha=(0.08+presentation.shadow*.5).toFixed(3);
+      img.style.filter=`blur(${presentation.blur}px) drop-shadow(0 ${shadowY}px ${shadowBlur}px rgba(0,18,34,${shadowAlpha}))`;
+    }
   }
 
   ensureGizmo(){
@@ -225,8 +269,10 @@ export class WorldRuntime {
           entity.height=clamp(startHeight*scale,16,2400);
         }else{
           const zoom=Math.max(.1,this.zoom||1);
-          const dx=(e.clientX-start.x)/zoom;
-          const dy=(e.clientY-start.y)/zoom;
+          const presentation=resolveEntityPresentation(entity);
+          const visualScale=Math.max(.1,presentation.scale||1);
+          const dx=(e.clientX-start.x)/(zoom*visualScale);
+          const dy=(e.clientY-start.y)/(zoom*visualScale);
           const localX=dx*Math.cos(-startAngle)-dy*Math.sin(-startAngle);
           const localY=dx*Math.sin(-startAngle)+dy*Math.cos(-startAngle);
           entity.width=clamp(startWidth+localX*2,16,2400);
@@ -259,10 +305,12 @@ export class WorldRuntime {
     gizmo.hidden=!visible;
     if(!visible)return;
 
-    gizmo.style.left=entity.x+"px";
-    gizmo.style.top=entity.y+"px";
-    gizmo.style.width=Math.max(16,Number(entity.width||96))+"px";
-    gizmo.style.height=Math.max(16,Number(entity.height||96))+"px";
+    const presentation=resolveEntityPresentation(entity);
+    const point=this.entityVisualPoint(entity);
+    gizmo.style.left=point.x+"px";
+    gizmo.style.top=point.y+"px";
+    gizmo.style.width=Math.max(16,Number(entity.width||96)*presentation.scale)+"px";
+    gizmo.style.height=Math.max(16,Number(entity.height||96)*presentation.scale)+"px";
     gizmo.style.transform="translate(-50%,-50%) rotate("+Number(entity.rotation||0)+"deg)";
     const size=22/Math.max(.25,this.zoom||1);
     gizmo.style.setProperty("--gizmo-handle-size",size+"px");
@@ -289,8 +337,9 @@ export class WorldRuntime {
 
       const move=e=>{
         const zoom=Math.max(.1,this.zoom||1);
-        entity.x=clamp(start.x+(e.clientX-start.px)/zoom,0,this.config.width);
-        entity.y=clamp(start.y+(e.clientY-start.py)/zoom,0,this.config.height);
+        const parallax=Math.max(.05,resolveEntityPresentation(entity).parallax||1);
+        entity.x=clamp(start.x+(e.clientX-start.px)/(zoom*parallax),0,this.config.width);
+        entity.y=clamp(start.y+(e.clientY-start.py)/(zoom*parallax),0,this.config.height);
         entity.anchorX=entity.x;
         entity.anchorY=entity.y;
         this.applyEntityVisual(entity);
@@ -505,6 +554,27 @@ export class WorldRuntime {
     this.playerEl.style.transform=`translate(-50%,-50%) rotate(${this.player.rotation}deg)`;
   }
 
+  getEntityPresentation(id){
+    const entity=this.entities.find(item=>item.id===id);
+    return entity?structuredClone(resolveEntityPresentation(entity)):null;
+  }
+
+  updateEntityPresentation(id,patch={},commit=true){
+    const entity=this.entities.find(item=>item.id===id);
+    if(!entity)return null;
+    const current=resolveEntityPresentation(entity);
+    const visual={depth:current.depth,parallax:current.parallax,scale:current.scale,opacity:current.opacity,blur:current.blur,tint:current.tint,tintStrength:current.tintStrength,shadow:current.shadow};
+    entity.presentation=patch.depth&&patch.depth!==current.depth
+      ? applyDepthPreset(visual,patch.depth)
+      : normalizeDepthPresentation({...visual,...structuredClone(patch)});
+    this.applyEntityVisual(entity,entity.motionFrame||null);
+    this.syncGizmo();
+    const clean=this.getEntity(id);
+    this.onSelectionChange?.(clean);
+    this.onEntityChange?.(clean,commit);
+    return structuredClone(entity.presentation);
+  }
+
   getEntityMotion(id){
     const entity=this.entities.find(item=>item.id===id);
     if(!entity)return null;
@@ -530,14 +600,10 @@ export class WorldRuntime {
     for(const entity of this.entities){
       if(this.collected.has(entity.id)||!entity.el)continue;
       const motion=this.getEntityMotion(entity.id);
-      if(!motion?.active){
-        this.applyEntityVisual(entity);
-        continue;
-      }
-      const frame=computeEntityMotionFrame(motion,time,(entity.index+1)*1.71,entity.type);
-      entity.el.style.left=(entity.x+frame.offsetX)+"px";
-      entity.el.style.top=(entity.y+frame.offsetY)+"px";
-      entity.el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)+frame.rotation}deg) scale(1,${frame.scaleY})`;
+      entity.motionFrame=motion?.active
+        ? computeEntityMotionFrame(motion,time,(entity.index+1)*1.71,entity.type)
+        : null;
+      this.applyEntityVisual(entity,entity.motionFrame);
     }
   }
 
@@ -564,6 +630,7 @@ export class WorldRuntime {
     const tx=Math.round(vw/2-this.camera.x*zoom);
     const ty=Math.round(vh/2-this.camera.y*zoom);
     this.stage.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${zoom})`;
+    for(const entity of this.entities)this.applyEntityVisual(entity,entity.motionFrame||null);
     this.syncGizmo();
   }
 
@@ -616,7 +683,7 @@ export class WorldRuntime {
   }
 
   cleanEntity(entity){
-    const {el,index,anchorX,anchorY,...data}=entity;
+    const {el,index,anchorX,anchorY,motionFrame,...data}=entity;
     return data;
   }
 
