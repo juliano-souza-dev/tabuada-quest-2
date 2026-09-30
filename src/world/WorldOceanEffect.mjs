@@ -105,8 +105,8 @@ export function computeOceanFrame(input={},timeMs=0,camera={x:0,y:0}){
   const basePxPerSecond=ocean.speed*0.42;
   const swellAmount=(ocean.swell/100)*0.016;
   const swellPhase=t*(0.42+ocean.speed/180);
-  const scale=1+swellAmount*(0.5+0.5*Math.sin(swellPhase));
-  const brightness=ocean.brightness+Math.sin(t*0.7)*(ocean.swell/100)*2;
+  const scale=ocean.active?1+swellAmount*(0.5+0.5*Math.sin(swellPhase)):1;
+  const brightness=ocean.active?ocean.brightness+Math.sin(t*0.7)*(ocean.swell/100)*2:ocean.brightness;
 
   const layerFrame=layer=>{
     if(!ocean.active)return {offsetX:-camX*layer.parallax,offsetY:-camY*layer.parallax};
