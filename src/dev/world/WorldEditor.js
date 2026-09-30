@@ -190,6 +190,16 @@ export class WorldEditor {
     return this.runtime?.getOcean()||null;
   }
 
+  getPlayerConfig(){
+    return this.runtime?.getPlayerConfig()||null;
+  }
+
+  updatePlayerConfig(patch,commit=true){
+    const player=this.runtime?.updatePlayerConfig(patch)||null;
+    if(commit){this.persist();this.emitWorldChange()}
+    return player;
+  }
+
   suspend(){
     if(!this.active||!this.host)return;
     this.persist();
