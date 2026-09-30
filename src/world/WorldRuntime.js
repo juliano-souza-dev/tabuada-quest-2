@@ -785,6 +785,27 @@ export class WorldRuntime {
     return structuredClone(normalizeOceanConfig(this.config.ocean||{}));
   }
 
+  getPlayerConfig(){
+    return structuredClone(this.config.player||{});
+  }
+
+  updatePlayerConfig(patch={}){
+    const next={...(this.config.player||{}),...structuredClone(patch)};
+    if(patch.directions){
+      next.directions={...(this.config.player?.directions||{}),...structuredClone(patch.directions)};
+    }
+    if(patch.width!==undefined)next.width=clamp(Number(patch.width)||108,24,1200);
+    if(patch.height!==undefined)next.height=clamp(Number(patch.height)||150,24,1200);
+    if(patch.direction!==undefined)next.direction=String(patch.direction||"n").toLowerCase();
+
+    this.config.player=next;
+    if(next.width)this.playerEl.style.width=next.width+"px";
+    if(next.height)this.playerEl.style.height=next.height+"px";
+    if(next.direction)this.player.direction=next.direction;
+    this.updatePlayerVisual();
+    return this.getPlayerConfig();
+  }
+
   updateWorld(patch={},commit=true){
     if(patch.name!==undefined)this.config.name=String(patch.name||this.config.id||"Mundo");
     if(patch.width!==undefined)this.config.width=clamp(Number(patch.width)||390,390,20000);
