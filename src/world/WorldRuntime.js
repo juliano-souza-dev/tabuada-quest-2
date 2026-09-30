@@ -1,3 +1,4 @@
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0050";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
@@ -5,6 +6,7 @@ export class WorldRuntime {
   constructor(root,config,options={}){
     this.root=root;
     this.config=structuredClone(config);
+    this.config.ocean=normalizeOceanConfig(this.config.ocean||{});
     this.editorEnabled=options.editorEnabled===true;
     this.mode=this.editorEnabled?"edit":"play";
     this.onEnterScene=options.onEnterScene||null;
@@ -86,9 +88,11 @@ export class WorldRuntime {
     this.nameEl=this.host.querySelector("[data-world-name]");
     this.actionWrap=this.host.querySelector(".tq-world-action");
     this.actionButton=this.host.querySelector("[data-world-action]");
+    this.oceanEl=this.host.querySelector(".tq-world-ocean");
 
     this.stage.style.width=this.config.width+"px";
     this.stage.style.height=this.config.height+"px";
+    this.applyOceanStatic();
     this.playerEl.src=this.config.player?.src||"";
     this.nameEl.textContent=this.config.name||this.config.id||"Mundo";
 
@@ -483,6 +487,62 @@ export class WorldRuntime {
     return data;
   }
 
+  getOcean(){
+    return structuredClone(normalizeOceanConfig(this.config.ocean||{}));
+  }
+
+  updateWorld(patch={},commit=true){
+    if(patch.name!==undefined)this.config.name=String(patch.name||this.config.id||"Mundo");
+    if(patch.width!==undefined)this.config.width=clamp(Number(patch.width)||390,390,20000);
+    if(patch.height!==undefined)this.config.height=clamp(Number(patch.height)||844,844,20000);
+    if(this.stage){
+      this.stage.style.width=this.config.width+"px";
+      this.stage.style.height=this.config.height+"px";
+    }
+    this.player.x=clamp(this.player.x,55,this.config.width-55);
+    this.player.y=clamp(this.player.y,70,this.config.height-70);
+    for(const entity of this.entities){
+      entity.x=clamp(Number(entity.x||0),0,this.config.width);
+      entity.y=clamp(Number(entity.y||0),0,this.config.height);
+      entity.anchorX=entity.x;
+      entity.anchorY=entity.y;
+      this.applyEntityVisual(entity);
+    }
+    this.clampEditorCamera();
+    this.updateCamera(true);
+    if(this.nameEl)this.nameEl.textContent=this.config.name||this.config.id||"Mundo";
+    return this.getWorld();
+  }
+
+  updateOcean(patch={}){
+    const current=this.config.ocean||{};
+    const preset=patch.preset;
+    const base=preset&&preset!==current.preset?applyOceanPreset(current,preset):current;
+    this.config.ocean=normalizeOceanConfig({...base,...structuredClone(patch)});
+    this.applyOceanStatic();
+    return this.getOcean();
+  }
+
+  applyOceanStatic(){
+    if(!this.oceanEl)return;
+    const ocean=normalizeOceanConfig(this.config.ocean||{});
+    this.config.ocean=ocean;
+    const safeBackground=String(ocean.background||"").replace(/["\\]/g,"");
+    this.oceanEl.style.backgroundImage=safeBackground?'url("'+safeBackground+'")':"none";
+    this.oceanEl.style.backgroundSize=ocean.tileSize+"px auto";
+    this.oceanEl.style.backgroundRepeat="repeat";
+    this.oceanEl.style.transformOrigin="center center";
+  }
+
+  updateOceanFrame(time){
+    if(!this.oceanEl)return;
+    const ocean=normalizeOceanConfig(this.config.ocean||{});
+    const frame=computeOceanFrame(ocean,time);
+    this.oceanEl.style.backgroundPosition=frame.offsetX.toFixed(2)+"px "+frame.offsetY.toFixed(2)+"px";
+    this.oceanEl.style.transform="scale("+frame.scale.toFixed(5)+")";
+    this.oceanEl.style.filter="brightness("+frame.brightness.toFixed(2)+"%) saturate("+frame.saturation+"%)";
+  }
+
   getWorld(){
     const world=structuredClone(this.config);
     world.entities=this.entities.map(entity=>structuredClone(this.cleanEntity(entity)));
@@ -583,6 +643,7 @@ export class WorldRuntime {
     this.lastTime=time;
     if(this.mode==="play")this.updatePlayer(dt);
     this.updatePlayerVisual();
+    this.updateOceanFrame(time);
     this.updateFloating(time);
     this.updateCamera();
     this.updateNearby();
