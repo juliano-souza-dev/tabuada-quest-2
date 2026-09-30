@@ -69,6 +69,7 @@ export class WorldRuntime {
         <span data-world-name></span>
         <span data-world-coords></span>
         <span data-world-progress></span>
+        <span data-world-direction></span>
         <span data-world-zoom></span>
       </section>
       <div class="tq-world-action" hidden>
@@ -93,6 +94,7 @@ export class WorldRuntime {
     this.joystickThumbEl=this.host.querySelector("[data-world-joystick-thumb]");
     this.coordsEl=this.host.querySelector("[data-world-coords]");
     this.progressEl=this.host.querySelector("[data-world-progress]");
+    this.directionEl=this.host.querySelector("[data-world-direction]");
     this.zoomEl=this.host.querySelector("[data-world-zoom]");
     this.modeEl=this.host.querySelector("[data-world-mode]");
     this.nameEl=this.host.querySelector("[data-world-name]");
@@ -955,6 +957,7 @@ export class WorldRuntime {
       const target=this.mode==="edit"?this.camera:this.player;
       this.coordsEl.textContent=`x ${Math.round(target.x)} · y ${Math.round(target.y)}`;
     }
+    if(this.directionEl)this.directionEl.textContent=this.config.player?.directions?`Direção: ${String(this.player.direction||"n").toUpperCase()}`:"";
     if(this.zoomEl)this.zoomEl.textContent=this.mode==="edit"?`zoom ${Math.round(this.zoom*100)}%`:"";
 
     this.raf=requestAnimationFrame(t=>this.tick(t));
