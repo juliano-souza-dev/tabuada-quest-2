@@ -1,4 +1,4 @@
-import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0110";
+import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0148";
 
 export class WorldEditor {
   constructor(root,{sceneRuntime}={}){
@@ -112,7 +112,12 @@ export class WorldEditor {
     }else if(path.includes("/ships/")){
       type="ship";width=110;height=150;extra={motion:{active:true,preset:"navigation",speed:55,heave:46,pitch:42,roll:24,sway:14}};
     }else if(path.includes("/backgrounds/")){
-      type="location";width=280;height=190;extra={interactionRadius:230,motion:{active:false,preset:"none",speed:50,heave:0,pitch:0,roll:0,sway:0}};
+      type="location";width=280;height=190;extra={
+        renderMode:"sprite",
+        showLabel:false,
+        interactionRadius:230,
+        motion:{active:false,preset:"none",speed:50,heave:0,pitch:0,roll:0,sway:0}
+      };
     }
 
     const entity=this.runtime.addEntity({
