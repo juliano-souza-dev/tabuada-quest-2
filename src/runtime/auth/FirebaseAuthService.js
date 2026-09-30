@@ -79,8 +79,11 @@ export class FirebaseAuthService extends EventTarget {
       this.emit("auth_required",false);
     }
 
-    globalThis.addEventListener?.("online",()=>this.ensureFreshToken().catch(()=>{}));
-    this.preloadGoogleIdentity();
+    globalThis.addEventListener?.("online",()=>{
+      this.ensureFreshToken().catch(()=>{});
+      this.preloadGoogleIdentity();
+    });
+    if(globalThis.navigator?.onLine!==false)this.preloadGoogleIdentity();
     return this.status();
   }
 
@@ -92,13 +95,11 @@ export class FirebaseAuthService extends EventTarget {
     if(globalThis.google?.accounts?.oauth2)return Promise.resolve();
     if(this.googleScriptPromise)return this.googleScriptPromise;
 
-    this.googleScriptPromise=new Promise((resolve,reject)=>{
+    const attempt=new Promise((resolve,reject)=>{
       const existing=document.querySelector('script[data-tq-google-identity="true"]');
       if(existing){
         if(globalThis.google?.accounts?.oauth2){resolve();return}
-        existing.addEventListener("load",resolve,{once:true});
-        existing.addEventListener("error",reject,{once:true});
-        return;
+        existing.remove();
       }
 
       const script=document.createElement("script");
@@ -107,10 +108,17 @@ export class FirebaseAuthService extends EventTarget {
       script.defer=true;
       script.dataset.tqGoogleIdentity="true";
       script.addEventListener("load",resolve,{once:true});
-      script.addEventListener("error",()=>reject(new Error("google_sign_in_unavailable")),{once:true});
+      script.addEventListener("error",()=>{
+        script.remove();
+        reject(new Error("google_sign_in_unavailable"));
+      },{once:true});
       document.head.append(script);
     });
 
+    this.googleScriptPromise=attempt.catch(error=>{
+      this.googleScriptPromise=null;
+      throw error;
+    });
     return this.googleScriptPromise;
   }
 
