@@ -15,8 +15,8 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ✅ Limite de velocidade máxima.
 - ✅ Normalização diagonal para impedir ganho de velocidade em diagonal.
 - ✅ Movimento baseado em deltaTime.
-- 🟡 Rotação do navio para a direção do movimento. A direção já é calculada, mas ainda falta interpolação suave pelo menor ângulo.
-- 🟡 Câmera com seguimento suave. O lerp já existe, mas ainda falta look-ahead baseado na velocidade.
+- ✅ Rotação suave do navio para a direção do movimento usando interpolação pelo menor ângulo e deltaTime.
+- ✅ Câmera com seguimento suave e look-ahead proporcional à velocidade, com retorno amortecido ao centro.
 - ⬜ Colisão suave com bordas e obstáculos, incluindo quique amortecido e deslizamento pela superfície.
 - ⬜ Correntes marítimas e vento aplicando força física ao navio.
 - ⬜ Joystick analógico no touch, mantendo teclado e controles alternativos.
@@ -85,8 +85,8 @@ Os presets do mundo seguem os mesmos perfis conceituais do navio de cena: calm, 
 
 ## Próximo pacote recomendado: Ship Navigation V2
 
-1. Rotação suave usando o menor caminho angular.
-2. Camera look-ahead proporcional à velocidade.
+1. ✅ Rotação suave usando o menor caminho angular.
+2. ✅ Camera look-ahead proporcional à velocidade.
 3. Colisão amortecida com bordas e obstáculos.
 4. Corrente marítima como força física.
 5. Joystick analógico para touch.
