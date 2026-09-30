@@ -803,6 +803,9 @@ export class WorldRuntime {
     const maxSpeed=NAVIGATION_DEFAULTS.maxSpeed;
     const drag=Math.pow(0.0008,dt);
 
+    this.player.vx=applyCounterSteer(this.player.vx,input.x);
+    this.player.vy=applyCounterSteer(this.player.vy,input.y);
+
     this.player.vx=(this.player.vx+input.x*accel*dt)*drag;
     this.player.vy=(this.player.vy+input.y*accel*dt)*drag;
 
