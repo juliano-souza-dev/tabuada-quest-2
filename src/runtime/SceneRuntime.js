@@ -1,4 +1,5 @@
-import { createCompositionEngine } from "./composition/registry.js?v=20260930-0018";
+import { createCompositionEngine } from "./composition/registry.js?v=20260930-0020";
+import { computeViewportMetrics, enforceViewportBackgroundLayout, resolveViewportNodeLayout } from "./layout/ViewportLayout.mjs?v=20260930-0020";
 export class SceneRuntime {
   constructor(root, reference={width:390,height:844}, options={}) {
     this.root=root; this.reference=reference; this.editorEnabled=options.editorEnabled===true; this.mode=this.editorEnabled?"edit":"play";
@@ -16,13 +17,11 @@ export class SceneRuntime {
   }
   fit(){
     const r=this.stageHost.getBoundingClientRect();
-    // The reference is a coordinate system, not the physical game boundary.
-    // Keep canonical content at a contain scale while the actual stage fills the entire viewport.
-    // This prevents desktop/tablet widths from inflating game nodes into giant UI.
-    this.viewportScale=Math.min(r.width/this.reference.width,r.height/this.reference.height);
-    this.viewportScale=Math.max(this.viewportScale,0.01);
-    this.logicalViewport={width:r.width/this.viewportScale,height:r.height/this.viewportScale};
-    this.sceneOffset={x:(this.logicalViewport.width-this.reference.width)/2,y:(this.logicalViewport.height-this.reference.height)/2};
+    // 390x844 is a coordinate system, never a physical screen boundary.
+    const metrics=computeViewportMetrics(r,this.reference);
+    this.viewportScale=metrics.viewportScale;
+    this.logicalViewport=metrics.logicalViewport;
+    this.sceneOffset=metrics.sceneOffset;
     this.stage.style.width=this.logicalViewport.width+"px"; this.stage.style.height=this.logicalViewport.height+"px";
     this.stage.style.transform=`translate(-50%,-50%) scale(${this.viewportScale})`;
     if(this.nodes?.size){
@@ -31,30 +30,11 @@ export class SceneRuntime {
   }
 
   resolveNodeLayout(node){
-    const ox=this.sceneOffset?.x||0,oy=this.sceneOffset?.y||0;
-    const baseWidth=Math.max(1,Number(node.width??1));
-    const baseHeight=Math.max(1,Number(node.height??1));
-    if(node.layout?.mode!=="viewport-cover"){
-      return {x:node.x+ox,y:node.y+oy,width:baseWidth,height:baseHeight};
-    }
-
-    const viewportWidth=Math.max(1,this.logicalViewport?.width||this.reference.width);
-    const viewportHeight=Math.max(1,this.logicalViewport?.height||this.reference.height);
-    const coverScale=Math.max(viewportWidth/baseWidth,viewportHeight/baseHeight);
-    const authoredCenterX=node.x+baseWidth/2;
-    const authoredCenterY=node.y+baseHeight/2;
-    const referenceCenterX=this.reference.width/2;
-    const referenceCenterY=this.reference.height/2;
-    const offsetX=(authoredCenterX-referenceCenterX)*coverScale;
-    const offsetY=(authoredCenterY-referenceCenterY)*coverScale;
-    const width=baseWidth*coverScale;
-    const height=baseHeight*coverScale;
-    return {
-      x:viewportWidth/2+offsetX-width/2,
-      y:viewportHeight/2+offsetY-height/2,
-      width,
-      height
-    };
+    return resolveViewportNodeLayout(node,{
+      reference:this.reference,
+      logicalViewport:this.logicalViewport,
+      sceneOffset:this.sceneOffset
+    });
   }
   async load(url){
     const res=await fetch(url,{cache:"no-store"}); if(!res.ok)throw new Error(`Scene load failed: ${res.status}`);
@@ -100,9 +80,7 @@ export class SceneRuntime {
     node.rotation=Number(node.rotation??0); node.skewX=Number(node.skewX??0); node.skewY=Number(node.skewY??0); node.z=Number(node.z??0); node.visible=node.visible!==false; node.locked=Boolean(node.locked);
     if(node.compositionType!=null)node.compositionType=String(node.compositionType);
     if(node.action!=null)node.action=String(node.action);
-    const src=String(node.src||"");
-    const isBackgroundAsset=node.kind==="image"&&(src.startsWith("./assets/backgrounds/")||String(node.id||"").endsWith(".background"));
-    if(isBackgroundAsset&&node.layout?.mode==null)node.layout={...(node.layout||{}),mode:"viewport-cover"};
+    enforceViewportBackgroundLayout(node);
     return node;
   }
   createNode(raw){
