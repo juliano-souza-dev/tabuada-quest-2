@@ -121,3 +121,9 @@
 .tq-scenes__create-error button{padding:2px 4px!important;color:#8fdcff!important;text-decoration:underline}
 .tq-scenes__empty{padding:28px 12px;text-align:center;color:#bcd0df;opacity:.72;font-size:12px}
 @media(min-width:800px){.tq-dev__scenes{left:50%;right:auto;top:72px;bottom:18px;width:min(560px,calc(100vw - 36px));transform:translateX(-50%);border-radius:16px}}
+
+
+/* Runtime actions are data-driven scene behavior, independent of visual composition. */
+.tq-stage[data-mode="play"] .tq-node.is-action{cursor:pointer}
+.tq-stage[data-mode="play"] .tq-node.is-action:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.tq-stage[data-mode="play"] .tq-node.is-action-busy{opacity:.72;cursor:progress}
