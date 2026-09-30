@@ -875,6 +875,7 @@ export class DevOverlay {
   }
   toggleAssets(show){
     const panel=this.el.querySelector(".tq-dev__assets");panel.hidden=!show;
+    if(!show)this.assetPickTarget=null;
     if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.el.querySelector(".tq-dev__worlds").hidden=true;this.renderAssets()}
   }
   openWorldPlayerAssetPicker(direction){
