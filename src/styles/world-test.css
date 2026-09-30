@@ -101,3 +101,70 @@
 .tq-world-motion-range output{min-width:48px;padding:4px 7px;border:1px solid rgba(255,255,255,.14);border-radius:7px;background:#102535;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
 .tq-world-motion-range input[type=range]{width:100%;padding:0;border:0;background:transparent;accent-color:#1a8cff}
 .tq-world-editor-note{display:block;padding:8px;border-radius:8px;background:rgba(255,255,255,.04);color:#9fc6d8;font-size:10px;line-height:1.4}
+
+
+/* Full world asset transform gizmo */
+.tq-world-gizmo__resize,.tq-world-gizmo__skew{
+  position:absolute;
+  width:var(--gizmo-handle-size,22px);
+  height:var(--gizmo-handle-size,22px);
+  min-width:0;
+  min-height:0;
+  padding:0;
+  border:var(--gizmo-line-width,2px) solid #fff!important;
+  box-shadow:0 3px 8px rgba(0,0,0,.55);
+  pointer-events:auto;
+  touch-action:none;
+}
+.tq-world-gizmo__resize{
+  right:auto;
+  bottom:auto;
+  border-radius:50%;
+  background:#1677ff!important;
+  transform:translate(-50%,-50%);
+}
+.tq-world-gizmo__resize--nw{left:0;top:0;cursor:nwse-resize}
+.tq-world-gizmo__resize--n{left:50%;top:0;cursor:ns-resize}
+.tq-world-gizmo__resize--ne{left:100%;top:0;cursor:nesw-resize}
+.tq-world-gizmo__resize--e{left:100%;top:50%;cursor:ew-resize}
+.tq-world-gizmo__resize--se{left:100%;top:100%;cursor:nwse-resize}
+.tq-world-gizmo__resize--s{left:50%;top:100%;cursor:ns-resize}
+.tq-world-gizmo__resize--sw{left:0;top:100%;cursor:nesw-resize}
+.tq-world-gizmo__resize--w{left:0;top:50%;cursor:ew-resize}
+.tq-world-gizmo__skew{
+  border-radius:6px;
+  background:#7b3ff2!important;
+  color:#fff;
+  transform:translate(-50%,-50%);
+  font-weight:900;
+}
+.tq-world-gizmo__skew::after{
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  font-size:calc(var(--gizmo-handle-size,22px) * .56);
+  line-height:1;
+}
+.tq-world-gizmo__skew--x{
+  left:50%;
+  top:calc(100% + var(--gizmo-handle-size,22px) * 1.35);
+  cursor:ew-resize;
+}
+.tq-world-gizmo__skew--x::after{content:"↔"}
+.tq-world-gizmo__skew--y{
+  left:calc(var(--gizmo-handle-size,22px) * -1.35);
+  top:50%;
+  cursor:ns-resize;
+}
+.tq-world-gizmo__skew--y::after{content:"↕"}
+.tq-world-gizmo__rotate::after{
+  content:"↻";
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  color:#fff;
+  font-size:calc(var(--gizmo-handle-size,22px) * .65);
+  font-weight:900;
+}
