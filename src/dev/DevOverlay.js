@@ -2,7 +2,7 @@ import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0732";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
-    this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();
+    this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();this.assetPickTarget=null;
     this.sceneResolver=options.sceneResolver||null;this.sceneCatalog=null;this.localScenes=[];
     this.workspace="scene";this.worldCatalog=null;this.localWorlds=[];this.worldEditor=new WorldEditor(this.runtime.root,{sceneRuntime:this.runtime});this.sceneBeforeWorld=null;this.worldSceneBackButton=null;
     this.localSceneStorageKey="tq.dev.local-scenes:v1";this.localWorldStorageKey="tq.dev.local-worlds:v1";this.sceneGroupStorageKey="tq.dev.scene-groups:v1";
@@ -846,6 +846,35 @@ export class DevOverlay {
     const panel=this.el.querySelector(".tq-dev__assets");panel.hidden=!show;
     if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.el.querySelector(".tq-dev__worlds").hidden=true;this.renderAssets()}
   }
+  openWorldPlayerAssetPicker(direction){
+    if(this.workspace!=="world"||!this.worldEditor?.active)return;
+    this.assetPickTarget={kind:"world-player-direction",direction:String(direction||"n")};
+    if(this.assetNodeIndex.has("assets/ships"))this.assetDirectoryPath="assets/ships";
+    const search=this.el.querySelector("[data-asset-search]");
+    if(search)search.value="";
+    this.toggleAssets(true);
+  }
+
+  applyAssetPick(asset){
+    const target=this.assetPickTarget;
+    if(!target||!asset)return false;
+
+    if(target.kind==="world-player-direction"){
+      const direction=target.direction;
+      const src="./"+asset.path;
+      this.worldEditor.updatePlayerConfig({directions:{[direction]:src},...(direction==="n"?{src}: {})},true);
+      this.syncLocalWorldFromEditor();
+      this.assetPickTarget=null;
+      this.toggleAssets(false);
+      this.setMode("config");
+      this.selected=null;
+      this.renderWorldInspector();
+      return true;
+    }
+
+    return false;
+  }
+
   escapeHtml(value){
     return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
   }
@@ -912,7 +941,9 @@ export class DevOverlay {
     grid.querySelectorAll("[data-asset-dir]").forEach(button=>button.addEventListener("click",()=>this.navigateAssetDirectory(button.dataset.assetDir)));
     grid.querySelectorAll("[data-asset-file]").forEach(button=>button.addEventListener("click",()=>{
       const asset=this.assetByPath.get(button.dataset.assetFile);
-      if(asset)this.insertAsset(asset);
+      if(!asset)return;
+      if(this.assetPickTarget&&this.applyAssetPick(asset))return;
+      this.insertAsset(asset);
     }));
   }
   insertAsset(asset){
