@@ -45,6 +45,8 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 ## World Editor: entidades
 
 - ✅ Inserção de assets como WorldEntity.
+- ✅ Semântica visual desacoplada: reconhecer `location`, `region`, `background` etc. não cria card, borda ou rótulo visual no mundo.
+- ✅ Entidades com sprite são renderizadas como o asset original; o tipo lógico fica apenas nos dados e nas interações.
 - ✅ Seleção e movimentação por drag.
 - ✅ Edição numérica de X e Y.
 - ✅ Edição de largura e altura.
