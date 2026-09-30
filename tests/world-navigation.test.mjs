@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   NAVIGATION_DEFAULTS,
+  applyCounterSteer,
   computeCameraFollowTarget,
   computeCameraLookAhead,
   expSmoothingFactor,
@@ -102,4 +103,17 @@ test("camera dead zone does not move while the ship remains inside it",()=>{
   );
   assert.equal(target.x,1100);
   assert.equal(target.y,1000);
+});
+
+
+test("counter steering cancels momentum on the opposite axis",()=>{
+  assert.equal(applyCounterSteer(-180,1),0);
+  assert.equal(applyCounterSteer(180,-1),0);
+  assert.equal(applyCounterSteer(180,1),180);
+  assert.equal(applyCounterSteer(-180,-1),-180);
+  assert.equal(applyCounterSteer(180,0),180);
+});
+
+test("counter steering may retain configured inertia without reversing intent",()=>{
+  assert.equal(applyCounterSteer(-200,1,{retention:.25}),-50);
 });
