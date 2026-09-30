@@ -639,6 +639,23 @@ export class DevOverlay {
           '<small>'+this.escapeHtml(src?src.split("/").pop():"Selecionar")+'</small>'+
         '</button>';
       }).join("");
+      const layerLabels={deep:"Água profunda",wave:"Cristas / ondas",foam:"Espuma / detalhe"};
+      const layerRange=(layer,key,label,min,max,step)=>{
+        const value=Number(ocean.layers?.[layer]?.[key]??0);
+        return '<label class="tq-world-motion-range"><span><b>'+label+'</b><output data-ocean-layer-output="'+layer+':'+key+'">'+value+'</output></span>'+
+          '<input data-ocean-layer="'+layer+'" data-ocean-layer-prop="'+key+'" type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+value+'"></label>';
+      };
+      const layerCards=Object.entries(layerLabels).map(([layer,label])=>{
+        const data=ocean.layers?.[layer]||{};
+        return '<div class="tq-world-ocean-layer-card"><strong>'+label+'</strong>'+
+          '<label class="tq-world-field"><span>Textura</span><select data-ocean-layer="'+layer+'" data-ocean-layer-prop="background">'+this.worldBackgroundOptions(data.background||ocean.background)+'</select></label>'+
+          layerRange(layer,"parallax","Parallax",0,1,.01)+
+          layerRange(layer,"driftX","Deriva X",-120,120,1)+
+          layerRange(layer,"driftY","Deriva Y",-120,120,1)+
+          layerRange(layer,"tileScale","Escala da camada",.2,2.5,.01)+
+          layerRange(layer,"opacity","Opacidade",0,1,.01)+
+        '</div>';
+      }).join("");
 
       title.textContent=(world.name||world.id)+" · oceano";
       content.innerHTML=
@@ -673,6 +690,10 @@ export class DevOverlay {
             number("swell","Ondulação",0,100,1)+
             '<small class="tq-world-ocean-note">As alterações aparecem imediatamente no oceano. Play usa a mesma configuração.</small>'+
           '</div></section>'+
+          '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Parallax do oceano</strong><span>▾</span></button><div class="tq-config-area__body">'+
+            '<small class="tq-world-editor-note">Navios e entidades ficam em fator 1.0. As três camadas abaixo movem mais devagar que a câmera, criando profundidade.</small>'+
+            layerCards+
+          '</div></section>'+
         '</div>';
 
       content.querySelectorAll("[data-area-toggle]").forEach(button=>button.addEventListener("click",()=>{
@@ -701,6 +722,20 @@ export class DevOverlay {
         this.syncLocalWorldFromEditor();
         this.renderWorldInspector();
       }));
+
+      content.querySelectorAll("[data-ocean-layer-prop]").forEach(input=>{
+        const apply=(commit)=>{
+          const layer=input.dataset.oceanLayer;
+          const key=input.dataset.oceanLayerProp;
+          const value=key==="background"?input.value:Number(input.value);
+          const output=content.querySelector('[data-ocean-layer-output="'+layer+':'+key+'"]');
+          if(output)output.value=String(Math.round(value*100)/100);
+          this.worldEditor.updateOcean({layers:{[layer]:{[key]:value}}},commit);
+          if(commit)this.syncLocalWorldFromEditor();
+        };
+        if(input.type==="range")input.addEventListener("input",()=>apply(false));
+        input.addEventListener("change",()=>apply(true));
+      });
 
       const numeric=new Set(["speed","directionX","directionY","swell","tileSize","brightness","saturation"]);
       content.querySelectorAll("[data-ocean-prop]").forEach(input=>input.addEventListener("change",()=>{
