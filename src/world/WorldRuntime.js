@@ -1,8 +1,8 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0352";
-import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0352";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0352";
-import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0352";
-import { NAVIGATION_DEFAULTS, applyCounterSteer, computeCameraFollowTarget, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0352";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0450";
+import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0450";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0450";
+import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0450";
+import { NAVIGATION_DEFAULTS, applyCounterSteer, computeCameraFollowTarget, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0450";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
