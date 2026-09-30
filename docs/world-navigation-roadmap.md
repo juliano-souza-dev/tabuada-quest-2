@@ -19,7 +19,8 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - 🟡 Câmera com seguimento suave. O lerp já existe, mas ainda falta look-ahead baseado na velocidade.
 - ⬜ Colisão suave com bordas e obstáculos, incluindo quique amortecido e deslizamento pela superfície.
 - ⬜ Correntes marítimas e vento aplicando força física ao navio.
-- ⬜ Joystick analógico no touch, mantendo teclado e controles alternativos.
+- ✅ Joystick analógico no touch, com intensidade proporcional, dead zone e teclado preservado.
+- ✅ Navegação por toque/clique no mundo, com alvo visual e desaceleração na aproximação.
 - ⬜ Tremor de câmera em colisões.
 - ⬜ Som de água que reage à velocidade e rangido de madeira em curvas.
 - ⬜ Reflexo/sombra dinâmica do navio na água.
@@ -89,7 +90,7 @@ Os presets do mundo seguem os mesmos perfis conceituais do navio de cena: calm, 
 2. Camera look-ahead proporcional à velocidade.
 3. Colisão amortecida com bordas e obstáculos.
 4. Corrente marítima como força física.
-5. Joystick analógico para touch.
+5. ✅ Joystick analógico para touch + navegação por clique.
 6. Esteira ligada à velocidade do navio.
 7. Parallax por camada.
 8. Áudio reativo à navegação.
@@ -99,3 +100,14 @@ A regra arquitetural continua sendo:
 WORLD coordinates != SCENE coordinates != UI coordinates
 
 O mundo não deve transformar 390x844 em limite físico. A referência de cena continua sendo apenas um sistema de coordenadas canônico.
+
+
+## Implementação segura após checkpoint
+
+O pacote de joystick analógico + navegação por clique foi implementado a partir do checkpoint seguro `66e36ac541f30106e4d5796f70708cfa4484d6e2`, sem reintroduzir o pacote posterior de parallax.
+
+- Joystick: vetor analógico contínuo, intensidade proporcional e dead zone.
+- Teclado: WASD e setas continuam disponíveis.
+- Clique/toque: converte coordenadas da tela para o mundo respeitando câmera, zoom e margens navegáveis.
+- Prioridade: teclado/joystick cancelam um alvo de clique em andamento.
+- Aproximação: a força reduz perto do destino para evitar oscilações grandes.
