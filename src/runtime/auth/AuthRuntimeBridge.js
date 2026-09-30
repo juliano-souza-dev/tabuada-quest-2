@@ -23,6 +23,11 @@ export async function installAuthRuntime(runtime,{configUrl="./src/config/fireba
       restore=await playerState.restore();
     }
 
+    const localState=playerState.load();
+    if(restore?.code==="remote_state_empty"&&localState){
+      await playerState.syncNow();
+    }
+
     const detail={
       reason:String(reason||"authenticated"),
       status:auth.status(),
