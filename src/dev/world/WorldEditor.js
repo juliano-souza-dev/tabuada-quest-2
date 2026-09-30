@@ -1,4 +1,4 @@
-import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0205";
+import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0213";
 
 export class WorldEditor {
   constructor(root,{sceneRuntime}={}){
@@ -130,7 +130,11 @@ export class WorldEditor {
       width,
       height,
       z:20,
+      scaleX:1,
+      scaleY:1,
       rotation:0,
+      skewX:0,
+      skewY:0,
       lockAspect:true,
       presentation:{depth:"gameplay"},
       ...extra
