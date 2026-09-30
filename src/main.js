@@ -16,12 +16,13 @@ await runtime.load(resolved.scene.path);
 const dev = new DevOverlay(document.body, runtime, { sceneResolver: resolver });
 dev.mount();
 
-globalThis.TabuadaQuest = Object.freeze({
+globalThis.TabuadaQuest = {
+  ...(globalThis.TabuadaQuest || {}),
   runtime,
   auth: services.auth,
   playerState: services.playerState,
   getAccessStatus: services.getStatus
-});
+};
 
 // DEV policy: never register a Service Worker and purge old caches/registrations.
 // Every reload must request the current repository deployment.
