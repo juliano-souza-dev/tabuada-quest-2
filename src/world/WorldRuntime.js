@@ -424,15 +424,15 @@ export class WorldRuntime {
 
     const joystick=this.joystickEl;
     const thumb=this.joystickThumbEl;
-    const updateJoystick=e=>{
+    const updateJoystickPoint=(clientX,clientY)=>{
       if(!joystick||!thumb)return;
       const base=joystick.getBoundingClientRect();
       const centerX=base.left+base.width/2;
       const centerY=base.top+base.height/2;
       const thumbRadius=Math.max(10,thumb.getBoundingClientRect().width/2);
       const travel=Math.max(24,Math.min(base.width,base.height)/2-thumbRadius-8);
-      const dx=e.clientX-centerX;
-      const dy=e.clientY-centerY;
+      const dx=Number(clientX)-centerX;
+      const dy=Number(clientY)-centerY;
       const vector=normalizeJoystickVector(dx,dy,travel);
       this.joystick.x=vector.x;
       this.joystick.y=vector.y;
@@ -444,31 +444,63 @@ export class WorldRuntime {
       thumb.style.transform=`translate3d(${visualX}px,${visualY}px,0)`;
     };
 
-    const joystickStart=e=>{
-      if(this.mode!=="play"||!joystick)return;
+    const touchCapable=("ontouchstart" in globalThis)||(Number(navigator?.maxTouchPoints)||0)>0;
+
+    const joystickPointerStart=e=>{
+      if(touchCapable||this.mode!=="play"||!joystick)return;
       e.preventDefault();
       e.stopPropagation();
       this.clearNavigationTarget();
       this.joystick.active=true;
       this.joystick.pointerId=e.pointerId;
-      try{joystick.setPointerCapture(e.pointerId)}catch{}
-      updateJoystick(e);
+      updateJoystickPoint(e.clientX,e.clientY);
     };
-    const joystickMove=e=>{
-      if(!this.joystick.active||this.joystick.pointerId!==e.pointerId)return;
+    const joystickPointerMove=e=>{
+      if(touchCapable||!this.joystick.active||this.joystick.pointerId!==e.pointerId)return;
       e.preventDefault();
-      updateJoystick(e);
+      updateJoystickPoint(e.clientX,e.clientY);
     };
-    const joystickEnd=e=>{
+    const joystickPointerEnd=e=>{
+      if(touchCapable)return;
       if(this.joystick.pointerId!==null&&this.joystick.pointerId!==e.pointerId)return;
-      try{if(joystick?.hasPointerCapture(e.pointerId))joystick.releasePointerCapture(e.pointerId)}catch{}
       this.resetJoystick();
     };
 
-    joystick?.addEventListener("pointerdown",joystickStart);
-    joystick?.addEventListener("pointermove",joystickMove);
-    joystick?.addEventListener("pointerup",joystickEnd);
-    joystick?.addEventListener("pointercancel",joystickEnd);
+    const joystickTouchStart=e=>{
+      if(!touchCapable||this.mode!=="play"||!joystick||!e.changedTouches?.length)return;
+      e.preventDefault();
+      e.stopPropagation();
+      const touch=e.changedTouches[0];
+      this.clearNavigationTarget();
+      this.joystick.active=true;
+      this.joystick.pointerId=touch.identifier;
+      updateJoystickPoint(touch.clientX,touch.clientY);
+    };
+    const joystickTouchMove=e=>{
+      if(!touchCapable||!this.joystick.active)return;
+      const touches=[...(e.touches||[])];
+      const touch=touches.find(item=>item.identifier===this.joystick.pointerId);
+      if(!touch)return;
+      e.preventDefault();
+      updateJoystickPoint(touch.clientX,touch.clientY);
+    };
+    const joystickTouchEnd=e=>{
+      if(!touchCapable||this.joystick.pointerId===null)return;
+      const ended=[...(e.changedTouches||[])].some(item=>item.identifier===this.joystick.pointerId);
+      if(!ended)return;
+      e.preventDefault();
+      this.resetJoystick();
+    };
+
+    joystick?.addEventListener("pointerdown",joystickPointerStart,{passive:false});
+    globalThis.addEventListener?.("pointermove",joystickPointerMove,{passive:false});
+    globalThis.addEventListener?.("pointerup",joystickPointerEnd);
+    globalThis.addEventListener?.("pointercancel",joystickPointerEnd);
+
+    joystick?.addEventListener("touchstart",joystickTouchStart,{passive:false});
+    globalThis.addEventListener?.("touchmove",joystickTouchMove,{passive:false});
+    globalThis.addEventListener?.("touchend",joystickTouchEnd,{passive:false});
+    globalThis.addEventListener?.("touchcancel",joystickTouchEnd,{passive:false});
 
     const navigateToPointer=e=>{
       if(this.mode!=="play")return;
@@ -506,10 +538,14 @@ export class WorldRuntime {
     const action=()=>this.activateNearby();
     this.actionButton.addEventListener("click",action);
     this.cleanups.push(()=>{
-      joystick?.removeEventListener("pointerdown",joystickStart);
-      joystick?.removeEventListener("pointermove",joystickMove);
-      joystick?.removeEventListener("pointerup",joystickEnd);
-      joystick?.removeEventListener("pointercancel",joystickEnd);
+      joystick?.removeEventListener("pointerdown",joystickPointerStart);
+      globalThis.removeEventListener?.("pointermove",joystickPointerMove);
+      globalThis.removeEventListener?.("pointerup",joystickPointerEnd);
+      globalThis.removeEventListener?.("pointercancel",joystickPointerEnd);
+      joystick?.removeEventListener("touchstart",joystickTouchStart);
+      globalThis.removeEventListener?.("touchmove",joystickTouchMove);
+      globalThis.removeEventListener?.("touchend",joystickTouchEnd);
+      globalThis.removeEventListener?.("touchcancel",joystickTouchEnd);
       this.viewport.removeEventListener("click",navigateToPointer);
       this.actionButton.removeEventListener("click",action);
     });
