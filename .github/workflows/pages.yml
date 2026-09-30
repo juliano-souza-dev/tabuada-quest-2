@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
+      - name: Run viewport regression tests
+        run: node --test tests/viewport-width.test.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload production site
