@@ -460,23 +460,71 @@ export class WorldRuntime {
 
   bindEditorCamera(){
     let pan=null;
+    let pinch=null;
+    const pointers=new Map();
+
+    const pointerDistance=()=>{
+      const values=[...pointers.values()];
+      if(values.length<2)return 0;
+      return Math.hypot(values[1].x-values[0].x,values[1].y-values[0].y);
+    };
+
+    const beginPan=pointer=>{
+      pan={
+        pointerId:pointer.id,
+        px:pointer.x,
+        py:pointer.y,
+        x:this.camera.x,
+        y:this.camera.y
+      };
+    };
 
     const down=event=>{
       if(this.mode!=="edit")return;
       if(event.target.closest?.(".tq-world-entity"))return;
       event.preventDefault();
-      pan={
-        px:event.clientX,
-        py:event.clientY,
-        x:this.camera.x,
-        y:this.camera.y
-      };
+
+      if(event.pointerType==="touch"){
+        pointers.set(event.pointerId,{id:event.pointerId,x:event.clientX,y:event.clientY});
+        if(pointers.size>=2){
+          pan=null;
+          pinch={
+            distance:Math.max(1,pointerDistance()),
+            zoom:this.zoom
+          };
+        }else{
+          beginPan({id:event.pointerId,x:event.clientX,y:event.clientY});
+          this.selectEntity(null);
+        }
+      }else{
+        beginPan({id:event.pointerId,x:event.clientX,y:event.clientY});
+        this.selectEntity(null);
+      }
+
       try{this.viewport.setPointerCapture(event.pointerId)}catch{}
-      this.selectEntity(null);
     };
 
     const move=event=>{
-      if(!pan||this.mode!=="edit")return;
+      if(this.mode!=="edit")return;
+
+      if(event.pointerType==="touch"&&pointers.has(event.pointerId)){
+        pointers.set(event.pointerId,{id:event.pointerId,x:event.clientX,y:event.clientY});
+
+        if(pointers.size>=2&&pinch){
+          event.preventDefault();
+          const distance=Math.max(1,pointerDistance());
+          const before=this.zoom;
+          this.zoom=clamp(pinch.zoom*(distance/pinch.distance),.25,1.5);
+          if(Math.abs(before-this.zoom)>.0001){
+            this.clampEditorCamera();
+            this.updateCamera(true);
+          }
+          return;
+        }
+      }
+
+      if(!pan||pan.pointerId!==event.pointerId)return;
+      event.preventDefault();
       const zoom=Math.max(.1,this.zoom||1);
       this.camera.x=pan.x-(event.clientX-pan.px)/zoom;
       this.camera.y=pan.y-(event.clientY-pan.py)/zoom;
@@ -485,8 +533,19 @@ export class WorldRuntime {
     };
 
     const end=event=>{
-      if(!pan)return;
-      pan=null;
+      if(event.pointerType==="touch"){
+        pointers.delete(event.pointerId);
+        if(pointers.size<2)pinch=null;
+        if(pointers.size===1){
+          const remaining=[...pointers.values()][0];
+          beginPan(remaining);
+        }else if(!pointers.size){
+          pan=null;
+        }
+      }else if(pan?.pointerId===event.pointerId){
+        pan=null;
+      }
+
       try{if(this.viewport.hasPointerCapture(event.pointerId))this.viewport.releasePointerCapture(event.pointerId)}catch{}
     };
 
@@ -509,6 +568,9 @@ export class WorldRuntime {
     this.viewport.addEventListener("wheel",wheel,{passive:false});
 
     this.cleanups.push(()=>{
+      pointers.clear();
+      pinch=null;
+      pan=null;
       this.viewport.removeEventListener("pointerdown",down);
       this.viewport.removeEventListener("pointermove",move);
       this.viewport.removeEventListener("pointerup",end);
