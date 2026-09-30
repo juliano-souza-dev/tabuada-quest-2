@@ -1,4 +1,4 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0250";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0256";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
@@ -153,7 +153,7 @@ export class DevOverlay {
     try{
       if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
       else{
-        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0250",{cache:"no-store"});
+        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0256",{cache:"no-store"});
         if(!response.ok)throw new Error("HTTP "+response.status);
         this.sceneCatalog=await response.json();
       }
@@ -390,7 +390,7 @@ export class DevOverlay {
 
   async loadWorldCatalog(){
     try{
-      const response=await fetch("./src/config/world-catalog.json?v=20260930-0250",{cache:"no-store"});
+      const response=await fetch("./src/config/world-catalog.json?v=20260930-0256",{cache:"no-store"});
       if(!response.ok)throw new Error("HTTP "+response.status);
       this.worldCatalog=await response.json();
     }catch(error){
@@ -410,6 +410,15 @@ export class DevOverlay {
       const label=value.split("/").pop();
       return '<option value="'+this.escapeHtml(value)+'" '+(value===current?'selected':'')+'>'+this.escapeHtml(label)+'</option>';
     }).join("");
+  }
+
+  refreshWorldShipOptions(){
+    if(this.workspace!=="world"||this.mode!=="config"||this.selected)return;
+    const select=this.el?.querySelector('[data-player-prop="src"]');
+    if(!select)return;
+    const current=select.value||this.worldEditor?.getPlayerConfig()?.src||"";
+    select.innerHTML=this.worldShipOptions(current);
+    if([...select.options].some(option=>option.value===current))select.value=current;
   }
 
   worldBackgroundOptions(selected=""){
@@ -447,6 +456,7 @@ export class DevOverlay {
       this.worldEditor.selectEntity(null);
       this.selected=null;
       this.setMode("config");
+      this.loadAssets().catch(()=>{});
     });
     actions.querySelector("[data-world-export]")?.addEventListener("click",()=>this.worldEditor.exportWorld());
     actions.querySelector("[data-world-exit]")?.addEventListener("click",()=>this.exitWorldWorkspace({restoreScene:true}));
@@ -736,6 +746,7 @@ export class DevOverlay {
           if(key==="preset")this.renderWorldInspector();
         });
       });
+      queueMicrotask(()=>this.refreshWorldShipOptions?.());
       return;
     }
 
@@ -906,7 +917,7 @@ export class DevOverlay {
 
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260930-0250",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260930-0256",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -916,7 +927,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260930-0250",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260930-0256",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
@@ -931,6 +942,7 @@ export class DevOverlay {
       indexNode(this.assetTree);
       this.renderAssets();
       this.populateCreateWorldBackgrounds?.();
+      this.refreshWorldShipOptions?.();
     }catch(e){
       console.warn("Asset tree load failed",e);
       const grid=this.el.querySelector("[data-assets-grid]");

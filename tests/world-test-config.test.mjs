@@ -81,3 +81,12 @@ test("world config exposes navigator ship controls", async()=>{
   assert.match(runtime,/getPlayerConfig\(\)/);
   assert.match(runtime,/updatePlayerConfig\(patch=\{\}/);
 });
+
+
+test("navigator ship selector refreshes from asset manifest", async()=>{
+  const source=await readFile(new URL("../src/dev/DevOverlay.js",import.meta.url),"utf8");
+  assert.match(source,/refreshWorldShipOptions\(\)/);
+  assert.match(source,/data-player-prop="src"/);
+  assert.match(source,/this\.loadAssets\(\)\.catch/);
+  assert.match(source,/this\.refreshWorldShipOptions\?\.\(\)/);
+});
