@@ -2,6 +2,7 @@ import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./Wor
 import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0620";
 import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0620";
 import { normalizeJoystickVector, screenPointToWorld, targetNavigationVector } from "./WorldNavigationInput.mjs?v=20260930-0620";
+import { directionForHeading, resolveDirectionalSource } from "./WorldDirectionalSprite.mjs?v=20260930-0718";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
@@ -20,6 +21,7 @@ export class WorldRuntime {
       x:Number(this.state.player?.x??config.player?.x??config.width/2),
       y:Number(this.state.player?.y??config.player?.y??config.height/2),
       rotation:Number(this.state.player?.rotation??0),
+      direction:String(this.state.player?.direction??config.player?.direction??"n"),
       vx:0,vy:0
     };
     this.camera={
@@ -101,7 +103,7 @@ export class WorldRuntime {
     this.stage.style.width=this.config.width+"px";
     this.stage.style.height=this.config.height+"px";
     this.applyOceanStatic();
-    this.playerEl.src=this.config.player?.src||"";
+    this.playerEl.src=resolveDirectionalSource(this.config.player?.directions,this.player.direction,this.config.player?.src||"");
     this.nameEl.textContent=this.config.name||this.config.id||"Mundo";
 
     this.renderEntities();
@@ -647,7 +649,17 @@ export class WorldRuntime {
   updatePlayerVisual(){
     this.playerEl.style.left=this.player.x+"px";
     this.playerEl.style.top=this.player.y+"px";
-    this.playerEl.style.transform=`translate(-50%,-50%) rotate(${this.player.rotation}deg)`;
+
+    const directional=this.config.player?.directions;
+    if(directional&&typeof directional==="object"){
+      this.player.direction=directionForHeading(this.player.rotation,this.player.direction,{hysteresis:7});
+      const nextSrc=resolveDirectionalSource(directional,this.player.direction,this.config.player?.src||"");
+      if(nextSrc&&this.playerEl.getAttribute("src")!==nextSrc)this.playerEl.src=nextSrc;
+      this.playerEl.dataset.direction=this.player.direction;
+      this.playerEl.style.transform="translate(-50%,-50%)";
+    }else{
+      this.playerEl.style.transform=`translate(-50%,-50%) rotate(${this.player.rotation}deg)`;
+    }
   }
 
   getEntityMotion(id){
@@ -948,7 +960,7 @@ export class WorldRuntime {
 
   getState(){
     return {
-      player:{x:this.player.x,y:this.player.y,rotation:this.player.rotation},
+      player:{x:this.player.x,y:this.player.y,rotation:this.player.rotation,direction:this.player.direction},
       collected:[...this.collected]
     };
   }
