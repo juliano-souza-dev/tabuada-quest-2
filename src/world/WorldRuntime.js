@@ -1,8 +1,8 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame, cameraFollowStep } from "./WorldOceanEffect.mjs?v=20260930-0805";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0752";
-import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0752";
-import { normalizeJoystickVector, screenPointToWorld, targetNavigationVector } from "./WorldNavigationInput.mjs?v=20260930-0752";
-import { directionForHeading, resolveDirectionalSource } from "./WorldDirectionalSprite.mjs?v=20260930-0752";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame, cameraFollowStep } from "./WorldOceanEffect.mjs?v=20260930-0818";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0818";
+import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0818";
+import { normalizeJoystickVector, screenPointToWorld, targetNavigationVector } from "./WorldNavigationInput.mjs?v=20260930-0818";
+import { directionForHeading, resolveDirectionalSource } from "./WorldDirectionalSprite.mjs?v=20260930-0818";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
