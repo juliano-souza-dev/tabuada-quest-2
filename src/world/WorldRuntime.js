@@ -104,6 +104,8 @@ export class WorldRuntime {
     this.stage.style.height=this.config.height+"px";
     this.applyOceanStatic();
     this.playerEl.src=resolveDirectionalSource(this.config.player?.directions,this.player.direction,this.config.player?.src||"");
+    if(this.config.player?.width)this.playerEl.style.width=Math.max(24,Number(this.config.player.width)||108)+"px";
+    if(this.config.player?.height)this.playerEl.style.height=Math.max(24,Number(this.config.player.height)||150)+"px";
     this.nameEl.textContent=this.config.name||this.config.id||"Mundo";
 
     this.renderEntities();
