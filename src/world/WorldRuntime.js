@@ -3,6 +3,26 @@ import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFram
 import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0205";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
+const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
+  const r=Number(rotation||0)*Math.PI/180;
+  const tx=Math.tan(Number(skewX||0)*Math.PI/180);
+  const ty=Math.tan(Number(skewY||0)*Math.PI/180);
+  const sx=Math.max(.01,Math.abs(Number(scaleX||1)));
+  const sy=Math.max(.01,Math.abs(Number(scaleY||1)));
+  const cos=Math.cos(r),sin=Math.sin(r);
+  return {
+    a:sx*(cos-sin*ty),
+    b:sx*(sin+cos*ty),
+    c:sy*(cos*tx-sin),
+    d:sy*(sin*tx+cos)
+  };
+};
+const transformVector=(matrix,x,y)=>({x:matrix.a*x+matrix.c*y,y:matrix.b*x+matrix.d*y});
+const inverseVector=(matrix,x,y)=>{
+  const det=matrix.a*matrix.d-matrix.b*matrix.c;
+  if(Math.abs(det)<1e-8)return {x:0,y:0};
+  return {x:(matrix.d*x-matrix.c*y)/det,y:(matrix.a*y-matrix.b*x)/det};
+};
 
 export class WorldRuntime {
   constructor(root,config,options={}){
@@ -32,6 +52,10 @@ export class WorldRuntime {
     this.pointerDirections=new Set();
     this.entities=(config.entities||[]).map((entity,index)=>({
       ...structuredClone(entity),
+      scaleX:Number.isFinite(Number(entity.scaleX))?Number(entity.scaleX):1,
+      scaleY:Number.isFinite(Number(entity.scaleY))?Number(entity.scaleY):1,
+      skewX:Number(entity.skewX||0),
+      skewY:Number(entity.skewY||0),
       index,
       anchorX:Number(entity.x??0),
       anchorY:Number(entity.y??0),
@@ -184,7 +208,9 @@ export class WorldRuntime {
     el.style.width=(Number(entity.width||96)*visualScale)+"px";
     el.style.height=(Number(entity.height||96)*visualScale)+"px";
     el.style.opacity=String(presentation.opacity);
-    el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)+Number(frame?.rotation||0)}deg) scale(1,${Number(frame?.scaleY||1)})`;
+    const scaleX=Math.max(.01,Math.abs(Number(entity.scaleX??1)));
+    const scaleY=Math.max(.01,Math.abs(Number(entity.scaleY??1)))*Number(frame?.scaleY||1);
+    el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)+Number(frame?.rotation||0)}deg) skew(${Number(entity.skewX||0)}deg,${Number(entity.skewY||0)}deg) scale(${scaleX},${scaleY})`;
 
     const logicalOnly=el.dataset.renderMode==="logical";
     el.classList.toggle("is-logical-only",logicalOnly);
@@ -212,7 +238,8 @@ export class WorldRuntime {
     const gizmo=document.createElement("div");
     gizmo.className="tq-world-gizmo";
     gizmo.hidden=true;
-    gizmo.innerHTML='<span class="tq-world-gizmo__stem"></span><button type="button" class="tq-world-gizmo__rotate" aria-label="Girar entidade" title="Girar"></button><button type="button" class="tq-world-gizmo__resize" aria-label="Redimensionar entidade" title="Redimensionar"></button>';
+    const resizeHandles=["nw","n","ne","e","se","s","sw","w"].map(dir=>'<button type="button" class="tq-world-gizmo__resize tq-world-gizmo__resize--'+dir+'" data-gizmo-resize="'+dir+'" aria-label="Redimensionar '+dir+'" title="Redimensionar"></button>').join("");
+    gizmo.innerHTML='<span class="tq-world-gizmo__stem"></span><button type="button" class="tq-world-gizmo__rotate" aria-label="Girar entidade" title="Girar"></button>'+resizeHandles+'<button type="button" class="tq-world-gizmo__skew tq-world-gizmo__skew--x" data-gizmo-skew="x" aria-label="Inclinar horizontalmente" title="Skew X"></button><button type="button" class="tq-world-gizmo__skew tq-world-gizmo__skew--y" data-gizmo-skew="y" aria-label="Inclinar verticalmente" title="Skew Y"></button>';
     this.entityLayer.append(gizmo);
     this.gizmoEl=gizmo;
 
@@ -246,53 +273,117 @@ export class WorldRuntime {
       rotate.addEventListener("pointercancel",end);
     });
 
-    const resize=gizmo.querySelector(".tq-world-gizmo__resize");
-    resize.addEventListener("pointerdown",event=>{
-      if(this.mode!=="edit"||!this.selectedId)return;
-      const entity=this.entities.find(item=>item.id===this.selectedId);
-      if(!entity)return;
-      event.preventDefault();event.stopPropagation();
-      const rect=entity.el?.getBoundingClientRect();
-      if(!rect)return;
-      const center={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
-      const startDistance=Math.max(1,Math.hypot(event.clientX-center.x,event.clientY-center.y));
-      const startWidth=Math.max(16,Number(entity.width||96));
-      const startHeight=Math.max(16,Number(entity.height||96));
-      const startAngle=Number(entity.rotation||0)*Math.PI/180;
-      const start={x:event.clientX,y:event.clientY};
-      try{resize.setPointerCapture(event.pointerId)}catch{}
+    for(const resize of gizmo.querySelectorAll("[data-gizmo-resize]")){
+      const dir=resize.dataset.gizmoResize||"se";
+      resize.addEventListener("pointerdown",event=>{
+        if(this.mode!=="edit"||!this.selectedId)return;
+        const entity=this.entities.find(item=>item.id===this.selectedId);
+        if(!entity)return;
+        event.preventDefault();event.stopPropagation();
 
-      const move=e=>{
-        if(entity.lockAspect!==false){
-          const scale=Math.max(.12,Math.hypot(e.clientX-center.x,e.clientY-center.y)/startDistance);
-          entity.width=clamp(startWidth*scale,16,2400);
-          entity.height=clamp(startHeight*scale,16,2400);
-        }else{
-          const zoom=Math.max(.1,this.zoom||1);
-          const presentation=resolveEntityPresentation(entity);
-          const visualScale=Math.max(.1,presentation.scale||1);
-          const dx=(e.clientX-start.x)/(zoom*visualScale);
-          const dy=(e.clientY-start.y)/(zoom*visualScale);
-          const localX=dx*Math.cos(-startAngle)-dy*Math.sin(-startAngle);
-          const localY=dx*Math.sin(-startAngle)+dy*Math.cos(-startAngle);
-          entity.width=clamp(startWidth+localX*2,16,2400);
-          entity.height=clamp(startHeight+localY*2,16,2400);
-        }
-        this.applyEntityVisual(entity);
-        this.syncGizmo();
-        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),false);
-      };
-      const end=e=>{
-        try{if(resize.hasPointerCapture(e.pointerId))resize.releasePointerCapture(e.pointerId)}catch{}
-        resize.removeEventListener("pointermove",move);
-        resize.removeEventListener("pointerup",end);
-        resize.removeEventListener("pointercancel",end);
-        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),true);
-      };
-      resize.addEventListener("pointermove",move);
-      resize.addEventListener("pointerup",end);
-      resize.addEventListener("pointercancel",end);
-    });
+        const zoom=Math.max(.1,this.zoom||1);
+        const presentation=resolveEntityPresentation(entity);
+        const visualScale=Math.max(.05,presentation.scale||1);
+        const parallax=Math.max(.05,presentation.parallax||1);
+        const startWidth=Math.max(16,Number(entity.width||96));
+        const startHeight=Math.max(16,Number(entity.height||96));
+        const startX=Number(entity.x||0),startY=Number(entity.y||0);
+        const matrix=transformMatrix(entity.rotation,entity.skewX,entity.skewY,entity.scaleX,entity.scaleY);
+        const start={px:event.clientX,py:event.clientY};
+        try{resize.setPointerCapture(event.pointerId)}catch{}
+
+        const move=e=>{
+          const stageDx=(e.clientX-start.px)/zoom;
+          const stageDy=(e.clientY-start.py)/zoom;
+          const local=inverseVector(matrix,stageDx,stageDy);
+          const dx=local.x/visualScale,dy=local.y/visualScale;
+          let left=-startWidth/2,right=startWidth/2,top=-startHeight/2,bottom=startHeight/2;
+
+          if(dir.includes("w"))left+=dx;
+          if(dir.includes("e"))right+=dx;
+          if(dir.includes("n"))top+=dy;
+          if(dir.includes("s"))bottom+=dy;
+
+          const min=16;
+          if(right-left<min){if(dir.includes("w"))left=right-min;else right=left+min}
+          if(bottom-top<min){if(dir.includes("n"))top=bottom-min;else bottom=top+min}
+
+          if(entity.lockAspect!==false&&dir.length===2){
+            const ratio=startWidth/startHeight;
+            let width=right-left,height=bottom-top;
+            if(Math.abs(width-startWidth)/startWidth>=Math.abs(height-startHeight)/startHeight)height=width/ratio;
+            else width=height*ratio;
+            if(dir.includes("w"))left=right-width;else right=left+width;
+            if(dir.includes("n"))top=bottom-height;else bottom=top+height;
+          }
+
+          const nextWidth=clamp(right-left,16,2400);
+          const nextHeight=clamp(bottom-top,16,2400);
+          const centerLocal={x:(left+right)/2,y:(top+bottom)/2};
+          const centerStage=transformVector(matrix,centerLocal.x*visualScale,centerLocal.y*visualScale);
+
+          entity.width=nextWidth;
+          entity.height=nextHeight;
+          entity.x=clamp(startX+centerStage.x/parallax,0,this.config.width);
+          entity.y=clamp(startY+centerStage.y/parallax,0,this.config.height);
+          entity.anchorX=entity.x;entity.anchorY=entity.y;
+          this.applyEntityVisual(entity);
+          this.syncGizmo();
+          this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),false);
+        };
+        const end=e=>{
+          try{if(resize.hasPointerCapture(e.pointerId))resize.releasePointerCapture(e.pointerId)}catch{}
+          resize.removeEventListener("pointermove",move);
+          resize.removeEventListener("pointerup",end);
+          resize.removeEventListener("pointercancel",end);
+          this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),true);
+        };
+        resize.addEventListener("pointermove",move);
+        resize.addEventListener("pointerup",end);
+        resize.addEventListener("pointercancel",end);
+      });
+    }
+
+    for(const skew of gizmo.querySelectorAll("[data-gizmo-skew]")){
+      const axis=skew.dataset.gizmoSkew;
+      skew.addEventListener("pointerdown",event=>{
+        if(this.mode!=="edit"||!this.selectedId)return;
+        const entity=this.entities.find(item=>item.id===this.selectedId);
+        if(!entity)return;
+        event.preventDefault();event.stopPropagation();
+        const zoom=Math.max(.1,this.zoom||1);
+        const presentation=resolveEntityPresentation(entity);
+        const visualScale=Math.max(.05,presentation.scale||1);
+        const rotation=Number(entity.rotation||0)*Math.PI/180;
+        const cos=Math.cos(rotation),sin=Math.sin(rotation);
+        const start={px:event.clientX,py:event.clientY,value:Number(axis==="x"?entity.skewX:entity.skewY)||0};
+        try{skew.setPointerCapture(event.pointerId)}catch{}
+
+        const move=e=>{
+          const dx=(e.clientX-start.px)/zoom;
+          const dy=(e.clientY-start.py)/zoom;
+          const localX=dx*cos+dy*sin;
+          const localY=-dx*sin+dy*cos;
+          const size=Math.max(1,(axis==="x"?Number(entity.height||96):Number(entity.width||96))*visualScale);
+          const delta=axis==="x"?localX:localY;
+          const value=clamp(start.value+Math.atan(delta/size)*180/Math.PI,-75,75);
+          if(axis==="x")entity.skewX=value;else entity.skewY=value;
+          this.applyEntityVisual(entity);
+          this.syncGizmo();
+          this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),false);
+        };
+        const end=e=>{
+          try{if(skew.hasPointerCapture(e.pointerId))skew.releasePointerCapture(e.pointerId)}catch{}
+          skew.removeEventListener("pointermove",move);
+          skew.removeEventListener("pointerup",end);
+          skew.removeEventListener("pointercancel",end);
+          this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),true);
+        };
+        skew.addEventListener("pointermove",move);
+        skew.addEventListener("pointerup",end);
+        skew.addEventListener("pointercancel",end);
+      });
+    }
 
     return gizmo;
   }
@@ -309,9 +400,11 @@ export class WorldRuntime {
     const point=this.entityVisualPoint(entity);
     gizmo.style.left=point.x+"px";
     gizmo.style.top=point.y+"px";
-    gizmo.style.width=Math.max(16,Number(entity.width||96)*presentation.scale)+"px";
-    gizmo.style.height=Math.max(16,Number(entity.height||96)*presentation.scale)+"px";
-    gizmo.style.transform="translate(-50%,-50%) rotate("+Number(entity.rotation||0)+"deg)";
+    const scaleX=Math.max(.01,Math.abs(Number(entity.scaleX??1)));
+    const scaleY=Math.max(.01,Math.abs(Number(entity.scaleY??1)));
+    gizmo.style.width=Math.max(16,Number(entity.width||96)*presentation.scale*scaleX)+"px";
+    gizmo.style.height=Math.max(16,Number(entity.height||96)*presentation.scale*scaleY)+"px";
+    gizmo.style.transform="translate(-50%,-50%) rotate("+Number(entity.rotation||0)+"deg) skew("+Number(entity.skewX||0)+"deg,"+Number(entity.skewY||0)+"deg)";
     const size=22/Math.max(.25,this.zoom||1);
     gizmo.style.setProperty("--gizmo-handle-size",size+"px");
     gizmo.style.setProperty("--gizmo-line-width",Math.max(1,2/Math.max(.25,this.zoom||1))+"px");
@@ -786,7 +879,11 @@ export class WorldRuntime {
     entity.y=clamp(Number(entity.y??0),0,this.config.height);
     entity.width=clamp(Number(entity.width??96),16,2400);
     entity.height=clamp(Number(entity.height??96),16,2400);
+    entity.scaleX=clamp(Math.abs(Number(entity.scaleX??1))||1,.05,20);
+    entity.scaleY=clamp(Math.abs(Number(entity.scaleY??1))||1,.05,20);
     entity.rotation=Number(entity.rotation||0);
+    entity.skewX=clamp(Number(entity.skewX||0),-75,75);
+    entity.skewY=clamp(Number(entity.skewY||0),-75,75);
     entity.anchorX=entity.x;
     entity.anchorY=entity.y;
     if(previousType!==entity.type)this.renderEntities();
@@ -812,6 +909,11 @@ export class WorldRuntime {
       id,
       x:clamp(Number(raw.x??this.camera.x),0,this.config.width),
       y:clamp(Number(raw.y??this.camera.y),0,this.config.height),
+      scaleX:clamp(Math.abs(Number(raw.scaleX??1))||1,.05,20),
+      scaleY:clamp(Math.abs(Number(raw.scaleY??1))||1,.05,20),
+      rotation:Number(raw.rotation||0),
+      skewX:clamp(Number(raw.skewX||0),-75,75),
+      skewY:clamp(Number(raw.skewY||0),-75,75),
       index:this.entities.length,
       anchorX:0,
       anchorY:0,
