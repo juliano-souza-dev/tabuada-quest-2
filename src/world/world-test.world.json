@@ -82,5 +82,17 @@
       "bob": 15,
       "src": "./assets/barris/barril_5_cartoon.png"
     }
-  ]
+  ],
+  "name": "Oceano Protótipo",
+  "meta": {
+    "schema": "tq.world",
+    "version": 1,
+    "sourceRevision": "20260930-0040",
+    "editorVersion": 1
+  },
+  "editor": {
+    "cameraX": 1100,
+    "cameraY": 1780,
+    "zoom": 0.58
+  }
 }

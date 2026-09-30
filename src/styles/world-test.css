@@ -1,23 +1,31 @@
-/* Real 2D world prototype. Uses only project assets. */
+/* World runtime + DEV World Editor V1. Uses only real project assets. */
 .tq-world-test-active{position:fixed;inset:0}
-.tq-world-host{position:fixed;inset:0;overflow:hidden;background:#05233a;color:#fff;touch-action:none;font-family:system-ui,-apple-system,sans-serif}
-.tq-world-viewport{position:absolute;inset:0;overflow:hidden}
+.tq-world-editor-root{position:fixed;inset:0;z-index:1;background:#03131f}
+.tq-world-editor-root[hidden]{display:none}
+.tq-world-host{position:fixed;inset:0;overflow:hidden;background:#03131f;color:#fff;touch-action:none;font-family:system-ui,-apple-system,sans-serif}
+.tq-world-viewport{position:absolute;inset:0;overflow:hidden;background:#02101a}
 .tq-world-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.tq-world-host.is-editor .tq-world-stage{box-shadow:0 0 0 4px #66d9ff99,0 0 80px #000c}
+.tq-world-host.is-editor .tq-world-viewport{cursor:grab}
+.tq-world-host.is-editor .tq-world-viewport:active{cursor:grabbing}
 .tq-world-ocean{position:absolute;inset:0;background:#0875a7 url("../../assets/backgrounds/scene-ocean.webp") repeat;background-size:720px auto;filter:saturate(.9)}
 .tq-world-entities{position:absolute;inset:0}
 .tq-world-player{position:absolute;width:108px;height:150px;object-fit:contain;z-index:100;transform-origin:50% 62%;filter:drop-shadow(0 9px 6px #001a2e80);will-change:left,top,transform;pointer-events:none}
-.tq-world-entity{position:absolute;transform:translate(-50%,-50%);transform-origin:center;will-change:left,top,transform}
-.tq-world-entity--barrel img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 4px #001a2e80)}
+.tq-world-entity{position:absolute;transform:translate(-50%,-50%);transform-origin:center;will-change:left,top,transform;touch-action:none}
+.tq-world-host.is-editor .tq-world-entity{cursor:move}
+.tq-world-host.is-editor .tq-world-entity.is-selected{outline:4px solid #fff;outline-offset:7px;filter:drop-shadow(0 0 11px #39c8ff)}
+.tq-world-entity:not(.tq-world-entity--location) img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 4px #001a2e80)}
 .tq-world-entity--location{overflow:hidden;border:3px solid #ffd76a;border-radius:18px;background:#09263b;box-shadow:0 12px 28px #00152299}
 .tq-world-entity--location img{display:block;width:100%;height:100%;object-fit:cover}
 .tq-world-location-label{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);max-width:90%;padding:7px 11px;border-radius:9px;background:#081823db;border:1px solid #ffffff66;color:#fff;font-weight:900;font-size:15px;white-space:nowrap}
-.tq-world-hud{position:fixed;left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));z-index:500;display:grid;gap:2px;min-width:180px;padding:9px 12px;border:1px solid #ffffff38;border-radius:12px;background:#061b2dcc;backdrop-filter:blur(8px);box-shadow:0 5px 18px #0006;pointer-events:none}
+.tq-world-hud{position:fixed;left:max(10px,env(safe-area-inset-left));top:max(72px,calc(env(safe-area-inset-top) + 62px));z-index:500;display:grid;gap:2px;min-width:180px;padding:9px 12px;border:1px solid #ffffff38;border-radius:12px;background:#061b2dcc;backdrop-filter:blur(8px);box-shadow:0 5px 18px #0006;pointer-events:none}
 .tq-world-hud strong{font-size:12px;letter-spacing:.04em;color:#7ee7ff}
 .tq-world-hud span{font-size:11px;color:#e8f6ff}
 .tq-world-action{position:fixed;left:50%;bottom:150px;z-index:600;transform:translateX(-50%)}
 .tq-world-action[hidden]{display:none}
-.tq-world-action button,.tq-world-scene-back{min-height:46px;padding:10px 16px;border:2px solid #fff2a2;border-radius:13px;background:#6d4017;color:#fff;font:900 14px/1.1 system-ui;box-shadow:0 5px 16px #0008;touch-action:manipulation}
+.tq-world-action button,.tq-world-editor-back{min-height:46px;padding:10px 16px;border:2px solid #fff2a2;border-radius:13px;background:#6d4017;color:#fff;font:900 14px/1.1 system-ui;box-shadow:0 5px 16px #0008;touch-action:manipulation}
 .tq-world-controls{position:fixed;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));z-index:550;display:flex;align-items:end;justify-content:space-between;padding:0 16px;pointer-events:none}
+.tq-world-host.is-editor .tq-world-controls,.tq-world-host.is-editor .tq-world-action{display:none!important}
 .tq-world-dpad{display:grid;grid-template-columns:58px 58px 58px;grid-template-rows:58px 58px 58px;pointer-events:auto}
 .tq-world-dpad button{border:1px solid #ffffff66;background:#082b42d9;color:#fff;font-size:22px;font-weight:900;box-shadow:0 4px 12px #0006;touch-action:none}
 .tq-world-dpad [data-dir="up"]{grid-column:2;grid-row:1;border-radius:14px 14px 5px 5px}
@@ -27,6 +35,38 @@
 .tq-world-help{padding:8px 10px;border-radius:9px;background:#061b2dbd;color:#d8efff;font-size:10px;line-height:1.35;text-align:right}
 .tq-world-scene-badge{position:fixed;left:50%;top:max(12px,env(safe-area-inset-top));z-index:2147482000;transform:translateX(-50%);padding:8px 12px;border-radius:999px;background:#061b2ddd;border:1px solid #ffffff4d;color:#7ee7ff;font:800 11px system-ui}
 .tq-world-scene-back{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));z-index:2147482001;transform:translateX(-50%)}
+.tq-world-editor-back{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));z-index:2147482998;transform:translateX(-50%)}
+
+/* DEV World browser */
+.tq-dev__worlds{position:fixed;left:0;right:0;top:64px;bottom:0;width:100%;z-index:2147482999;background:rgba(6,19,31,.97);border:1px solid rgba(255,255,255,.16);overflow:hidden;pointer-events:auto;box-shadow:0 18px 60px rgba(0,0,0,.4)}
+.tq-dev__worlds[hidden]{display:none}
+.tq-dev__worlds>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.tq-dev__worlds>header>div{display:grid;gap:2px}
+.tq-dev__worlds>header small{font-size:10px;opacity:.62}
+.tq-dev__worlds>header>[data-worlds-close]{font-size:24px;line-height:1;padding:6px 10px}
+.tq-worlds__body{height:calc(100% - 62px);overflow:auto;padding:12px}
+.tq-world-list{display:grid;gap:8px}
+.tq-world-item{display:grid!important;grid-template-columns:1fr auto;align-items:center;gap:10px;width:100%;padding:12px!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:12px!important;background:rgba(255,255,255,.045)!important;color:#fff!important;text-align:left!important}
+.tq-world-item.is-current{background:rgba(65,180,255,.14)!important;box-shadow:inset 3px 0 0 #49c8ff}
+.tq-world-item>span{display:grid;gap:2px}
+.tq-world-item small{font-size:9px;opacity:.55}
+.tq-world-item b{font-size:11px;color:#7ee7ff}
+.tq-worlds__actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.tq-worlds__actions button{min-height:42px;border:1px solid rgba(255,255,255,.14)!important;background:#102535!important;color:#fff!important}
+.tq-worlds__hint{margin-top:12px;padding:10px;border-radius:10px;background:#ffffff08;color:#bcd0df;font-size:10px;line-height:1.45}
+.tq-world-field{display:grid;gap:5px;font-size:12px;color:#bcd0df}
+.tq-world-field input,.tq-world-field select{width:100%;min-width:0;border:1px solid #ffffff1c;border-radius:9px;background:#06131f;color:#fff;padding:9px;font:inherit}
+.tq-world-inspector-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.tq-world-inspector-actions button{min-height:40px;border:1px solid rgba(255,255,255,.16)!important;background:#123b54!important;color:#fff!important}
+.tq-world-inspector-actions .is-danger{background:#5e1f25!important;border-color:#a64b55!important}
+.tq-world-inspector-actions .is-primary{background:#17699d!important;border-color:#4ac1ff!important}
+.tq-dev.is-collapsed .tq-dev__worlds{display:none!important}
+
 .tq-stage .tq-node[data-node-id="world-test-island.title"],.tq-stage .tq-node[data-node-id="world-test-island.note"]{display:flex;align-items:center;justify-content:center;padding:10px;border-radius:12px;background:#061b2dcc;color:#fff;text-align:center;font-weight:900;filter:drop-shadow(0 5px 8px #0008)}
 .tq-stage .tq-node[data-node-id="world-test-island.note"]{font-size:13px;font-weight:700}
-@media(min-width:800px){.tq-world-player{width:120px;height:166px}.tq-world-controls{padding:0 28px}.tq-world-action{bottom:40px}}
+@media(min-width:800px){
+  .tq-world-player{width:120px;height:166px}
+  .tq-world-controls{padding:0 28px}
+  .tq-world-action{bottom:40px}
+  .tq-dev__worlds{left:50%;right:auto;top:72px;bottom:18px;width:min(560px,calc(100vw - 36px));transform:translateX(-50%);border-radius:16px}
+}

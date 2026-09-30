@@ -2,10 +2,14 @@ const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 
 export class WorldRuntime {
-  constructor(root, config, options={}){
+  constructor(root,config,options={}){
     this.root=root;
     this.config=structuredClone(config);
+    this.editorEnabled=options.editorEnabled===true;
+    this.mode=this.editorEnabled?"edit":"play";
     this.onEnterScene=options.onEnterScene||null;
+    this.onSelectionChange=options.onSelectionChange||null;
+    this.onEntityChange=options.onEntityChange||null;
     this.state=structuredClone(options.state||{});
     this.player={
       x:Number(this.state.player?.x??config.player?.x??config.width/2),
@@ -13,11 +17,23 @@ export class WorldRuntime {
       rotation:Number(this.state.player?.rotation??0),
       vx:0,vy:0
     };
-    this.camera={x:this.player.x,y:this.player.y};
+    this.camera={
+      x:Number(config.editor?.cameraX??this.player.x),
+      y:Number(config.editor?.cameraY??this.player.y)
+    };
+    this.zoom=Number(config.editor?.zoom??0.58);
+    this.playZoom=1;
     this.collected=new Set(this.state.collected||[]);
     this.keys=new Set();
     this.pointerDirections=new Set();
-    this.entities=[];
+    this.entities=(config.entities||[]).map((entity,index)=>({
+      ...structuredClone(entity),
+      index,
+      anchorX:Number(entity.x??0),
+      anchorY:Number(entity.y??0),
+      el:null
+    }));
+    this.selectedId=null;
     this.lastTime=0;
     this.raf=0;
     this.nearby=null;
@@ -39,9 +55,11 @@ export class WorldRuntime {
         </div>
       </div>
       <section class="tq-world-hud">
-        <strong>PROTÓTIPO MUNDO 2D</strong>
+        <strong data-world-mode></strong>
+        <span data-world-name></span>
         <span data-world-coords></span>
         <span data-world-progress></span>
+        <span data-world-zoom></span>
       </section>
       <div class="tq-world-action" hidden>
         <button type="button" data-world-action></button>
@@ -63,64 +81,178 @@ export class WorldRuntime {
     this.playerEl=this.host.querySelector(".tq-world-player");
     this.coordsEl=this.host.querySelector("[data-world-coords]");
     this.progressEl=this.host.querySelector("[data-world-progress]");
+    this.zoomEl=this.host.querySelector("[data-world-zoom]");
+    this.modeEl=this.host.querySelector("[data-world-mode]");
+    this.nameEl=this.host.querySelector("[data-world-name]");
     this.actionWrap=this.host.querySelector(".tq-world-action");
     this.actionButton=this.host.querySelector("[data-world-action]");
 
     this.stage.style.width=this.config.width+"px";
     this.stage.style.height=this.config.height+"px";
-    this.playerEl.src=this.config.player.src;
+    this.playerEl.src=this.config.player?.src||"";
+    this.nameEl.textContent=this.config.name||this.config.id||"Mundo";
 
     this.renderEntities();
     this.bindControls();
+    if(this.editorEnabled)this.bindEditorCamera();
     this.resize();
     this.onResize=()=>this.resize();
     window.addEventListener("resize",this.onResize);
     this.cleanups.push(()=>window.removeEventListener("resize",this.onResize));
 
+    this.setMode(this.mode);
     this.lastTime=performance.now();
     this.raf=requestAnimationFrame(t=>this.tick(t));
     return this;
   }
 
   renderEntities(){
+    if(!this.entityLayer)return;
     this.entityLayer.replaceChildren();
-    this.entities=(this.config.entities||[]).map((entity,index)=>{
-      const item={...entity,index};
+
+    for(const entity of this.entities){
       const el=document.createElement(entity.type==="location"?"article":"div");
-      el.className="tq-world-entity tq-world-entity--"+entity.type;
+      el.className="tq-world-entity tq-world-entity--"+(entity.type||"object");
       el.dataset.entityId=entity.id;
-      el.style.left=entity.x+"px";
-      el.style.top=entity.y+"px";
       el.style.zIndex=String(entity.z??10);
 
       if(entity.type==="location"){
-        el.style.width=(entity.width||300)+"px";
-        el.style.height=(entity.height||210)+"px";
-        el.innerHTML=`
-          <img alt="">
-          <span class="tq-world-location-label"></span>`;
+        el.innerHTML='<img alt=""><span class="tq-world-location-label"></span>';
         const img=el.querySelector("img");
-        img.src=entity.src;
+        img.src=entity.src||"";
         img.alt=entity.label||"Local";
         el.querySelector(".tq-world-location-label").textContent=entity.label||entity.id;
       }else{
         const img=document.createElement("img");
-        img.src=entity.src;
-        img.alt=entity.label||entity.type;
+        img.src=entity.src||"";
+        img.alt=entity.label||entity.type||"Objeto";
         el.append(img);
-        el.style.width=(entity.width||76)+"px";
-        el.style.height=(entity.height||76)+"px";
       }
 
+      entity.el=el;
+      this.applyEntityVisual(entity);
       if(this.collected.has(entity.id))el.hidden=true;
+      if(this.editorEnabled)this.bindEntityEditing(entity);
       this.entityLayer.append(el);
-      item.el=el;
-      item.anchorX=entity.x;
-      item.anchorY=entity.y;
-      return item;
-    });
+    }
 
+    this.applySelectionVisual();
     this.updateProgress();
+  }
+
+  applyEntityVisual(entity){
+    const el=entity.el;
+    if(!el)return;
+    el.style.left=entity.x+"px";
+    el.style.top=entity.y+"px";
+    el.style.width=(entity.width||96)+"px";
+    el.style.height=(entity.height||96)+"px";
+    el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)}deg)`;
+    const label=el.querySelector(".tq-world-location-label");
+    if(label)label.textContent=entity.label||entity.id;
+    const img=el.querySelector("img");
+    if(img&&img.getAttribute("src")!==String(entity.src||""))img.src=entity.src||"";
+  }
+
+  bindEntityEditing(entity){
+    const el=entity.el;
+    if(!el)return;
+
+    el.addEventListener("pointerdown",event=>{
+      if(this.mode!=="edit")return;
+      event.preventDefault();
+      event.stopPropagation();
+      this.selectEntity(entity.id);
+
+      const start={
+        px:event.clientX,
+        py:event.clientY,
+        x:Number(entity.x||0),
+        y:Number(entity.y||0)
+      };
+      try{el.setPointerCapture(event.pointerId)}catch{}
+
+      const move=e=>{
+        const zoom=Math.max(.1,this.zoom||1);
+        entity.x=clamp(start.x+(e.clientX-start.px)/zoom,0,this.config.width);
+        entity.y=clamp(start.y+(e.clientY-start.py)/zoom,0,this.config.height);
+        entity.anchorX=entity.x;
+        entity.anchorY=entity.y;
+        this.applyEntityVisual(entity);
+        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),false);
+      };
+
+      const end=e=>{
+        try{if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId)}catch{}
+        el.removeEventListener("pointermove",move);
+        el.removeEventListener("pointerup",end);
+        el.removeEventListener("pointercancel",end);
+        this.onEntityChange?.(structuredClone(this.cleanEntity(entity)),true);
+      };
+
+      el.addEventListener("pointermove",move);
+      el.addEventListener("pointerup",end);
+      el.addEventListener("pointercancel",end);
+    });
+  }
+
+  bindEditorCamera(){
+    let pan=null;
+
+    const down=event=>{
+      if(this.mode!=="edit")return;
+      if(event.target.closest?.(".tq-world-entity"))return;
+      event.preventDefault();
+      pan={
+        px:event.clientX,
+        py:event.clientY,
+        x:this.camera.x,
+        y:this.camera.y
+      };
+      try{this.viewport.setPointerCapture(event.pointerId)}catch{}
+      this.selectEntity(null);
+    };
+
+    const move=event=>{
+      if(!pan||this.mode!=="edit")return;
+      const zoom=Math.max(.1,this.zoom||1);
+      this.camera.x=pan.x-(event.clientX-pan.px)/zoom;
+      this.camera.y=pan.y-(event.clientY-pan.py)/zoom;
+      this.clampEditorCamera();
+      this.updateCamera(true);
+    };
+
+    const end=event=>{
+      if(!pan)return;
+      pan=null;
+      try{if(this.viewport.hasPointerCapture(event.pointerId))this.viewport.releasePointerCapture(event.pointerId)}catch{}
+    };
+
+    const wheel=event=>{
+      if(this.mode!=="edit")return;
+      event.preventDefault();
+      const before=this.zoom;
+      const factor=event.deltaY>0?.9:1.1;
+      this.zoom=clamp(this.zoom*factor,.25,1.5);
+      if(Math.abs(before-this.zoom)>.0001){
+        this.clampEditorCamera();
+        this.updateCamera(true);
+      }
+    };
+
+    this.viewport.addEventListener("pointerdown",down);
+    this.viewport.addEventListener("pointermove",move);
+    this.viewport.addEventListener("pointerup",end);
+    this.viewport.addEventListener("pointercancel",end);
+    this.viewport.addEventListener("wheel",wheel,{passive:false});
+
+    this.cleanups.push(()=>{
+      this.viewport.removeEventListener("pointerdown",down);
+      this.viewport.removeEventListener("pointermove",move);
+      this.viewport.removeEventListener("pointerup",end);
+      this.viewport.removeEventListener("pointercancel",end);
+      this.viewport.removeEventListener("wheel",wheel);
+    });
   }
 
   bindControls(){
@@ -132,6 +264,7 @@ export class WorldRuntime {
     };
 
     const keydown=e=>{
+      if(this.mode!=="play")return;
       const dir=keyMap[e.code];
       if(!dir)return;
       e.preventDefault();
@@ -141,6 +274,7 @@ export class WorldRuntime {
       const dir=keyMap[e.code];
       if(dir)this.keys.delete(dir);
     };
+
     window.addEventListener("keydown",keydown,{passive:false});
     window.addEventListener("keyup",keyup);
     this.cleanups.push(()=>{
@@ -151,6 +285,7 @@ export class WorldRuntime {
     for(const button of this.host.querySelectorAll("[data-dir]")){
       const dir=button.dataset.dir;
       const start=e=>{
+        if(this.mode!=="play")return;
         e.preventDefault();
         this.pointerDirections.add(dir);
         try{button.setPointerCapture(e.pointerId)}catch{}
@@ -176,6 +311,25 @@ export class WorldRuntime {
     this.cleanups.push(()=>this.actionButton.removeEventListener("click",action));
   }
 
+  setMode(mode){
+    if(!this.editorEnabled&&mode!=="play")return;
+    this.mode=mode==="play"?"play":"edit";
+    this.host?.classList.toggle("is-editor",this.mode==="edit");
+    this.host?.classList.toggle("is-play",this.mode==="play");
+    if(this.modeEl)this.modeEl.textContent=this.mode==="edit"?"MUNDO · EDITAR":"MUNDO · PLAY";
+    if(this.mode==="play"){
+      this.keys.clear();
+      this.pointerDirections.clear();
+      this.zoom=this.playZoom;
+      this.selectEntity(null);
+    }else{
+      this.nearby=null;
+      if(this.actionWrap)this.actionWrap.hidden=true;
+      this.zoom=clamp(Number(this.zoom||.58),.25,1.5);
+    }
+    this.resize();
+  }
+
   inputVector(){
     const active=new Set([...this.keys,...this.pointerDirections]);
     let x=(active.has("right")?1:0)-(active.has("left")?1:0);
@@ -190,7 +344,17 @@ export class WorldRuntime {
   resize(){
     const rect=this.viewport.getBoundingClientRect();
     this.viewportSize={width:rect.width,height:rect.height};
+    this.clampEditorCamera();
     this.updateCamera(true);
+  }
+
+  clampEditorCamera(){
+    if(!this.viewportSize)return;
+    const zoom=Math.max(.1,this.zoom||1);
+    const halfW=Math.min(this.config.width/2,this.viewportSize.width/(2*zoom));
+    const halfH=Math.min(this.config.height/2,this.viewportSize.height/(2*zoom));
+    this.camera.x=clamp(this.camera.x,halfW,this.config.width-halfW);
+    this.camera.y=clamp(this.camera.y,halfH,this.config.height-halfH);
   }
 
   updatePlayer(dt){
@@ -215,7 +379,9 @@ export class WorldRuntime {
     if(speed>8){
       this.player.rotation=Math.atan2(this.player.vy,this.player.vx)*180/Math.PI+90;
     }
+  }
 
+  updatePlayerVisual(){
     this.playerEl.style.left=this.player.x+"px";
     this.playerEl.style.top=this.player.y+"px";
     this.playerEl.style.transform=`translate(-50%,-50%) rotate(${this.player.rotation}deg)`;
@@ -223,16 +389,19 @@ export class WorldRuntime {
 
   updateFloating(time){
     for(const entity of this.entities){
-      if(entity.type!=="barrel"||this.collected.has(entity.id))continue;
+      if(entity.type!=="barrel"||this.collected.has(entity.id)||!entity.el)continue;
+      if(this.mode!=="play"){
+        this.applyEntityVisual(entity);
+        continue;
+      }
       const phase=(entity.index+1)*1.71;
       const drift=Number(entity.drift??20);
       const bob=Number(entity.bob??9);
       const x=entity.anchorX+Math.sin(time*.00032+phase)*drift;
       const y=entity.anchorY+Math.cos(time*.00047+phase)*bob;
-      entity.x=x;entity.y=y;
       entity.el.style.left=x+"px";
       entity.el.style.top=y+"px";
-      entity.el.style.transform=`translate(-50%,-50%) rotate(${Math.sin(time*.0007+phase)*5}deg)`;
+      entity.el.style.transform=`translate(-50%,-50%) rotate(${Number(entity.rotation||0)+Math.sin(time*.0007+phase)*5}deg)`;
     }
   }
 
@@ -240,17 +409,34 @@ export class WorldRuntime {
     if(!this.viewportSize)return;
     const vw=this.viewportSize.width;
     const vh=this.viewportSize.height;
-    const targetX=this.config.width<=vw?this.config.width/2:clamp(this.player.x,vw/2,this.config.width-vw/2);
-    const targetY=this.config.height<=vh?this.config.height/2:clamp(this.player.y,vh/2,this.config.height-vh/2);
-    const factor=immediate?1:.12;
-    this.camera.x+=(targetX-this.camera.x)*factor;
-    this.camera.y+=(targetY-this.camera.y)*factor;
-    const tx=Math.round(vw/2-this.camera.x);
-    const ty=Math.round(vh/2-this.camera.y);
-    this.stage.style.transform=`translate3d(${tx}px,${ty}px,0)`;
+
+    if(this.mode==="play"){
+      const zoom=this.playZoom;
+      const halfW=Math.min(this.config.width/2,vw/(2*zoom));
+      const halfH=Math.min(this.config.height/2,vh/(2*zoom));
+      const targetX=clamp(this.player.x,halfW,this.config.width-halfW);
+      const targetY=clamp(this.player.y,halfH,this.config.height-halfH);
+      const factor=immediate?1:.12;
+      this.camera.x+=(targetX-this.camera.x)*factor;
+      this.camera.y+=(targetY-this.camera.y)*factor;
+      this.zoom=zoom;
+    }else{
+      this.clampEditorCamera();
+    }
+
+    const zoom=Math.max(.1,this.zoom||1);
+    const tx=Math.round(vw/2-this.camera.x*zoom);
+    const ty=Math.round(vh/2-this.camera.y*zoom);
+    this.stage.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${zoom})`;
   }
 
   updateNearby(){
+    if(this.mode!=="play"){
+      this.nearby=null;
+      this.actionWrap.hidden=true;
+      return;
+    }
+
     let best=null;
     let bestDistance=Infinity;
     for(const entity of this.entities){
@@ -272,22 +458,118 @@ export class WorldRuntime {
     this.actionWrap.hidden=false;
     this.actionButton.textContent=best.type==="location"
       ? "Entrar: "+(best.label||best.id)
-      : "Coletar "+(best.label||"barril");
+      : "Coletar "+(best.label||best.type||"objeto");
   }
 
   activateNearby(){
     const entity=this.nearby;
-    if(!entity)return;
-    if(entity.type==="barrel"){
+    if(!entity||this.mode!=="play")return;
+
+    if(["barrel","treasure","object"].includes(entity.type)){
       this.collected.add(entity.id);
-      entity.el.hidden=true;
+      if(entity.el)entity.el.hidden=true;
       this.updateProgress();
       this.updateNearby();
       return;
     }
+
     if(entity.type==="location"&&entity.scene&&this.onEnterScene){
-      this.onEnterScene(entity,this.getState());
+      this.onEnterScene(this.cleanEntity(entity),this.getState());
     }
+  }
+
+  cleanEntity(entity){
+    const {el,index,anchorX,anchorY,...data}=entity;
+    return data;
+  }
+
+  getWorld(){
+    const world=structuredClone(this.config);
+    world.entities=this.entities.map(entity=>structuredClone(this.cleanEntity(entity)));
+    world.editor={
+      ...(world.editor||{}),
+      cameraX:this.camera.x,
+      cameraY:this.camera.y,
+      zoom:this.mode==="edit"?this.zoom:(world.editor?.zoom??.58)
+    };
+    return world;
+  }
+
+  getEntity(id){
+    const entity=this.entities.find(item=>item.id===id);
+    return entity?structuredClone(this.cleanEntity(entity)):null;
+  }
+
+  getSelected(){
+    return this.selectedId?this.getEntity(this.selectedId):null;
+  }
+
+  selectEntity(id){
+    this.selectedId=id&&this.entities.some(entity=>entity.id===id)?id:null;
+    this.applySelectionVisual();
+    this.onSelectionChange?.(this.getSelected());
+  }
+
+  applySelectionVisual(){
+    for(const entity of this.entities){
+      entity.el?.classList.toggle("is-selected",entity.id===this.selectedId&&this.mode==="edit");
+    }
+  }
+
+  updateEntity(id,patch={},commit=true){
+    const entity=this.entities.find(item=>item.id===id);
+    if(!entity)return null;
+    Object.assign(entity,structuredClone(patch));
+    entity.x=clamp(Number(entity.x??0),0,this.config.width);
+    entity.y=clamp(Number(entity.y??0),0,this.config.height);
+    entity.anchorX=entity.x;
+    entity.anchorY=entity.y;
+    this.renderEntities();
+    this.selectEntity(id);
+    const clean=this.getEntity(id);
+    this.onEntityChange?.(clean,commit);
+    return clean;
+  }
+
+  addEntity(raw){
+    const base=String(raw.id||"entity").replace(/[^a-z0-9._-]+/gi,"-");
+    let id=base,n=2;
+    while(this.entities.some(entity=>entity.id===id))id=base+"-"+n++;
+
+    const entity={
+      ...structuredClone(raw),
+      id,
+      x:clamp(Number(raw.x??this.camera.x),0,this.config.width),
+      y:clamp(Number(raw.y??this.camera.y),0,this.config.height),
+      index:this.entities.length,
+      anchorX:0,
+      anchorY:0,
+      el:null
+    };
+    entity.anchorX=entity.x;
+    entity.anchorY=entity.y;
+    this.entities.push(entity);
+    this.renderEntities();
+    this.selectEntity(id);
+    const clean=this.getEntity(id);
+    this.onEntityChange?.(clean,true);
+    return clean;
+  }
+
+  deleteEntity(id){
+    const index=this.entities.findIndex(entity=>entity.id===id);
+    if(index<0)return false;
+    this.entities.splice(index,1);
+    this.entities.forEach((entity,i)=>entity.index=i);
+    if(this.selectedId===id)this.selectedId=null;
+    this.renderEntities();
+    this.onSelectionChange?.(null);
+    this.onEntityChange?.(null,true);
+    return true;
+  }
+
+  getCameraCenter(){
+    return {x:this.camera.x,y:this.camera.y,zoom:this.zoom};
   }
 
   updateProgress(){
@@ -299,11 +581,18 @@ export class WorldRuntime {
   tick(time){
     const dt=Math.min(.04,Math.max(.001,(time-this.lastTime)/1000));
     this.lastTime=time;
-    this.updatePlayer(dt);
+    if(this.mode==="play")this.updatePlayer(dt);
+    this.updatePlayerVisual();
     this.updateFloating(time);
     this.updateCamera();
     this.updateNearby();
-    if(this.coordsEl)this.coordsEl.textContent=`x ${Math.round(this.player.x)} · y ${Math.round(this.player.y)}`;
+
+    if(this.coordsEl){
+      const target=this.mode==="edit"?this.camera:this.player;
+      this.coordsEl.textContent=`x ${Math.round(target.x)} · y ${Math.round(target.y)}`;
+    }
+    if(this.zoomEl)this.zoomEl.textContent=this.mode==="edit"?`zoom ${Math.round(this.zoom*100)}%`:"";
+
     this.raf=requestAnimationFrame(t=>this.tick(t));
   }
 

@@ -1,8 +1,10 @@
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0040";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
     this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();
     this.sceneResolver=options.sceneResolver||null;this.sceneCatalog=null;this.localScenes=[];
+    this.workspace="scene";this.worldCatalog=null;this.worldEditor=new WorldEditor(this.runtime.root,{sceneRuntime:this.runtime});this.sceneBeforeWorld=null;this.worldSceneBackButton=null;
     this.localSceneStorageKey="tq.dev.local-scenes:v1";this.sceneGroupStorageKey="tq.dev.scene-groups:v1";
     try{this.sceneGroupOpen=new Set(JSON.parse(sessionStorage.getItem(this.sceneGroupStorageKey)||"[]"))}catch{this.sceneGroupOpen=new Set()}
   }
@@ -17,6 +19,7 @@ export class DevOverlay {
         <button data-export>⇩ <span>JSON</span></button>
         <button data-mold>▣ <span>Molde</span></button>
         <button data-scenes>☷ <span>Cenas</span></button>
+        <button data-worlds>🌊 <span>Mundos</span></button>
         <button data-assets>▦ <span>Assets</span></button>
         <button data-collapse aria-label="Recolher ferramentas" title="Recolher">‹</button>
       </div>
@@ -34,6 +37,14 @@ export class DevOverlay {
             <div class="tq-scenes__create-error" data-scene-create-error hidden></div>
             <div class="tq-scenes__create-actions"><button type="button" data-scene-create-cancel>Cancelar</button><button type="submit" class="is-primary">Criar cena</button></div>
           </form>
+        </div>
+      </section>
+      <section class="tq-dev__worlds" hidden>
+        <header><div><strong>Mundos</strong><small>Oceanos e áreas navegáveis</small></div><button data-worlds-close aria-label="Fechar">×</button></header>
+        <div class="tq-worlds__body">
+          <div class="tq-world-list" data-worlds-list></div>
+          <div class="tq-worlds__actions" data-worlds-actions></div>
+          <div class="tq-worlds__hint">V1 funcional: abra um mundo, arraste entidades, use Assets para adicionar objetos, edite pelo Config e alterne Editar/Play.</div>
         </div>
       </section>
       <section class="tq-dev__assets" hidden>
@@ -56,6 +67,8 @@ export class DevOverlay {
     this.el.querySelector("[data-mold]").addEventListener("click",()=>this.toggleMold());
     this.el.querySelector("[data-scenes]").addEventListener("click",()=>this.toggleScenes(true));
     this.el.querySelector("[data-scenes-close]").addEventListener("click",()=>this.toggleScenes(false));
+    this.el.querySelector("[data-worlds]").addEventListener("click",()=>this.toggleWorlds(true));
+    this.el.querySelector("[data-worlds-close]").addEventListener("click",()=>this.toggleWorlds(false));
     this.el.querySelector("[data-scene-create-open]").addEventListener("click",()=>this.showCreateSceneForm(true));
     this.el.querySelector("[data-scene-create-cancel]").addEventListener("click",()=>this.showCreateSceneForm(false));
     this.el.querySelector("[data-scene-create-form]").addEventListener("submit",event=>{event.preventDefault();this.createSceneFromForm()});
@@ -70,12 +83,25 @@ export class DevOverlay {
     this.loadAssets();
     this.loadCompositionTypes();
     this.loadSceneCatalog();
+    this.loadWorldCatalog();
     this.mountMold();
     this.enableToolbarDrag();
     this.el.querySelector("[data-collapse]").addEventListener("click",()=>this.toggleCollapse());
     window.addEventListener("tq:selectionchange",e=>{this.selected=e.detail.node||null;this.renderInspector();});
     window.addEventListener("tq:nodechange",e=>{const node=e.detail?.node;if(node&&this.selected?.id===node.id){this.selected=node;this.syncInspector();}});
-    window.addEventListener("tq:sceneload",()=>{this.selected=null;this.renderScenes()});
+    window.addEventListener("tq:sceneload",()=>{if(this.workspace!=="world"){this.selected=null;this.renderScenes()}});
+    window.addEventListener("tq:worldselectionchange",e=>{
+      if(this.workspace!=="world")return;
+      this.selected=e.detail?.entity||null;
+      if(this.mode==="config")this.renderInspector();
+    });
+    window.addEventListener("tq:worldentitychange",e=>{
+      if(this.workspace!=="world")return;
+      const entity=e.detail?.entity;
+      if(entity&&this.selected?.id===entity.id)this.selected=entity;
+      if(this.mode==="config")this.renderWorldInspector();
+      this.renderWorlds();
+    });
   }
 
   loadLocalScenes(){
@@ -96,7 +122,7 @@ export class DevOverlay {
     try{
       if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
       else{
-        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0018",{cache:"no-store"});
+        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0040",{cache:"no-store"});
         if(!response.ok)throw new Error("HTTP "+response.status);
         this.sceneCatalog=await response.json();
       }
@@ -175,6 +201,7 @@ export class DevOverlay {
     if(show){
       this.el.querySelector(".tq-dev__assets").hidden=true;
       this.el.querySelector(".tq-dev__panel").hidden=true;
+      this.el.querySelector(".tq-dev__worlds").hidden=true;
       this.renderScenes();
     }
   }
@@ -261,6 +288,9 @@ export class DevOverlay {
   }
 
   async openScene(id){
+    if(this.workspace==="world"||this.workspace==="scene-linked"){
+      this.exitWorldWorkspace({restoreScene:false});
+    }
     const local=this.localScenes.find(item=>item.entry.id===id);
     const entry=this.allSceneEntries().find(scene=>scene.id===id);
     if(!entry)return;
@@ -282,9 +312,192 @@ export class DevOverlay {
     }
   }
 
+  async loadWorldCatalog(){
+    try{
+      const response=await fetch("./src/config/world-catalog.json?v=20260930-0040",{cache:"no-store"});
+      if(!response.ok)throw new Error("HTTP "+response.status);
+      this.worldCatalog=await response.json();
+      this.renderWorlds();
+    }catch(error){
+      console.warn("World catalog load failed",error);
+      const list=this.el?.querySelector("[data-worlds-list]");
+      if(list)list.innerHTML='<div class="tq-scenes__empty">Falha ao carregar o catálogo de mundos.</div>';
+    }
+  }
+
+  renderWorlds(){
+    const list=this.el?.querySelector("[data-worlds-list]");
+    const actions=this.el?.querySelector("[data-worlds-actions]");
+    if(!list||!actions)return;
+    const worlds=this.worldCatalog?.worlds||[];
+    const current=this.worldEditor?.entry?.id||"";
+
+    list.innerHTML=worlds.length?worlds.map(world=>
+      '<button type="button" class="tq-world-item '+(world.id===current?'is-current':'')+'" data-world-open="'+this.escapeHtml(world.id)+'">'+
+        '<span><b>'+this.escapeHtml(world.name||world.id)+'</b><small>'+this.escapeHtml(world.type||"world")+' · '+this.escapeHtml(world.id)+'</small></span>'+
+        '<strong>'+(world.id===current?'ABERTO':'EDITAR')+'</strong>'+
+      '</button>'
+    ).join(""):'<div class="tq-scenes__empty">Nenhum mundo cadastrado.</div>';
+
+    list.querySelectorAll("[data-world-open]").forEach(button=>button.addEventListener("click",()=>this.openWorld(button.dataset.worldOpen)));
+
+    actions.innerHTML=this.worldEditor?.active
+      ? '<button type="button" data-world-export>⇩ Exportar JSON</button><button type="button" data-world-exit>← Voltar às cenas</button>'
+      : '';
+
+    actions.querySelector("[data-world-export]")?.addEventListener("click",()=>this.worldEditor.exportWorld());
+    actions.querySelector("[data-world-exit]")?.addEventListener("click",()=>this.exitWorldWorkspace({restoreScene:true}));
+  }
+
+  toggleWorlds(show){
+    const panel=this.el.querySelector(".tq-dev__worlds");
+    panel.hidden=!show;
+    if(show){
+      this.el.querySelector(".tq-dev__assets").hidden=true;
+      this.el.querySelector(".tq-dev__scenes").hidden=true;
+      this.el.querySelector(".tq-dev__panel").hidden=true;
+      this.renderWorlds();
+    }
+  }
+
+  async openWorld(id){
+    const entry=(this.worldCatalog?.worlds||[]).find(world=>world.id===id);
+    if(!entry)return;
+    try{
+      if(this.workspace==="scene"&&!this.sceneBeforeWorld)this.sceneBeforeWorld=structuredClone(this.runtime.scene||null);
+      this.removeWorldSceneBackButton();
+      await this.worldEditor.open(entry);
+      this.workspace="world";
+      this.selected=null;
+      if(this.mold)this.mold.hidden=true;
+      this.toggleWorlds(false);
+      this.setMode("edit");
+      this.renderWorlds();
+    }catch(error){
+      console.error("World open failed",error);
+      const list=this.el.querySelector("[data-worlds-list]");
+      if(list)list.insertAdjacentHTML("afterbegin",'<div class="tq-scenes__error">Falha ao abrir o mundo.</div>');
+    }
+  }
+
+  exitWorldWorkspace({restoreScene=true}={}){
+    this.removeWorldSceneBackButton();
+    this.worldEditor?.close({showScene:true});
+    this.workspace="scene";
+    this.selected=null;
+    if(restoreScene&&this.sceneBeforeWorld)this.runtime.loadScene(structuredClone(this.sceneBeforeWorld));
+    this.sceneBeforeWorld=null;
+    this.setMode("edit");
+    this.renderWorlds();
+  }
+
+  removeWorldSceneBackButton(){
+    this.worldSceneBackButton?.remove();
+    this.worldSceneBackButton=null;
+  }
+
+  async openWorldLinkedScene(entity){
+    if(!entity?.scene||!this.worldEditor?.active)return;
+    try{
+      const selectedId=entity.id;
+      this.worldEditor.suspend();
+      if(this.runtime.stageHost)this.runtime.stageHost.style.display="";
+      this.workspace="scene-linked";
+      this.selected=null;
+      await this.runtime.load(entity.scene);
+
+      this.removeWorldSceneBackButton();
+      const back=document.createElement("button");
+      back.type="button";
+      back.className="tq-world-editor-back";
+      back.textContent="← Voltar ao mundo";
+      back.addEventListener("click",()=>{
+        this.removeWorldSceneBackButton();
+        if(this.runtime.stageHost)this.runtime.stageHost.style.display="none";
+        this.workspace="world";
+        this.worldEditor.resume();
+        this.selected=this.worldEditor.selectEntity(selectedId);
+        this.setMode("edit");
+      });
+      document.body.append(back);
+      this.worldSceneBackButton=back;
+      this.setMode("edit");
+    }catch(error){
+      console.error("World linked scene open failed",error);
+      this.workspace="world";
+      this.worldEditor.resume();
+      if(this.runtime.stageHost)this.runtime.stageHost.style.display="none";
+    }
+  }
+
+  renderWorldInspector(){
+    const content=this.el.querySelector(".tq-dev__content");
+    const title=this.el.querySelector("[data-node-title]");
+    const entity=this.selected;
+
+    if(!entity){
+      title.textContent="Nenhuma entidade";
+      content.innerHTML='<div class="tq-dev__empty">Selecione uma entidade do mundo para configurar.</div>';
+      return;
+    }
+
+    const num=(key,label)=>'<label class="tq-world-field"><span>'+label+'</span><input data-world-prop="'+key+'" type="number" step="0.01" value="'+this.escapeHtml(entity[key]??"")+'"></label>';
+    const text=(key,label)=>'<label class="tq-world-field"><span>'+label+'</span><input data-world-prop="'+key+'" type="text" value="'+this.escapeHtml(entity[key]??"")+'"></label>';
+    const typeOptions=["object","barrel","treasure","ship","location"].map(value=>'<option value="'+value+'" '+(entity.type===value?'selected':'')+'>'+value+'</option>').join("");
+
+    title.textContent=entity.id+" · "+(entity.type||"object");
+    content.innerHTML=
+      '<div class="tq-inspector">'+
+        '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Entidade</strong><span>▾</span></button><div class="tq-config-area__body">'+
+          '<label class="tq-world-field"><span>ID</span><input value="'+this.escapeHtml(entity.id)+'" readonly></label>'+
+          '<label class="tq-world-field"><span>Tipo</span><select data-world-prop="type">'+typeOptions+'</select></label>'+
+          text("label","Nome")+
+          text("src","Asset")+
+        '</div></section>'+
+        '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Transformação</strong><span>▾</span></button><div class="tq-config-area__body">'+
+          num("x","Position X")+num("y","Position Y")+num("width","Width")+num("height","Height")+num("rotation","Rotation")+
+        '</div></section>'+
+        '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Comportamento</strong><span>▾</span></button><div class="tq-config-area__body">'+
+          num("interactionRadius","Raio de interação")+
+          (entity.type==="barrel"?num("drift","Deriva")+num("bob","Balanço"):"")+
+          text("scene","Cena vinculada")+
+        '</div></section>'+
+        '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Ações</strong><span>▾</span></button><div class="tq-config-area__body tq-world-inspector-actions">'+
+          (entity.scene?'<button type="button" class="is-primary" data-world-open-scene>Editar cena vinculada</button>':"")+
+          '<button type="button" class="is-danger" data-world-delete>Excluir entidade</button>'+
+        '</div></section>'+
+      '</div>';
+
+    content.querySelectorAll("[data-area-toggle]").forEach(button=>button.addEventListener("click",()=>{
+      const body=button.nextElementSibling;
+      body.hidden=!body.hidden;
+      button.setAttribute("aria-expanded",String(!body.hidden));
+      button.querySelector("span").textContent=body.hidden?"▸":"▾";
+    }));
+
+    const numeric=new Set(["x","y","width","height","rotation","interactionRadius","drift","bob"]);
+    content.querySelectorAll("[data-world-prop]").forEach(input=>input.addEventListener("change",()=>{
+      const key=input.dataset.worldProp;
+      const value=numeric.has(key)?Number(input.value):input.value;
+      const updated=this.worldEditor.updateEntity(entity.id,{[key]:value},true);
+      this.selected=updated||this.selected;
+      if(key==="type")this.renderWorldInspector();
+    }));
+
+    content.querySelector("[data-world-delete]")?.addEventListener("click",()=>{
+      if(confirm("Excluir esta entidade do mundo?")){
+        this.worldEditor.deleteEntity(entity.id);
+        this.selected=null;
+        this.renderWorldInspector();
+      }
+    });
+
+    content.querySelector("[data-world-open-scene]")?.addEventListener("click",()=>this.openWorldLinkedScene(entity));
+  }
+
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260930-0018",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260930-0040",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -294,7 +507,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260930-0018",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260930-0040",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
@@ -316,7 +529,7 @@ export class DevOverlay {
   }
   toggleAssets(show){
     const panel=this.el.querySelector(".tq-dev__assets");panel.hidden=!show;
-    if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.renderAssets()}
+    if(show){this.el.querySelector(".tq-dev__panel").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.el.querySelector(".tq-dev__worlds").hidden=true;this.renderAssets()}
   }
   escapeHtml(value){
     return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
@@ -388,6 +601,15 @@ export class DevOverlay {
     }));
   }
   insertAsset(asset){
+    if(this.workspace==="world"&&this.worldEditor?.active){
+      const entity=this.worldEditor.addAsset(asset);
+      if(entity){
+        this.selected=entity;
+        this.toggleAssets(false);
+        this.setMode("edit");
+      }
+      return;
+    }
     const src="./"+asset.path;
     const stem=asset.name.replace(/\.[^.]+$/,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase();
     const size=128,x=(this.runtime.reference.width-size)/2,y=(this.runtime.reference.height-size)/2;
@@ -453,12 +675,14 @@ export class DevOverlay {
     this.mold.style.height=(this.runtime.reference.height*s)+"px";
   }
   toggleMold(){
+    if(this.workspace==="world")return;
     if(!this.mold)return;
     this.mold.hidden=!this.mold.hidden;
     this.el.querySelector("[data-mold]").classList.toggle("active",!this.mold.hidden);
     if(!this.mold.hidden)this.positionMold();
   }
   exportScene(){
+    if(this.workspace==="world"&&this.worldEditor?.active){this.worldEditor.exportWorld();return;}
     const scene=structuredClone(this.runtime.scene||{});
     scene.reference={...this.runtime.reference};
     scene.root=scene.root||{id:"viewport",kind:"viewport",canonical:true};
@@ -473,10 +697,12 @@ export class DevOverlay {
     setTimeout(()=>URL.revokeObjectURL(url),0);
   }
   setMode(mode){
-    this.mode=mode;this.runtime.setMode(mode);
+    this.mode=mode;
+    if(this.workspace==="world")this.worldEditor?.setMode(mode);
+    else this.runtime.setMode(mode);
     this.el.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
     this.el.querySelector(".tq-dev__panel").hidden=mode!=="config";this.el.classList.toggle("is-play",mode==="play");
-    if(mode==="config"){this.el.querySelector(".tq-dev__assets").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.renderInspector();}
+    if(mode==="config"){this.el.querySelector(".tq-dev__assets").hidden=true;this.el.querySelector(".tq-dev__scenes").hidden=true;this.el.querySelector(".tq-dev__worlds").hidden=true;this.renderInspector();}
   }
 
   normalizeInferencePath(value){
@@ -719,6 +945,7 @@ export class DevOverlay {
   }
 
   renderInspector(){
+    if(this.workspace==="world"){this.renderWorldInspector();return;}
     const content=this.el.querySelector(".tq-dev__content");
     const title=this.el.querySelector("[data-node-title]");
 
@@ -965,6 +1192,7 @@ export class DevOverlay {
     this.syncInspector();
   }
   syncInspector(){
+    if(this.workspace==="world"){if(this.mode==="config")this.renderWorldInspector();return;}
     if(!this.selected||!this.el)return;
     this.el.querySelectorAll("[data-prop]").forEach(input=>{const v=this.selected[input.dataset.prop];if(input.type==="checkbox")input.checked=Boolean(v);else if(document.activeElement!==input)input.value=v??"";});
   }

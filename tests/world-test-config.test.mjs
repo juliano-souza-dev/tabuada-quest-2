@@ -1,8 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, access } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { resolve, dirname } from "node:path";
 
-const config=JSON.parse(await readFile(new URL("../src/world/world-test.world.json",import.meta.url),"utf8"));
+const here=dirname(fileURLToPath(import.meta.url));
+const root=resolve(here,"..");
+
+const config=JSON.parse(await readFile(resolve(root,"src/world/world-test.world.json"),"utf8"));
+const catalog=JSON.parse(await readFile(resolve(root,"src/config/world-catalog.json"),"utf8"));
 
 test("world prototype has finite positive dimensions",()=>{
   assert.ok(Number.isFinite(config.width)&&config.width>390);
@@ -20,8 +26,27 @@ test("world entities have unique ids and stay inside world bounds",()=>{
   }
 });
 
-test("location entities point to scene files",()=>{
+test("location entities point to scene files that exist",async()=>{
   for(const entity of (config.entities||[]).filter(item=>item.type==="location")){
     assert.ok(String(entity.scene||"").endsWith(".scene.json"),"missing scene for "+entity.id);
+    const scenePath=resolve(root,String(entity.scene).replace(/^\.\//,""));
+    await access(scenePath);
   }
+});
+
+test("world catalog exposes the prototype world",async()=>{
+  assert.equal(catalog.schema,"tq.world-catalog");
+  const ids=new Set();
+  for(const entry of catalog.worlds||[]){
+    assert.ok(entry.id&&entry.path);
+    assert.equal(ids.has(entry.id),false,"duplicate world id: "+entry.id);
+    ids.add(entry.id);
+    await access(resolve(root,String(entry.path).replace(/^\.\//,"")));
+  }
+  assert.ok(ids.has("ocean-prototype"));
+});
+
+test("world prototype is editor-versioned",()=>{
+  assert.equal(config.meta?.editorVersion,1);
+  assert.ok(config.meta?.sourceRevision);
 });
