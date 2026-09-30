@@ -636,9 +636,11 @@ export class WorldRuntime {
 
   updatePlayer(dt){
     const input=this.inputVector();
-    const accel=520;
-    const maxSpeed=250;
-    const drag=Math.pow(0.0008,dt);
+    // Navigation tuning: keep inertia without crushing the terminal speed.
+    // The previous 0.0008 drag limited full-throttle speed to ~73 world px/s.
+    const accel=1100;
+    const maxSpeed=420;
+    const drag=Math.pow(0.12,dt);
 
     this.player.vx=(this.player.vx+input.x*accel*dt)*drag;
     this.player.vy=(this.player.vy+input.y*accel*dt)*drag;
