@@ -64,6 +64,7 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ✅ Ligação de WorldEntity com SceneRuntime por cena vinculada.
 - ✅ Exportação de world.json.
 - ✅ Draft local do mundo no DEV.
+- ✅ Pinça touch com zoom focal no ponto do gesto, equivalente ao scroll do mouse, sem expor área fora do mundo.
 - ⬜ Multi-seleção de entidades.
 - ⬜ Alinhamento e distribuição automática.
 - ⬜ Snap opcional em grid.
