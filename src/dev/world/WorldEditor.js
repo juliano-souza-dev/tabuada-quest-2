@@ -1,4 +1,4 @@
-import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0040";
+import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0050";
 
 export class WorldEditor {
   constructor(root,{sceneRuntime}={}){
@@ -14,13 +14,19 @@ export class WorldEditor {
   }
 
   async open(entry){
-    this.close({showScene:false});
     if(!entry?.path)throw new Error("World entry has no path");
-
     const response=await fetch(entry.path,{cache:"no-store"});
     if(!response.ok)throw new Error("World load failed: "+response.status);
+    return this.openSource(entry,await response.json());
+  }
 
-    const source=await response.json();
+  async openLocal(entry,world){
+    if(!entry?.id||!world?.id)throw new Error("Invalid local world");
+    return this.openSource({...entry,local:true},world);
+  }
+
+  openSource(entry,source){
+    this.close({showScene:false});
     this.entry=structuredClone(entry);
     this.sourceWorld=structuredClone(source);
     this.storageKey="tq.dev.world-draft:"+source.id;
@@ -45,7 +51,6 @@ export class WorldEditor {
     this.host=document.createElement("div");
     this.host.className="tq-world-editor-root";
     this.root.append(this.host);
-
     if(this.sceneRuntime?.stageHost)this.sceneRuntime.stageHost.style.display="none";
 
     this.runtime=new WorldRuntime(this.host,world,{
@@ -61,7 +66,6 @@ export class WorldEditor {
     this.runtime.mount();
     this.active=true;
     this.suspended=false;
-
     window.dispatchEvent(new CustomEvent("tq:worldopen",{detail:{world:this.runtime.getWorld(),entry:this.entry}}));
     return this.runtime.getWorld();
   }
@@ -73,6 +77,12 @@ export class WorldEditor {
     }catch(error){
       console.warn("World draft save failed",error);
     }
+  }
+
+  emitWorldChange(){
+    const world=this.getWorld();
+    window.dispatchEvent(new CustomEvent("tq:worldchange",{detail:{world,entry:this.entry}}));
+    return world;
   }
 
   setMode(mode){
@@ -119,19 +129,32 @@ export class WorldEditor {
       ...extra
     });
     this.persist();
+    this.emitWorldChange();
     return entity;
   }
 
   updateEntity(id,patch,commit=true){
     const entity=this.runtime?.updateEntity(id,patch,commit)||null;
-    if(commit)this.persist();
+    if(commit){this.persist();this.emitWorldChange()}
     return entity;
   }
 
   deleteEntity(id){
     const deleted=this.runtime?.deleteEntity(id)||false;
-    if(deleted)this.persist();
+    if(deleted){this.persist();this.emitWorldChange()}
     return deleted;
+  }
+
+  updateWorld(patch,commit=true){
+    const world=this.runtime?.updateWorld(patch,commit)||null;
+    if(commit){this.persist();this.emitWorldChange()}
+    return world;
+  }
+
+  updateOcean(patch,commit=true){
+    const ocean=this.runtime?.updateOcean(patch)||null;
+    if(commit){this.persist();this.emitWorldChange()}
+    return ocean;
   }
 
   getSelected(){
@@ -145,6 +168,10 @@ export class WorldEditor {
 
   getWorld(){
     return this.runtime?.getWorld()||null;
+  }
+
+  getOcean(){
+    return this.runtime?.getOcean()||null;
   }
 
   suspend(){
