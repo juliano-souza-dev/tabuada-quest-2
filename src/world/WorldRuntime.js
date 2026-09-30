@@ -801,7 +801,13 @@ export class WorldRuntime {
     this.config.player=next;
     if(next.width)this.playerEl.style.width=next.width+"px";
     if(next.height)this.playerEl.style.height=next.height+"px";
-    if(next.direction)this.player.direction=next.direction;
+    if(next.direction){
+      this.player.direction=next.direction;
+      if(patch.direction!==undefined){
+        const headings={n:0,ne:45,e:90,se:135,s:180,sw:-135,w:-90,nw:-45};
+        if(Number.isFinite(headings[next.direction]))this.player.rotation=headings[next.direction];
+      }
+    }
     this.updatePlayerVisual();
     return this.getPlayerConfig();
   }
