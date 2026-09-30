@@ -1,5 +1,5 @@
-import { FirebaseAuthService } from "./FirebaseAuthService.js?v=20260930-0018";
-import { PlayerStateStore } from "../persistence/PlayerStateStore.js?v=20260930-0018";
+import { FirebaseAuthService } from "./FirebaseAuthService.js?v=20260930-0228";
+import { PlayerStateStore } from "../persistence/PlayerStateStore.js?v=20260930-0228";
 
 export async function installAuthRuntime(runtime,{configUrl="./src/config/firebase-public.json"}={}){
   const response=await fetch(configUrl,{cache:"no-store"});
