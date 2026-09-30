@@ -87,12 +87,24 @@
   "meta": {
     "schema": "tq.world",
     "version": 1,
-    "sourceRevision": "20260930-0040",
+    "sourceRevision": "20260930-0050",
     "editorVersion": 1
   },
   "editor": {
     "cameraX": 1100,
     "cameraY": 1780,
     "zoom": 0.58
+  },
+  "ocean": {
+    "active": true,
+    "background": "./assets/backgrounds/scene-ocean.webp",
+    "preset": "adventure",
+    "speed": 28,
+    "directionX": 0.82,
+    "directionY": 0.32,
+    "swell": 28,
+    "tileSize": 720,
+    "brightness": 102,
+    "saturation": 105
   }
 }
