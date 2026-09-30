@@ -5,10 +5,12 @@ import { DevOverlay } from "./dev/DevOverlay.js?v=20260930-0620";
 import { launchWorldTest } from "./world/WorldTestLauncher.js?v=20260930-0620";
 
 const app = document.querySelector("#app");
-const worldTest = new URLSearchParams(location.search).get("worldtest")==="1";
+const worldTestParam = new URLSearchParams(location.search).get("worldtest");
+const worldTest = Boolean(worldTestParam);
 
 if(worldTest){
-  await launchWorldTest(app);
+  const worldId=worldTestParam==="1"?"ocean-prototype":worldTestParam;
+  await launchWorldTest(app,{worldId});
 }else{
 const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=20260930-0620");
 const resolved = resolver.resolve("login");
