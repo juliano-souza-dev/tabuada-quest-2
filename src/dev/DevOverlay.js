@@ -401,6 +401,9 @@ export class DevOverlay {
       this.ensureCompositionAnimation(raw.composition,inferred.definition);
     }
 
+    const suggestedAction=this.runtime.suggestAction?.(raw);
+    if(suggestedAction)raw.action=suggestedAction.id;
+
     const node=this.runtime.addNode(raw);
     if(node){this.selected=node;this.toggleAssets(false);this.setMode("edit")}
   }
@@ -610,7 +613,7 @@ export class DevOverlay {
           ...(definition?.animation?.controls||[]).map(control=>({compositionControl:control,definition}))
         ]
       },
-      {id:"behavior",title:"Comportamento",fields:[field("locked","Locked","checkbox")]},
+      {id:"behavior",title:"Comportamento",fields:[field("action","Ação","runtimeAction"),field("locked","Locked","checkbox")]},
       {id:"danger",title:"Nó",fields:[field("__delete","Excluir nó","delete")]}
     ];
     return sections.filter(section=>section.fields.length);
@@ -665,6 +668,11 @@ export class DevOverlay {
     const [key,label,type]=field;
     if(type==="readonly")return '<label class="tq-field"><span>'+label+'</span><input value="'+(node[key]??"")+'" readonly></label>';
     if(type==="checkbox")return '<label class="tq-field tq-field--check"><span>'+label+'</span><input data-prop="'+key+'" type="checkbox" '+(node[key]?'checked':'')+'></label>';
+    if(type==="runtimeAction"){
+      const current=String(node[key]||"");
+      const options=(this.runtime.listActions?.()||[]).map(action=>'<option value="'+this.escapeHtml(action.id)+'" '+(current===action.id?'selected':'')+'>'+this.escapeHtml(action.label)+'</option>').join("");
+      return '<label class="tq-field"><span>'+label+'</span><select data-prop="'+key+'"><option value="">Sem ação</option>'+options+'</select></label>';
+    }
     if(type==="compositionType"){
       const current=node[key]??"";
       const options=(this.compositionTypes||[]).map(item=>'<option value="'+item.id+'" '+(current===item.id?'selected':'')+'>'+(item.label||item.id)+'</option>').join("");
@@ -931,6 +939,7 @@ export class DevOverlay {
     const key=input.dataset.prop;
     let value=input.type==="checkbox"?input.checked:input.type==="number"?Number(input.value):input.value;
     if(key==="compositionType"&&!value)value=null;
+    if(key==="action"&&!value)value=null;
 
     if(key==="compositionType"){
       const patch={compositionType:value,compositionSelection:"manual"};
