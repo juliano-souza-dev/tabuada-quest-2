@@ -12,6 +12,7 @@ on:
       - "src/scenes/world-test-*.scene.json"
       - "tests/world-test-config.test.mjs"
       - "tests/world-entity-motion.test.mjs"
+      - "tests/world-entity-presentation.test.mjs"
   workflow_dispatch:
 
 permissions:
@@ -28,7 +29,8 @@ jobs:
           node --check src/world/WorldRuntime.js
           node --check src/world/WorldOceanEffect.mjs
           node --check src/world/WorldEntityMotion.mjs
+          node --check src/world/WorldEntityPresentation.mjs
           node --check src/dev/world/WorldEditor.js
           node --check src/dev/DevOverlay.js
       - name: Validate world prototype
-        run: node --test tests/world-test-config.test.mjs tests/world-ocean-effect.test.mjs tests/world-entity-motion.test.mjs
+        run: node --test tests/world-test-config.test.mjs tests/world-ocean-effect.test.mjs tests/world-entity-motion.test.mjs tests/world-entity-presentation.test.mjs
