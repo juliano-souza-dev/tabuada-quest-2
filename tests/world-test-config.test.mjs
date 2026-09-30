@@ -58,3 +58,14 @@ test("world prototype defines editable ocean movement",()=>{
   assert.ok(Number.isFinite(config.ocean?.speed));
   assert.ok(Number.isFinite(config.ocean?.swell));
 });
+
+
+test("world ocean controls stay slider-based in the DEV inspector", async()=>{
+  const source=await readFile(new URL("../src/dev/DevOverlay.js",import.meta.url),"utf8");
+  assert.match(source,/const oceanRange=/);
+  for(const key of ["tileSize","brightness","saturation","speed","directionX","directionY","swell"]){
+    assert.match(source,new RegExp('oceanRange\\("'+key+'"'));
+  }
+  assert.match(source,/data-ocean-output/);
+  assert.match(source,/updateOcean\(\{\[key\]:value\},false\)/);
+});

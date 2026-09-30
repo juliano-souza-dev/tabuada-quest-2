@@ -1,4 +1,4 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0228";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0236";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
@@ -153,7 +153,7 @@ export class DevOverlay {
     try{
       if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
       else{
-        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0228",{cache:"no-store"});
+        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0236",{cache:"no-store"});
         if(!response.ok)throw new Error("HTTP "+response.status);
         this.sceneCatalog=await response.json();
       }
@@ -390,7 +390,7 @@ export class DevOverlay {
 
   async loadWorldCatalog(){
     try{
-      const response=await fetch("./src/config/world-catalog.json?v=20260930-0228",{cache:"no-store"});
+      const response=await fetch("./src/config/world-catalog.json?v=20260930-0236",{cache:"no-store"});
       if(!response.ok)throw new Error("HTTP "+response.status);
       this.worldCatalog=await response.json();
     }catch(error){
@@ -628,7 +628,15 @@ export class DevOverlay {
       const presetOptions=[["calm","Calmo"],["adventure","Aventura"],["storm","Tempestade"]]
         .map(([value,label])=>'<option value="'+value+'" '+(ocean.preset===value?'selected':'')+'>'+label+'</option>').join("");
       const backgroundOptions=this.worldBackgroundOptions(ocean.background);
-      const number=(key,label,min,max,step="1")=>'<label class="tq-world-field"><span>'+label+'</span><input data-ocean-prop="'+key+'" type="number" min="'+min+'" max="'+max+'" step="'+step+'" value="'+this.escapeHtml(ocean[key]??"")+'"></label>';
+      const oceanDecimals=step=>{
+        const text=String(step);
+        return text.includes(".")?text.split(".")[1].length:0;
+      };
+      const oceanFormat=(value,step)=>{
+        const digits=oceanDecimals(step);
+        return Number(value??0).toLocaleString("pt-BR",{minimumFractionDigits:digits,maximumFractionDigits:digits});
+      };
+      const oceanRange=(key,label,min,max,step="1")=>'<label class="tq-field tq-ocean-range"><span><b>'+label+'</b><output data-ocean-output="'+key+'">'+oceanFormat(ocean[key],step)+'</output></span><input data-ocean-prop="'+key+'" type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+Number(ocean[key]??0)+'"></label>';
 
       title.textContent=(world.name||world.id)+" · oceano";
       content.innerHTML=
@@ -643,15 +651,15 @@ export class DevOverlay {
             '<label class="tq-field tq-field--check"><span>Movimento ativo</span><input data-ocean-prop="active" type="checkbox" '+(ocean.active?'checked':'')+'></label>'+
             '<label class="tq-world-field"><span>Fundo</span><select data-ocean-prop="background">'+backgroundOptions+'</select></label>'+
             '<label class="tq-world-field"><span>Predefinição</span><select data-ocean-prop="preset">'+presetOptions+'</select></label>'+
-            number("tileSize","Escala da textura",240,1600,10)+
-            number("brightness","Brilho",50,150,1)+
-            number("saturation","Saturação",0,180,1)+
+            oceanRange("tileSize","Escala da textura",240,1600,10)+
+            oceanRange("brightness","Brilho",50,150,1)+
+            oceanRange("saturation","Saturação",0,180,1)+
           '</div></section>'+
           '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Movimento da água</strong><span>▾</span></button><div class="tq-config-area__body">'+
-            number("speed","Velocidade",0,100,1)+
-            number("directionX","Direção horizontal",-1,1,.05)+
-            number("directionY","Direção vertical",-1,1,.05)+
-            number("swell","Ondulação",0,100,1)+
+            oceanRange("speed","Velocidade",0,100,1)+
+            oceanRange("directionX","Direção horizontal",-1,1,.05)+
+            oceanRange("directionY","Direção vertical",-1,1,.05)+
+            oceanRange("swell","Ondulação",0,100,1)+
             '<small class="tq-world-ocean-note">As alterações aparecem imediatamente no oceano. Play usa a mesma configuração.</small>'+
           '</div></section>'+
         '</div>';
@@ -672,13 +680,27 @@ export class DevOverlay {
       }));
 
       const numeric=new Set(["speed","directionX","directionY","swell","tileSize","brightness","saturation"]);
-      content.querySelectorAll("[data-ocean-prop]").forEach(input=>input.addEventListener("change",()=>{
-        const key=input.dataset.oceanProp;
-        const value=input.type==="checkbox"?input.checked:(numeric.has(key)?Number(input.value):input.value);
-        this.worldEditor.updateOcean({[key]:value},true);
-        this.syncLocalWorldFromEditor();
-        if(key==="preset")this.renderWorldInspector();
-      }));
+      content.querySelectorAll("[data-ocean-prop]").forEach(input=>{
+        const readValue=()=>input.type==="checkbox"?input.checked:(numeric.has(input.dataset.oceanProp)?Number(input.value):input.value);
+
+        if(input.type==="range"){
+          input.addEventListener("input",()=>{
+            const key=input.dataset.oceanProp;
+            const value=readValue();
+            const output=content.querySelector('[data-ocean-output="'+key+'"]');
+            if(output)output.value=oceanFormat(value,input.step);
+            this.worldEditor.updateOcean({[key]:value},false);
+          });
+        }
+
+        input.addEventListener("change",()=>{
+          const key=input.dataset.oceanProp;
+          const value=readValue();
+          this.worldEditor.updateOcean({[key]:value},true);
+          this.syncLocalWorldFromEditor();
+          if(key==="preset")this.renderWorldInspector();
+        });
+      });
       return;
     }
 
@@ -849,7 +871,7 @@ export class DevOverlay {
 
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260930-0228",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260930-0236",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -859,7 +881,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260930-0228",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260930-0236",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
