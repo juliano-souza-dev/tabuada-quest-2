@@ -50,3 +50,11 @@ test("world prototype is editor-versioned",()=>{
   assert.equal(config.meta?.editorVersion,1);
   assert.ok(config.meta?.sourceRevision);
 });
+
+test("world prototype defines editable ocean movement",()=>{
+  assert.equal(config.ocean?.active,true);
+  assert.ok(String(config.ocean?.background||"").startsWith("./assets/backgrounds/"));
+  assert.ok(["calm","adventure","storm"].includes(config.ocean?.preset));
+  assert.ok(Number.isFinite(config.ocean?.speed));
+  assert.ok(Number.isFinite(config.ocean?.swell));
+});
