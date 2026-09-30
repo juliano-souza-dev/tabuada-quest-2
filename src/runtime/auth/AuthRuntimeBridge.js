@@ -13,7 +13,16 @@ export async function installAuthRuntime(runtime,{configUrl="./src/config/fireba
     const status=auth.status();
     if(!status.authenticated)return {status,restore:null,state:null};
 
-    const restore=await playerState.restore();
+    let restore=null;
+    if(playerState.hasPendingLocal()){
+      const sync=await playerState.syncNow();
+      restore=sync.ok
+        ? await playerState.restore()
+        : {ok:false,code:"restore_skipped_pending_local",state:playerState.load()};
+    }else{
+      restore=await playerState.restore();
+    }
+
     const detail={
       reason:String(reason||"authenticated"),
       status:auth.status(),
