@@ -1,6 +1,7 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0250";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0250";
-import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0250";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0305";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0305";
+import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0305";
+import { NAVIGATION_DEFAULTS, computeCameraLookAhead, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0305";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
@@ -623,15 +624,15 @@ export class WorldRuntime {
   updatePlayer(dt){
     const input=this.inputVector();
     const accel=520;
-    const maxSpeed=250;
+    const maxSpeed=NAVIGATION_DEFAULTS.maxSpeed;
     const drag=Math.pow(0.0008,dt);
 
     this.player.vx=(this.player.vx+input.x*accel*dt)*drag;
     this.player.vy=(this.player.vy+input.y*accel*dt)*drag;
 
-    const speed=Math.hypot(this.player.vx,this.player.vy);
-    if(speed>maxSpeed){
-      const scale=maxSpeed/speed;
+    const rawSpeed=Math.hypot(this.player.vx,this.player.vy);
+    if(rawSpeed>maxSpeed){
+      const scale=maxSpeed/rawSpeed;
       this.player.vx*=scale;
       this.player.vy*=scale;
     }
@@ -639,9 +640,18 @@ export class WorldRuntime {
     this.player.x=clamp(this.player.x+this.player.vx*dt,55,this.config.width-55);
     this.player.y=clamp(this.player.y+this.player.vy*dt,70,this.config.height-70);
 
-    if(speed>8){
-      this.player.rotation=Math.atan2(this.player.vy,this.player.vx)*180/Math.PI+90;
-    }
+    const targetRotation=velocityHeading(
+      this.player.vx,
+      this.player.vy,
+      this.player.rotation,
+      NAVIGATION_DEFAULTS.minHeadingSpeed
+    );
+    this.player.rotation=smoothAngle(
+      this.player.rotation,
+      targetRotation,
+      dt,
+      NAVIGATION_DEFAULTS.rotationSharpness
+    );
   }
 
   updatePlayerVisual(){
@@ -703,7 +713,7 @@ export class WorldRuntime {
     }
   }
 
-  updateCamera(immediate=false){
+  updateCamera(immediate=false,dt=1/60){
     if(!this.viewportSize)return;
     const vw=this.viewportSize.width;
     const vh=this.viewportSize.height;
@@ -712,9 +722,13 @@ export class WorldRuntime {
       const zoom=this.playZoom;
       const halfW=Math.min(this.config.width/2,vw/(2*zoom));
       const halfH=Math.min(this.config.height/2,vh/(2*zoom));
-      const targetX=clamp(this.player.x,halfW,this.config.width-halfW);
-      const targetY=clamp(this.player.y,halfH,this.config.height-halfH);
-      const factor=immediate?1:.12;
+      const lookAhead=computeCameraLookAhead(this.player.vx,this.player.vy,{
+        maxSpeed:NAVIGATION_DEFAULTS.maxSpeed,
+        maxDistance:NAVIGATION_DEFAULTS.cameraLookAheadDistance
+      });
+      const targetX=clamp(this.player.x+lookAhead.x,halfW,this.config.width-halfW);
+      const targetY=clamp(this.player.y+lookAhead.y,halfH,this.config.height-halfH);
+      const factor=immediate?1:expSmoothingFactor(dt,NAVIGATION_DEFAULTS.cameraSharpness);
       this.camera.x+=(targetX-this.camera.x)*factor;
       this.camera.y+=(targetY-this.camera.y)*factor;
       this.zoom=zoom;
@@ -997,7 +1011,7 @@ export class WorldRuntime {
     this.updatePlayerVisual();
     this.updateOceanFrame(time);
     this.updateEntityMotionFrame(time);
-    this.updateCamera();
+    this.updateCamera(false,dt);
     this.updateNearby();
 
     if(this.coordsEl){
