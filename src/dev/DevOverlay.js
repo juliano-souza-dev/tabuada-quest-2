@@ -1,11 +1,11 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0040";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0050";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
     this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();
     this.sceneResolver=options.sceneResolver||null;this.sceneCatalog=null;this.localScenes=[];
-    this.workspace="scene";this.worldCatalog=null;this.worldEditor=new WorldEditor(this.runtime.root,{sceneRuntime:this.runtime});this.sceneBeforeWorld=null;this.worldSceneBackButton=null;
-    this.localSceneStorageKey="tq.dev.local-scenes:v1";this.sceneGroupStorageKey="tq.dev.scene-groups:v1";
+    this.workspace="scene";this.worldCatalog=null;this.localWorlds=[];this.worldEditor=new WorldEditor(this.runtime.root,{sceneRuntime:this.runtime});this.sceneBeforeWorld=null;this.worldSceneBackButton=null;
+    this.localSceneStorageKey="tq.dev.local-scenes:v1";this.localWorldStorageKey="tq.dev.local-worlds:v1";this.sceneGroupStorageKey="tq.dev.scene-groups:v1";
     try{this.sceneGroupOpen=new Set(JSON.parse(sessionStorage.getItem(this.sceneGroupStorageKey)||"[]"))}catch{this.sceneGroupOpen=new Set()}
   }
   mount(){
@@ -43,8 +43,22 @@ export class DevOverlay {
         <header><div><strong>Mundos</strong><small>Oceanos e áreas navegáveis</small></div><button data-worlds-close aria-label="Fechar">×</button></header>
         <div class="tq-worlds__body">
           <div class="tq-world-list" data-worlds-list></div>
+          <button type="button" class="tq-worlds__create-open" data-world-create-open>＋ Criar novo oceano</button>
+          <form class="tq-worlds__create" data-world-create-form hidden>
+            <strong>Criar novo oceano</strong>
+            <label><span>Nome</span><input data-world-create-name type="text" value="Oceano Inicial" autocomplete="off"></label>
+            <label><span>ID</span><input data-world-create-id type="text" value="oceano-inicial" autocomplete="off"></label>
+            <div class="tq-worlds__create-grid">
+              <label><span>Largura</span><input data-world-create-width type="number" min="800" max="20000" value="3000"></label>
+              <label><span>Altura</span><input data-world-create-height type="number" min="1000" max="20000" value="4000"></label>
+            </div>
+            <label><span>Fundo do oceano</span><select data-world-create-background></select></label>
+            <label><span>Movimento inicial</span><select data-world-create-preset><option value="calm">Calmo</option><option value="adventure" selected>Aventura</option><option value="storm">Tempestade</option></select></label>
+            <div class="tq-scenes__create-error" data-world-create-error hidden></div>
+            <div class="tq-scenes__create-actions"><button type="button" data-world-create-cancel>Cancelar</button><button type="submit" class="is-primary">Criar oceano</button></div>
+          </form>
           <div class="tq-worlds__actions" data-worlds-actions></div>
-          <div class="tq-worlds__hint">V1 funcional: abra um mundo, arraste entidades, use Assets para adicionar objetos, edite pelo Config e alterne Editar/Play.</div>
+          <div class="tq-worlds__hint">Crie oceanos, ajuste o movimento da água em Config → Oceano, adicione entidades por Assets e teste tudo no Play.</div>
         </div>
       </section>
       <section class="tq-dev__assets" hidden>
@@ -69,6 +83,14 @@ export class DevOverlay {
     this.el.querySelector("[data-scenes-close]").addEventListener("click",()=>this.toggleScenes(false));
     this.el.querySelector("[data-worlds]").addEventListener("click",()=>this.toggleWorlds(true));
     this.el.querySelector("[data-worlds-close]").addEventListener("click",()=>this.toggleWorlds(false));
+    this.el.querySelector("[data-world-create-open]").addEventListener("click",()=>this.showCreateWorldForm(true));
+    this.el.querySelector("[data-world-create-cancel]").addEventListener("click",()=>this.showCreateWorldForm(false));
+    this.el.querySelector("[data-world-create-form]").addEventListener("submit",event=>{event.preventDefault();this.createWorldFromForm()});
+    this.el.querySelector("[data-world-create-name]").addEventListener("input",event=>{
+      const id=this.el.querySelector("[data-world-create-id]");
+      if(id?.dataset.manual!=="true")id.value=this.slugifyWorldId(event.currentTarget.value);
+    });
+    this.el.querySelector("[data-world-create-id]").addEventListener("input",event=>{event.currentTarget.dataset.manual="true"});
     this.el.querySelector("[data-scene-create-open]").addEventListener("click",()=>this.showCreateSceneForm(true));
     this.el.querySelector("[data-scene-create-cancel]").addEventListener("click",()=>this.showCreateSceneForm(false));
     this.el.querySelector("[data-scene-create-form]").addEventListener("submit",event=>{event.preventDefault();this.createSceneFromForm()});
@@ -99,7 +121,14 @@ export class DevOverlay {
       if(this.workspace!=="world")return;
       const entity=e.detail?.entity;
       if(entity&&this.selected?.id===entity.id)this.selected=entity;
+      if(e.detail?.commit)this.syncLocalWorldFromEditor();
       if(this.mode==="config")this.renderWorldInspector();
+      this.renderWorlds();
+    });
+    window.addEventListener("tq:worldchange",()=>{
+      if(this.workspace!=="world")return;
+      this.syncLocalWorldFromEditor();
+      if(this.mode==="config"&&!this.selected)this.renderWorldInspector();
       this.renderWorlds();
     });
   }
@@ -122,7 +151,7 @@ export class DevOverlay {
     try{
       if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
       else{
-        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0040",{cache:"no-store"});
+        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0050",{cache:"no-store"});
         if(!response.ok)throw new Error("HTTP "+response.status);
         this.sceneCatalog=await response.json();
       }
@@ -312,29 +341,85 @@ export class DevOverlay {
     }
   }
 
+  loadLocalWorlds(){
+    try{
+      const value=JSON.parse(localStorage.getItem(this.localWorldStorageKey)||"[]");
+      this.localWorlds=Array.isArray(value)?value.filter(item=>item?.entry?.id&&item?.world?.id):[];
+    }catch{
+      this.localWorlds=[];
+    }
+    return this.localWorlds;
+  }
+
+  saveLocalWorlds(){
+    try{localStorage.setItem(this.localWorldStorageKey,JSON.stringify(this.localWorlds))}catch(error){console.warn("DEV local worlds save failed",error)}
+  }
+
+  allWorldEntries(){
+    const repository=Array.isArray(this.worldCatalog?.worlds)?this.worldCatalog.worlds:[];
+    const entries=[...repository];
+    for(const item of this.localWorlds){
+      if(!repository.some(world=>world.id===item.entry.id))entries.push(item.entry);
+    }
+    return entries;
+  }
+
+  syncLocalWorldFromEditor(){
+    const id=this.worldEditor?.entry?.id;
+    if(!id||!this.worldEditor?.entry?.local)return;
+    const item=this.localWorlds.find(entry=>entry.entry.id===id);
+    const world=this.worldEditor.getWorld();
+    if(item&&world){
+      item.world=structuredClone(world);
+      item.entry.name=world.name||item.entry.name;
+      this.saveLocalWorlds();
+    }
+  }
+
+  slugifyWorldId(value){
+    return String(value||"")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"")
+      .slice(0,64)||"oceano";
+  }
+
   async loadWorldCatalog(){
     try{
-      const response=await fetch("./src/config/world-catalog.json?v=20260930-0040",{cache:"no-store"});
+      const response=await fetch("./src/config/world-catalog.json?v=20260930-0050",{cache:"no-store"});
       if(!response.ok)throw new Error("HTTP "+response.status);
       this.worldCatalog=await response.json();
-      this.renderWorlds();
     }catch(error){
       console.warn("World catalog load failed",error);
-      const list=this.el?.querySelector("[data-worlds-list]");
-      if(list)list.innerHTML='<div class="tq-scenes__empty">Falha ao carregar o catálogo de mundos.</div>';
+      this.worldCatalog={schema:"tq.world-catalog",version:1,worlds:[]};
     }
+    this.loadLocalWorlds();
+    this.renderWorlds();
+  }
+
+  worldBackgroundOptions(selected=""){
+    const backgrounds=(this.assetCatalog||[]).filter(asset=>String(asset.path||"").startsWith("assets/backgrounds/"));
+    const preferred=["assets/backgrounds/scene-ocean.webp",...backgrounds.map(asset=>asset.path)];
+    const unique=[...new Set(preferred)];
+    return unique.map(path=>{
+      const value="./"+path;
+      const label=path.split("/").pop();
+      return '<option value="'+this.escapeHtml(value)+'" '+(value===selected?'selected':'')+'>'+this.escapeHtml(label)+'</option>';
+    }).join("");
   }
 
   renderWorlds(){
     const list=this.el?.querySelector("[data-worlds-list]");
     const actions=this.el?.querySelector("[data-worlds-actions]");
     if(!list||!actions)return;
-    const worlds=this.worldCatalog?.worlds||[];
+    const worlds=this.allWorldEntries();
     const current=this.worldEditor?.entry?.id||"";
 
     list.innerHTML=worlds.length?worlds.map(world=>
       '<button type="button" class="tq-world-item '+(world.id===current?'is-current':'')+'" data-world-open="'+this.escapeHtml(world.id)+'">'+
-        '<span><b>'+this.escapeHtml(world.name||world.id)+'</b><small>'+this.escapeHtml(world.type||"world")+' · '+this.escapeHtml(world.id)+'</small></span>'+
+        '<span><b>'+this.escapeHtml(world.name||world.id)+'</b><small>'+this.escapeHtml(world.type||"ocean")+' · '+this.escapeHtml(world.id)+(world.local?' · LOCAL':'')+'</small></span>'+
         '<strong>'+(world.id===current?'ABERTO':'EDITAR')+'</strong>'+
       '</button>'
     ).join(""):'<div class="tq-scenes__empty">Nenhum mundo cadastrado.</div>';
@@ -342,9 +427,14 @@ export class DevOverlay {
     list.querySelectorAll("[data-world-open]").forEach(button=>button.addEventListener("click",()=>this.openWorld(button.dataset.worldOpen)));
 
     actions.innerHTML=this.worldEditor?.active
-      ? '<button type="button" data-world-export>⇩ Exportar JSON</button><button type="button" data-world-exit>← Voltar às cenas</button>'
+      ? '<button type="button" data-world-ocean-config>⚙ Oceano</button><button type="button" data-world-export>⇩ JSON</button><button type="button" data-world-exit>← Cenas</button>'
       : '';
 
+    actions.querySelector("[data-world-ocean-config]")?.addEventListener("click",()=>{
+      this.worldEditor.selectEntity(null);
+      this.selected=null;
+      this.setMode("config");
+    });
     actions.querySelector("[data-world-export]")?.addEventListener("click",()=>this.worldEditor.exportWorld());
     actions.querySelector("[data-world-exit]")?.addEventListener("click",()=>this.exitWorldWorkspace({restoreScene:true}));
   }
@@ -357,16 +447,104 @@ export class DevOverlay {
       this.el.querySelector(".tq-dev__scenes").hidden=true;
       this.el.querySelector(".tq-dev__panel").hidden=true;
       this.renderWorlds();
+      if(!this.el.querySelector("[data-world-create-form]").hidden)this.populateCreateWorldBackgrounds();
     }
   }
 
+  populateCreateWorldBackgrounds(){
+    const select=this.el.querySelector("[data-world-create-background]");
+    if(!select)return;
+    const current=select.value||"./assets/backgrounds/scene-ocean.webp";
+    select.innerHTML=this.worldBackgroundOptions(current);
+    if([...select.options].some(option=>option.value===current))select.value=current;
+  }
+
+  showCreateWorldForm(show){
+    const form=this.el.querySelector("[data-world-create-form]");
+    const opener=this.el.querySelector("[data-world-create-open]");
+    form.hidden=!show;
+    opener.hidden=show;
+    const error=this.el.querySelector("[data-world-create-error]");
+    error.hidden=true;
+    error.textContent="";
+    if(!show)return;
+    const name=this.el.querySelector("[data-world-create-name]");
+    const id=this.el.querySelector("[data-world-create-id]");
+    id.dataset.manual="false";
+    if(!name.value)name.value="Oceano Inicial";
+    id.value=this.slugifyWorldId(name.value);
+    this.populateCreateWorldBackgrounds();
+  }
+
+  async createWorldFromForm(){
+    const name=(this.el.querySelector("[data-world-create-name]")?.value||"").trim();
+    const id=this.slugifyWorldId(this.el.querySelector("[data-world-create-id]")?.value||name);
+    const width=Math.max(800,Math.min(20000,Number(this.el.querySelector("[data-world-create-width]")?.value)||3000));
+    const height=Math.max(1000,Math.min(20000,Number(this.el.querySelector("[data-world-create-height]")?.value)||4000));
+    const background=this.el.querySelector("[data-world-create-background]")?.value||"./assets/backgrounds/scene-ocean.webp";
+    const preset=this.el.querySelector("[data-world-create-preset]")?.value||"adventure";
+    const error=this.el.querySelector("[data-world-create-error]");
+
+    if(!name||!id){
+      error.textContent="Informe um nome e um ID para o oceano.";
+      error.hidden=false;
+      return;
+    }
+    if(this.allWorldEntries().some(world=>world.id===id)){
+      error.textContent="Já existe um mundo com este ID.";
+      error.hidden=false;
+      return;
+    }
+
+    const presetDefaults={
+      calm:{speed:12,directionX:.55,directionY:.18,swell:12,tileSize:760,brightness:100,saturation:95},
+      adventure:{speed:28,directionX:.82,directionY:.32,swell:28,tileSize:720,brightness:102,saturation:105},
+      storm:{speed:56,directionX:1,directionY:.62,swell:62,tileSize:660,brightness:88,saturation:82}
+    }[preset];
+
+    const revision="local-"+Date.now();
+    const world={
+      schema:"tq.world",
+      version:1,
+      id,
+      name,
+      type:"ocean",
+      width,
+      height,
+      player:{
+        x:width/2,
+        y:Math.max(120,height-420),
+        src:"./assets/ships/events/halloween/navio_pirata_halloween_tabuada.webp"
+      },
+      ocean:{active:true,background,preset,...presetDefaults},
+      entities:[],
+      editor:{cameraX:width/2,cameraY:height/2,zoom:.55},
+      meta:{schema:"tq.world",version:1,sourceRevision:revision,editorVersion:1,createdFrom:"tabuada-quest-dev"}
+    };
+    const entry={id,name,type:"ocean",path:null,local:true};
+    this.localWorlds.push({entry,world});
+    this.saveLocalWorlds();
+
+    if(this.workspace==="scene"&&!this.sceneBeforeWorld)this.sceneBeforeWorld=structuredClone(this.runtime.scene||null);
+    await this.worldEditor.openLocal(entry,world);
+    this.workspace="world";
+    this.selected=null;
+    if(this.mold)this.mold.hidden=true;
+    this.showCreateWorldForm(false);
+    this.toggleWorlds(false);
+    this.setMode("edit");
+    this.renderWorlds();
+  }
+
   async openWorld(id){
-    const entry=(this.worldCatalog?.worlds||[]).find(world=>world.id===id);
+    const entry=this.allWorldEntries().find(world=>world.id===id);
     if(!entry)return;
     try{
       if(this.workspace==="scene"&&!this.sceneBeforeWorld)this.sceneBeforeWorld=structuredClone(this.runtime.scene||null);
       this.removeWorldSceneBackButton();
-      await this.worldEditor.open(entry);
+      const local=this.localWorlds.find(item=>item.entry.id===id);
+      if(local)await this.worldEditor.openLocal(local.entry,local.world);
+      else await this.worldEditor.open(entry);
       this.workspace="world";
       this.selected=null;
       if(this.mold)this.mold.hidden=true;
@@ -381,6 +559,7 @@ export class DevOverlay {
   }
 
   exitWorldWorkspace({restoreScene=true}={}){
+    this.syncLocalWorldFromEditor();
     this.removeWorldSceneBackButton();
     this.worldEditor?.close({showScene:true});
     this.workspace="scene";
@@ -436,8 +615,68 @@ export class DevOverlay {
     const entity=this.selected;
 
     if(!entity){
-      title.textContent="Nenhuma entidade";
-      content.innerHTML='<div class="tq-dev__empty">Selecione uma entidade do mundo para configurar.</div>';
+      const world=this.worldEditor?.getWorld();
+      const ocean=this.worldEditor?.getOcean();
+      if(!world||!ocean){
+        title.textContent="Oceano";
+        content.innerHTML='<div class="tq-dev__empty">Abra um mundo para configurar o oceano.</div>';
+        return;
+      }
+
+      const presetOptions=[["calm","Calmo"],["adventure","Aventura"],["storm","Tempestade"]]
+        .map(([value,label])=>'<option value="'+value+'" '+(ocean.preset===value?'selected':'')+'>'+label+'</option>').join("");
+      const backgroundOptions=this.worldBackgroundOptions(ocean.background);
+      const number=(key,label,min,max,step="1")=>'<label class="tq-world-field"><span>'+label+'</span><input data-ocean-prop="'+key+'" type="number" min="'+min+'" max="'+max+'" step="'+step+'" value="'+this.escapeHtml(ocean[key]??"")+'"></label>';
+
+      title.textContent=(world.name||world.id)+" · oceano";
+      content.innerHTML=
+        '<div class="tq-inspector">'+
+          '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Mundo</strong><span>▾</span></button><div class="tq-config-area__body">'+
+            '<label class="tq-world-field"><span>Nome</span><input data-world-root-prop="name" type="text" value="'+this.escapeHtml(world.name||"")+'"></label>'+
+            '<label class="tq-world-field"><span>ID</span><input value="'+this.escapeHtml(world.id)+'" readonly></label>'+
+            '<label class="tq-world-field"><span>Largura</span><input data-world-root-prop="width" type="number" min="390" max="20000" value="'+world.width+'"></label>'+
+            '<label class="tq-world-field"><span>Altura</span><input data-world-root-prop="height" type="number" min="844" max="20000" value="'+world.height+'"></label>'+
+          '</div></section>'+
+          '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Visual do oceano</strong><span>▾</span></button><div class="tq-config-area__body">'+
+            '<label class="tq-field tq-field--check"><span>Movimento ativo</span><input data-ocean-prop="active" type="checkbox" '+(ocean.active?'checked':'')+'></label>'+
+            '<label class="tq-world-field"><span>Fundo</span><select data-ocean-prop="background">'+backgroundOptions+'</select></label>'+
+            '<label class="tq-world-field"><span>Predefinição</span><select data-ocean-prop="preset">'+presetOptions+'</select></label>'+
+            number("tileSize","Escala da textura",240,1600,10)+
+            number("brightness","Brilho",50,150,1)+
+            number("saturation","Saturação",0,180,1)+
+          '</div></section>'+
+          '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Movimento da água</strong><span>▾</span></button><div class="tq-config-area__body">'+
+            number("speed","Velocidade",0,100,1)+
+            number("directionX","Direção horizontal",-1,1,.05)+
+            number("directionY","Direção vertical",-1,1,.05)+
+            number("swell","Ondulação",0,100,1)+
+            '<small class="tq-world-ocean-note">As alterações aparecem imediatamente no oceano. Play usa a mesma configuração.</small>'+
+          '</div></section>'+
+        '</div>';
+
+      content.querySelectorAll("[data-area-toggle]").forEach(button=>button.addEventListener("click",()=>{
+        const body=button.nextElementSibling;
+        body.hidden=!body.hidden;
+        button.setAttribute("aria-expanded",String(!body.hidden));
+        button.querySelector("span").textContent=body.hidden?"▸":"▾";
+      }));
+
+      content.querySelectorAll("[data-world-root-prop]").forEach(input=>input.addEventListener("change",()=>{
+        const key=input.dataset.worldRootProp;
+        const value=["width","height"].includes(key)?Number(input.value):input.value;
+        this.worldEditor.updateWorld({[key]:value},true);
+        this.syncLocalWorldFromEditor();
+        this.renderWorlds();
+      }));
+
+      const numeric=new Set(["speed","directionX","directionY","swell","tileSize","brightness","saturation"]);
+      content.querySelectorAll("[data-ocean-prop]").forEach(input=>input.addEventListener("change",()=>{
+        const key=input.dataset.oceanProp;
+        const value=input.type==="checkbox"?input.checked:(numeric.has(key)?Number(input.value):input.value);
+        this.worldEditor.updateOcean({[key]:value},true);
+        this.syncLocalWorldFromEditor();
+        if(key==="preset")this.renderWorldInspector();
+      }));
       return;
     }
 
@@ -497,7 +736,7 @@ export class DevOverlay {
 
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260930-0040",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260930-0050",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -507,7 +746,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260930-0040",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260930-0050",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];
@@ -521,6 +760,7 @@ export class DevOverlay {
       };
       indexNode(this.assetTree);
       this.renderAssets();
+      this.populateCreateWorldBackgrounds?.();
     }catch(e){
       console.warn("Asset tree load failed",e);
       const grid=this.el.querySelector("[data-assets-grid]");
