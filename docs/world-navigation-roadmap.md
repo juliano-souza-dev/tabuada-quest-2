@@ -16,7 +16,7 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ✅ Normalização diagonal para impedir ganho de velocidade em diagonal.
 - ✅ Movimento baseado em deltaTime.
 - 🟡 Rotação do navio para a direção do movimento. A direção já é calculada, mas ainda falta interpolação suave pelo menor ângulo.
-- 🟡 Câmera com seguimento suave. O lerp já existe, mas ainda falta look-ahead baseado na velocidade.
+- 🟡 Câmera com seguimento suave frame-rate independent usando exponencial `1 - exp(-dt * 4.5)`. Ainda falta look-ahead baseado na velocidade.
 - ⬜ Colisão suave com bordas e obstáculos, incluindo quique amortecido e deslizamento pela superfície.
 - ⬜ Correntes marítimas e vento aplicando força física ao navio.
 - ✅ Joystick analógico no touch, com intensidade proporcional, dead zone e teclado preservado.
@@ -25,7 +25,7 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ⬜ Som de água que reage à velocidade e rangido de madeira em curvas.
 - ⬜ Reflexo/sombra dinâmica do navio na água.
 - ⬜ Esteira dinâmica ligada à velocidade real do navio.
-- ⬜ Parallax em camadas de mundo, com fatores diferentes por camada.
+- ✅ Parallax visual do oceano em 3 camadas: água profunda, ondas e espuma, com fatores independentes e navios/entidades em 1.0.
 
 ## Oceano
 
@@ -39,6 +39,7 @@ Este documento registra o estado do mundo navegável 2D, da navegação do navio
 - ✅ Escala da textura.
 - ✅ Brilho e saturação.
 - ✅ Preview imediato no editor e no Play.
+- ✅ Três camadas visuais de oceano com textura, parallax, deriva X/Y, escala e opacidade configuráveis por sliders.
 - ⬜ Correntes por região com vetores próprios.
 - ⬜ Zonas marítimas com comportamento diferente dentro do mesmo mundo.
 - ⬜ Ondas locais que influenciam fisicamente entidades e navios.
@@ -92,7 +93,7 @@ Os presets do mundo seguem os mesmos perfis conceituais do navio de cena: calm, 
 4. Corrente marítima como força física.
 5. ✅ Joystick analógico para touch + navegação por clique.
 6. Esteira ligada à velocidade do navio.
-7. Parallax por camada.
+7. ✅ Parallax visual do oceano por camada.
 8. Áudio reativo à navegação.
 
 A regra arquitetural continua sendo:
@@ -111,3 +112,16 @@ O pacote de joystick analógico + navegação por clique foi implementado a part
 - Clique/toque: converte coordenadas da tela para o mundo respeitando câmera, zoom e margens navegáveis.
 - Prioridade: teclado/joystick cancelam um alvo de clique em andamento.
 - Aproximação: a força reduz perto do destino para evitar oscilações grandes.
+
+
+## Oceano em camadas
+
+A câmera de Play segue o jogador com suavização exponencial dependente de `dt`, usando sharpness 4.5. Navios e entidades permanecem em coordenadas WORLD, fator 1.0.
+
+As camadas visuais padrão do oceano são:
+
+- deep: parallax 0.22, deriva 7 / 4
+- wave: parallax 0.45, deriva 18 / 11
+- foam: parallax 0.68, deriva 36 / 24
+
+O World Editor permite editar textura, parallax, deriva X/Y, escala da camada e opacidade sem alterar a física do mundo.
