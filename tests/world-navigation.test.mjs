@@ -55,8 +55,8 @@ test("camera smoothing factor matches exponential time behavior",()=>{
 
 test("camera follow keeps downward movement visually downward",()=>{
   const target=computeCameraFollowTarget(
-    {x:1100,y:180},
-    {x:1100,y:100},
+    {x:1100,y:1080},
+    {x:1100,y:1000},
     {
       viewportWidth:390,
       viewportHeight:844,
@@ -66,14 +66,14 @@ test("camera follow keeps downward movement visually downward",()=>{
       deadZone:40
     }
   );
-  assert.equal(target.y,140);
-  assert.ok(180-target.y>0);
+  assert.equal(target.y,1040);
+  assert.ok(1080-target.y>0);
 });
 
 test("camera follow keeps upward movement visually upward",()=>{
   const target=computeCameraFollowTarget(
-    {x:1100,y:100},
-    {x:1100,y:180},
+    {x:1100,y:1000},
+    {x:1100,y:1080},
     {
       viewportWidth:390,
       viewportHeight:844,
@@ -83,8 +83,8 @@ test("camera follow keeps upward movement visually upward",()=>{
       deadZone:40
     }
   );
-  assert.equal(target.y,140);
-  assert.ok(100-target.y<0);
+  assert.equal(target.y,1040);
+  assert.ok(1000-target.y<0);
 });
 
 test("camera dead zone does not move while the ship remains inside it",()=>{
