@@ -629,6 +629,16 @@ export class DevOverlay {
         .map(([value,label])=>'<option value="'+value+'" '+(ocean.preset===value?'selected':'')+'>'+label+'</option>').join("");
       const backgroundOptions=this.worldBackgroundOptions(ocean.background);
       const number=(key,label,min,max,step="1")=>'<label class="tq-world-field"><span>'+label+'</span><input data-ocean-prop="'+key+'" type="number" min="'+min+'" max="'+max+'" step="'+step+'" value="'+this.escapeHtml(ocean[key]??"")+'"></label>';
+      const player=this.worldEditor?.getPlayerConfig()||world.player||{};
+      const directionLabels={n:"N",ne:"NE",e:"E",se:"SE",s:"S",sw:"SW",w:"W",nw:"NW"};
+      const directionSlots=Object.entries(directionLabels).map(([key,label])=>{
+        const src=player.directions?.[key]||"";
+        return '<button type="button" class="tq-world-direction-slot" data-player-direction-pick="'+key+'" title="Escolher asset para '+label+'">'+
+          '<span>'+label+'</span>'+
+          (src?'<img src="'+this.escapeHtml(src)+'" alt="" loading="lazy">':'<i>＋</i>')+
+          '<small>'+this.escapeHtml(src?src.split("/").pop():"Selecionar")+'</small>'+
+        '</button>';
+      }).join("");
 
       title.textContent=(world.name||world.id)+" · oceano";
       content.innerHTML=
@@ -638,6 +648,15 @@ export class DevOverlay {
             '<label class="tq-world-field"><span>ID</span><input value="'+this.escapeHtml(world.id)+'" readonly></label>'+
             '<label class="tq-world-field"><span>Largura</span><input data-world-root-prop="width" type="number" min="390" max="20000" value="'+world.width+'"></label>'+
             '<label class="tq-world-field"><span>Altura</span><input data-world-root-prop="height" type="number" min="844" max="20000" value="'+world.height+'"></label>'+
+          '</div></section>'+
+          '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Navio do jogador</strong><span>▾</span></button><div class="tq-config-area__body">'+
+            '<div class="tq-world-direction-grid">'+directionSlots+'</div>'+
+            '<div class="tq-worlds__create-grid">'+
+              '<label class="tq-world-field"><span>Largura</span><input data-player-prop="width" type="number" min="24" max="1200" value="'+this.escapeHtml(player.width??108)+'"></label>'+
+              '<label class="tq-world-field"><span>Altura</span><input data-player-prop="height" type="number" min="24" max="1200" value="'+this.escapeHtml(player.height??150)+'"></label>'+
+            '</div>'+
+            '<label class="tq-world-field"><span>Direção inicial</span><select data-player-prop="direction">'+Object.entries(directionLabels).map(([key,label])=>'<option value="'+key+'" '+(String(player.direction||"n")===key?'selected':'')+'>'+label+'</option>').join("")+'</select></label>'+
+            '<small class="tq-world-editor-note">Cada slot representa a direção real da proa. Use Assets para escolher a vista correta de N, NE, E, SE, S, SW, W e NW.</small>'+
           '</div></section>'+
           '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Visual do oceano</strong><span>▾</span></button><div class="tq-config-area__body">'+
             '<label class="tq-field tq-field--check"><span>Movimento ativo</span><input data-ocean-prop="active" type="checkbox" '+(ocean.active?'checked':'')+'></label>'+
@@ -669,6 +688,18 @@ export class DevOverlay {
         this.worldEditor.updateWorld({[key]:value},true);
         this.syncLocalWorldFromEditor();
         this.renderWorlds();
+      }));
+
+      content.querySelectorAll("[data-player-direction-pick]").forEach(button=>button.addEventListener("click",()=>{
+        this.openWorldPlayerAssetPicker(button.dataset.playerDirectionPick);
+      }));
+
+      content.querySelectorAll("[data-player-prop]").forEach(input=>input.addEventListener("change",()=>{
+        const key=input.dataset.playerProp;
+        const value=["width","height"].includes(key)?Number(input.value):input.value;
+        this.worldEditor.updatePlayerConfig({[key]:value},true);
+        this.syncLocalWorldFromEditor();
+        this.renderWorldInspector();
       }));
 
       const numeric=new Set(["speed","directionX","directionY","swell","tileSize","brightness","saturation"]);
