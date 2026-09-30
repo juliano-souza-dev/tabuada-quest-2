@@ -100,6 +100,9 @@ export class SceneRuntime {
     node.rotation=Number(node.rotation??0); node.skewX=Number(node.skewX??0); node.skewY=Number(node.skewY??0); node.z=Number(node.z??0); node.visible=node.visible!==false; node.locked=Boolean(node.locked);
     if(node.compositionType!=null)node.compositionType=String(node.compositionType);
     if(node.action!=null)node.action=String(node.action);
+    const src=String(node.src||"");
+    const isBackgroundAsset=node.kind==="image"&&(src.startsWith("./assets/backgrounds/")||String(node.id||"").endsWith(".background"));
+    if(isBackgroundAsset&&node.layout?.mode==null)node.layout={...(node.layout||{}),mode:"viewport-cover"};
     return node;
   }
   createNode(raw){
