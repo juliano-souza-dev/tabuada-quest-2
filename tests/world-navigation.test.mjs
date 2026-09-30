@@ -1,0 +1,52 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  NAVIGATION_DEFAULTS,
+  computeCameraLookAhead,
+  expSmoothingFactor,
+  shortestAngleDelta,
+  smoothAngle,
+  velocityHeading
+} from "../src/world/WorldNavigation.mjs";
+
+test("shortest rotation crosses the -180/180 seam",()=>{
+  assert.equal(shortestAngleDelta(179,-179),2);
+  assert.equal(shortestAngleDelta(-179,179),-2);
+});
+
+test("smooth rotation approaches target without snapping",()=>{
+  const next=smoothAngle(0,90,1/60);
+  assert.ok(next>0&&next<90);
+  const later=smoothAngle(next,90,1/60);
+  assert.ok(later>next&&later<90);
+});
+
+test("rotation smoothing is deltaTime based",()=>{
+  const oneFrame=smoothAngle(0,90,1/30);
+  const twoFrames=smoothAngle(smoothAngle(0,90,1/60),90,1/60);
+  assert.ok(Math.abs(oneFrame-twoFrames)<0.000001);
+});
+
+test("velocity heading respects ship forward axis",()=>{
+  assert.equal(velocityHeading(0,-100,0),0);
+  assert.equal(velocityHeading(100,0,0),90);
+  assert.equal(velocityHeading(0,100,0),-180);
+  assert.equal(velocityHeading(2,2,37),37);
+});
+
+test("camera look-ahead is proportional to speed and capped",()=>{
+  const half=computeCameraLookAhead(NAVIGATION_DEFAULTS.maxSpeed/2,0);
+  assert.equal(half.distance,NAVIGATION_DEFAULTS.cameraLookAheadDistance/2);
+  assert.equal(half.x,half.distance);
+  assert.equal(half.y,0);
+
+  const capped=computeCameraLookAhead(NAVIGATION_DEFAULTS.maxSpeed*3,0);
+  assert.equal(capped.distance,NAVIGATION_DEFAULTS.cameraLookAheadDistance);
+});
+
+test("camera smoothing factor matches exponential time behavior",()=>{
+  const a=expSmoothingFactor(1/30,NAVIGATION_DEFAULTS.cameraSharpness);
+  const half=expSmoothingFactor(1/60,NAVIGATION_DEFAULTS.cameraSharpness);
+  const combined=1-(1-half)*(1-half);
+  assert.ok(Math.abs(a-combined)<0.000001);
+});
