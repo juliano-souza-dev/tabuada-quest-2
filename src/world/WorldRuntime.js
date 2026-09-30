@@ -1,4 +1,5 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0305";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0342";
+import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0342";
 import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0305";
 import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0305";
 import { NAVIGATION_DEFAULTS, computeCameraLookAhead, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0305";
@@ -80,6 +81,7 @@ export class WorldRuntime {
       <div class="tq-world-viewport">
         <div class="tq-world-stage">
           <div class="tq-world-ocean"></div>
+          <canvas class="tq-world-ocean-webgl" hidden aria-hidden="true"></canvas>
           <div class="tq-world-entities"></div>
           <div class="tq-world-nav-target" hidden aria-hidden="true"></div>
           <img class="tq-world-player" alt="Navio do jogador" draggable="false">
@@ -119,10 +121,13 @@ export class WorldRuntime {
     this.actionWrap=this.host.querySelector(".tq-world-action");
     this.actionButton=this.host.querySelector("[data-world-action]");
     this.oceanEl=this.host.querySelector(".tq-world-ocean");
+    this.oceanCanvas=this.host.querySelector(".tq-world-ocean-webgl");
 
     this.stage.style.width=this.config.width+"px";
     this.stage.style.height=this.config.height+"px";
     this.applyOceanStatic();
+    this.oceanWebGL=new WorldOceanWebGL(this,this.oceanCanvas,this.oceanEl);
+    this.oceanWebGL.setBackground(this.config.ocean?.background);
     const playerConfig=this.getPlayerConfig();
     this.playerEl.src=playerConfig.src;
     this.playerEl.style.width=playerConfig.width+"px";
@@ -998,11 +1003,24 @@ export class WorldRuntime {
     this.oceanEl.style.backgroundSize=ocean.tileSize+"px auto";
     this.oceanEl.style.backgroundRepeat="repeat";
     this.oceanEl.style.transformOrigin="center center";
+    this.oceanWebGL?.setBackground(ocean.background);
+    if(!ocean.active){
+      if(this.oceanCanvas)this.oceanCanvas.hidden=true;
+      this.oceanEl.hidden=false;
+    }
   }
 
   updateOceanFrame(time){
     if(!this.oceanEl)return;
     const ocean=normalizeOceanConfig(this.config.ocean||{});
+    const webglActive=this.oceanWebGL?.render(time,ocean)===true;
+    if(webglActive){
+      this.oceanEl.hidden=true;
+      this.oceanCanvas.hidden=false;
+      return;
+    }
+    this.oceanEl.hidden=false;
+    if(this.oceanCanvas)this.oceanCanvas.hidden=true;
     const frame=computeOceanFrame(ocean,time);
     this.oceanEl.style.backgroundPosition=frame.offsetX.toFixed(2)+"px "+frame.offsetY.toFixed(2)+"px";
     this.oceanEl.style.transform="scale("+frame.scale.toFixed(5)+")";
@@ -1152,6 +1170,8 @@ export class WorldRuntime {
 
   destroy(){
     cancelAnimationFrame(this.raf);
+    this.oceanWebGL?.destroy();
+    this.oceanWebGL=null;
     for(const cleanup of this.cleanups.splice(0))cleanup();
     this.root.classList.remove("tq-world-test-active");
     this.root.innerHTML="";

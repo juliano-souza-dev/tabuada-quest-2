@@ -9,6 +9,7 @@
 .tq-world-host.is-editor .tq-world-viewport{cursor:grab}
 .tq-world-host.is-editor .tq-world-viewport:active{cursor:grabbing}
 .tq-world-ocean{position:absolute;inset:-3%;background-color:#0875a7;background-repeat:repeat;background-size:720px auto;will-change:background-position,transform,filter;pointer-events:none}
+.tq-world-ocean-webgl{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;display:block;pointer-events:none}
 .tq-world-entities{position:absolute;inset:0;pointer-events:none}
 .tq-world-depth-layer{position:absolute;inset:0;pointer-events:none}
 .tq-world-depth-layer--far{z-index:10}
