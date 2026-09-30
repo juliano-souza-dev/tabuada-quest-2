@@ -1,4 +1,4 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0752";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame, cameraFollowStep } from "./WorldOceanEffect.mjs?v=20260930-0805";
 import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0752";
 import { resolveEntityPresentation } from "./WorldEntityPresentation.mjs?v=20260930-0752";
 import { normalizeJoystickVector, screenPointToWorld, targetNavigationVector } from "./WorldNavigationInput.mjs?v=20260930-0752";
@@ -57,8 +57,12 @@ export class WorldRuntime {
     this.host.className="tq-world-host";
     this.host.innerHTML=`
       <div class="tq-world-viewport">
+        <div class="tq-world-ocean-stack" aria-hidden="true">
+          <div class="tq-world-ocean-layer tq-world-ocean-layer--deep" data-ocean-layer="deep"></div>
+          <div class="tq-world-ocean-layer tq-world-ocean-layer--wave" data-ocean-layer="wave"></div>
+          <div class="tq-world-ocean-layer tq-world-ocean-layer--foam" data-ocean-layer="foam"></div>
+        </div>
         <div class="tq-world-stage">
-          <div class="tq-world-ocean"></div>
           <div class="tq-world-entities"></div>
           <div class="tq-world-nav-target" hidden aria-hidden="true"></div>
           <img class="tq-world-player" alt="Navio do jogador">
@@ -100,7 +104,11 @@ export class WorldRuntime {
     this.nameEl=this.host.querySelector("[data-world-name]");
     this.actionWrap=this.host.querySelector(".tq-world-action");
     this.actionButton=this.host.querySelector("[data-world-action]");
-    this.oceanEl=this.host.querySelector(".tq-world-ocean");
+    this.oceanEls={
+      deep:this.host.querySelector('[data-ocean-layer="deep"]'),
+      wave:this.host.querySelector('[data-ocean-layer="wave"]'),
+      foam:this.host.querySelector('[data-ocean-layer="foam"]')
+    };
 
     this.stage.style.width=this.config.width+"px";
     this.stage.style.height=this.config.height+"px";
@@ -702,7 +710,7 @@ export class WorldRuntime {
     }
   }
 
-  updateCamera(immediate=false){
+  updateCamera(immediate=false,dt=1/60){
     if(!this.viewportSize)return;
     const vw=this.viewportSize.width;
     const vh=this.viewportSize.height;
@@ -711,11 +719,18 @@ export class WorldRuntime {
       const zoom=this.playZoom;
       const halfW=Math.min(this.config.width/2,vw/(2*zoom));
       const halfH=Math.min(this.config.height/2,vh/(2*zoom));
-      const targetX=clamp(this.player.x,halfW,this.config.width-halfW);
-      const targetY=clamp(this.player.y,halfH,this.config.height-halfH);
-      const factor=immediate?1:.12;
-      this.camera.x+=(targetX-this.camera.x)*factor;
-      this.camera.y+=(targetY-this.camera.y)*factor;
+      const target={
+        x:clamp(this.player.x,halfW,this.config.width-halfW),
+        y:clamp(this.player.y,halfH,this.config.height-halfH)
+      };
+      if(immediate){
+        this.camera.x=target.x;
+        this.camera.y=target.y;
+      }else{
+        const next=cameraFollowStep(this.camera,target,dt,4.5);
+        this.camera.x=next.x;
+        this.camera.y=next.y;
+      }
       this.zoom=zoom;
     }else{
       this.clampEditorCamera();
@@ -845,23 +860,32 @@ export class WorldRuntime {
   }
 
   applyOceanStatic(){
-    if(!this.oceanEl)return;
     const ocean=normalizeOceanConfig(this.config.ocean||{});
     this.config.ocean=ocean;
-    const safeBackground=String(ocean.background||"").replace(/["\\]/g,"");
-    this.oceanEl.style.backgroundImage=safeBackground?'url("'+safeBackground+'")':"none";
-    this.oceanEl.style.backgroundSize=ocean.tileSize+"px auto";
-    this.oceanEl.style.backgroundRepeat="repeat";
-    this.oceanEl.style.transformOrigin="center center";
+    for(const key of ["deep","wave","foam"]){
+      const el=this.oceanEls?.[key];
+      const layer=ocean.layers?.[key];
+      if(!el||!layer)continue;
+      const safeBackground=String(layer.background||ocean.background||"").replace(/["\\]/g,"");
+      el.style.backgroundImage=safeBackground?'url("'+safeBackground+'")':"none";
+      el.style.backgroundSize=(ocean.tileSize*layer.tileScale)+"px auto";
+      el.style.backgroundRepeat="repeat";
+      el.style.opacity=String(layer.opacity);
+      el.style.transformOrigin="center center";
+    }
   }
 
   updateOceanFrame(time){
-    if(!this.oceanEl)return;
     const ocean=normalizeOceanConfig(this.config.ocean||{});
-    const frame=computeOceanFrame(ocean,time);
-    this.oceanEl.style.backgroundPosition=frame.offsetX.toFixed(2)+"px "+frame.offsetY.toFixed(2)+"px";
-    this.oceanEl.style.transform="scale("+frame.scale.toFixed(5)+")";
-    this.oceanEl.style.filter="brightness("+frame.brightness.toFixed(2)+"%) saturate("+frame.saturation+"%)";
+    const frame=computeOceanFrame(ocean,time,this.camera);
+    for(const key of ["deep","wave","foam"]){
+      const el=this.oceanEls?.[key];
+      const layerFrame=frame.layers?.[key];
+      if(!el||!layerFrame)continue;
+      el.style.backgroundPosition=layerFrame.offsetX.toFixed(2)+"px "+layerFrame.offsetY.toFixed(2)+"px";
+      el.style.transform="scale("+frame.scale.toFixed(5)+")";
+      el.style.filter="brightness("+frame.brightness.toFixed(2)+"%) saturate("+frame.saturation+"%)";
+    }
   }
 
   getWorld(){
@@ -975,9 +999,9 @@ export class WorldRuntime {
     this.lastTime=time;
     if(this.mode==="play")this.updatePlayer(dt);
     this.updatePlayerVisual();
-    this.updateOceanFrame(time);
     this.updateEntityMotionFrame(time);
-    this.updateCamera();
+    this.updateCamera(false,dt);
+    this.updateOceanFrame(time);
     this.updateNearby();
 
     if(this.coordsEl){
