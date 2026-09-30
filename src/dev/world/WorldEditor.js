@@ -1,4 +1,4 @@
-import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0050";
+import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0110";
 
 export class WorldEditor {
   constructor(root,{sceneRuntime}={}){
@@ -106,13 +106,13 @@ export class WorldEditor {
     let extra={};
 
     if(path.includes("/barris/")){
-      type="barrel";width=78;height=78;extra={drift:22,bob:12};
+      type="barrel";width=78;height=78;extra={motion:{active:true,preset:"calm",speed:38,heave:24,pitch:20,roll:10,sway:8}};
     }else if(path.includes("/baus/")){
-      type="treasure";width=88;height=88;
+      type="treasure";width=88;height=88;extra={motion:{active:true,preset:"calm",speed:38,heave:24,pitch:20,roll:10,sway:8}};
     }else if(path.includes("/ships/")){
-      type="ship";width=110;height=150;
+      type="ship";width=110;height=150;extra={motion:{active:true,preset:"navigation",speed:55,heave:46,pitch:42,roll:24,sway:14}};
     }else if(path.includes("/backgrounds/")){
-      type="location";width=280;height=190;extra={interactionRadius:230};
+      type="location";width=280;height=190;extra={interactionRadius:230,motion:{active:false,preset:"none",speed:50,heave:0,pitch:0,roll:0,sway:0}};
     }
 
     const entity=this.runtime.addEntity({
@@ -126,6 +126,7 @@ export class WorldEditor {
       height,
       z:20,
       rotation:0,
+      lockAspect:true,
       ...extra
     });
     this.persist();
@@ -137,6 +138,16 @@ export class WorldEditor {
     const entity=this.runtime?.updateEntity(id,patch,commit)||null;
     if(commit){this.persist();this.emitWorldChange()}
     return entity;
+  }
+
+  getEntityMotion(id){
+    return this.runtime?.getEntityMotion(id)||null;
+  }
+
+  updateEntityMotion(id,patch,commit=true){
+    const motion=this.runtime?.updateEntityMotion(id,patch,commit)||null;
+    if(commit){this.persist();this.emitWorldChange()}
+    return motion;
   }
 
   deleteEntity(id){
