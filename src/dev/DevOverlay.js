@@ -1,4 +1,4 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0236";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0248";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
@@ -153,7 +153,7 @@ export class DevOverlay {
     try{
       if(this.sceneResolver?.catalog)this.sceneCatalog=structuredClone(this.sceneResolver.catalog);
       else{
-        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0236",{cache:"no-store"});
+        const response=await fetch("./src/config/scene-catalog.json?v=20260930-0248",{cache:"no-store"});
         if(!response.ok)throw new Error("HTTP "+response.status);
         this.sceneCatalog=await response.json();
       }
@@ -390,7 +390,7 @@ export class DevOverlay {
 
   async loadWorldCatalog(){
     try{
-      const response=await fetch("./src/config/world-catalog.json?v=20260930-0236",{cache:"no-store"});
+      const response=await fetch("./src/config/world-catalog.json?v=20260930-0248",{cache:"no-store"});
       if(!response.ok)throw new Error("HTTP "+response.status);
       this.worldCatalog=await response.json();
     }catch(error){
@@ -399,6 +399,17 @@ export class DevOverlay {
     }
     this.loadLocalWorlds();
     this.renderWorlds();
+  }
+
+  worldShipOptions(selected=""){
+    const ships=(this.assetCatalog||[]).filter(asset=>String(asset.path||"").includes("/ships/"));
+    const current=String(selected||"");
+    const paths=[current,...ships.map(asset=>"./"+asset.path)].filter(Boolean);
+    const unique=[...new Set(paths)];
+    return unique.map(value=>{
+      const label=value.split("/").pop();
+      return '<option value="'+this.escapeHtml(value)+'" '+(value===current?'selected':'')+'>'+this.escapeHtml(label)+'</option>';
+    }).join("");
   }
 
   worldBackgroundOptions(selected=""){
@@ -619,7 +630,8 @@ export class DevOverlay {
     if(!entity){
       const world=this.worldEditor?.getWorld();
       const ocean=this.worldEditor?.getOcean();
-      if(!world||!ocean){
+      const player=this.worldEditor?.getPlayerConfig();
+      if(!world||!ocean||!player){
         title.textContent="Oceano";
         content.innerHTML='<div class="tq-dev__empty">Abra um mundo para configurar o oceano.</div>';
         return;
@@ -646,6 +658,17 @@ export class DevOverlay {
             '<label class="tq-world-field"><span>ID</span><input value="'+this.escapeHtml(world.id)+'" readonly></label>'+
             '<label class="tq-world-field"><span>Largura</span><input data-world-root-prop="width" type="number" min="390" max="20000" value="'+world.width+'"></label>'+
             '<label class="tq-world-field"><span>Altura</span><input data-world-root-prop="height" type="number" min="844" max="20000" value="'+world.height+'"></label>'+
+          '</div></section>'+
+          '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Navio navegador</strong><span>▾</span></button><div class="tq-config-area__body">'+
+            '<label class="tq-world-field"><span>Asset do navio</span><select data-player-prop="src">'+this.worldShipOptions(player.src)+'</select></label>'+
+            '<div class="tq-world-player-preview"><img data-player-preview src="'+this.escapeHtml(player.src)+'" alt="Navio navegador"></div>'+
+            '<div class="tq-worlds__create-grid">'+
+              '<label class="tq-world-field"><span>X inicial</span><input data-player-prop="x" type="number" min="0" max="'+world.width+'" step="1" value="'+Math.round(player.x)+'"></label>'+
+              '<label class="tq-world-field"><span>Y inicial</span><input data-player-prop="y" type="number" min="0" max="'+world.height+'" step="1" value="'+Math.round(player.y)+'"></label>'+
+              '<label class="tq-world-field"><span>Largura</span><input data-player-prop="width" type="number" min="24" max="1200" step="1" value="'+Math.round(player.width)+'"></label>'+
+              '<label class="tq-world-field"><span>Altura</span><input data-player-prop="height" type="number" min="24" max="1200" step="1" value="'+Math.round(player.height)+'"></label>'+
+            '</div>'+
+            '<small class="tq-world-editor-note">Este é o navio controlado no Play. Navios adicionados ao mundo continuam sendo entidades comuns.</small>'+
           '</div></section>'+
           '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Visual do oceano</strong><span>▾</span></button><div class="tq-config-area__body">'+
             '<label class="tq-field tq-field--check"><span>Movimento ativo</span><input data-ocean-prop="active" type="checkbox" '+(ocean.active?'checked':'')+'></label>'+
@@ -677,6 +700,18 @@ export class DevOverlay {
         this.worldEditor.updateWorld({[key]:value},true);
         this.syncLocalWorldFromEditor();
         this.renderWorlds();
+      }));
+
+      const playerNumeric=new Set(["x","y","width","height"]);
+      content.querySelectorAll("[data-player-prop]").forEach(input=>input.addEventListener("change",()=>{
+        const key=input.dataset.playerProp;
+        const value=playerNumeric.has(key)?Number(input.value):input.value;
+        const updated=this.worldEditor.updatePlayerConfig({[key]:value},true);
+        if(key==="src"){
+          const preview=content.querySelector("[data-player-preview]");
+          if(preview)preview.src=updated?.src||"";
+        }
+        this.syncLocalWorldFromEditor();
       }));
 
       const numeric=new Set(["speed","directionX","directionY","swell","tileSize","brightness","saturation"]);
@@ -871,7 +906,7 @@ export class DevOverlay {
 
   async loadCompositionTypes(){
     try{
-      const r=await fetch("./src/config/composition-types.json?v=20260930-0236",{cache:"no-store"});
+      const r=await fetch("./src/config/composition-types.json?v=20260930-0248",{cache:"no-store"});
       const registry=await r.json();
       this.compositionTypes=registry.types||[];
       if(this.selected&&this.mode==="config")this.renderInspector();
@@ -881,7 +916,7 @@ export class DevOverlay {
   }
   async loadAssets(){
     try{
-      const r=await fetch("./src/config/asset-tree.json?v=20260930-0236",{cache:"no-store"});
+      const r=await fetch("./src/config/asset-tree.json?v=20260930-0248",{cache:"no-store"});
       const manifest=await r.json();
       this.assetTree=manifest.root||null;
       this.assetCatalog=manifest.assets||[];

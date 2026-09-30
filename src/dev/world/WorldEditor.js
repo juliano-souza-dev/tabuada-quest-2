@@ -1,4 +1,4 @@
-import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0228";
+import { WorldRuntime } from "../../world/WorldRuntime.js?v=20260930-0248";
 
 export class WorldEditor {
   constructor(root,{sceneRuntime}={}){
@@ -199,6 +199,16 @@ export class WorldEditor {
 
   getWorld(){
     return this.runtime?.getWorld()||null;
+  }
+
+  getPlayerConfig(){
+    return this.runtime?.getPlayerConfig()||null;
+  }
+
+  updatePlayerConfig(patch,commit=true){
+    const player=this.runtime?.updatePlayerConfig(patch,commit)||null;
+    if(commit){this.persist();this.emitWorldChange()}
+    return player;
   }
 
   getOcean(){

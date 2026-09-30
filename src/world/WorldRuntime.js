@@ -1,6 +1,6 @@
-import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0228";
-import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0228";
-import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0228";
+import { normalizeOceanConfig, applyOceanPreset, computeOceanFrame } from "./WorldOceanEffect.mjs?v=20260930-0248";
+import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0248";
+import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0248";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
 const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
@@ -119,7 +119,10 @@ export class WorldRuntime {
     this.stage.style.width=this.config.width+"px";
     this.stage.style.height=this.config.height+"px";
     this.applyOceanStatic();
-    this.playerEl.src=this.config.player?.src||"";
+    const playerConfig=this.getPlayerConfig();
+    this.playerEl.src=playerConfig.src;
+    this.playerEl.style.width=playerConfig.width+"px";
+    this.playerEl.style.height=playerConfig.height+"px";
     this.nameEl.textContent=this.config.name||this.config.id||"Mundo";
 
     this.renderEntities();
@@ -778,6 +781,42 @@ export class WorldRuntime {
   cleanEntity(entity){
     const {el,index,anchorX,anchorY,motionFrame,...data}=entity;
     return data;
+  }
+
+  getPlayerConfig(){
+    const player=this.config.player||{};
+    return {
+      src:String(player.src||""),
+      x:Number(player.x??this.config.width/2),
+      y:Number(player.y??this.config.height/2),
+      width:Math.max(24,Number(player.width??108)),
+      height:Math.max(24,Number(player.height??150))
+    };
+  }
+
+  updatePlayerConfig(patch={},commit=true){
+    const current=this.getPlayerConfig();
+    const next={
+      ...current,
+      ...structuredClone(patch)
+    };
+    next.src=String(next.src||"");
+    next.x=clamp(Number(next.x)||this.config.width/2,0,this.config.width);
+    next.y=clamp(Number(next.y)||this.config.height/2,0,this.config.height);
+    next.width=clamp(Number(next.width)||108,24,1200);
+    next.height=clamp(Number(next.height)||150,24,1200);
+
+    this.config.player=next;
+    this.player.x=next.x;
+    this.player.y=next.y;
+    if(this.playerEl){
+      this.playerEl.src=next.src;
+      this.playerEl.style.width=next.width+"px";
+      this.playerEl.style.height=next.height+"px";
+      this.updatePlayerVisual();
+    }
+    this.updateCamera(true);
+    return this.getPlayerConfig();
   }
 
   getOcean(){

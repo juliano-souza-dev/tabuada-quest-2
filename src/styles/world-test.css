@@ -168,3 +168,6 @@
   font-size:calc(var(--gizmo-handle-size,22px) * .65);
   font-weight:900;
 }
+
+.tq-world-player-preview{display:grid;place-items:center;min-height:120px;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.035)}
+.tq-world-player-preview img{display:block;max-width:140px;max-height:150px;object-fit:contain;filter:drop-shadow(0 8px 7px rgba(0,18,34,.55))}

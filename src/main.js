@@ -1,8 +1,8 @@
-import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260930-0236";
-import { SceneResolver } from "./runtime/SceneResolver.js?v=20260930-0236";
-import { installAuthRuntime } from "./runtime/auth/AuthRuntimeBridge.js?v=20260930-0236";
-import { DevOverlay } from "./dev/DevOverlay.js?v=20260930-0236";
-import { launchWorldTest } from "./world/WorldTestLauncher.js?v=20260930-0236";
+import { SceneRuntime } from "./runtime/SceneRuntime.js?v=20260930-0248";
+import { SceneResolver } from "./runtime/SceneResolver.js?v=20260930-0248";
+import { installAuthRuntime } from "./runtime/auth/AuthRuntimeBridge.js?v=20260930-0248";
+import { DevOverlay } from "./dev/DevOverlay.js?v=20260930-0248";
+import { launchWorldTest } from "./world/WorldTestLauncher.js?v=20260930-0248";
 
 const app = document.querySelector("#app");
 const worldTest = new URLSearchParams(location.search).get("worldtest")==="1";
@@ -10,12 +10,12 @@ const worldTest = new URLSearchParams(location.search).get("worldtest")==="1";
 if(worldTest){
   await launchWorldTest(app);
 }else{
-const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=20260930-0236");
+const resolver = await SceneResolver.load("./src/config/scene-catalog.json?v=20260930-0248");
 const resolved = resolver.resolve("login");
 
 const runtime = new SceneRuntime(app, { width: 390, height: 844 }, { editorEnabled: true });
 const services = await installAuthRuntime(runtime, {
-  configUrl: "./src/config/firebase-public.json?v=20260930-0236"
+  configUrl: "./src/config/firebase-public.json?v=20260930-0248"
 });
 await runtime.load(resolved.scene.path);
 

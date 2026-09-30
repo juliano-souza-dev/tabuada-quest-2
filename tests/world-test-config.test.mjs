@@ -69,3 +69,15 @@ test("world ocean controls stay slider-based in the DEV inspector", async()=>{
   assert.match(source,/data-ocean-output/);
   assert.match(source,/updateOcean\(\{\[key\]:value\},false\)/);
 });
+
+
+test("world config exposes navigator ship controls", async()=>{
+  const overlay=await readFile(new URL("../src/dev/DevOverlay.js",import.meta.url),"utf8");
+  const runtime=await readFile(new URL("../src/world/WorldRuntime.js",import.meta.url),"utf8");
+  assert.match(overlay,/Navio navegador/);
+  assert.match(overlay,/data-player-prop="src"/);
+  assert.match(overlay,/data-player-prop="width"/);
+  assert.match(overlay,/data-player-prop="height"/);
+  assert.match(runtime,/getPlayerConfig\(\)/);
+  assert.match(runtime,/updatePlayerConfig\(patch=\{\}/);
+});
