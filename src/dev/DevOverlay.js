@@ -1,4 +1,4 @@
-import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0110";
+import { WorldEditor } from "./world/WorldEditor.js?v=20260930-0148";
 export class DevOverlay {
   constructor(root,runtime,options={}){
     this.root=root;this.runtime=runtime;this.mode="edit";this.selected=null;this.linkScale=true;this.areaEditSession=null;
@@ -695,9 +695,10 @@ export class DevOverlay {
       '<div class="tq-inspector">'+
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Entidade</strong><span>▾</span></button><div class="tq-config-area__body">'+
           '<label class="tq-world-field"><span>ID</span><input value="'+this.escapeHtml(entity.id)+'" readonly></label>'+
-          '<label class="tq-world-field"><span>Tipo</span><select data-world-prop="type">'+typeOptions+'</select></label>'+
+          '<label class="tq-world-field"><span>Tipo lógico</span><select data-world-prop="type">'+typeOptions+'</select></label>'+
           text("label","Nome")+
           text("src","Asset")+
+          '<small class="tq-world-editor-note">Tipo lógico não altera a aparência do asset. Região, location e background continuam sendo renderizados como o sprite original.</small>'+
         '</div></section>'+
         '<section class="tq-config-area"><button type="button" class="tq-config-area__head" data-area-toggle aria-expanded="true"><strong>Transformação</strong><span>▾</span></button><div class="tq-config-area__body">'+
           num("x","Position X")+num("y","Position Y")+
