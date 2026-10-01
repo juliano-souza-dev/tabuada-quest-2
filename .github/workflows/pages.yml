@@ -16,7 +16,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: 36eed8b491563b4870becb0eb544ee4ec632859a
+  PROD_SOURCE_SHA: 1f9e9364a47346563af70896f625669a80dd68e3
 
 jobs:
   deploy:
@@ -77,6 +77,7 @@ jobs:
           cp -R _source/src/runtime/composition .prod-site/src/runtime/composition
           cp -R _source/src/runtime/layout .prod-site/src/runtime/layout
           cp -R _source/src/runtime/persistence .prod-site/src/runtime/persistence
+          cp -R _source/src/runtime/pedagogy .prod-site/src/runtime/pedagogy
 
           cp _source/src/world/WorldRuntime.js .prod-site/src/world/
           cp _source/src/world/EntityWebGLEffectRenderer.mjs .prod-site/src/world/
@@ -86,6 +87,7 @@ jobs:
           cp _source/src/world/WorldEntityEffects.mjs .prod-site/src/world/
           cp _source/src/world/WorldEntityMotion.mjs .prod-site/src/world/
           cp _source/src/world/WorldEntityPresentation.mjs .prod-site/src/world/
+          cp _source/src/world/WorldEnvironmentPresets.mjs .prod-site/src/world/
           cp _source/src/world/WorldNavigationInput.mjs .prod-site/src/world/
           cp _source/src/world/WorldOceanEffect.mjs .prod-site/src/world/
           cp _source/src/world/world-test.world.json .prod-site/src/world/
@@ -95,6 +97,7 @@ jobs:
           cp _source/src/config/game.manifest.json .prod-site/src/config/
           cp _source/src/config/scene-catalog.json .prod-site/src/config/
           cp _source/src/config/ship-catalog.json .prod-site/src/config/
+          cp _source/src/config/pedagogy-curriculum.json .prod-site/src/config/
           cp _source/src/config/firebase-public.json .prod-site/src/config/
 
           node <<'NODE'
@@ -106,6 +109,19 @@ jobs:
 
           cp _source/src/styles/app.css .prod-site/src/styles/
           cp _source/src/styles/world-test.css .prod-site/src/styles/
+
+          # PROD sanitization: keep controls, remove development/debug overlays and helper text.
+          node <<'NODE'
+          const fs=require('fs');
+          const path='.prod-site/src/world/WorldRuntime.js';
+          let src=fs.readFileSync(path,'utf8');
+          src=src
+            .replace('<section class="tq-world-hud">','<section class="tq-world-hud" hidden aria-hidden="true">')
+            .replace('<div class="tq-world-help">Joystick analógico · WASD / setas<br>toque ou clique no oceano para navegar</div>','<div class="tq-world-help" hidden aria-hidden="true"></div>')
+            .replace('if(this.modeEl)this.modeEl.textContent=this.mode==="edit"?"MUNDO · EDITAR":"MUNDO · PLAY";','if(this.modeEl)this.modeEl.textContent="";');
+          fs.writeFileSync(path,src);
+          fs.appendFileSync('.prod-site/src/styles/world-test.css','\n/* PROD: no development/debug overlays */\n.tq-world-hud,.tq-world-help{display:none!important}\n');
+          NODE
 
           cp _source/game.html .prod-site/index.html
 
@@ -162,6 +178,7 @@ jobs:
           test ! -e .prod-site/tests
           test ! -e .prod-site/scripts
           ! grep -R "DevOverlay\|WorldEditor\|data-world-export\|data-export" .prod-site/src --include='*.js'
+          ! grep -R "MUNDO · PLAY\|MUNDO · EDITAR\|Joystick analógico · WASD" .prod-site/src --include='*.js'
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
