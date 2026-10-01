@@ -179,11 +179,19 @@ export class ShipEffect {
 
     const coupling=config.coupling/100;
     const moving=this.path.running===true;
-    const targetMotionBlend=moving?.24:1;
+    if(moving){
+      this.physics.x=0;this.physics.xVelocity=0;
+      this.physics.y=0;this.physics.yVelocity=0;
+      this.physics.rotation=0;this.physics.rotationVelocity=0;
+      this.physics.motionBlend=0;
+      this.physics.lastNow=now;
+      return {x:0,y:0,rotation:0,scale:1};
+    }
+    const targetMotionBlend=1;
     const blendDt=Math.max(1/120,Math.min(.05,(now-this.physics.lastNow)/1000||1/60));
-    const blendRate=moving?4.8:2.6;
+    const blendRate=2.6;
     this.physics.motionBlend+=(targetMotionBlend-this.physics.motionBlend)*(1-Math.exp(-blendRate*blendDt));
-    const seaStrength=Math.max(.18,Math.min(1,this.physics.motionBlend));
+    const seaStrength=Math.max(0,Math.min(1,this.physics.motionBlend));
     const movement=Math.max(.18,Number(center.movement)||Number(bow.movement)||.55);
     const meanHeight=((Number(stern.height)||0)+(Number(center.height)||0)+(Number(bow.height)||0))/3;
     const slope=(Number(bow.height)||0)-(Number(stern.height)||0);
