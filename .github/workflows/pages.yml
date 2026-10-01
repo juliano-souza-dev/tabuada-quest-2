@@ -14,6 +14,10 @@ concurrency:
   group: pages-prod
   cancel-in-progress: true
 
+env:
+  PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
+  PROD_SOURCE_SHA: bfd31b838faf1f661ba1b1a6feb00f46d0438c0b
+
 jobs:
   deploy:
     environment:
@@ -21,16 +25,143 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
+      - name: Checkout PROD control repo
         uses: actions/checkout@v4
-      - name: Run viewport regression tests
-        run: node --test tests/viewport-width.test.mjs
+
+      - name: Checkout pinned game source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.PROD_SOURCE_REPOSITORY }}
+          ref: ${{ env.PROD_SOURCE_SHA }}
+          path: _source
+          persist-credentials: false
+
+      - name: Validate production runtime
+        working-directory: _source
+        run: |
+          node --check src/game.js
+          node --check src/runtime/GameRuntime.js
+          node --check src/runtime/SceneRuntime.js
+          node --check src/world/WorldRuntime.js
+          node --test tests/viewport-width.test.mjs
+          node --test tests/world-test-config.test.mjs tests/world-ocean-effect.test.mjs tests/world-entity-motion.test.mjs tests/world-entity-presentation.test.mjs
+
+      - name: Build production-only artifact
+        run: |
+          set -euxo pipefail
+          rm -rf .prod-site
+          mkdir -p .prod-site/src/runtime
+          mkdir -p .prod-site/src/world
+          mkdir -p .prod-site/src/scenes
+          mkdir -p .prod-site/src/config
+          mkdir -p .prod-site/src/styles
+
+          cp -R _source/assets .prod-site/assets
+
+          cp _source/src/game.js .prod-site/src/game.js
+
+          cp _source/src/runtime/GameRuntime.js .prod-site/src/runtime/
+          cp _source/src/runtime/SceneRuntime.js .prod-site/src/runtime/
+          cp _source/src/runtime/OceanEffect.js .prod-site/src/runtime/
+          cp _source/src/runtime/ShipEffect.js .prod-site/src/runtime/
+          cp -R _source/src/runtime/auth .prod-site/src/runtime/auth
+          cp -R _source/src/runtime/composition .prod-site/src/runtime/composition
+          cp -R _source/src/runtime/layout .prod-site/src/runtime/layout
+          cp -R _source/src/runtime/persistence .prod-site/src/runtime/persistence
+
+          cp _source/src/world/WorldRuntime.js .prod-site/src/world/
+          cp _source/src/world/EntityWebGLEffectRenderer.mjs .prod-site/src/world/
+          cp _source/src/world/OceanWebGLRenderer.mjs .prod-site/src/world/
+          cp _source/src/world/WorldCollision.mjs .prod-site/src/world/
+          cp _source/src/world/WorldDirectionalSprite.mjs .prod-site/src/world/
+          cp _source/src/world/WorldEntityEffects.mjs .prod-site/src/world/
+          cp _source/src/world/WorldEntityMotion.mjs .prod-site/src/world/
+          cp _source/src/world/WorldEntityPresentation.mjs .prod-site/src/world/
+          cp _source/src/world/WorldNavigationInput.mjs .prod-site/src/world/
+          cp _source/src/world/WorldOceanEffect.mjs .prod-site/src/world/
+          cp _source/src/world/world-test.world.json .prod-site/src/world/
+
+          cp -R _source/src/scenes/. .prod-site/src/scenes/
+
+          cp _source/src/config/game.manifest.json .prod-site/src/config/
+          cp _source/src/config/scene-catalog.json .prod-site/src/config/
+          cp _source/src/config/ship-catalog.json .prod-site/src/config/
+          cp _source/src/config/firebase-public.json .prod-site/src/config/
+
+          node <<'NODE'
+          const fs=require('fs');
+          const source=JSON.parse(fs.readFileSync('_source/src/config/world-catalog.json','utf8'));
+          source.worlds=(source.worlds||[]).filter(entry=>entry.id==='ocean-prototype');
+          fs.writeFileSync('.prod-site/src/config/world-catalog.json',JSON.stringify(source,null,2)+'\n');
+          NODE
+
+          cp _source/src/styles/app.css .prod-site/src/styles/
+          cp _source/src/styles/world-test.css .prod-site/src/styles/
+
+          cp _source/game.html .prod-site/index.html
+
+          cat > .prod-site/manifest.webmanifest <<'EOF'
+          {
+            "id": "./",
+            "name": "Tabuada Quest",
+            "short_name": "Tabuada Quest",
+            "description": "Aventura educacional Tabuada Quest.",
+            "lang": "pt-BR",
+            "start_url": "./",
+            "scope": "./",
+            "display": "standalone",
+            "display_override": ["standalone", "minimal-ui"],
+            "background_color": "#081b2b",
+            "theme_color": "#081b2b",
+            "prefer_related_applications": false,
+            "icons": [
+              {
+                "src": "./assets/pwa/icon-192.svg",
+                "sizes": "192x192",
+                "type": "image/svg+xml",
+                "purpose": "any"
+              },
+              {
+                "src": "./assets/pwa/icon-512.svg",
+                "sizes": "512x512",
+                "type": "image/svg+xml",
+                "purpose": "any"
+              }
+            ]
+          }
+          EOF
+
+          cat >> .prod-site/src/game.js <<'EOF'
+
+          // PROD policy: never keep stale Service Workers or Cache Storage.
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map(registration => registration.unregister()));
+          }
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(key => caches.delete(key)));
+          }
+          EOF
+
+          touch .prod-site/.nojekyll
+
+          test ! -e .prod-site/src/dev
+          test ! -e .prod-site/src/main.js
+          test ! -e .prod-site/src/world/WorldTestLauncher.js
+          test ! -e .prod-site/src/world/directional-ship-test.world.json
+          test ! -e .prod-site/tests
+          test ! -e .prod-site/scripts
+          ! grep -R "DevOverlay\|WorldEditor\|data-world-export\|data-export" .prod-site/src --include='*.js'
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
       - name: Upload production site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: .prod-site
+
       - name: Deploy PROD
         id: deployment
         uses: actions/deploy-pages@v4
