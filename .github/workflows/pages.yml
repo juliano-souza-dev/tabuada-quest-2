@@ -16,7 +16,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: bfd31b838faf1f661ba1b1a6feb00f46d0438c0b
+  PROD_SOURCE_SHA: 36eed8b491563b4870becb0eb544ee4ec632859a
 
 jobs:
   deploy:
@@ -45,6 +45,14 @@ jobs:
           node --check src/world/WorldRuntime.js
           node --test tests/viewport-width.test.mjs
           node --test tests/world-test-config.test.mjs tests/world-ocean-effect.test.mjs tests/world-entity-motion.test.mjs tests/world-entity-presentation.test.mjs
+          node <<'NODE'
+          const fs=require('fs');
+          const manifest=JSON.parse(fs.readFileSync('src/config/game.manifest.json','utf8'));
+          if(manifest.auth?.required!==true)throw new Error('PROD requires auth.required=true');
+          if(manifest.start?.kind!=='scene'||manifest.start?.id!=='login')throw new Error('PROD must start at scene:login');
+          if(manifest.afterAuth?.kind!=='world'||!manifest.afterAuth?.id)throw new Error('PROD requires an afterAuth world route');
+          console.log('Auth entry gate OK:',manifest.start,'->',manifest.afterAuth);
+          NODE
 
       - name: Build production-only artifact
         run: |
