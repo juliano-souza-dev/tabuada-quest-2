@@ -5,7 +5,7 @@ export class DevOverlay {
     this.assetTree=null;this.assetDirectoryPath="assets";this.assetNodeIndex=new Map();this.assetByPath=new Map();
     this.sceneResolver=options.sceneResolver||null;this.sceneCatalog=null;this.localScenes=[];
     this.workspace="scene";this.worldCatalog=null;this.localWorlds=[];this.worldEditor=new WorldEditor(this.runtime.root,{sceneRuntime:this.runtime});this.sceneBeforeWorld=null;this.worldSceneBackButton=null;
-    this.localSceneStorageKey="tq.dev.local-scenes:v1";this.localWorldStorageKey="tq.dev.local-worlds:v1";this.sceneGroupStorageKey="tq.dev.scene-groups:v1";
+    this.localSceneStorageKey="tq.dev.local-scenes:v1";this.localWorldStorageKey="tq.dev.local-worlds:v1";this.deletedWorldStorageKey="tq.dev.deleted-worlds:v1";this.deletedWorldIds=new Set();this.sceneGroupStorageKey="tq.dev.scene-groups:v1";
     try{this.sceneGroupOpen=new Set(JSON.parse(sessionStorage.getItem(this.sceneGroupStorageKey)||"[]"))}catch{this.sceneGroupOpen=new Set()}
   }
   mount(){
@@ -357,13 +357,43 @@ export class DevOverlay {
     try{localStorage.setItem(this.localWorldStorageKey,JSON.stringify(this.localWorlds))}catch(error){console.warn("DEV local worlds save failed",error)}
   }
 
+  loadDeletedWorlds(){
+    try{
+      const value=JSON.parse(localStorage.getItem(this.deletedWorldStorageKey)||"[]");
+      this.deletedWorldIds=new Set(Array.isArray(value)?value.filter(Boolean):[]);
+    }catch{
+      this.deletedWorldIds=new Set();
+    }
+    return this.deletedWorldIds;
+  }
+
+  saveDeletedWorlds(){
+    try{localStorage.setItem(this.deletedWorldStorageKey,JSON.stringify([...this.deletedWorldIds]))}catch(error){console.warn("DEV deleted worlds save failed",error)}
+  }
+
   allWorldEntries(){
-    const repository=Array.isArray(this.worldCatalog?.worlds)?this.worldCatalog.worlds:[];
+    const repository=(Array.isArray(this.worldCatalog?.worlds)?this.worldCatalog.worlds:[]).filter(world=>!this.deletedWorldIds.has(world.id));
     const entries=[...repository];
     for(const item of this.localWorlds){
-      if(!repository.some(world=>world.id===item.entry.id))entries.push(item.entry);
+      if(!this.deletedWorldIds.has(item.entry.id)&&!repository.some(world=>world.id===item.entry.id))entries.push(item.entry);
     }
     return entries;
+  }
+
+  deleteWorld(id){
+    const entry=this.allWorldEntries().find(world=>world.id===id);
+    if(!entry)return;
+    const name=entry.name||entry.id;
+    if(!window.confirm('Apagar o mar "'+name+'"? Esta ação remove o mar deste ambiente DEV e não pode ser desfeita.'))return;
+
+    const isCurrent=this.worldEditor?.entry?.id===id;
+    this.localWorlds=this.localWorlds.filter(item=>item.entry.id!==id);
+    this.saveLocalWorlds();
+    this.deletedWorldIds.add(id);
+    this.saveDeletedWorlds();
+
+    if(isCurrent)this.exitWorldWorkspace({restoreScene:true,skipSync:true});
+    this.renderWorlds();
   }
 
   syncLocalWorldFromEditor(){
@@ -398,6 +428,7 @@ export class DevOverlay {
       this.worldCatalog={schema:"tq.world-catalog",version:1,worlds:[]};
     }
     this.loadLocalWorlds();
+    this.loadDeletedWorlds();
     this.renderWorlds();
   }
 
@@ -440,13 +471,17 @@ export class DevOverlay {
     const current=this.worldEditor?.entry?.id||"";
 
     list.innerHTML=worlds.length?worlds.map(world=>
-      '<button type="button" class="tq-world-item '+(world.id===current?'is-current':'')+'" data-world-open="'+this.escapeHtml(world.id)+'">'+
-        '<span><b>'+this.escapeHtml(world.name||world.id)+'</b><small>'+this.escapeHtml(world.type||"ocean")+' · '+this.escapeHtml(world.id)+(world.local?' · LOCAL':'')+'</small></span>'+
-        '<strong>'+(world.id===current?'ABERTO':'EDITAR')+'</strong>'+
-      '</button>'
+      '<div class="tq-world-item-row">'+
+        '<button type="button" class="tq-world-item '+(world.id===current?'is-current':'')+'" data-world-open="'+this.escapeHtml(world.id)+'">'+
+          '<span><b>'+this.escapeHtml(world.name||world.id)+'</b><small>'+this.escapeHtml(world.type||"ocean")+' · '+this.escapeHtml(world.id)+(world.local?' · LOCAL':'')+'</small></span>'+
+          '<strong>'+(world.id===current?'ABERTO':'EDITAR')+'</strong>'+
+        '</button>'+
+        '<button type="button" class="tq-world-delete" data-world-delete="'+this.escapeHtml(world.id)+'" aria-label="Apagar '+this.escapeHtml(world.name||world.id)+'" title="Apagar mar">🗑</button>'+
+      '</div>'
     ).join(""):'<div class="tq-scenes__empty">Nenhum mundo cadastrado.</div>';
 
     list.querySelectorAll("[data-world-open]").forEach(button=>button.addEventListener("click",()=>this.openWorld(button.dataset.worldOpen)));
+    list.querySelectorAll("[data-world-delete]").forEach(button=>button.addEventListener("click",event=>{event.stopPropagation();this.deleteWorld(button.dataset.worldDelete)}));
 
     actions.innerHTML=this.worldEditor?.active
       ? '<button type="button" data-world-ocean-config>⚙ Oceano</button><button type="button" data-world-export>⇩ JSON</button><button type="button" data-world-exit>← Cenas</button>'
@@ -581,8 +616,8 @@ export class DevOverlay {
     }
   }
 
-  exitWorldWorkspace({restoreScene=true}={}){
-    this.syncLocalWorldFromEditor();
+  exitWorldWorkspace({restoreScene=true,skipSync=false}={}){
+    if(!skipSync)this.syncLocalWorldFromEditor();
     this.removeWorldSceneBackButton();
     this.worldEditor?.close({showScene:true});
     this.workspace="scene";
