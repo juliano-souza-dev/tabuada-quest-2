@@ -64,6 +64,7 @@ jobs:
           cp _source/src/runtime/SceneRuntime.js .prod-site/src/runtime/
           cp _source/src/runtime/OceanEffect.js .prod-site/src/runtime/
           cp _source/src/runtime/ShipEffect.js .prod-site/src/runtime/
+          cp -R _source/src/runtime/animation .prod-site/src/runtime/animation
           cp -R _source/src/runtime/auth .prod-site/src/runtime/auth
           cp -R _source/src/runtime/composition .prod-site/src/runtime/composition
           cp -R _source/src/runtime/layout .prod-site/src/runtime/layout
