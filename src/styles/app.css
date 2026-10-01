@@ -131,3 +131,5 @@
 
 /* DEV toolbar gesture policy: body must not cancel native horizontal scrolling. The stage itself keeps touch-action:none for object manipulation. */
 .tq-dev__bar{touch-action:pan-x;-webkit-overflow-scrolling:touch}
+
+.tq-world-item-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:stretch}.tq-world-item-row .tq-world-item{min-width:0;width:100%}.tq-world-delete{align-self:stretch;min-width:44px;padding:8px!important;background:rgba(196,48,48,.18)!important;color:#ffd5d5!important;border:1px solid rgba(255,105,105,.22)!important}.tq-world-delete:hover,.tq-world-delete:focus-visible{background:rgba(196,48,48,.36)!important}
