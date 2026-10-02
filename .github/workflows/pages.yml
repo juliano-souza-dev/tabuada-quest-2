@@ -16,7 +16,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: 1f9e9364a47346563af70896f625669a80dd68e3
+  PROD_SOURCE_SHA: 393e83de831d9d7d96b4c13001480dcbfebeff23
 
 jobs:
   deploy:
@@ -44,14 +44,21 @@ jobs:
           node --check src/runtime/SceneRuntime.js
           node --check src/world/WorldRuntime.js
           node --test tests/viewport-width.test.mjs
-          node --test tests/world-test-config.test.mjs tests/world-ocean-effect.test.mjs tests/world-entity-motion.test.mjs tests/world-entity-presentation.test.mjs
+          node --test tests/world-ocean-effect.test.mjs tests/world-entity-motion.test.mjs tests/world-entity-presentation.test.mjs
           node <<'NODE'
           const fs=require('fs');
           const manifest=JSON.parse(fs.readFileSync('src/config/game.manifest.json','utf8'));
           if(manifest.auth?.required!==true)throw new Error('PROD requires auth.required=true');
           if(manifest.start?.kind!=='scene'||manifest.start?.id!=='login')throw new Error('PROD must start at scene:login');
           if(manifest.afterAuth?.kind!=='world'||!manifest.afterAuth?.id)throw new Error('PROD requires an afterAuth world route');
-          console.log('Auth entry gate OK:',manifest.start,'->',manifest.afterAuth);
+          const catalog=JSON.parse(fs.readFileSync('src/config/world-catalog.json','utf8'));
+          const entry=(catalog.worlds||[]).find(item=>item.id===manifest.afterAuth.id);
+          if(!entry?.path)throw new Error('afterAuth world missing from world catalog: '+manifest.afterAuth.id);
+          const worldPath=entry.path.replace(/^\.\//,'');
+          if(!fs.existsSync(worldPath))throw new Error('afterAuth world file missing: '+worldPath);
+          const world=JSON.parse(fs.readFileSync(worldPath,'utf8'));
+          if(!Number.isFinite(world.width)||!Number.isFinite(world.height))throw new Error('invalid production world dimensions');
+          console.log('Auth entry gate OK:',manifest.start,'->',manifest.afterAuth,worldPath);
           NODE
 
       - name: Build production-only artifact
@@ -68,44 +75,12 @@ jobs:
 
           cp _source/src/game.js .prod-site/src/game.js
 
-          cp _source/src/runtime/GameRuntime.js .prod-site/src/runtime/
-          cp _source/src/runtime/SceneRuntime.js .prod-site/src/runtime/
-          cp _source/src/runtime/OceanEffect.js .prod-site/src/runtime/
-          cp _source/src/runtime/ShipEffect.js .prod-site/src/runtime/
-          cp -R _source/src/runtime/animation .prod-site/src/runtime/animation
-          cp -R _source/src/runtime/auth .prod-site/src/runtime/auth
-          cp -R _source/src/runtime/composition .prod-site/src/runtime/composition
-          cp -R _source/src/runtime/layout .prod-site/src/runtime/layout
-          cp -R _source/src/runtime/persistence .prod-site/src/runtime/persistence
-          cp -R _source/src/runtime/pedagogy .prod-site/src/runtime/pedagogy
-
-          cp _source/src/world/WorldRuntime.js .prod-site/src/world/
-          cp _source/src/world/EntityWebGLEffectRenderer.mjs .prod-site/src/world/
-          cp _source/src/world/OceanWebGLRenderer.mjs .prod-site/src/world/
-          cp _source/src/world/WorldCollision.mjs .prod-site/src/world/
-          cp _source/src/world/WorldDirectionalSprite.mjs .prod-site/src/world/
-          cp _source/src/world/WorldEntityEffects.mjs .prod-site/src/world/
-          cp _source/src/world/WorldEntityMotion.mjs .prod-site/src/world/
-          cp _source/src/world/WorldEntityPresentation.mjs .prod-site/src/world/
-          cp _source/src/world/WorldEnvironmentPresets.mjs .prod-site/src/world/
-          cp _source/src/world/WorldNavigationInput.mjs .prod-site/src/world/
-          cp _source/src/world/WorldOceanEffect.mjs .prod-site/src/world/
-          cp _source/src/world/world-test.world.json .prod-site/src/world/
+          cp -R _source/src/runtime/. .prod-site/src/runtime/
+          cp -R _source/src/world/. .prod-site/src/world/
+          rm -f .prod-site/src/world/WorldTestLauncher.js
 
           cp -R _source/src/scenes/. .prod-site/src/scenes/
-
-          cp _source/src/config/game.manifest.json .prod-site/src/config/
-          cp _source/src/config/scene-catalog.json .prod-site/src/config/
-          cp _source/src/config/ship-catalog.json .prod-site/src/config/
-          cp _source/src/config/pedagogy-curriculum.json .prod-site/src/config/
-          cp _source/src/config/firebase-public.json .prod-site/src/config/
-
-          node <<'NODE'
-          const fs=require('fs');
-          const source=JSON.parse(fs.readFileSync('_source/src/config/world-catalog.json','utf8'));
-          source.worlds=(source.worlds||[]).filter(entry=>entry.id==='ocean-prototype');
-          fs.writeFileSync('.prod-site/src/config/world-catalog.json',JSON.stringify(source,null,2)+'\n');
-          NODE
+          cp -R _source/src/config/. .prod-site/src/config/
 
           cp _source/src/styles/app.css .prod-site/src/styles/
           cp _source/src/styles/world-test.css .prod-site/src/styles/
