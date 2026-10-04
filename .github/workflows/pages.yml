@@ -16,7 +16,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: 3e6112c75489b66789cd78de2dd876aa08e91131
+  PROD_SOURCE_SHA: 0cd7a9f7a54dbf0b8228245e6a5101ed86309537
 
 jobs:
   deploy:
@@ -105,7 +105,7 @@ jobs:
           const fs=require('fs');
           const path='.prod-site/index.html';
           let html=fs.readFileSync(path,'utf8');
-          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261004-2104-pc-ws-endpoint";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261004-2104-pc-ws-endpoint"+location.hash));})();</script>';
+          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261004-2112-real-equipped-cannons";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261004-2112-real-equipped-cannons"+location.hash));})();</script>';
           html=html.replace('</head>',resetScript+'\n</head>');
           fs.writeFileSync(path,html);
           NODE
