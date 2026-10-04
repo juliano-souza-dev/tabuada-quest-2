@@ -16,7 +16,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: d9ae80d929ef30a016cd063cd442c5036dd8cf46
+  PROD_SOURCE_SHA: 38c05efa465f10f8862a59d1d34341eb3568065d
 
 jobs:
   deploy:
@@ -105,7 +105,7 @@ jobs:
           const fs=require('fs');
           const path='.prod-site/index.html';
           let html=fs.readFileSync(path,'utf8');
-          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261004-boss-register";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261004-boss-register"+location.hash));})();</script>';
+          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261004-halloween-boss-all-maps";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261004-halloween-boss-all-maps"+location.hash));})();</script>';
           html=html.replace('</head>',resetScript+'\n</head>');
           fs.writeFileSync(path,html);
           NODE
