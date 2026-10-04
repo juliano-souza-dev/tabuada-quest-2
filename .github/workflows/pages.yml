@@ -144,6 +144,7 @@ jobs:
           }
           EOF
 
+          printf '%s\n' 'jogo.ihubenglish.com' > .prod-site/CNAME
           touch .prod-site/.nojekyll
 
           test ! -e .prod-site/src/dev
