@@ -3,28 +3,9 @@ import { WorldOceanWebGL } from "./WorldOceanWebGL.mjs?v=20260930-0450";
 import { normalizeEntityMotion, applyEntityMotionPreset, computeEntityMotionFrame, defaultEntityMotion } from "./WorldEntityMotion.mjs?v=20260930-0450";
 import { resolveEntityPresentation, normalizeDepthPresentation, applyDepthPreset, computeParallaxPoint } from "./WorldEntityPresentation.mjs?v=20260930-0450";
 import { NAVIGATION_DEFAULTS, applyCounterSteer, computeCameraFollowTarget, expSmoothingFactor, smoothAngle, velocityHeading } from "./WorldNavigation.mjs?v=20260930-0450";
+import { transformMatrix, transformVector, inverseVector } from "./WorldTransform.mjs?v=20261005-0025";
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const distance=(a,b)=>Math.hypot((a.x||0)-(b.x||0),(a.y||0)-(b.y||0));
-const transformMatrix=(rotation=0,skewX=0,skewY=0,scaleX=1,scaleY=1)=>{
-  const r=Number(rotation||0)*Math.PI/180;
-  const tx=Math.tan(Number(skewX||0)*Math.PI/180);
-  const ty=Math.tan(Number(skewY||0)*Math.PI/180);
-  const sx=Math.max(.01,Math.abs(Number(scaleX||1)));
-  const sy=Math.max(.01,Math.abs(Number(scaleY||1)));
-  const cos=Math.cos(r),sin=Math.sin(r);
-  return {
-    a:sx*(cos-sin*ty),
-    b:sx*(sin+cos*ty),
-    c:sy*(cos*tx-sin),
-    d:sy*(sin*tx+cos)
-  };
-};
-const transformVector=(matrix,x,y)=>({x:matrix.a*x+matrix.c*y,y:matrix.b*x+matrix.d*y});
-const inverseVector=(matrix,x,y)=>{
-  const det=matrix.a*matrix.d-matrix.b*matrix.c;
-  if(Math.abs(det)<1e-8)return {x:0,y:0};
-  return {x:(matrix.d*x-matrix.c*y)/det,y:(matrix.a*y-matrix.b*x)/det};
-};
 
 export class WorldRuntime {
   constructor(root,config,options={}){
