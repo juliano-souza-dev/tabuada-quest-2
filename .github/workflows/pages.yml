@@ -124,7 +124,7 @@ jobs:
           const fs=require('fs');
           const path='.prod-site/index.html';
           let html=fs.readFileSync(path,'utf8');
-          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-ammo-feedback-fix-v9";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-ammo-feedback-fix-v9"+location.hash));})();</script>';
+          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-ammo-feedback-fix-v10";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-ammo-feedback-fix-v10"+location.hash));})();</script>';
           html=html.replace('</head>',resetScript+'\n</head>');
           fs.writeFileSync(path,html);
           NODE
