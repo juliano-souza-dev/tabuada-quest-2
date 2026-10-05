@@ -17,7 +17,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: d0ef2096dc9513557212dd9a81bfc1660f4286bf
+  PROD_SOURCE_SHA: aeccbeaa5df59000cee423fa7495451f74d5bd84
 
 jobs:
   deploy:
@@ -36,24 +36,6 @@ jobs:
           ref: ${{ env.PROD_SOURCE_SHA }}
           path: _source
           persist-credentials: false
-
-      - name: Fix ammo state feedback recursion
-        working-directory: _source
-        run: |
-          node <<'NODE'
-          const fs=require('fs');
-          const path='src/runtime/GameRuntime.js';
-          let src=fs.readFileSync(path,'utf8');
-          const from=`      onAmmoChange:ammo=>{
-        this.replacePlayerAmmo(ammo,{save:false,syncServer:false,reason:"combat"});`;
-          const to=`      onAmmoChange:ammo=>{
-        this.playerAmmo=normalizeGlobalAmmo(ammo);
-        this.ensurePlayerAmmo();`;
-          if(!src.includes(from))throw new Error('Ammo feedback callback not found');
-          src=src.replace(from,to);
-          fs.writeFileSync(path,src);
-          console.log('Fixed GameRuntime <-> WorldRuntime ammo feedback recursion');
-          NODE
 
       - name: Validate production runtime
         working-directory: _source
@@ -124,7 +106,7 @@ jobs:
           const fs=require('fs');
           const path='.prod-site/index.html';
           let html=fs.readFileSync(path,'utf8');
-          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-ammo-feedback-fix-v10";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-ammo-feedback-fix-v10"+location.hash));})();</script>';
+          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-ammo-feedback-fix-v11";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-ammo-feedback-fix-v11"+location.hash));})();</script>';
           html=html.replace('</head>',resetScript+'\n</head>');
           fs.writeFileSync(path,html);
           NODE
