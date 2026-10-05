@@ -1,4 +1,4 @@
-# deploy semantic HUD build 2026-10-05
+# deploy corrected production HUD build 2026-10-05
 name: Deploy Tabuada Quest PROD to Pages
 
 on:
@@ -17,7 +17,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: f3f6a65338e4f3dbb3259dda60c43219d83fa896
+  PROD_SOURCE_SHA: a386df31ade8b170d7a3b58f90ce104ceb7f092c
 
 jobs:
   deploy:
@@ -89,6 +89,27 @@ jobs:
           # PROD sanitization: keep controls, remove development/debug overlays and helper text.
           node <<'NODE'
           const fs=require('fs');
+
+          // Production runtime has no DEV/flow-test entry point.
+          const gamePath='.prod-site/src/game.js';
+          let game=fs.readFileSync(gamePath,'utf8');
+          game=game
+            .replace('import { createLocalFlowTestServices } from "./runtime/testing/LocalFlowTestServices.js?v=20261003-3015";','')
+            .replace('const flowTest=params.get("flowtest")==="1";','const flowTest=false;');
+          fs.writeFileSync(gamePath,game);
+          fs.rmSync('.prod-site/src/runtime/testing',{recursive:true,force:true});
+
+          // Remove devOnly worlds from the production catalog and artifact.
+          const catalogPath='.prod-site/src/config/world-catalog.json';
+          const catalog=JSON.parse(fs.readFileSync(catalogPath,'utf8'));
+          const devWorlds=(catalog.worlds||[]).filter(item=>item?.devOnly===true);
+          for(const entry of devWorlds){
+            const rel=String(entry.path||'').replace(/^\.\//,'');
+            if(rel.startsWith('src/world/'))fs.rmSync('.prod-site/'+rel,{force:true});
+          }
+          catalog.worlds=(catalog.worlds||[]).filter(item=>item?.devOnly!==true);
+          fs.writeFileSync(catalogPath,JSON.stringify(catalog,null,2)+'\n');
+
           const path='.prod-site/src/world/WorldRuntime.js';
           let src=fs.readFileSync(path,'utf8');
           src=src
@@ -106,7 +127,7 @@ jobs:
           const fs=require('fs');
           const path='.prod-site/index.html';
           let html=fs.readFileSync(path,'utf8');
-          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-hud-semantic-v5";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-hud-semantic-v5"+location.hash));})();</script>';
+          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-hud-semantic-v6";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-hud-semantic-v6"+location.hash));})();</script>';
           html=html.replace('</head>',resetScript+'\n</head>');
           fs.writeFileSync(path,html);
           NODE
@@ -161,6 +182,8 @@ jobs:
           test ! -e .prod-site/src/dev
           test ! -e .prod-site/src/main.js
           test ! -e .prod-site/src/world/WorldTestLauncher.js
+          test ! -e .prod-site/src/world/dev-effects-lab.world.json
+          test ! -e .prod-site/src/runtime/testing
           test ! -e .prod-site/src/world/directional-ship-test.world.json
           test ! -e .prod-site/tests
           test ! -e .prod-site/scripts
