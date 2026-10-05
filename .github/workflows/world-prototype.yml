@@ -13,7 +13,8 @@ on:
       - "tests/world-test-config.test.mjs"
       - "tests/world-entity-motion.test.mjs"
       - "tests/world-entity-presentation.test.mjs"
-      - "tests/world-navigation.test.mjs"
+      - "tests/world-navigation.test.mjs tests/world-transform.test.mjs"
+      - "tests/world-transform.test.mjs"
   workflow_dispatch:
 
 permissions:
@@ -32,6 +33,7 @@ jobs:
           node --check src/world/WorldEntityMotion.mjs
           node --check src/world/WorldEntityPresentation.mjs
           node --check src/world/WorldNavigation.mjs
+          node --check src/world/WorldTransform.mjs
           node --check src/dev/world/WorldEditor.js
           node --check src/dev/DevOverlay.js
       - name: Validate world prototype
