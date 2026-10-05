@@ -16,7 +16,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: 93d70fa8ad2cad309656fd1be86a9a4d4f03afea
+  PROD_SOURCE_SHA: d850451706b28558b018f7e5f92e20adbfdd2e85
 
 jobs:
   deploy:
