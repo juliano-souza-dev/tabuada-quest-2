@@ -17,7 +17,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: 2c06b582116261c1c4d0780ae8df59dd436ee84b
+  PROD_SOURCE_SHA: 4551bfbca0a752b72f0708683c63f17dca821582
 
 jobs:
   deploy:
@@ -106,7 +106,7 @@ jobs:
           const fs=require('fs');
           const path='.prod-site/index.html';
           let html=fs.readFileSync(path,'utf8');
-          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-ammo-feedback-fix-v11";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-ammo-feedback-fix-v11"+location.hash));})();</script>';
+          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261005-pixi-ships-v1";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261005-pixi-ships-v1"+location.hash));})();</script>';
           html=html.replace('</head>',resetScript+'\n</head>');
           fs.writeFileSync(path,html);
           NODE
