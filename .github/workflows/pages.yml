@@ -17,7 +17,7 @@ concurrency:
 
 env:
   PROD_SOURCE_REPOSITORY: juliano-souza-dev/tabuada-quest-2-dev
-  PROD_SOURCE_SHA: 532b6f28bfeff244944fcb292bccb8efd1cbe57f
+  PROD_SOURCE_SHA: 292997bbd7f4e04f72e55064341569a52d9729c7
 
 jobs:
   deploy:
@@ -127,7 +127,7 @@ jobs:
           const fs=require('fs');
           const path='.prod-site/index.html';
           let html=fs.readFileSync(path,'utf8');
-          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261006-halloween-10-mission-gate-v1";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261006-halloween-10-mission-gate-v1"+location.hash));})();</script>';
+          const resetScript='<script>(()=>{const KEY="tq.prod.cache-reset.20261007-tutorial-corsair-repair-v1";if(sessionStorage.getItem(KEY))return;sessionStorage.setItem(KEY,"1");Promise.all([("serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve()),("caches" in window?caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))):Promise.resolve())]).finally(()=>location.replace(location.pathname+location.search+(location.search?"&":"?")+"cachebust=20261007-tutorial-corsair-repair-v1"+location.hash));})();</script>';
           html=html.replace('</head>',resetScript+'\n</head>');
           fs.writeFileSync(path,html);
           NODE
